@@ -13,16 +13,16 @@ Written when the chain ends.
 
 ### Pieces
 
-| Piece                                      | Done | Running | Open                 | Needs the owner's word | Commits                                | CI run ids                                                  |
-| ------------------------------------------ | ---- | ------- | -------------------- | ---------------------- | -------------------------------------- | ----------------------------------------------------------- |
-| 1 Small fixes, remaining security findings | all  | —       | —                    | BACKLOG 29, 30         | `06eafb6`                              | CI 44953788972 green                                        |
-| 2 Production run                           | all  | —       | —                    | —                      | `eeab324`                              | CI 44956967985 green                                        |
-| 3 Member summary                           | all  | —       | BACKLOG 33 (website) | —                      | `40d6bb3`                              | CI 44957568796 green                                        |
-| 4 Installer                                | all  | —       | BACKLOG 34, 35       | —                      | `8d6b838`, `be9764c` (executable bits) | CI 44959614661 green (`be9764c`; `8d6b838` cancelled by it) |
-| 5 Sound                                    | all  | —       | BACKLOG 36 (kit)     | the cues' sound        | see piece 6 row                        | see piece 6 row                                             |
-| 6 Phone polish, Firefox and WebKit         | —    | —       | all                  | —                      | —                                      | —                                                           |
-| 7 Security review, release readiness       | —    | —       | all                  | —                      | —                                      | —                                                           |
-| 8 Play-through, pictures, hand-over        | —    | —       | all                  | —                      | —                                      | —                                                           |
+| Piece                                      | Done                             | Running | Open                 | Needs the owner's word | Commits                                | CI run ids                                                  |
+| ------------------------------------------ | -------------------------------- | ------- | -------------------- | ---------------------- | -------------------------------------- | ----------------------------------------------------------- |
+| 1 Small fixes, remaining security findings | all                              | —       | —                    | BACKLOG 29, 30         | `06eafb6`                              | CI 44953788972 green                                        |
+| 2 Production run                           | all                              | —       | —                    | —                      | `eeab324`                              | CI 44956967985 green                                        |
+| 3 Member summary                           | all                              | —       | BACKLOG 33 (website) | —                      | `40d6bb3`                              | CI 44957568796 green                                        |
+| 4 Installer                                | all                              | —       | BACKLOG 34, 35       | —                      | `8d6b838`, `be9764c` (executable bits) | CI 44959614661 green (`be9764c`; `8d6b838` cancelled by it) |
+| 5 Sound                                    | all                              | —       | BACKLOG 36 (kit)     | the cues' sound        | `dd90ada`                              | see piece 7 row                                             |
+| 6 Phone polish, Firefox and WebKit         | run and reported (budget rule 2) | —       | BACKLOG 12           | —                      | see piece 7 row                        | see piece 7 row                                             |
+| 7 Security review, release readiness       | —                                | —       | all                  | —                      | —                                      | —                                                           |
+| 8 Play-through, pictures, hand-over        | —                                | —       | all                  | —                      | —                                      | —                                                           |
 
 ### Piece 1 report
 
@@ -177,6 +177,22 @@ Written when the chain ends.
 - **Tests:** `sound.test.tsx` (no cue for a first view or another show; opening, drum-roll,
   fanfare, chime, nothing at Owner, applause; off until turned on, remembered).
 - `pnpm verify` green (32 files, 158 tests).
+
+### Piece 6 report
+
+- **Budget rule 2 applied:** the session's usage limit was near, so the Firefox/WebKit fixes were
+  dropped as the task orders: run, report, fix nothing.
+- **Firefox:** journeys 1–6 passed (6.3 min).
+- **WebKit at phone size** (`webkit-mobile`): 5 and 6 passed; 1 and 3 failed: they drive the
+  direction bar under the stage, which a phone has in the game bar's "Direction" panel (by
+  design, SC-N2 piece 3); the journeys need a phone path that opens the panel and closes it before
+  clicking a case (the panel overlays the stage), and journey 1 measures the desktop travel. 2
+  failed because it followed the show 1 left live. 4 failed because the stand-in website runs on
+  plain `http://127.0.0.1` and WebKit drops the `Secure` session cookie there (Chromium and
+  Firefox accept it on that address); production is https. All in BACKLOG 12.
+- **Phone sizes:** 360 × 780 and 430 × 932 in light and dark are in the pictures of SC-N2 piece
+  10 and of this chain's piece 8 (the game bar's panels, scoreboard, ceremony, result); the last
+  run had no text under 14 px and no sideways overflow.
 
 ## Night chain SC-N2 (2026-11-21)
 
