@@ -35,6 +35,22 @@ env:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # The store tests run against a real PostgreSQL (apps/server/src/db/stores.test.ts), the same
+    # image as ops/compose.dev.yml. CI-only credentials; nothing is kept after the job.
+    services:
+      postgres:
+        image: postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+        env:
+          POSTGRES_USER: sc
+          POSTGRES_PASSWORD: ci-only
+          POSTGRES_DB: sc
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sc -d sc" --health-interval 5s --health-timeout 3s
+          --health-retries 10
+    env:
+      SC_TEST_DATABASE_URL: postgres://sc:ci-only@127.0.0.1:5432/sc
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup

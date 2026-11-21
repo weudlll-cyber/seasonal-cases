@@ -19,8 +19,8 @@ Written when the chain ends.
 | 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —       | —             | —                                                        | `c36b3e1`                   | CI 44885929803 green                                                             |
 | 2 The moving case                                         | all  | —       | —             | the durations (HANDOVER)                                 | `aaa6022`, report `a31fd7b` | `aaa6022` cancelled by the next push; `a31fd7b` (same code) CI 44886487846 green |
 | 3 Start page, opening, focus mode, ceremony, result frame | all  | —       | —             | the ceremony's pace (HANDOVER)                           | `ad20ab0`                   | CI 44887472450 green                                                             |
-| 4 Website mode                                            | all  | —       | BACKLOG 24–28 | the rank and badge rules; the website's side for `cases` | see piece 4 report          | see piece 5 row                                                                  |
-| 5 PostgreSQL and the accounts store                       | —    | —       | all           | —                                                        | —                           | —                                                                                |
+| 4 Website mode                                            | all  | —       | BACKLOG 24–27 | the rank and badge rules; the website's side for `cases` | `3d2d783`                   | CI 44890310077 green                                                             |
+| 5 PostgreSQL and the accounts store                       | all  | —       | —             | —                                                        | see piece 6 row             | see piece 6 row                                                                  |
 | 6 Standalone accounts                                     | —    | —       | all           | —                                                        | —                           | —                                                                                |
 | 7 2FA and the independent review                          | —    | —       | all           | —                                                        | —                           | —                                                                                |
 | 8 Settings, season tint, polish                           | —    | —       | all           | —                                                        | —                           | —                                                                                |
@@ -206,6 +206,47 @@ verify` green (19 files, 95 tests); journey 1 passed.
   Node's `upgrade` event). It forwards them now, and journey 4 passed 4 of 4 in a row.
 - **Dependencies:** `@seasonal/kit` (v0.8.0) for the server too; Vite 8.3.4 at the root for the
   stand-in's middleware.
+
+### Piece 5 report
+
+- **Services** (`ops/compose.dev.yml`, `ops/compose.dev.env`): PostgreSQL 17 on 127.0.0.1:5570
+  and Mailpit (SMTP 1170, web 8570), the images pinned by digest as in Mini Games, restarting
+  unless stopped. Development-only credentials.
+- **Database** (`apps/server/src/db/`):
+  - `pool.ts` (one schema on the search path, transactions), `migrator.ts` (each `.sql` once,
+    refusing a changed one), `migrations/0001_initial.sql` (accounts with rank and badges,
+    sessions by token hash, `two_factor` and `recovery_codes` for piece 7, `show_events`,
+    `server_state`).
+  - `accountStore.ts` (accounts, sessions), `state.ts` (the feed's cursor), `eventStore.ts`:
+    the log is read once on start; each append is written behind in order through one queue,
+    so the synchronous `EventStore` port and the show service stay as they were; the shows are
+    still rebuilt from their events.
+  - `box.ts`: AES-256-GCM with `SC_DATA_KEY`. A sealed event's assignment and secret are one
+    box; only the commitment is readable in the row.
+  - `open.ts` opens pool, migrations and stores; `main.ts` uses it when `DATABASE_URL` is set,
+    else the JSON-lines log and memory (the browser tests keep that). `DATABASE_URL` without
+    `SC_DATA_KEY` refuses to start. SIGINT and SIGTERM let pending writes finish.
+- **The feed's cursor** survives a restart: `CursorStore` in `auth/accountFeed.ts`, memory or
+  `server_state`.
+- **`pnpm dev:reset-db`** (`src/tools/resetDevDatabase.ts`) drops and migrates the `sc` schema;
+  it runs only with `NODE_ENV=development` and a database on 127.0.0.1 or localhost.
+- **`dev.env`:** `DATABASE_URL`, a development-only `SC_DATA_KEY` and `SC_COOKIE_SECRET` (so a
+  session survives a dev restart), the Mailpit SMTP settings for piece 6.
+- **Tests** (`db/stores.test.ts`, against the real database, each run in a random schema it
+  drops): migrations once; accounts by id and website, replaced; sessions by hash, ended per
+  session and per account, the token nowhere in the table; the cursor; a Quick Test show
+  rebuilt after a restart with its secret absent from the rows and its commitment verifying;
+  the box refusing a wrong key, a changed box and a short key.
+- **CI:** the `verify` job has a postgres service (same image) and `SC_TEST_DATABASE_URL`.
+- **Checked by hand:** the dev server on PostgreSQL (port 3975, as an earlier server holds
+  3970): dev sign-in wrote the account and session rows; the database was reset afterwards.
+- `pnpm verify` green: 22 files, 113 tests.
+- **Dependencies:** `pg` 8.23.1 (the PostgreSQL client, as Mini Games), `@types/pg` 8.23.1.
+- **Lines:** new files `db/pool.ts` 50, `db/migrator.ts` 69, `db/box.ts` 40,
+  `db/eventStore.ts` 88, `db/accountStore.ts` 115, `db/state.ts` 31, `db/open.ts` 53,
+  `db/testing.ts` 29, `db/stores.test.ts` 142, `tools/resetDevDatabase.ts` 27, the migration 62.
+  Changed: `main.ts` 16 → 35, `config.ts` 86 → 99, `app.ts` 146 → 152, `auth/accountFeed.ts`
+  101 → 127. Nothing removed; the JSON-lines and memory stores stay for runs without a database.
 
 ### Choices made without the owner (SC-N2)
 

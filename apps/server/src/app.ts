@@ -34,7 +34,7 @@ import { seededRandom } from '@sc/domain';
 import Fastify, { type FastifyInstance } from 'fastify';
 import { Server } from 'socket.io';
 
-import { startFeed } from './auth/accountFeed.js';
+import { memoryCursor, startFeed, type CursorStore } from './auth/accountFeed.js';
 import { Directory, memoryAccounts, type AccountStore } from './auth/accounts.js';
 import { memorySessions, type SessionStore } from './auth/sessions.js';
 import type { ServerConfig } from './config.js';
@@ -59,6 +59,7 @@ export interface Stores {
   readonly events?: EventStore;
   readonly accounts?: AccountStore;
   readonly sessions?: SessionStore;
+  readonly cursor?: CursorStore;
 }
 
 export interface BuiltServer {
@@ -135,9 +136,14 @@ export async function buildServer(config: ServerConfig, stores: Stores = {}): Pr
   const stopFeed =
     feed === null || feed === undefined
       ? () => undefined
-      : startFeed({ ...auth, websiteOrigin: config.website?.origin ?? '' }, feed, (e) => {
-          app.log.error(e);
-        });
+      : startFeed(
+          { ...auth, websiteOrigin: config.website?.origin ?? '' },
+          feed,
+          stores.cursor ?? memoryCursor(),
+          (e) => {
+            app.log.error(e);
+          },
+        );
   app.addHook('onClose', async () => {
     stopFeed();
     await io.close();

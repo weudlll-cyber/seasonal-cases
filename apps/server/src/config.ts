@@ -5,7 +5,9 @@
  * Responsibility: the port (SC_PORT, default 3970); the mode (SC_MODE `local` or `website`,
  *                 GAME-INTEGRATION §1) and its base path (`/` or `/games/cases/`); whether the
  *                 development features exist (NODE_ENV=development and SC_DEV=1, local mode
- *                 only, CONCEPT §10); the event-log folder (SC_DATA_DIR); the cookie secret
+ *                 only, CONCEPT §10); the database (DATABASE_URL, with the data key SC_DATA_KEY
+ *                 that encrypts secrets at rest) or, without one, the event-log folder
+ *                 (SC_DATA_DIR) and memory for accounts and sessions; the cookie secret
  *                 (SC_COOKIE_SECRET, else a new random one per start); in website mode the
  *                 trusted proxies (SC_TRUSTED_PROXIES, a comma list), the proxy secret
  *                 (SC_PROXY_SECRET, header `X-Sc-Proxy-Secret`), the website's origin
@@ -36,6 +38,7 @@ export interface ServerConfig {
   readonly basePath: string;
   readonly dev: boolean;
   readonly dataDir: string;
+  readonly database: { readonly url: string; readonly keyHex: string } | null;
   readonly cookieSecret: string;
   readonly website: WebsiteConfig | null;
   readonly chatOrigin: string | null;
@@ -70,6 +73,15 @@ function websiteFrom(env: NodeJS.ProcessEnv): WebsiteConfig {
   };
 }
 
+// A database URL without its data key refuses to start: secrets would have nothing to seal them.
+function databaseFrom(env: NodeJS.ProcessEnv): ServerConfig['database'] {
+  const url = env['DATABASE_URL'] ?? '';
+  if (url === '') return null;
+  const keyHex = env['SC_DATA_KEY'] ?? '';
+  if (keyHex === '') throw new Error('DATABASE_URL needs SC_DATA_KEY');
+  return { url, keyHex };
+}
+
 export function configFrom(env: NodeJS.ProcessEnv): ServerConfig {
   const mode: Mode = env['SC_MODE'] === 'website' ? 'website' : 'local';
   const chatOrigin = env['SC_CHAT_ORIGIN'] ?? '';
@@ -79,6 +91,7 @@ export function configFrom(env: NodeJS.ProcessEnv): ServerConfig {
     basePath: mode === 'website' ? `/games/${GAME_SLUG}/` : '/',
     dev: mode === 'local' && env['NODE_ENV'] === 'development' && env['SC_DEV'] === '1',
     dataDir: env['SC_DATA_DIR'] ?? `${ROOT}.local/data`,
+    database: databaseFrom(env),
     cookieSecret: env['SC_COOKIE_SECRET'] ?? randomBytes(32).toString('hex'),
     website: mode === 'website' ? websiteFrom(env) : null,
     chatOrigin: mode === 'local' && chatOrigin !== '' ? new URL(chatOrigin).origin : null,

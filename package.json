@@ -10,6 +10,7 @@
   },
   "scripts": {
     "dev": "pnpm --parallel --filter @sc/server --filter @sc/web run dev",
+    "dev:reset-db": "pnpm --filter @sc/server run dev:reset-db",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier . --write",
     "format:check": "prettier . --check",

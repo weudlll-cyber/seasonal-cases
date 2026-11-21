@@ -39,6 +39,9 @@ the cases in five reveal steps. [CONCEPT.md](CONCEPT.md) v1.0 governs it; the de
   - the account-changes feed, 7-day sessions in a session store, the docked website chat, the
     back link, and everything under `/games/cases/`.
 
+  PostgreSQL (D26, piece 5): accounts, sessions, the feed's cursor and the shows' event log in
+  the database, the sealed secret encrypted with `SC_DATA_KEY`; tables for 2FA are ready.
+
   The dev role "moderator" is now "organiser". Concept v1.4.
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
@@ -50,9 +53,15 @@ the cases in five reveal steps. [CONCEPT.md](CONCEPT.md) v1.0 governs it; the de
 - `pnpm dev`: server 127.0.0.1:3970, client 0.0.0.0:5470 (http://localhost:5470; the phone at
   http://192.168.0.66:5470 on the home Wi-Fi). Left running hidden for the owner at the end of
   SC-N1.
-- `pnpm e2e --project=chromium`: the three journeys on their own stack (3980/5480).
+- The development services: `docker compose --env-file ops/compose.dev.env -f
+ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
+  http://localhost:8570); they restart by themselves. `pnpm dev:reset-db` empties the database.
+- `pnpm dev` keeps everything in PostgreSQL (`apps/server/dev.env`) and rebuilds the shows from
+  their events on start. Without `DATABASE_URL` the server uses `.local/data/*.jsonl` and memory.
+- `pnpm e2e --project=chromium`: the journeys on their own stack (3980/5480; 3990/5485 for
+  website mode), without a database.
 - `pnpm e2e --project=screens`: the pictures at the check sizes, light and dark.
-- Shows are rebuilt from `.local/data/*.jsonl` when the server starts.
+- The store tests need PostgreSQL: the development database, or `SC_TEST_DATABASE_URL` (CI).
 
 ## What is open
 

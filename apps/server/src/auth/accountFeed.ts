@@ -11,7 +11,7 @@
  *                 player" plus its short id from then on, its past cases kept. `unlocked`: nothing
  *                 (Mini Games' choice). Processing is safe to repeat; the cursor moves only after
  *                 a page is processed. A failing feed is logged and the game plays on. The cursor
- *                 lives in memory until the database keeps it (piece 5).
+ *                 lives in a CursorStore: the database's server_state, or memory without one.
  * Depends on:     @seasonal/kit/server (SessionEnds, types), ./accounts.js, ./sessions.js
  */
 import type { SessionEnds } from '@seasonal/kit/server';
@@ -84,17 +84,38 @@ export async function pollOnce(deps: FeedDeps, source: FeedSource, since: string
   }
 }
 
-/** Polls every 15 s until stopped; answers the stop. */
-export function startFeed(deps: FeedDeps, source: FeedSource, log: (e: unknown) => void) {
+/** Where the feed's cursor survives a restart: memory, or the database (../db/state.ts). */
+export interface CursorStore {
+  read(): Promise<string>;
+  write(cursor: string): Promise<void>;
+}
+
+export function memoryCursor(): CursorStore {
   let cursor = '0';
+  return {
+    read: () => Promise.resolve(cursor),
+    write: (next) => {
+      cursor = next;
+      return Promise.resolve();
+    },
+  };
+}
+
+/** Polls every 15 s until stopped; answers the stop. */
+export function startFeed(
+  deps: FeedDeps,
+  source: FeedSource,
+  cursor: CursorStore,
+  log: (e: unknown) => void,
+) {
   let running = false;
   const timer = setInterval(() => {
     if (running) return;
     running = true;
-    pollOnce(deps, source, cursor)
-      .then((next) => {
-        cursor = next;
-      })
+    cursor
+      .read()
+      .then((since) => pollOnce(deps, source, since))
+      .then((next) => cursor.write(next))
       .catch(log)
       .finally(() => {
         running = false;

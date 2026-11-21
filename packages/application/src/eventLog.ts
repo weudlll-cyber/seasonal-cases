@@ -5,7 +5,8 @@
  * Responsibility: `memoryStore` keeps the events of a test or of a run without files.
  *                 `jsonlStore(dir)` writes one JSON line per event to `<dir>/<showId>.jsonl`
  *                 and reads every file back on start, so a show is rebuilt from its lines
- *                 (DECISIONS D17). Lines are only ever appended.
+ *                 (DECISIONS D17; with a database the server uses apps/server/src/db, D26).
+ *                 Lines are only ever appended.
  * Depends on:     node:fs, node:path, @sc/domain (types), ./ports.js
  */
 import { appendFileSync, mkdirSync, readdirSync, readFileSync } from 'node:fs';

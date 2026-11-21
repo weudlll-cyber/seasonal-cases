@@ -1,0 +1,41 @@
+# @file   ops/compose.dev.yml
+# @brief  Local development services: PostgreSQL 17 and Mailpit.
+#
+# Responsibility: the backing services "pnpm dev" needs, reachable from this machine only
+#                 (ports bound to 127.0.0.1). After the pattern of seasonal-mini-games
+#                 ops/compose.dev.yml, with its image digests. Not for staging or production.
+# Depends on:     ops/compose.dev.env (ports, development-only credentials)
+#
+# Start (paths relative to the repository root):
+#   docker compose --env-file ops/compose.dev.env -f ops/compose.dev.yml up -d
+# Both services restart unless stopped, so after a restart the dev database is back by itself.
+name: sc-dev
+
+services:
+  postgres:
+    restart: unless-stopped
+    image: postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?pass --env-file ops/compose.dev.env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?pass --env-file ops/compose.dev.env}
+      POSTGRES_DB: ${POSTGRES_DB:?pass --env-file ops/compose.dev.env}
+    ports:
+      - '127.0.0.1:${SC_DEV_POSTGRES_PORT:?pass --env-file ops/compose.dev.env}:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Catches every outgoing mail of the dev server (forgotten password).
+  mailpit:
+    restart: unless-stopped
+    image: axllent/mailpit:v1.34.0@sha256:23a2ef85bc50853ab3093645d1d64679afd8887e89da5e48a88940c172591a4e
+    ports:
+      - '127.0.0.1:${SC_DEV_MAILPIT_SMTP_PORT:?pass --env-file ops/compose.dev.env}:1025'
+      - '127.0.0.1:${SC_DEV_MAILPIT_UI_PORT:?pass --env-file ops/compose.dev.env}:8025'
+
+volumes:
+  pgdata:

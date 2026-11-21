@@ -55,7 +55,7 @@ owner confirms them.
   the game and `/admin`; the browser tests' own server 3980 and client 5480 (CONCEPT §11).
 - **D17 — Storage of the prototype.** Shows live in memory; every event is appended as one JSON
   line to `.local/data/<showId>.jsonl` (git-ignored), and the server rebuilds each show from its
-  lines on start. PostgreSQL comes with the full build (CONCEPT §11).
+  lines on start. PostgreSQL comes with the full build (CONCEPT §11). Replaced by D26.
 
 ## 2026-11-21, the owner's decisions for night chain SC-N2
 
@@ -80,3 +80,7 @@ owner confirms them.
   development sign-in stays for the Quick Test, in development only.
 - **D25 — Settings in the admin area.** Settings live in the admin area, not in code; a change
   applies to new shows.
+- **D26 — PostgreSQL.** Accounts, sessions, two-factor secrets and recovery codes, ranks and the
+  shows' event log live in PostgreSQL (development: ops/compose.dev.yml, port 5570); the shows
+  are still rebuilt from their events on start. A sealed show's commitment secret is stored
+  encrypted at rest with a server key from the environment (`SC_DATA_KEY`).
