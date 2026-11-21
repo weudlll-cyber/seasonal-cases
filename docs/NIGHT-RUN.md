@@ -16,8 +16,10 @@ Repository, standards and the playable prototype. Branch of the prototype: `prot
 - the client (piece 3);
 - the three browser journeys, 80 pictures, and the fixes they showed (piece 4).
 
-`pnpm verify` is green (16 files, 81 tests). The three journeys pass once in Chromium. CI for the
-branch: see the piece 4 row.
+`pnpm verify` is green (16 files, 81 tests). The three journeys pass once in Chromium. CI of the
+last code push (`0557458`): run 44859913784, green: verify, security, docs, and e2e with all three
+journeys passing (18 s). This docs-only follow-up has its own run, listed by
+`gh run list --branch proto/cases-v1`.
 
 **What runs now.** Server 127.0.0.1:3970 and client 0.0.0.0:5470 run hidden in the background on
 `proto/cases-v1`.
@@ -82,12 +84,12 @@ of the chain).
 
 ### Pieces
 
-| Piece                                      | Done                                                                                   | Running                             | Open                            | Needs the owner's word                        | Commits                               | CI run ids                                     |
-| ------------------------------------------ | -------------------------------------------------------------------------------------- | ----------------------------------- | ------------------------------- | --------------------------------------------- | ------------------------------------- | ---------------------------------------------- |
-| 1 Repository and standards                 | standards, skeleton, CI, kit v0.5.0, docs; repository created; master protected        | —                                   | Renovate onboarding (see below) | kit tag v0.5.0 vs. the concept's v0.4.1 (D15) | master `0aee998`…`2bf720c`            | CI 44850888611 green; CodeQL 44850888453 green |
-| 2 Contracts, domain, server                | contracts, domain with probes, application, server with socket tests                   | —                                   | BACKLOG 17, 18 (later)          | the "Start show" step (below)                 | `proto/cases-v1` `90a40e1`            | CI 44853721518 green                           |
-| 3 The client                               | lobby, board, stage with five steps, direction bar, result, dev admin, component tests | —                                   | screenshots and fixes (piece 4) | Fredoka (CONCEPT §14), the phone's two rows   | `proto/cases-v1` `10b486a`            | CI 44856786489 green                           |
-| 4 Play-through, browser tests, screenshots | three journeys, 80 pictures, the fixes they showed, docs, hand-over                    | server 3970 and client 5470, hidden | see the final report            | see the final report                          | `proto/cases-v1`, the piece 4 commits | see "CI of the last push" below                |
+| Piece                                      | Done                                                                                   | Running                             | Open                            | Needs the owner's word                        | Commits                    | CI run ids                                     |
+| ------------------------------------------ | -------------------------------------------------------------------------------------- | ----------------------------------- | ------------------------------- | --------------------------------------------- | -------------------------- | ---------------------------------------------- |
+| 1 Repository and standards                 | standards, skeleton, CI, kit v0.5.0, docs; repository created; master protected        | —                                   | Renovate onboarding (see below) | kit tag v0.5.0 vs. the concept's v0.4.1 (D15) | master `0aee998`…`2bf720c` | CI 44850888611 green; CodeQL 44850888453 green |
+| 2 Contracts, domain, server                | contracts, domain with probes, application, server with socket tests                   | —                                   | BACKLOG 17, 18 (later)          | the "Start show" step (below)                 | `proto/cases-v1` `90a40e1` | CI 44853721518 green                           |
+| 3 The client                               | lobby, board, stage with five steps, direction bar, result, dev admin, component tests | —                                   | screenshots and fixes (piece 4) | Fredoka (CONCEPT §14), the phone's two rows   | `proto/cases-v1` `10b486a` | CI 44856786489 green                           |
+| 4 Play-through, browser tests, screenshots | three journeys, 80 pictures, the fixes they showed, docs, hand-over                    | server 3970 and client 5470, hidden | see the final report            | see the final report                          | `proto/cases-v1` `0557458` | CI 44859913784 green (e2e included)            |
 
 ### Piece 1 report
 
