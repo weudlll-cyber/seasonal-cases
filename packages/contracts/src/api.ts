@@ -34,6 +34,8 @@ export const CreateShowRequestSchema = z.object({
   winners: z.number().int(),
   // One optional label per prize slot, in slot order (CONCEPT §3.1).
   labels: z.array(z.string().max(LABEL_MAX)),
+  // Show the open registration on the website's open sign-ups (OPEN-ROUNDS.md); off unless set.
+  listed: z.boolean().default(false),
 });
 export type CreateShowRequest = z.infer<typeof CreateShowRequestSchema>;
 

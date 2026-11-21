@@ -29,7 +29,10 @@ table).
   that a show in registration hid, the opening cut off on phones, the scoreboard eating a phone's
   stage, cut artifact names on the result, and the header overflowing phones.
 
-**Checks at the end:** `pnpm verify` green (26 files, 140 tests); journeys 1–6 passed in
+**Extra:** the open-rounds listing for the website (BACKLOG 25), the first item without the
+owner's word, as the task allows when time is left.
+
+**Checks at the end:** `pnpm verify` green (27 files, 142 tests); journeys 1–6 passed in
 Chromium; 160 pictures (8 screens × 10 sizes × 2 themes) plus the phone's direction panel in
 `.local/screens/proto-v2/`, no text under 14 px, no sideways overflow; `proto-v1` deleted.
 
@@ -57,18 +60,19 @@ every choice listed under "Choices made without the owner (SC-N2)" below.
 
 ### Pieces
 
-| Piece                                                     | Done | Running                                           | Open             | Needs the owner's word                                   | Commits                                        | CI run ids                                                                       |
-| --------------------------------------------------------- | ---- | ------------------------------------------------- | ---------------- | -------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
-| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —                                                 | —                | —                                                        | `c36b3e1`                                      | CI 44885929803 green                                                             |
-| 2 The moving case                                         | all  | —                                                 | —                | the durations (HANDOVER)                                 | `aaa6022`, report `a31fd7b`                    | `aaa6022` cancelled by the next push; `a31fd7b` (same code) CI 44886487846 green |
-| 3 Start page, opening, focus mode, ceremony, result frame | all  | —                                                 | —                | the ceremony's pace (HANDOVER)                           | `ad20ab0`                                      | CI 44887472450 green                                                             |
-| 4 Website mode                                            | all  | —                                                 | BACKLOG 24–27    | the rank and badge rules; the website's side for `cases` | `3d2d783`                                      | CI 44890310077 green                                                             |
-| 5 PostgreSQL and the accounts store                       | all  | —                                                 | —                | —                                                        | `2b326a2`                                      | CI 44891199382 green                                                             |
-| 6 Standalone accounts                                     | all  | —                                                 | —                | the reset link's rules (choices list)                    | `2edcd6a`                                      | CI 44892910589 green                                                             |
-| 7 2FA and the independent review                          | all  | —                                                 | security pass 11 | the security pass's owner list (HANDOVER)                | `f482024` (2FA), `49433d9` (fixes)             | CI 44893758086 and 44895315472 green                                             |
-| 8 Settings, season tint, polish                           | all  | —                                                 | BACKLOG 32 (kit) | rank source, chronicle length                            | `3d81756` (settings), `17886f4` (tint, polish) | CI 44897326662 green (`17886f4`; `3d81756` was pushed with `49433d9`)            |
-| 9 Chronicle                                               | all  | —                                                 | —                | the chronicle's length (50)                              | `17886f4`                                      | CI 44897326662 green                                                             |
-| 10 Play-through, pictures, hand-over                      | all  | server 3970 and client 5470 on PostgreSQL, hidden | —                | see the final report                                     | the hand-over commit                           | its CI run in HANDOVER                                                           |
+| Piece                                                     | Done | Running                                           | Open                     | Needs the owner's word                                   | Commits                                        | CI run ids                                                                       |
+| --------------------------------------------------------- | ---- | ------------------------------------------------- | ------------------------ | -------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
+| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —                                                 | —                        | —                                                        | `c36b3e1`                                      | CI 44885929803 green                                                             |
+| 2 The moving case                                         | all  | —                                                 | —                        | the durations (HANDOVER)                                 | `aaa6022`, report `a31fd7b`                    | `aaa6022` cancelled by the next push; `a31fd7b` (same code) CI 44886487846 green |
+| 3 Start page, opening, focus mode, ceremony, result frame | all  | —                                                 | —                        | the ceremony's pace (HANDOVER)                           | `ad20ab0`                                      | CI 44887472450 green                                                             |
+| 4 Website mode                                            | all  | —                                                 | BACKLOG 24–27            | the rank and badge rules; the website's side for `cases` | `3d2d783`                                      | CI 44890310077 green                                                             |
+| 5 PostgreSQL and the accounts store                       | all  | —                                                 | —                        | —                                                        | `2b326a2`                                      | CI 44891199382 green                                                             |
+| 6 Standalone accounts                                     | all  | —                                                 | —                        | the reset link's rules (choices list)                    | `2edcd6a`                                      | CI 44892910589 green                                                             |
+| 7 2FA and the independent review                          | all  | —                                                 | security pass 11         | the security pass's owner list (HANDOVER)                | `f482024` (2FA), `49433d9` (fixes)             | CI 44893758086 and 44895315472 green                                             |
+| 8 Settings, season tint, polish                           | all  | —                                                 | BACKLOG 32 (kit)         | rank source, chronicle length                            | `3d81756` (settings), `17886f4` (tint, polish) | CI 44897326662 green (`17886f4`; `3d81756` was pushed with `49433d9`)            |
+| 9 Chronicle                                               | all  | —                                                 | —                        | the chronicle's length (50)                              | `17886f4`                                      | CI 44897326662 green                                                             |
+| 10 Play-through, pictures, hand-over                      | all  | server 3970 and client 5470 on PostgreSQL, hidden | —                        | see the final report                                     | `1172a27`                                      | CI 44898497976 green                                                             |
+| Extra: open-rounds listing (BACKLOG 25)                   | all  | —                                                 | the website's card field | —                                                        | see HANDOVER                                   | see HANDOVER                                                                     |
 
 ### Piece 1 report
 
@@ -432,6 +436,24 @@ verify` green (19 files, 95 tests); journey 1 passed.
 - **Servers:** the SC-N1 server (3970) and client (5470) ran pre-SC-N2 code; they were stopped and
   `pnpm dev` started again in the background, now on PostgreSQL.
 
+### Extra: the open-rounds listing (BACKLOG 25)
+
+Time was left, so the first BACKLOG item without the owner's word followed, as the task names it.
+
+- `GET /api/public/open-rounds` (`apps/server/src/openRoundsRoutes.ts`) on the contract of
+  Seasonal Entertainment `docs/OPEN-ROUNDS.md`, version 1: public, JSON, `max-age=30`; only shows
+  whose registration is open now and that the organiser marked "Show on the website"; at most 20;
+  the number of players (current claims) and the cases as the most players, never names; both
+  times null (shows have no start time and close by hand); `joinUrl` the game under the website
+  (website mode) or the public address (local mode).
+- The mark: "Show on the website" in the setup form, `listed` in the create request (off by
+  default), the `created` event and the model; older shows are not listed.
+- Tests: `openRoundsRoutes.test.ts` (the contract's schema, open and listed only, no names, the
+  join address of both modes). `pnpm verify` green (27 files, 142 tests); journeys 1–6 passed.
+- The website's side: the card's "Sign-up status URL" is
+  `https://<website>/games/cases/api/public/open-rounds`, set in Admin → Games once `cases` is on
+  the website (BACKLOG 27).
+
 ### Choices made without the owner (SC-N2)
 
 - **"Opens in N s"** of the kit's start card is hidden: shows have no start time yet, and the
@@ -477,6 +499,8 @@ verify` green (19 files, 95 tests); journey 1 passed.
 - **A page keeps a show it watched live** until the viewer leaves the stage, so the ceremony
   plays even when the server's next show is already in registration; newcomers get the server's
   choice (fix A unchanged).
+- **The open-rounds title** reads "Seasonal Cases: N cases, W prizes"; the kind is "Seasonal
+  Cases".
 
 ## Night chain SC-N1 (2026-11-21)
 

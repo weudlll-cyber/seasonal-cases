@@ -2,7 +2,7 @@
 
 A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
 
-- **Now:** night chain SC-N2 on `proto/cases-v1`, the play-through and hand-over (piece 10).
+- **Now:** night chain SC-N2 is done on `proto/cases-v1` (not merged); the owner plays it.
   Built: website mode, the docked chat, PostgreSQL, standalone accounts with 2FA, roles, ranks,
   lobby, "My matches", the settings catalogue, the chronicle (BACKLOG 1, 2, 3, 5, 6, 8, 9, 17, 18,
   21, 28, closed).
@@ -11,7 +11,7 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   (BACKLOG 4); viewer participation (BACKLOG 10); the security review's questions (BACKLOG
   29–31).
 - **Show polish:** sound, viewer participation (BACKLOG 7, 10).
-- **Release:** the installer with the website route file (BACKLOG 11); the optional open rounds
-  and member summary (BACKLOG 25, 26).
+- **Release:** the installer with the website route file (BACKLOG 11); the optional member
+  summary (BACKLOG 26). The open-rounds listing is built (BACKLOG 25, closed).
 - **Always open:** Firefox/WebKit findings (BACKLOG 12), kit adoption items (BACKLOG 13, 19, 20,
   23, 24, 32).

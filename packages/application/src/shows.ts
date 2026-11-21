@@ -35,6 +35,8 @@ export interface ShowSetup {
   readonly cases: number;
   readonly winners: number;
   readonly labels: readonly string[];
+  // Listed on the website's open sign-ups while registration is open (OPEN-ROUNDS.md).
+  readonly listed?: boolean;
 }
 
 export interface ShowDeps {

@@ -42,6 +42,8 @@ export interface ShowModel {
   readonly prizes: readonly Artifact[];
   readonly blank: Artifact;
   readonly presentation: Presentation;
+  // The host lists the open registration on the website (OPEN-ROUNDS.md).
+  readonly listed: boolean;
   // Every claim in the order it was made; a player's latest one counts.
   readonly claims: readonly Claim[];
   // Index i: the owner of case i + 1 from the close of registration on.
@@ -71,6 +73,7 @@ function created(event: Created): ShowModel {
     prizes: event.prizes,
     blank: event.blank,
     presentation: event.presentation ?? DEFAULT_SETTINGS.presentation,
+    listed: event.listed === true,
     claims: [],
     owners: null,
     sealing: null,

@@ -5,7 +5,8 @@
  *
  * Responsibility: collect a setup; the server checks its limits (2 ≤ N ≤ 99, 1 ≤ W ≤ N). It
  *                 starts from the settings' defaults (D25; the catalogue's are the concept's
- *                 proposal N = 24, W = 3, CONCEPT §3.1, §14).
+ *                 proposal N = 24, W = 3, CONCEPT §3.1, §14). "Show on the website" lists the
+ *                 open registration among the website's open sign-ups (OPEN-ROUNDS.md).
  * Depends on:     react, @sc/contracts, ./fields.js
  */
 import { DEFAULT_SETTINGS } from '@sc/contracts';
@@ -18,6 +19,8 @@ export interface Setup {
   readonly winners: number;
   readonly labels: string[];
   readonly seed: string;
+  // Listed on the website's open sign-ups while registration is open (OPEN-ROUNDS.md).
+  readonly listed: boolean;
 }
 
 export interface SetupFormProps {
@@ -67,6 +70,7 @@ export function SetupForm({ busy, onQuickTest, onCreate, defaults = START }: Set
   const [winners, setWinners] = useState(defaults.winners);
   const [labels, setLabels] = useState<string[]>([]);
   const [seed, setSeed] = useState('sc-n1-01');
+  const [listed, setListed] = useState(false);
   const slots = Math.max(0, Math.min(winners, 99));
   const current = Array.from({ length: slots }, (_, i) => labels[i] ?? '');
   const setLabel = (i: number, label: string) => {
@@ -74,14 +78,15 @@ export function SetupForm({ busy, onQuickTest, onCreate, defaults = START }: Set
     next[i] = label;
     setLabels(next);
   };
+  const setup = { cases, winners, labels: current, listed };
   return (
     <form
       className="card admin-setup"
       aria-label="Show setup"
       onSubmit={(event) => {
         event.preventDefault();
-        if (onQuickTest === undefined) onCreate({ cases, winners, labels: current });
-        else onQuickTest({ cases, winners, labels: current, seed });
+        if (onQuickTest === undefined) onCreate(setup);
+        else onQuickTest({ ...setup, seed });
       }}
     >
       <NumberField
@@ -101,24 +106,47 @@ export function SetupForm({ busy, onQuickTest, onCreate, defaults = START }: Set
         onChange={setWinners}
       />
       <PrizeLabels labels={current} onChange={setLabel} />
-      {onQuickTest !== undefined && (
-        <TextField
-          label="Quick Test seed"
-          tip="The same seed gives the same bots and the same sealing"
-          maxLength={64}
-          required
-          value={seed}
-          onChange={setSeed}
-        />
-      )}
+      <ListedField listed={listed} onChange={setListed} />
+      {onQuickTest !== undefined && <SeedField seed={seed} onChange={setSeed} />}
       <SetupButtons
         busy={busy}
         quickTest={onQuickTest !== undefined}
         onCreate={() => {
-          onCreate({ cases, winners, labels: current });
+          onCreate(setup);
         }}
       />
     </form>
+  );
+}
+
+/** The Quick Test's seed (development only). */
+function SeedField({ seed, onChange }: { seed: string; onChange: (v: string) => void }) {
+  return (
+    <TextField
+      label="Quick Test seed"
+      tip="The same seed gives the same bots and the same sealing"
+      maxLength={64}
+      required
+      value={seed}
+      onChange={onChange}
+    />
+  );
+}
+
+/** The organiser's mark for the website's open sign-ups. */
+function ListedField({ listed, onChange }: { listed: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="setting-check">
+      <input
+        type="checkbox"
+        checked={listed}
+        title="While registration is open, the website lists this show among its open sign-ups"
+        onChange={(e) => {
+          onChange(e.target.checked);
+        }}
+      />
+      Show on the website
+    </label>
   );
 }
 

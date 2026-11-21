@@ -35,6 +35,8 @@ export type ShowEvent =
       readonly blank: Artifact;
       // The stage's motion and confetti at creation (D25); missing in shows from before piece 8.
       readonly presentation?: Presentation;
+      // Whether the host lists the show's open registration on the website (OPEN-ROUNDS.md).
+      readonly listed?: boolean;
     }
   | { readonly type: 'registrationOpened'; readonly at: string; readonly by: string }
   | {

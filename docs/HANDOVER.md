@@ -52,6 +52,10 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
   in the admin area (D25, piece 8): new shows copy its values; the season tint, the polish from
   the pictures. The chronicle at `/chronicle` (piece 9).
 
+  The open-rounds listing for the website (BACKLOG 25): `/api/public/open-rounds`, the
+  organiser's "Show on the website" mark. CI of the hand-over commit `1172a27`: 44898497976
+  green; this extra's run is on the branch (`gh run list --branch proto/cases-v1`).
+
   The dev role "moderator" is now "organiser". Concept v1.4.
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the

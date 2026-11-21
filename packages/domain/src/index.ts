@@ -20,7 +20,7 @@ export {
   type Person,
 } from './projection.js';
 export { seededRandom, type RandomPort } from './random.js';
-export { botId, type Claim } from './registration.js';
+export { botId, currentClaims, type Claim } from './registration.js';
 export { canonicalJson, commitmentOf, verify } from './sealing.js';
 export { DEFAULT_SETTINGS, type PrizeArtifactSetting, type ShowSettings } from './settings.js';
 export { CASE_LIMITS, setupProblem, type SetupInput } from './setup.js';

@@ -36,6 +36,7 @@ export interface CreateCommand {
   readonly cases: number;
   readonly winners: number;
   readonly labels: readonly string[];
+  readonly listed?: boolean;
   readonly season: Season;
   readonly settings: ShowSettings;
 }
@@ -85,6 +86,7 @@ export function decideCreate(command: CreateCommand): Decision {
     prizes,
     blank,
     presentation: command.settings.presentation,
+    listed: command.listed === true,
   });
 }
 

@@ -15,7 +15,7 @@
  * Depends on:     node:crypto, node:http (types), fastify, @fastify/cookie, @fastify/helmet,
  *                 socket.io, @seasonal/kit/server, @sc/application, @sc/domain, ./auth/*,
  *                 ./accountRoutes.js, ./config.js, ./devRoutes.js, ./http.js, ./localRoutes.js,
- *                 ./mail.js, ./organiserRoutes.js, ./realtime.js, ./session.js, ./settings.js,
+ *                 ./mail.js, ./openRoundsRoutes.js, ./organiserRoutes.js, ./realtime.js, ./session.js, ./settings.js,
  *                 ./settingsRoutes.js, ./showRoutes.js, ./twoFactorRoutes.js, ./websiteRoutes.js
  */
 import { randomBytes, randomInt, randomUUID } from 'node:crypto';
@@ -47,6 +47,7 @@ import { devRoutes } from './devRoutes.js';
 import { handleRefusals, type Ctx } from './http.js';
 import { localRoutes } from './localRoutes.js';
 import { smtpMailer, type Mailer } from './mail.js';
+import { openRoundsRoutes } from './openRoundsRoutes.js';
 import { organiserRoutes } from './organiserRoutes.js';
 import { attachRealtime } from './realtime.js';
 import type { Auth } from './session.js';
@@ -151,6 +152,7 @@ async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Pro
       showRoutes(ctx);
       organiserRoutes(ctx);
       accountRoutes(ctx);
+      openRoundsRoutes(ctx);
       settingsRoutes(ctx, settings);
       if (config.dev) devRoutes(ctx);
       if (config.website === null) {
