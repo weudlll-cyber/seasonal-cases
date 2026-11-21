@@ -2,13 +2,15 @@
  * @file   packages/ui/tsconfig.json
  * @brief  TypeScript settings for @sc/ui, the client's shared pieces.
  *
- * Responsibility: extend the bundler base (browser code) and opt into the React JSX runtime.
+ * Responsibility: extend the bundler base (browser code), opt into the React JSX runtime and
+ *                 Vite's client types (CSS `?raw` imports in the tests).
  */
 {
   "extends": "../../tsconfig.bundler.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "noEmit": true
+    "noEmit": true,
+    "types": ["vite/client"]
   },
-  "include": ["src"]
+  "include": ["src", "vitest.config.ts"]
 }
