@@ -25,7 +25,7 @@ import { CentreStage } from './CentreStage.js';
 import { Ceremony } from './Ceremony.js';
 import { DirectionBar } from './DirectionBar.js';
 import { Confetti, LowerThird } from './LowerThird.js';
-import { motionVars } from './motion.js';
+import { motionOf, motionVars } from './motion.js';
 import { Opening } from './Opening.js';
 import { Scoreboard } from './Scoreboard.js';
 import { useReturn } from './travel.js';
@@ -72,7 +72,7 @@ function Middle(props: {
 }) {
   const { show, returning, begin } = props;
   if (show.state === 'ended' && show.result !== null)
-    return <Ceremony showId={show.id} result={show.result} />;
+    return <Ceremony showId={show.id} result={show.result} confetti={show.presentation.confetti} />;
   if (show.state === 'live' && !show.live.begun) {
     return <Opening show={show} {...(begin === undefined ? {} : { onBegin: begin })} />;
   }
@@ -103,8 +103,12 @@ export function Stage({ show, organiser, me, direct, barInline = true }: StagePr
   const holder = holderView(show, organiser, me);
   const spots = arcSpots(show.caseCount);
   const { onSelect, begin } = holderActions(show, holder !== null, direct);
-  const returning = useReturn(selected);
-  const style = { ...motionVars(), '--dock-reserve': `${String(reserve)}px` } as CSSProperties;
+  const motion = motionOf(show.presentation);
+  const returning = useReturn(selected, motion.travelMs);
+  const style = {
+    ...motionVars(motion),
+    '--dock-reserve': `${String(reserve)}px`,
+  } as CSSProperties;
   const arenaStyle = { '--token': `${String(tokenSize(show.caseCount))}px` } as CSSProperties;
   const opening = show.state === 'live' && !begun;
   return (

@@ -15,7 +15,7 @@ import { dataKey } from './box.js';
 import { pgEventStore, type PgEventStore } from './eventStore.js';
 import { migrate } from './migrator.js';
 import { createPool, SCHEMA, type DbPool } from './pool.js';
-import { pgCursor } from './state.js';
+import { pgCursor, pgSettings } from './state.js';
 import { pgTwoFactor } from './twoFactorStore.js';
 
 export interface Database {
@@ -46,6 +46,7 @@ export async function openDatabase(options: DatabaseOptions): Promise<Database> 
       accounts: pgAccounts(pool),
       sessions: pgSessions(pool),
       cursor: pgCursor(pool),
+      settings: pgSettings(pool),
       credentials: pgCredentials(pool),
       twoFactor: pgTwoFactor(pool, key),
     },

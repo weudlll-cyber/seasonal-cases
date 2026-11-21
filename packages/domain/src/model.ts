@@ -5,13 +5,15 @@
  * Responsibility: `applyEvent` turns one event into the next state; `foldShow` replays a whole
  *                 event list. No event is checked here: ./commands.ts decides which events may
  *                 happen, so a replayed log always folds to the state it had. A logged reveal
- *                 step the show no longer knows (logs older than concept v1.1) folds as a no-op.
- * Depends on:     @sc/contracts, ./events.js, ./registration.js
+ *                 step the show no longer knows (logs older than concept v1.1) folds as a no-op;
+ *                 a show created before its presentation was copied plays with the defaults.
+ * Depends on:     @sc/contracts, ./events.js, ./registration.js, ./settings.js
  */
 import {
   DIRECTION_STEPS,
   type Artifact,
   type AssignmentEntry,
+  type Presentation,
   type PrizeSlot,
   type RevealStep,
   type ShowState,
@@ -19,6 +21,7 @@ import {
 
 import type { Actor, ShowEvent } from './events.js';
 import { ownersAtClose, type Claim } from './registration.js';
+import { DEFAULT_SETTINGS } from './settings.js';
 
 export interface Sealing {
   readonly at: string;
@@ -38,6 +41,7 @@ export interface ShowModel {
   readonly prizeSlots: readonly PrizeSlot[];
   readonly prizes: readonly Artifact[];
   readonly blank: Artifact;
+  readonly presentation: Presentation;
   // Every claim in the order it was made; a player's latest one counts.
   readonly claims: readonly Claim[];
   // Index i: the owner of case i + 1 from the close of registration on.
@@ -66,6 +70,7 @@ function created(event: Created): ShowModel {
     prizeSlots: event.prizeSlots,
     prizes: event.prizes,
     blank: event.blank,
+    presentation: event.presentation ?? DEFAULT_SETTINGS.presentation,
     claims: [],
     owners: null,
     sealing: null,

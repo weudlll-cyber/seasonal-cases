@@ -42,7 +42,8 @@ export interface ShowDeps {
   readonly ids: IdSource;
   readonly random: RandomSource;
   readonly store: EventStore;
-  readonly settings?: ShowSettings;
+  // The settings at this moment: read at every creation, so a change applies to new shows only.
+  readonly settings?: () => ShowSettings;
   /** Called after every accepted use case with the show's new state. */
   readonly onChange?: (model: ShowModel) => void;
 }
@@ -75,7 +76,7 @@ const missing = (showId: string): Outcome => ({
 
 export function createShowService(deps: ShowDeps): ShowService {
   const { clock, ids, random, store } = deps;
-  const settings = deps.settings ?? DEFAULT_SETTINGS;
+  const settingsNow = deps.settings ?? (() => DEFAULT_SETTINGS);
   const models = new Map<string, ShowModel>();
   // The rebuild: every show is a fold over its logged events.
   for (const [showId, events] of store.loadAll()) models.set(showId, foldShow(events));
@@ -111,7 +112,7 @@ export function createShowService(deps: ShowDeps): ShowService {
       const season = seasonOf(at);
       return commit(
         showId,
-        decideCreate({ type: 'create', at, showId, by, ...setup, season, settings }),
+        decideCreate({ type: 'create', at, showId, by, ...setup, season, settings: settingsNow() }),
       );
     },
     openRegistration: (id, by) => run(id, (at) => ({ type: 'openRegistration', at, by })),

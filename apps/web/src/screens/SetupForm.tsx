@@ -1,12 +1,14 @@
 /**
  * @file   apps/web/src/screens/SetupForm.tsx
- * @brief  The dev admin's setup form: N cases, W winners, one label per prize, the Quick Test
- *         seed, and the buttons Quick Test and Create show.
+ * @brief  The admin area's setup form: N cases, W winners, one label per prize, the Quick Test
+ *         seed (development), and the buttons Quick Test and Create show.
  *
- * Responsibility: collect a setup; the server checks its limits (2 ≤ N ≤ 99, 1 ≤ W ≤ N). The
- *                 defaults are the concept's proposal N = 24, W = 3 (CONCEPT §3.1, §14).
- * Depends on:     react, ./fields.js
+ * Responsibility: collect a setup; the server checks its limits (2 ≤ N ≤ 99, 1 ≤ W ≤ N). It
+ *                 starts from the settings' defaults (D25; the catalogue's are the concept's
+ *                 proposal N = 24, W = 3, CONCEPT §3.1, §14).
+ * Depends on:     react, @sc/contracts, ./fields.js
  */
+import { DEFAULT_SETTINGS } from '@sc/contracts';
 import { useState } from 'react';
 
 import { NumberField, TextField } from './fields.js';
@@ -23,7 +25,14 @@ export interface SetupFormProps {
   // Present in development only: without it there is no seed field and no Quick Test.
   readonly onQuickTest?: (setup: Setup) => void;
   readonly onCreate: (setup: Omit<Setup, 'seed'>) => void;
+  // The settings' default N and W.
+  readonly defaults?: { readonly cases: number; readonly winners: number };
 }
+
+const START = {
+  cases: DEFAULT_SETTINGS.defaultCases,
+  winners: DEFAULT_SETTINGS.defaultWinners,
+};
 
 /** One optional label per prize slot; empty ones are shown as "Prize n". */
 function PrizeLabels({
@@ -53,9 +62,9 @@ function PrizeLabels({
   );
 }
 
-export function SetupForm({ busy, onQuickTest, onCreate }: SetupFormProps) {
-  const [cases, setCases] = useState(24);
-  const [winners, setWinners] = useState(3);
+export function SetupForm({ busy, onQuickTest, onCreate, defaults = START }: SetupFormProps) {
+  const [cases, setCases] = useState(defaults.cases);
+  const [winners, setWinners] = useState(defaults.winners);
   const [labels, setLabels] = useState<string[]>([]);
   const [seed, setSeed] = useState('sc-n1-01');
   const slots = Math.max(0, Math.min(winners, 99));

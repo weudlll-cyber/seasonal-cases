@@ -35,8 +35,8 @@ const rowOf = (a: Account): AccountRow => ({
   rank: a.rank,
 });
 
-// An admin; a standalone admin also has two-factor sign-in set up (DECISIONS D24).
-async function admin(ctx: Ctx, request: FastifyRequest): Promise<Me> {
+/** An admin; a standalone admin also has two-factor sign-in set up (DECISIONS D24). */
+export async function admin(ctx: Ctx, request: FastifyRequest): Promise<Me> {
   const me = await signedIn(ctx, request);
   if (me.role !== 'admin') throw new Refusal(403, 'only an admin can do this');
   const account = await ctx.auth.accounts.byId(me.id);

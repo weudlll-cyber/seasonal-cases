@@ -84,7 +84,10 @@ export function useHomeward(
  * The case on its way back to the stage, or null: set when the selection goes from a case to
  * none, cleared once it is home or as soon as another case is selected.
  */
-export function useReturn(selected: number | null): number | null {
+export function useReturn(
+  selected: number | null,
+  travelMs: number = STAGE_MOTION.travelMs,
+): number | null {
   const previous = useRef(selected);
   const [returning, setReturning] = useState<number | null>(null);
   useEffect(() => {
@@ -99,11 +102,11 @@ export function useReturn(selected: number | null): number | null {
       () => {
         setReturning(null);
       },
-      motionMs(STAGE_MOTION.closeMs + STAGE_MOTION.travelMs),
+      motionMs(STAGE_MOTION.closeMs + travelMs),
     );
     return () => {
       window.clearTimeout(timer);
     };
-  }, [selected]);
+  }, [selected, travelMs]);
   return returning;
 }

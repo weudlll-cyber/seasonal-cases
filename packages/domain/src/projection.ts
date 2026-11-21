@@ -153,6 +153,7 @@ export function publicView(model: ShowModel, people: People = nobody): PublicSho
     live: { begun: model.begun, selected: model.selected, step: model.step },
     season: SEASONS.find((s) => s === model.blank.season) ?? null,
     allPrizesFound: allPrizesFound(model),
+    presentation: model.presentation,
     result: showResult(model, people),
   };
 }

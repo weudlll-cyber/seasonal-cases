@@ -84,6 +84,7 @@ export function decideCreate(command: CreateCommand): Decision {
     prizeSlots: prizeSlots(winners, labels),
     prizes,
     blank,
+    presentation: command.settings.presentation,
   });
 }
 

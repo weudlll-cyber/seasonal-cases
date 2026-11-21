@@ -4,8 +4,8 @@
  *         socket.io, the sign-in parts and the show service over the event log.
  *
  * Responsibility: wire the ports (clock, ids, the secure and the seeded random source, the
- *                 JSON-lines store, the account, session and credential stores, the mailer) into
- *                 the show service, the routes and the socket side. Every route and the socket live under the base path
+ *                 JSON-lines store, the account, session and credential stores, the mailer, the
+ *                 settings) into the show service, the routes and the socket side. Every route and the socket live under the base path
  *                 (`/` locally, `/games/cases/` in website mode, GAME-INTEGRATION §1). The
  *                 development routes exist only in local development mode, the website's sign-in
  *                 and its account feed only in website mode, the standalone accounts only in local
@@ -15,8 +15,8 @@
  * Depends on:     node:crypto, node:http (types), fastify, @fastify/cookie, @fastify/helmet,
  *                 socket.io, @seasonal/kit/server, @sc/application, @sc/domain, ./auth/*,
  *                 ./accountRoutes.js, ./config.js, ./devRoutes.js, ./http.js, ./localRoutes.js,
- *                 ./mail.js, ./organiserRoutes.js, ./realtime.js, ./session.js, ./showRoutes.js,
- *                 ./twoFactorRoutes.js, ./websiteRoutes.js
+ *                 ./mail.js, ./organiserRoutes.js, ./realtime.js, ./session.js, ./settings.js,
+ *                 ./settingsRoutes.js, ./showRoutes.js, ./twoFactorRoutes.js, ./websiteRoutes.js
  */
 import { randomBytes, randomInt, randomUUID } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
@@ -50,6 +50,8 @@ import { smtpMailer, type Mailer } from './mail.js';
 import { organiserRoutes } from './organiserRoutes.js';
 import { attachRealtime } from './realtime.js';
 import type { Auth } from './session.js';
+import { CurrentSettings, memorySettings, type SettingsStore } from './settings.js';
+import { settingsRoutes } from './settingsRoutes.js';
 import { showRoutes } from './showRoutes.js';
 import { twoFactorRoutes } from './twoFactorRoutes.js';
 import { websiteRoutes } from './websiteRoutes.js';
@@ -70,6 +72,7 @@ export interface Stores {
   readonly cursor?: CursorStore;
   readonly credentials?: CredentialStore;
   readonly twoFactor?: TwoFactorStore;
+  readonly settings?: SettingsStore;
   // The outgoing mail; by default SMTP from the settings, or none.
   readonly mailer?: Mailer | null;
 }
@@ -110,7 +113,7 @@ async function authOf(app: FastifyInstance, config: ServerConfig, stores: Stores
 }
 
 // Every route under the base path, each group only in the mode it belongs to.
-async function routes(root: Ctx, stores: Stores): Promise<void> {
+async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Promise<void> {
   const { config } = root;
   const mailer = stores.mailer ?? (config.smtp === null ? null : smtpMailer(config.smtp));
   const local = {
@@ -127,6 +130,7 @@ async function routes(root: Ctx, stores: Stores): Promise<void> {
       showRoutes(ctx);
       organiserRoutes(ctx);
       accountRoutes(ctx);
+      settingsRoutes(ctx, settings);
       if (config.dev) devRoutes(ctx);
       if (config.website === null) {
         localRoutes(ctx, local);
@@ -153,16 +157,18 @@ export async function buildServer(config: ServerConfig, stores: Stores = {}): Pr
   // The service tells the socket side of every change; the socket side reads the service
   // (only once a socket connects, after both exist).
   const realtime = attachRealtime({ app, auth, io, shows: () => shows });
+  const settings = await CurrentSettings.load(stores.settings ?? memorySettings());
   const shows: ShowService = createShowService({
     clock: { now: () => new Date().toISOString() },
     ids: { showId: () => `show-${randomUUID().slice(0, 8)}` },
     random: RANDOM,
+    settings: settings.now,
     store: stores.events ?? jsonlStore(config.dataDir),
     onChange: (model) => {
       realtime.push(model);
     },
   });
-  await routes({ app, auth, shows, config }, stores);
+  await routes({ app, auth, shows, config }, stores, settings);
   const feed = config.website?.feed;
   const stopFeed =
     feed === null || feed === undefined

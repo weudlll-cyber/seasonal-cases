@@ -51,7 +51,7 @@ export const prizeId = (slot: number): string => `prize-${String(slot)}`;
 
 /** The prize artifacts for slots 1…W and the blank, from the settings. */
 export function artifactTable(
-  settings: ShowSettings,
+  settings: Pick<ShowSettings, 'prizeArtifacts' | 'relicName' | 'blankName'>,
   winners: number,
   season: Season,
 ): ArtifactTable {

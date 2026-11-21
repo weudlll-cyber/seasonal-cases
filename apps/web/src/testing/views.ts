@@ -7,6 +7,7 @@
  *                 Used by tests only.
  * Depends on:     @sc/contracts (types)
  */
+import { DEFAULT_SETTINGS } from '@sc/contracts';
 import type {
   Artifact,
   CaseView,
@@ -80,6 +81,7 @@ export function liveView(
     season: 'autumn',
     allPrizesFound: false,
     result: null,
+    presentation: DEFAULT_SETTINGS.presentation,
   };
 }
 

@@ -9,7 +9,14 @@
  *                 either before the show has ended.
  * Depends on:     @sc/contracts (types)
  */
-import type { Artifact, AssignmentEntry, DirectionStep, PrizeSlot, Rank } from '@sc/contracts';
+import type {
+  Artifact,
+  AssignmentEntry,
+  DirectionStep,
+  Presentation,
+  PrizeSlot,
+  Rank,
+} from '@sc/contracts';
 
 export interface Actor {
   readonly id: string;
@@ -26,6 +33,8 @@ export type ShowEvent =
       readonly prizeSlots: readonly PrizeSlot[];
       readonly prizes: readonly Artifact[];
       readonly blank: Artifact;
+      // The stage's motion and confetti at creation (D25); missing in shows from before piece 8.
+      readonly presentation?: Presentation;
     }
   | { readonly type: 'registrationOpened'; readonly at: string; readonly by: string }
   | {

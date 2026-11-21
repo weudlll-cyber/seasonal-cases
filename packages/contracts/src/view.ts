@@ -11,6 +11,7 @@
 import { z } from 'zod';
 
 import { ArtifactSchema, PrizeSlotSchema } from './artifact.js';
+import { PresentationSchema } from './settings.js';
 import {
   BadgeSchema,
   RankSchema,
@@ -110,6 +111,8 @@ export const PublicShowViewSchema = z.object({
   // The season of the show's creation date: the start card's tint (CONCEPT §6, §7).
   season: SeasonSchema.nullable(),
   allPrizesFound: z.boolean(),
+  // The stage's motion and confetti, as copied into the show at its creation (D25).
+  presentation: PresentationSchema,
   result: ShowResultSchema.nullable(),
 });
 export type PublicShowView = z.infer<typeof PublicShowViewSchema>;

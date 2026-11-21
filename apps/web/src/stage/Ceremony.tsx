@@ -41,7 +41,14 @@ function useCount(showId: string, total: number): number {
   return count;
 }
 
-export function Ceremony({ showId, result }: { showId: string; result: ShowResult }) {
+export interface CeremonyProps {
+  readonly showId: string;
+  readonly result: ShowResult;
+  // The show's confetti setting (D25).
+  readonly confetti?: boolean;
+}
+
+export function Ceremony({ showId, result, confetti = true }: CeremonyProps) {
   const order = ceremonyOrder(result);
   const count = useCount(showId, order.length);
   const current = order[Math.min(count, order.length) - 1];
@@ -67,7 +74,7 @@ export function Ceremony({ showId, result }: { showId: string; result: ShowResul
           <span className="lower-third-name">{current.ownerName ?? 'no owner'}</span>
         </div>
       )}
-      {current?.slot === MAIN_PRIZE && <ConfettiPieces />}
+      {confetti && current?.slot === MAIN_PRIZE && <ConfettiPieces />}
       {done && (
         <p className="ceremony-end">
           <Link to={`/results/${showId}`} className="button button-solid">

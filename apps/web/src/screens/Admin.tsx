@@ -5,12 +5,13 @@
  *
  * Responsibility: Quick Test (development only: a live show with bots in one click, the caller
  *                 holding the direction), create, and per show: open registration, fill with
- *                 bots, close, seal, start; the list of shows; the accounts (./AccountsAdmin.tsx).
+ *                 bots, close, seal, start; the list of shows, the setup starting from the
+ *                 settings' defaults; the settings and the accounts (./AccountsAdmin.tsx).
  *                 Every button calls the server, which checks the role and the rules.
  * Depends on:     react, @sc/contracts, @sc/ui, ../lib/api.js, ../lib/router.js,
  *                 ../lib/useAction.js, ./AccountsAdmin.js, ./SetupForm.js
  */
-import type { Me, ShowSummary } from '@sc/contracts';
+import { canDirect, type Me, type Settings, type ShowSummary } from '@sc/contracts';
 import { formatTime } from '@sc/ui';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -67,6 +68,21 @@ function ShowList({ shows, busy, act }: { shows: ShowSummary[]; busy: boolean; a
   );
 }
 
+/** The settings' default N and W for an organiser or admin; undefined until known. */
+function useDefaults(me: Me | null) {
+  const [defaults, setDefaults] = useState<{ cases: number; winners: number }>();
+  const may = me !== null && canDirect(me.role);
+  useEffect(() => {
+    if (!may) return;
+    getJson<Settings>(apiPath('/settings'))
+      .then((s) => {
+        setDefaults({ cases: s.defaultCases, winners: s.defaultWinners });
+      })
+      .catch(() => undefined);
+  }, [may]);
+  return defaults;
+}
+
 export interface AdminProps {
   readonly me: Me | null;
   // Asks the server for the show to follow at once (fix A of SC-N2), before any navigation.
@@ -77,6 +93,7 @@ export interface AdminProps {
 
 export function Admin({ me, onShowChanged, dev }: AdminProps) {
   const [shows, setShows] = useState<ShowSummary[]>([]);
+  const defaults = useDefaults(me);
   const action = useAction();
   const refresh = useCallback(() => {
     getJson<ShowSummary[]>(apiPath('/shows'))
@@ -110,6 +127,8 @@ export function Admin({ me, onShowChanged, dev }: AdminProps) {
     <main className="page admin">
       <h1>Admin</h1>
       <SetupForm
+        key={defaults === undefined ? 'catalogue' : 'settings'}
+        {...(defaults === undefined ? {} : { defaults })}
         busy={action.busy}
         {...(dev ? { onQuickTest: quickTest } : {})}
         onCreate={create}

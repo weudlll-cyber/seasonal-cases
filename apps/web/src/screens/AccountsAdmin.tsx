@@ -6,7 +6,7 @@
  *                 sets up two-factor sign-in first (../account/TwoFactorSetup.tsx). Website accounts take
  *                 both from the website and show them read-only; the server refuses changes to
  *                 them and to the admin's own admin role, and ends a changed role's sessions.
- * Depends on:     react, @sc/contracts, ../account/TwoFactorSetup.js, ../lib/*
+ * Depends on:     react, @sc/contracts, ../account/TwoFactorSetup.js, ../lib/*, ./SettingsAdmin.js
  */
 import {
   ACCOUNT_ROLES,
@@ -22,6 +22,7 @@ import { getJson, postJson } from '../lib/api.js';
 import { apiPath } from '../lib/base.js';
 import { useAction } from '../lib/useAction.js';
 import { TwoFactorSetup } from '../account/TwoFactorSetup.js';
+import { SettingsAdmin } from './SettingsAdmin.js';
 
 const RANKS = Array.from({ length: RANK_MAX + 1 }, (_, r) => r);
 
@@ -76,7 +77,7 @@ function AccountItem({ account: a, self, busy, change }: ItemProps) {
 // Website mode has no two-factor routes: the website signs its admins in.
 const NOT_ASKED: TwoFactorStatus = { required: false, enabled: false };
 
-/** The accounts, after two-factor sign-in is set up where it is required. */
+/** The settings and the accounts, after two-factor sign-in is set up where it is required. */
 export function AdminAccounts({ me }: { me: Me }) {
   const [status, setStatus] = useState<TwoFactorStatus | null>(null);
   const load = useCallback(() => {
@@ -89,7 +90,12 @@ export function AdminAccounts({ me }: { me: Me }) {
   useEffect(load, [load]);
   if (status === null) return null;
   if (status.required && !status.enabled) return <TwoFactorSetup onEnabled={load} />;
-  return <AccountsAdmin me={me} />;
+  return (
+    <>
+      <SettingsAdmin />
+      <AccountsAdmin me={me} />
+    </>
+  );
 }
 
 function AccountsAdmin({ me }: { me: Me }) {

@@ -1,38 +1,20 @@
 /**
  * @file   packages/domain/src/settings.ts
- * @brief  The show's settings with their defaults: artifact names, order and seasons.
+ * @brief  The part of the settings a show copies when it is created: artifacts and presentation.
  *
- * Responsibility: one settings object the setup reads (CONCEPT §6, §9: names and order are
- *                 settings, not code). The full build moves it into the settings catalogue of
- *                 the admin area (BACKLOG 6); the logic never names an artifact itself.
- * Depends on:     @sc/contracts (types)
+ * Responsibility: the settings catalogue lives in @sc/contracts (CONCEPT §9, DECISIONS D25);
+ *                 the setup reads only the artifact names, their order and seasons, and the
+ *                 presentation, and copies them into the show's first event, so a later change
+ *                 applies to new shows only. The logic never names an artifact itself.
+ * Depends on:     @sc/contracts
  */
-import type { ArtifactSeason } from '@sc/contracts';
+import { DEFAULT_SETTINGS as CATALOGUE_DEFAULTS, type Settings } from '@sc/contracts';
 
-export interface PrizeArtifactSetting {
-  readonly name: string;
-  // 'current': the season of the show's date (Relic and the blank, CONCEPT §6).
-  readonly season: ArtifactSeason | 'current';
-}
+export type ShowSettings = Pick<
+  Settings,
+  'prizeArtifacts' | 'relicName' | 'blankName' | 'presentation'
+>;
+export type PrizeArtifactSetting = Settings['prizeArtifacts'][number];
 
-export interface ShowSettings {
-  // Slot 1, 2, … in this order; slots past the list are relics.
-  readonly prizeArtifacts: readonly PrizeArtifactSetting[];
-  // "{n}" is the slot number.
-  readonly relicName: string;
-  readonly blankName: string;
-}
-
-// CONCEPT §6, the owner's examples in the proposed order (proposal, §14).
-export const DEFAULT_SETTINGS: ShowSettings = {
-  prizeArtifacts: [
-    { name: 'Halving Stone', season: 'all' },
-    { name: 'Season Key', season: 'autumn' },
-    { name: 'Winter Crystal', season: 'winter' },
-    { name: 'Spring Seed', season: 'spring' },
-    { name: 'Summer Flame', season: 'summer' },
-    { name: 'Ancient Leaf', season: 'autumn' },
-  ],
-  relicName: 'Relic #{n}',
-  blankName: 'Fallen Leaf',
-};
+// The catalogue's defaults (proposals, CONCEPT §14).
+export const DEFAULT_SETTINGS: ShowSettings = CATALOGUE_DEFAULTS;

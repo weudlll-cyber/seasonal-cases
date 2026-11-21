@@ -3,13 +3,14 @@
  * @brief  The stage's motion: every duration in one settings object, exposed as CSS variables.
  *
  * Responsibility: the travel to the front and back, the slow opening of the lid and the short
- *                 closing before the way back (DECISIONS D21). The values are the chain's
- *                 decision rule (0.8 s ease-in-out travel, 1.6 s opening), proposals for the
- *                 owner (HANDOVER); the settings catalogue takes them over (piece 8). Under
+ *                 closing before the way back (DECISIONS D21). The travel and the opening are the
+ *                 show's own, copied from the settings catalogue when it was created (D25,
+ *                 `motionOf`); the ease and the closing stay fixed here. Under
  *                 reduced motion the kit's motion.css switches every transition and animation
  *                 off, and `motionMs` answers 0, so the stage shows end states at once.
- * Depends on:     react (types)
+ * Depends on:     react (types), @sc/contracts
  */
+import { DEFAULT_SETTINGS, type Presentation } from '@sc/contracts';
 import type { CSSProperties } from 'react';
 
 export interface StageMotion {
@@ -23,11 +24,18 @@ export interface StageMotion {
 }
 
 export const STAGE_MOTION: StageMotion = {
-  travelMs: 800,
+  travelMs: DEFAULT_SETTINGS.presentation.travelMs,
   travelEase: 'ease-in-out',
-  openMs: 1600,
+  openMs: DEFAULT_SETTINGS.presentation.openMs,
   closeMs: 300,
 };
+
+/** The motion of a show: its own travel and opening, the fixed ease and closing. */
+export const motionOf = (presentation: Presentation): StageMotion => ({
+  ...STAGE_MOTION,
+  travelMs: presentation.travelMs,
+  openMs: presentation.openMs,
+});
 
 /** The motion as CSS variables on the stage's root. */
 export function motionVars(motion: StageMotion = STAGE_MOTION): CSSProperties {
