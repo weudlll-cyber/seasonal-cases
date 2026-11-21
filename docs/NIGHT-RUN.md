@@ -13,16 +13,16 @@ Written when the chain ends.
 
 ### Pieces
 
-| Piece                                      | Done | Running | Open                 | Needs the owner's word | Commits         | CI run ids           |
-| ------------------------------------------ | ---- | ------- | -------------------- | ---------------------- | --------------- | -------------------- |
-| 1 Small fixes, remaining security findings | all  | —       | —                    | BACKLOG 29, 30         | `06eafb6`       | CI 44953788972 green |
-| 2 Production run                           | all  | —       | —                    | —                      | `eeab324`       | CI 44956967985 green |
-| 3 Member summary                           | all  | —       | BACKLOG 33 (website) | —                      | `40d6bb3`       | CI 44957568796 green |
-| 4 Installer                                | all  | —       | BACKLOG 34, 35       | —                      | see piece 5 row | see piece 5 row      |
-| 5 Sound                                    | —    | —       | all                  | —                      | —               | —                    |
-| 6 Phone polish, Firefox and WebKit         | —    | —       | all                  | —                      | —               | —                    |
-| 7 Security review, release readiness       | —    | —       | all                  | —                      | —               | —                    |
-| 8 Play-through, pictures, hand-over        | —    | —       | all                  | —                      | —               | —                    |
+| Piece                                      | Done | Running | Open                 | Needs the owner's word | Commits                                | CI run ids                                                  |
+| ------------------------------------------ | ---- | ------- | -------------------- | ---------------------- | -------------------------------------- | ----------------------------------------------------------- |
+| 1 Small fixes, remaining security findings | all  | —       | —                    | BACKLOG 29, 30         | `06eafb6`                              | CI 44953788972 green                                        |
+| 2 Production run                           | all  | —       | —                    | —                      | `eeab324`                              | CI 44956967985 green                                        |
+| 3 Member summary                           | all  | —       | BACKLOG 33 (website) | —                      | `40d6bb3`                              | CI 44957568796 green                                        |
+| 4 Installer                                | all  | —       | BACKLOG 34, 35       | —                      | `8d6b838`, `be9764c` (executable bits) | CI 44959614661 green (`be9764c`; `8d6b838` cancelled by it) |
+| 5 Sound                                    | all  | —       | BACKLOG 36 (kit)     | the cues' sound        | see piece 6 row                        | see piece 6 row                                             |
+| 6 Phone polish, Firefox and WebKit         | —    | —       | all                  | —                      | —                                      | —                                                           |
+| 7 Security review, release readiness       | —    | —       | all                  | —                      | —                                      | —                                                           |
+| 8 Play-through, pictures, hand-over        | —    | —       | all                  | —                      | —                                      | —                                                           |
 
 ### Piece 1 report
 
@@ -152,6 +152,31 @@ Written when the chain ends.
 - **Found on the way:** Python's text mode on Windows had written two scripts with CRLF; they are
   LF now (`.gitattributes` normalises on commit anyway).
 - `pnpm verify` green (31 files, 155 tests).
+
+### Piece 5 report
+
+- **`apps/web/src/stage/sound.ts`** (Web Audio only, every cue synthesised from oscillators and
+  filtered noise, no files): `cuesFor(prev, next)` maps the same view changes the motion follows:
+  the opening begins (a rising tone and the ticks of the cases rolling in; the opening has no
+  countdown, so the ticks go with the roll-in), a case is selected (a swelling soft drum-roll over
+  the travel), a case opens (a chime on a prize; a fanfare and a cheer-like noise burst on the
+  main prize; nothing on a blank), the show ends (applause for the ceremony). The noise uses a
+  fixed integer sequence (no `Math.random`).
+- **Off by default**, turned on by the viewer with the sound button in the game bar
+  (`BarToggle`, pending kit item BACKLOG 36: the kit's bar actions only open panels); the choice
+  is remembered per browser (localStorage `sc-sound`); a remembered "on" starts at the viewer's
+  first tap, which browsers require. The hook lives in `App`, so the applause plays after the
+  game bar has gone. Reduced motion does not silence it.
+- **Volume:** `presentation.volume` (0–100, default 60) in the settings catalogue with its
+  description and warning, copied into each show like the motion; older shows merge onto the
+  defaults (`model.ts`). The admin's settings form shows it.
+- **Phones:** the fourth button would have overflowed the bar again, so "prizes left" is read out
+  on a phone (`desktopOnly`; the scoreboard shows the prizes) and the toggle shows its icon only.
+- **Extracted:** `SettingsParts.tsx` (the settings form's fields and artifact list; the form had
+  306 lines); `useCurrentShow(onStage)` lets go of a held show by itself (App had 62 lines).
+- **Tests:** `sound.test.tsx` (no cue for a first view or another show; opening, drum-roll,
+  fanfare, chime, nothing at Owner, applause; off until turned on, remembered).
+- `pnpm verify` green (32 files, 158 tests).
 
 ## Night chain SC-N2 (2026-11-21)
 

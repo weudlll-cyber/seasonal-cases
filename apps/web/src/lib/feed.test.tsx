@@ -66,7 +66,7 @@ describe('useCurrentShow', () => {
         ),
       ),
     );
-    const { result } = renderHook(() => useCurrentShow());
+    const { result } = renderHook(() => useCurrentShow(true));
     await waitFor(() => {
       expect(result.current.id).toBe('show-a');
     });
@@ -87,7 +87,7 @@ describe('useCurrentShow', () => {
         ),
       ),
     );
-    const { result } = renderHook(() => useCurrentShow());
+    const { result } = renderHook(() => useCurrentShow(true));
     await waitFor(() => {
       expect(result.current.id).toBe('live-1');
     });

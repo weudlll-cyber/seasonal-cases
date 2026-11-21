@@ -3,7 +3,8 @@
  * @brief  The settings catalogue: every value an admin may change, with its default, its
  *         description, its limits and a warning where a value is delicate.
  *
- * Responsibility: the one catalogue CLAUDE.md asks for (CONCEPT §9, DECISIONS D25). A change
+ * Responsibility: the one catalogue CLAUDE.md asks for (CONCEPT §9, DECISIONS D25), with the
+ *                 stage's sound volume since SC-N3. A change
  *                 applies to new shows only: a show copies the values it needs when it is created
  *                 (the artifacts and its presentation). `SettingsSchema` checks a whole set of
  *                 values against the limits written here; `SETTINGS_CATALOGUE` describes each
@@ -27,6 +28,8 @@ export const PresentationSchema = z.object({
   openMs: z.number().int().min(OPEN_RANGE.min).max(OPEN_RANGE.max),
   // Confetti on the main prize (CONCEPT §7).
   confetti: z.boolean(),
+  // The stage's sound, 0 to 100; every viewer turns it on for themselves (SC-N3 piece 5).
+  volume: z.number().int().min(0).max(100),
 });
 export type Presentation = z.infer<typeof PresentationSchema>;
 
@@ -68,7 +71,7 @@ export const DEFAULT_SETTINGS: Settings = {
   ],
   relicName: 'Relic #{n}',
   blankName: 'Fallen Leaf',
-  presentation: { travelMs: 800, openMs: 1600, confetti: true },
+  presentation: { travelMs: 800, openMs: 1600, confetti: true, volume: 60 },
 };
 
 export interface SettingEntry {
@@ -125,6 +128,14 @@ export const SETTINGS_CATALOGUE: readonly SettingEntry[] = [
     label: 'Opening (ms)',
     description: 'How long the lid takes to lift at "Open".',
     ...OPEN_RANGE,
+  },
+  {
+    key: 'presentation.volume',
+    label: 'Sound volume',
+    description: 'How loud the stage sounds for a viewer who turned the sound on (0 to 100).',
+    min: 0,
+    max: 100,
+    warning: 'Viewers hear it over their own call or stream: keep it moderate.',
   },
   {
     key: 'presentation.confetti',

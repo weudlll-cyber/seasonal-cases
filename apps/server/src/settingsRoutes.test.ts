@@ -25,7 +25,7 @@ const CHANGED: Settings = {
   defaultCases: 12,
   prizeArtifacts: [{ name: 'Moon Gem', season: 'winter' }],
   blankName: 'Dust',
-  presentation: { travelMs: 1200, openMs: 2400, confetti: false },
+  presentation: { travelMs: 1200, openMs: 2400, confetti: false, volume: 30 },
 };
 
 describe('the settings', () => {
@@ -49,7 +49,7 @@ describe('the settings', () => {
     const bad: Partial<Settings>[] = [
       { defaultCases: 4, defaultWinners: 5 },
       { relicName: 'Relic' },
-      { presentation: { travelMs: 50, openMs: 1600, confetti: true } },
+      { presentation: { travelMs: 50, openMs: 1600, confetti: true, volume: 60 } },
       { prizeArtifacts: [] },
     ];
     for (const change of bad) {

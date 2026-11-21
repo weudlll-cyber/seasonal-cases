@@ -16,7 +16,7 @@
  */
 import { DockedScreen, useDockView, useTheme, WebsiteChatFrame } from '@seasonal/kit/react';
 import { OriginChatFrame } from '@sc/ui';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 
 import { Matches } from './account/Matches.js';
 import { ResetPage } from './account/ResetPage.js';
@@ -30,6 +30,7 @@ import { Result } from './screens/Result.js';
 import { StartPage } from './screens/StartPage.js';
 import { FocusBar } from './shell/FocusBar.js';
 import { ShellBar } from './shell/ShellBar.js';
+import { useSound } from './stage/sound.js';
 import { Stage } from './stage/Stage.js';
 
 const ROOM = 'cases';
@@ -45,13 +46,10 @@ export function App() {
   const route = routeOf(usePath());
   const session = useSession();
   const mode = useServerMode();
-  const current = useCurrentShow();
-  // Leaving the stage lets go of a show that ended while it was watched (its ceremony is over).
-  const { release } = current;
-  useEffect(() => {
-    if (route.name !== 'stage') release();
-  }, [route.name, release]);
+  const current = useCurrentShow(route.name === 'stage');
   const feed = useShowFeed(current.id, session.me);
+  // Here, not in the game bar: the ceremony's applause plays after the bar has gone.
+  const sound = useSound(feed.show);
   const me = session.me ?? null;
   const shellRef = useRef<HTMLDivElement>(null);
   const view = useDockView();
@@ -78,6 +76,7 @@ export function App() {
           me={me}
           direct={feed.direct}
           target={shellRef}
+          sound={sound}
         />
       ) : (
         <ShellBar

@@ -65,6 +65,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
   Piece 3: the member summary for the website's profile (`/api/website/member-summary`).
   Piece 4: the installer, `sudo ./deploy/install.sh` ([INSTALL.md](INSTALL.md)), both modes,
   `--update` and `--check`, tested by `deploy/test/installer.test.sh` and shellcheck in CI.
+  Piece 5: sound, synthesised (Web Audio), off until a viewer turns it on in the game bar.
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.

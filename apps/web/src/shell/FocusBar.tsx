@@ -20,6 +20,7 @@ import {
   type BarAction,
 } from '@seasonal/kit/react';
 import type { Me, OrganiserView, PublicShowView } from '@sc/contracts';
+import { BarToggle } from '@sc/ui';
 import type { ReactNode, RefObject } from 'react';
 
 import { DirectionBar } from '../stage/DirectionBar.js';
@@ -35,6 +36,8 @@ export interface FocusBarProps {
   readonly target: RefObject<HTMLElement | null>;
   // The chat panel's content and unread count in website mode; absent otherwise.
   readonly chat?: { readonly unread: number; readonly content: ReactNode };
+  // The stage's sound, on or off for this viewer (../stage/sound.ts).
+  readonly sound: { readonly on: boolean; readonly toggle: () => void };
 }
 
 /** The bar's facts, counted from the view. */
@@ -56,7 +59,7 @@ function Players({ show }: { show: PublicShowView }) {
   );
 }
 
-export function FocusBar({ show, organiser, me, direct, target, chat }: FocusBarProps) {
+export function FocusBar({ show, organiser, me, direct, target, chat, sound }: FocusBarProps) {
   useFocusMode(true);
   const panels = usePanels<PanelId>();
   const fullscreen = useFullscreen(target);
@@ -75,10 +78,16 @@ export function FocusBar({ show, organiser, me, direct, target, chat }: FocusBar
   return (
     <>
       <GameBar
-        lead={<span className="focus-lead">Seasonal Cases</span>}
+        lead={
+          <>
+            <span className="focus-lead">Seasonal Cases</span>
+            <BarToggle on={sound.on} label="Sound" onToggle={sound.toggle} />
+          </>
+        }
         facts={[
           { text: `${String(casesLeft)} cases left` },
-          { text: `${String(prizesLeft)} prizes left` },
+          // Read out on a phone: the scoreboard above the stage shows the prizes there.
+          { text: `${String(prizesLeft)} prizes left`, desktopOnly: true },
         ]}
         actions={actions}
         panels={panels}

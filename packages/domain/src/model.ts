@@ -72,7 +72,8 @@ function created(event: Created): ShowModel {
     prizeSlots: event.prizeSlots,
     prizes: event.prizes,
     blank: event.blank,
-    presentation: event.presentation ?? DEFAULT_SETTINGS.presentation,
+    // Older shows lack newer values (the volume since SC-N3): the defaults fill them.
+    presentation: { ...DEFAULT_SETTINGS.presentation, ...event.presentation },
     listed: event.listed === true,
     claims: [],
     owners: null,

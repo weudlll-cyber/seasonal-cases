@@ -7,144 +7,16 @@
  *                 current values, check the draft with the catalogue's own schema before sending,
  *                 and save it for new shows; shows that exist keep what they were created with.
  *                 The server checks the values and the admin's right again.
- * Depends on:     react, @sc/contracts, ../lib/*, ./fields.js
+ * Depends on:     react, @sc/contracts, ../lib/*, ./fields.js, ./SettingsParts.js
  */
-import {
-  SEASONS,
-  SETTINGS_CATALOGUE,
-  SettingsSchema,
-  type PrizeArtifact,
-  type Settings,
-} from '@sc/contracts';
-import { useEffect, useState, type ReactNode } from 'react';
+import { SettingsSchema, type Settings } from '@sc/contracts';
+import { useEffect, useState } from 'react';
 
 import { getJson, postJson } from '../lib/api.js';
 import { apiPath } from '../lib/base.js';
 import { useAction } from '../lib/useAction.js';
-import { ChoiceField, NumberField, TextField } from './fields.js';
-
-const entry = (key: string) => SETTINGS_CATALOGUE.find((e) => e.key === key);
-// Every season, 'all' (the main prize's four colours), 'none' (muted) and the show's own.
-const SEASON_CHOICES: { value: PrizeArtifact['season']; text: string }[] = [
-  ...SEASONS.map((s) => ({ value: s, text: s })),
-  { value: 'all', text: 'all four' },
-  { value: 'none', text: 'muted' },
-  { value: 'current', text: 'the show’s season' },
-];
-
-/** One value with the catalogue's description and warning under it. */
-function Setting({ name, children }: { name: string; children: ReactNode }) {
-  const e = entry(name);
-  return (
-    <div className="setting" data-setting={name}>
-      {children}
-      {e !== undefined && <small>{e.description}</small>}
-      {e?.warning !== undefined && <small className="setting-warning">{e.warning}</small>}
-    </div>
-  );
-}
-
-function Num({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: number;
-  onChange: (v: number) => void;
-}) {
-  const e = entry(name);
-  return (
-    <Setting name={name}>
-      <NumberField
-        label={e?.label ?? name}
-        tip={e?.description ?? ''}
-        min={e?.min ?? 0}
-        max={e?.max ?? 99_999}
-        value={value}
-        onChange={onChange}
-      />
-    </Setting>
-  );
-}
-
-// Add an artifact after the last, or take the last away (one stays).
-function ListButtons({
-  list,
-  onChange,
-}: {
-  list: readonly PrizeArtifact[];
-  onChange: (l: PrizeArtifact[]) => void;
-}) {
-  return (
-    <span className="admin-buttons">
-      <button
-        type="button"
-        className="button"
-        title="Add an artifact after the last"
-        onClick={() => {
-          onChange([...list, { name: `Artifact ${String(list.length + 1)}`, season: 'current' }]);
-        }}
-      >
-        Add
-      </button>
-      <button
-        type="button"
-        className="button"
-        title="Remove the last artifact"
-        disabled={list.length <= 1}
-        onClick={() => {
-          onChange(list.slice(0, -1));
-        }}
-      >
-        Remove last
-      </button>
-    </span>
-  );
-}
-
-function Artifacts({
-  list,
-  onChange,
-}: {
-  list: readonly PrizeArtifact[];
-  onChange: (l: PrizeArtifact[]) => void;
-}) {
-  const set = (i: number, change: Partial<PrizeArtifact>) => {
-    onChange(list.map((a, j) => (j === i ? { ...a, ...change } : a)));
-  };
-  return (
-    <Setting name="prizeArtifacts">
-      <fieldset className="admin-labels">
-        <legend>{entry('prizeArtifacts')?.label}</legend>
-        {list.map((a, i) => (
-          <span key={i} className="setting-artifact">
-            <TextField
-              label={`Prize ${String(i + 1)}`}
-              tip="The artifact's name"
-              maxLength={40}
-              required
-              value={a.name}
-              onChange={(name) => {
-                set(i, { name });
-              }}
-            />
-            <ChoiceField
-              label="Season"
-              tip="The artifact's colour"
-              value={a.season}
-              choices={SEASON_CHOICES}
-              onChange={(season) => {
-                set(i, { season });
-              }}
-            />
-          </span>
-        ))}
-        <ListButtons list={list} onChange={onChange} />
-      </fieldset>
-    </Setting>
-  );
-}
+import { TextField } from './fields.js';
+import { Artifacts, entry, Num, Setting } from './SettingsParts.js';
 
 interface PartProps {
   readonly draft: Settings;
@@ -202,6 +74,13 @@ function Motion({ draft, change }: PartProps) {
         value={draft.presentation.openMs}
         onChange={(openMs) => {
           motion({ openMs });
+        }}
+      />
+      <Num
+        name="presentation.volume"
+        value={draft.presentation.volume}
+        onChange={(volume) => {
+          motion({ volume });
         }}
       />
       <Setting name="presentation.confetti">

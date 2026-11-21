@@ -250,3 +250,35 @@ select {
   width: 16px;
   height: 16px;
 }
+
+/* The game bar's sound toggle (@sc/ui pending/BarToggle.tsx): icon and words on a desktop, the
+   icon alone on a phone, a 44 px target. */
+.sc-bar-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: var(--hit-target);
+  min-height: var(--hit-target);
+  margin-left: var(--space-1);
+}
+
+.sc-bar-toggle[aria-pressed='true'] {
+  border-color: var(--color-autumn);
+}
+
+@media (max-width: 899px), (orientation: portrait) {
+  .sc-bar-toggle {
+    justify-content: center;
+    width: var(--hit-target);
+    padding: 0;
+  }
+
+  .sc-bar-toggle-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

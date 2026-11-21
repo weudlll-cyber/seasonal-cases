@@ -42,7 +42,7 @@ export interface CurrentShow {
  * when another show is already in registration (SC-N2 piece 10), until `release` or until
  * another show goes live.
  */
-export function useCurrentShow(): CurrentShow {
+export function useCurrentShow(onStage: boolean): CurrentShow {
   const [id, setId] = useState<string | null | undefined>(undefined);
   const held = useRef<string | null>(null);
   const refresh = useCallback(async () => {
@@ -54,6 +54,10 @@ export function useCurrentShow(): CurrentShow {
   const release = useCallback(() => {
     held.current = null;
   }, []);
+  // Leaving the stage lets go of a show that ended while it was watched (its ceremony is over).
+  useEffect(() => {
+    if (!onStage) release();
+  }, [onStage, release]);
   useEffect(() => {
     const ask = () => {
       refresh().catch(() => undefined);
