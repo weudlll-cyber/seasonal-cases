@@ -31,6 +31,8 @@ export interface TwoFactorStore {
   useStep(accountId: string, step: number): Promise<boolean>;
   // Marks the recovery code used; answers false if it is unknown or used.
   useRecovery(accountId: string, codeHash: Buffer): Promise<boolean>;
+  // Removes the secret and every recovery code (`pnpm sc admin reset-2fa`).
+  remove(accountId: string): Promise<void>;
 }
 
 export const RECOVERY_STYLE = 'grouped';
@@ -87,6 +89,11 @@ export function memoryTwoFactor(): TwoFactorStore {
       if (mine?.get(key) !== false) return Promise.resolve(false);
       mine.set(key, true);
       return Promise.resolve(true);
+    },
+    remove: (id) => {
+      all.delete(id);
+      codes.delete(id);
+      return Promise.resolve();
     },
   };
 }

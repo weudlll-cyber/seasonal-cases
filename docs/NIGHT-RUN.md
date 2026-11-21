@@ -2,6 +2,54 @@
 
 The morning sheets of the unattended night chains, newest first.
 
+## Night chain SC-N3 (2026-11-21)
+
+Toward production: fixes, production run, member summary, installer, sound, browser polish, a
+full security review, release readiness. Branch `proto/cases-v1`, continued; nothing merged.
+
+### Final report
+
+Written when the chain ends.
+
+### Pieces
+
+| Piece                                      | Done | Running | Open | Needs the owner's word | Commits         | CI run ids      |
+| ------------------------------------------ | ---- | ------- | ---- | ---------------------- | --------------- | --------------- |
+| 1 Small fixes, remaining security findings | all  | —       | —    | BACKLOG 29, 30         | see piece 2 row | see piece 2 row |
+| 2 Production run                           | —    | —       | all  | —                      | —               | —               |
+| 3 Member summary                           | —    | —       | all  | —                      | —               | —               |
+| 4 Installer                                | —    | —       | all  | —                      | —               | —               |
+| 5 Sound                                    | —    | —       | all  | —                      | —               | —               |
+| 6 Phone polish, Firefox and WebKit         | —    | —       | all  | —                      | —               | —               |
+| 7 Security review, release readiness       | —    | —       | all  | —                      | —               | —               |
+| 8 Play-through, pictures, hand-over        | —    | —       | all  | —                      | —               | —               |
+
+### Piece 1 report
+
+- **Kit:** v0.8.0 is still the newest tag, so the pin stays (standing rule). The kit has no new
+  piece, so `packages/ui/src/pending/` stays as it is.
+- **Prize names:** one helper, `prizeName(slot, label)` in `packages/contracts/src/artifact.ts`:
+  "Prize 2" without a label, "Prize 1 · Gold" with one (a label that only repeats "Prize n"
+  counts as none). `prizeTitle(slot)` is it for a prize slot. Used by the lower third of the
+  ceremony ("Prize 2 · case 4", was "Prize 2: Prize 2, case 4"), the centre case, the scoreboard,
+  the artifact table, the opening, the result, the chronicle and "My matches". The result's
+  `label` is the organiser's label as given ('' when none); `prizeLabel` is gone (no caller
+  left). The scoreboard, the table and the opening said "Prize 1: Gold"; all say "Prize 1 · Gold"
+  now.
+- **Look-alike names:** `apps/server/src/auth/names.ts` `nameKey`: NFKC, case folding (upper then
+  lower, so "ß" meets "SS"), no diacritics, no whitespace; tested. Registration and the promote
+  tool use it in place of `trim().toLowerCase()` (in `auth/credentials.ts` until now). Local
+  accounts cannot be renamed yet, so there is no rename to cover.
+- **Common passwords:** `@zxcvbn-ts/language-common` 4.2.0 (MIT, 49 233 entries, installs cleanly,
+  pinned exactly) beside Mini Games' ten; a test refuses a dictionary password.
+- **`pnpm sc admin reset-2fa <name>`** (and `pnpm dev:sc …`): `tools/adminCommands.ts` holds both
+  commands on the store ports (tested on memory stores; the PostgreSQL `remove` in the store
+  test); `tools/sc.ts` is the command line only. `TwoFactorStore.remove` is new. README has a
+  section "Accounts and admins".
+- **docs/security-pass.md:** finding 11 fixed; a status section for the owner's list.
+- `pnpm verify` green (29 files, 145 tests); journeys 1–6 passed.
+- **Dependencies:** `@zxcvbn-ts/language-common` 4.2.0 (the common-password dictionary).
+
 ## Night chain SC-N2 (2026-11-21)
 
 Kit v0.8.0, three steps, scoreboard, the moving case, start and finale, website mode with the

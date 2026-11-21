@@ -27,7 +27,7 @@ describe('the opening', () => {
     render(<Stage show={opening} organiser={null} me={ANA} direct={direct} />);
     const region = screen.getByRole('region', { name: 'Opening' });
     expect(region.textContent).toContain('12 cases · 2 prizes');
-    expect(within(region).getByText('Prize 1: Gold')).toBeDefined();
+    expect(within(region).getByText('Prize 1 · Gold')).toBeDefined();
     expect(within(region).queryByRole('button', { name: 'Begin' })).toBeNull();
   });
 

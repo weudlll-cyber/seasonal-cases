@@ -80,6 +80,11 @@ export function pgTwoFactor(pool: DbPool, key: Buffer): TwoFactorStore {
       );
       return result.rowCount === 1;
     },
+    async remove(accountId) {
+      // The recovery codes go with the row (ON DELETE CASCADE is on the account; both explicit).
+      await pool.query('DELETE FROM recovery_codes WHERE account_id = $1', [accountId]);
+      await pool.query('DELETE FROM two_factor WHERE account_id = $1', [accountId]);
+    },
     async useRecovery(accountId, hash) {
       const result = await pool.query(
         `UPDATE recovery_codes SET used_at = now()

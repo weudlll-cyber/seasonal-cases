@@ -31,7 +31,8 @@ import {
 import type { FastifyRequest } from 'fastify';
 
 import type { Account } from './auth/accounts.js';
-import { emailKey, nameKey, type CredentialStore } from './auth/credentials.js';
+import { emailKey, type CredentialStore } from './auth/credentials.js';
+import { nameKey } from './auth/names.js';
 import { dummyHash, hashPassword, passwordMatches, passwordProblem } from './auth/passwords.js';
 import { tokenHash } from './auth/sessions.js';
 import { codeAccepted, needsTwoFactor } from './auth/twoFactor.js';

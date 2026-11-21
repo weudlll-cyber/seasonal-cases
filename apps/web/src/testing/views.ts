@@ -127,7 +127,7 @@ export function resultOf(verified: boolean): ShowResult {
   return {
     winners: [
       { slot: 1, label: 'Gold', artifact: STONE, caseNumber: 4, ownerName: 'Ana' },
-      { slot: 2, label: 'Prize 2', artifact: KEY, caseNumber: 9, ownerName: 'bot-9' },
+      { slot: 2, label: '', artifact: KEY, caseNumber: 9, ownerName: 'bot-9' },
     ],
     cases: [
       { number: 4, ownerName: 'Ana', artifact: STONE },

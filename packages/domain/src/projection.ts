@@ -12,7 +12,6 @@
  * Depends on:     @sc/contracts (types), ./model.js, ./registration.js, ./sealing.js, ./setup.js
  */
 import {
-  prizeLabel,
   SEASONS,
   type Artifact,
   type BoardCase,
@@ -83,7 +82,7 @@ function foundPrize(
   if (slot === undefined) return null;
   return {
     slot: slot.slot,
-    label: prizeLabel(slot),
+    label: slot.label.trim(),
     artifact,
     caseNumber,
     ownerName: nameOf(people, ownerOf(model, caseNumber)),

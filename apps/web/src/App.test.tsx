@@ -34,7 +34,7 @@ describe('the client renders, the server decides', () => {
     const frame = screen.getByTestId('result');
     expect(within(frame).getByRole('heading', { level: 1 }).textContent).toBe('The winners');
     const places = frame.querySelector('.sk-result-places');
-    expect(places?.textContent).toContain('Prize 1GoldHalving StoneAnacase 4');
+    expect(places?.textContent).toContain('Prize 1 · GoldHalving StoneAnacase 4');
     // An empty label is not repeated: "Prize 2" once.
     expect(places?.textContent).toContain('Prize 2Season Keybot-9case 9');
     expect(frame.querySelector('.sk-result-proof')?.textContent).toMatch(

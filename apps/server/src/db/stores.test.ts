@@ -205,5 +205,8 @@ describe('the two-factor store', () => {
     expect(await twoFactor.useRecovery('acc-t', hash)).toBe(true);
     expect(await twoFactor.useRecovery('acc-t', hash)).toBe(false);
     expect(await twoFactor.useRecovery('acc-t', Buffer.alloc(32, 3))).toBe(false);
+    await twoFactor.remove('acc-t');
+    expect(await twoFactor.get('acc-t')).toBeUndefined();
+    expect(await twoFactor.useRecovery('acc-t', Buffer.alloc(32, 2))).toBe(false);
   });
 });

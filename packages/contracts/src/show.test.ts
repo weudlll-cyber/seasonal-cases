@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { prizeLabel, prizeTitle } from './artifact.js';
+import { prizeName, prizeTitle } from './artifact.js';
 import { canDirect, RankSchema, SHOW_STATES, ShowStateSchema } from './show.js';
 
 describe('ShowStateSchema', () => {
@@ -34,14 +34,11 @@ describe('roles and ranks', () => {
   });
 });
 
-describe('prizeLabel', () => {
-  it('shows an empty label as "Prize <slot>" (CONCEPT §3.1)', () => {
-    expect(prizeLabel({ slot: 2, label: '  ' })).toBe('Prize 2');
-    expect(prizeLabel({ slot: 1, label: 'Gold' })).toBe('Gold');
-  });
-
-  it('titles a slot without repeating "Prize n"', () => {
-    expect(prizeTitle({ slot: 2, label: '' })).toBe('Prize 2');
-    expect(prizeTitle({ slot: 1, label: ' Gold ' })).toBe('Prize 1: Gold');
+describe('prizeName', () => {
+  it('names the slot once and the label only when there is one (CONCEPT §3.1)', () => {
+    expect(prizeName(2, '  ')).toBe('Prize 2');
+    expect(prizeName(2, 'Prize 2')).toBe('Prize 2');
+    expect(prizeName(1, ' Gold ')).toBe('Prize 1 · Gold');
+    expect(prizeTitle({ slot: 3, label: 'Poster' })).toBe('Prize 3 · Poster');
   });
 });

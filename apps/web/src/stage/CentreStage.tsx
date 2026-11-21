@@ -11,7 +11,7 @@
  *                 only once the view carries it (CONCEPT §8). Everything comes from the view.
  * Depends on:     react, @sc/contracts (types), ./ArtifactEmblem.js, ./travel.js
  */
-import type { CaseView, PublicShowView } from '@sc/contracts';
+import { prizeTitle, type CaseView, type PublicShowView } from '@sc/contracts';
 import { useRef } from 'react';
 
 import { ArtifactEmblem } from './ArtifactEmblem.js';
@@ -20,9 +20,7 @@ import { useArrival, useHomeward } from './travel.js';
 /** The meaning shown with an opened artifact. */
 export function meaningText(show: PublicShowView, view: CaseView): string {
   const slot = show.prizeSlots.find((s) => s.slot === view.artifact?.prizeSlot);
-  if (slot === undefined) return 'No prize';
-  const label = slot.label.trim();
-  return label === '' ? `Prize ${String(slot.slot)}` : `Prize ${String(slot.slot)} · ${label}`;
+  return slot === undefined ? 'No prize' : prizeTitle(slot);
 }
 
 interface FrontCaseProps {

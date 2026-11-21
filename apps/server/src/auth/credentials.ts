@@ -2,7 +2,7 @@
  * @file   apps/server/src/auth/credentials.ts
  * @brief  The sign-in data of standalone accounts: the port, an in-memory store, the keys.
  *
- * Responsibility: a local account's name key (lower case, unique), its e-mail (lower case,
+ * Responsibility: a local account's name key (./names.ts, unique), its e-mail (lower case,
  *                 unique) and its password hash; the password-reset tokens by their sha256, used
  *                 once and only before they expire. The account itself lives in ./accounts.ts.
  *                 PostgreSQL fills the port in ../db/credentialStore.ts.
@@ -28,7 +28,6 @@ export interface CredentialStore {
   endResets(accountId: string): Promise<void>;
 }
 
-export const nameKey = (name: string): string => name.trim().toLowerCase();
 export const emailKey = (email: string): string => email.trim().toLowerCase();
 
 interface Reset {

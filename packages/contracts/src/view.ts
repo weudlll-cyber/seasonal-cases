@@ -53,6 +53,7 @@ export type BoardCase = z.infer<typeof BoardCaseSchema>;
 
 export const FoundPrizeSchema = z.object({
   slot: z.number().int().min(1),
+  // The organiser's label as given, '' when none; shown through `prizeName` (./artifact.ts).
   label: z.string(),
   artifact: ArtifactSchema,
   caseNumber: z.number().int().min(1),

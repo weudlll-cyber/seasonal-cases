@@ -11,7 +11,7 @@
  *                 ../lib/base.js, ../stage/ArtifactEmblem.js
  */
 import { ResultFrame } from '@seasonal/kit/react';
-import type { PublicShowView, ShowResult } from '@sc/contracts';
+import { prizeName, type PublicShowView, type ShowResult } from '@sc/contracts';
 import { formatTime, shortCommitment } from '@sc/ui';
 import { useEffect, useState } from 'react';
 
@@ -24,9 +24,7 @@ function Placings({ result }: { result: ShowResult }) {
     <ol className="result-winners">
       {result.winners.map((w) => (
         <li key={w.slot}>
-          <span className="result-slot">Prize {w.slot}</span>
-          {/* The label is "Prize n" when none was given; it is not repeated. */}
-          {w.label !== `Prize ${String(w.slot)}` && <span className="result-label">{w.label}</span>}
+          <span className="result-slot">{prizeName(w.slot, w.label)}</span>
           <ArtifactEmblem artifact={w.artifact} />
           <span className="result-owner">{w.ownerName ?? 'no owner'}</span>
           <span className="result-case">case {w.caseNumber}</span>

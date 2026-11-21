@@ -8,7 +8,7 @@
  *                 shows, so nothing here was ever hidden.
  * Depends on:     react, @sc/contracts (types), @sc/ui, ../lib/*, ../stage/ArtifactEmblem.js
  */
-import type { ChronicleEntry } from '@sc/contracts';
+import { prizeName, type ChronicleEntry } from '@sc/contracts';
 import { formatTime, shortCommitment } from '@sc/ui';
 import { useEffect, useState } from 'react';
 
@@ -24,8 +24,7 @@ function Entry({ entry }: { entry: ChronicleEntry }) {
       <ol className="chronicle-winners">
         {entry.winners.map((w) => (
           <li key={w.slot}>
-            <span className="result-slot">Prize {w.slot}</span>
-            {w.label !== `Prize ${String(w.slot)}` && <span>{w.label}</span>}
+            <span className="result-slot">{prizeName(w.slot, w.label)}</span>
             <ArtifactEmblem artifact={w.artifact} />
             <span className="result-owner">{w.ownerName ?? 'no owner'}</span>
             <span>case {w.caseNumber}</span>

@@ -37,6 +37,21 @@ on every interface, so a phone on the same network reaches it at `http://<PC's I
 | 3990 | the browser tests' server in website mode        |
 | 5485 | the browser tests' stand-in website              |
 
+## Accounts and admins (local mode)
+
+Players create their own accounts on the start page. Admins come from the command line, on the
+server's database (`DATABASE_URL` and `SC_DATA_KEY` in the shell; `pnpm dev:sc …` reads
+`apps/server/dev.env` for the development database):
+
+```sh
+pnpm sc admin promote <name>     # the account becomes an admin; its sessions end
+pnpm sc admin reset-2fa <name>   # removes its second factor and recovery codes; sessions end
+```
+
+An admin sets up two-factor sign-in in the admin area before the accounts and settings open,
+again after a `reset-2fa`. Names are compared without case, accents, width or spaces, so
+`Olga` and `ÓLGA` cannot both exist.
+
 ## Website mode
 
 The server reads its trust settings from the environment and refuses to start without them:

@@ -45,7 +45,7 @@ describe('Scoreboard', () => {
     render(<Scoreboard show={liveView('selected', STONE, { 3: KEY })} />);
     const rows = screen.getByRole('list', { name: 'Scoreboard' }).querySelectorAll('li');
     expect([...rows].map((r) => r.getAttribute('data-state'))).toEqual(['open', 'taken', 'open']);
-    expect(rows[0]?.textContent).toContain('Prize 1: Gold');
+    expect(rows[0]?.textContent).toContain('Prize 1 · Gold');
     expect(rows[2]?.textContent).toContain('no prize');
     expect(screen.getByText(/^commitment c0ffee/)).toBeDefined();
   });

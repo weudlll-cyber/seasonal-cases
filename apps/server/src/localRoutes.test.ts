@@ -62,6 +62,8 @@ describe('registration and sign-in', () => {
       (await post(h, '/api/auth/register', { ...ADA, password })).json<{ error: string }>();
     expect((await weak('short')).error).toBe('The password needs at least 12 characters.');
     expect((await weak('Password1234')).error).toMatch(/too common/);
+    // From the dictionary, not Mini Games' ten.
+    expect((await weak('1qaz2wsx3edc')).error).toMatch(/too common/);
     const long = await post(harness, '/api/auth/register', { ...ADA, password: 'x'.repeat(129) });
     expect(long.statusCode).toBe(400);
     const name = await post(harness, '/api/auth/register', { ...ADA, name: 'a b' });
@@ -216,6 +218,6 @@ describe('my matches', () => {
     shows.step(id, org.me.id, 'open');
     const after = (await get(harness, '/api/me/matches', ada.cookie)).json<{ prize: string }[]>();
     expect(after[0]).toMatchObject({ owner: true });
-    expect(['Prize 1: Gold', 'No prize']).toContain(after[0]?.prize);
+    expect(['Prize 1 · Gold', 'No prize']).toContain(after[0]?.prize);
   });
 });

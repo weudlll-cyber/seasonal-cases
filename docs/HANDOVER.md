@@ -58,6 +58,9 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
 
   The dev role "moderator" is now "organiser". Concept v1.4.
 
+- **Night chain SC-N3 (running):** toward production. Piece 1: prize names through one helper,
+  look-alike names refused, the common-password dictionary, `pnpm sc admin reset-2fa`.
+
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
 

@@ -288,9 +288,23 @@ Every finding was fixed except 11, and each fix has a test in
 | 8   | Fixed: `dev:reset-db` runs only against 127.0.0.1 or localhost on port 5570 (no test: a tool script).                                                                                                                                                                                  |
 | 9   | Fixed: a server that sends mail outside development refuses to start without `SC_PUBLIC_ORIGIN`.                                                                                                                                                                                       |
 | 10  | Fixed: setup is refused (409) to an account the sign-in does not ask a code of.                                                                                                                                                                                                        |
-| 11  | Left: the ten entries are Mini Games' list, whose rules the task names; a longer list is for the owner (HANDOVER).                                                                                                                                                                     |
+| 11  | Fixed in SC-N3 piece 1: Mini Games' ten plus the 49 233 entries of `@zxcvbn-ts/language-common` 4.2.0 (MIT), compared in lower case (`auth/passwords.ts`); test in `localRoutes.test.ts`.                                                                                              |
 | 12  | Fixed: a development account signs nobody in while the development features are off.                                                                                                                                                                                                   |
 | 13  | Fixed: boxes are `v2`, bound to their row as additional data (`show:<id>`, `two_factor:<account id>`), tag length 16; the box test shows a box refused in another row. Only development data had v1 boxes; the development database was reset.                                         |
 | 14  | Fixed: a deleted website account is not saved again; `pnpm sc` reads no env file (`pnpm dev:sc` for the development database); expired sessions and spent links are deleted when the database opens. Left: one account's name and e-mail are two per-login buckets (harmless after 1). |
 
 The points under "Out of scope or for the owner" are listed in HANDOVER under the owner's word.
+
+## Status after SC-N3 piece 1 (2026-11-21)
+
+Every finding of the first pass is fixed now (11 in SC-N3 piece 1). Of the owner's list:
+
+- **2FA recovery:** `pnpm sc admin reset-2fa <name>` removes an account's second factor, its
+  recovery codes and its sessions; the admin enrols again before the admin area opens
+  (`tools/adminCommands.ts`, tested). Re-issuing recovery codes from the page and the enrolment
+  window stay with the owner (BACKLOG 29).
+- **Names:** a new name is refused when it equals an existing one after NFKC, case folding and the
+  removal of diacritics and whitespace (`auth/names.ts`, tested; registration and the promote
+  tool). Letters of different scripts that only look alike, and registration's 409 telling that an
+  e-mail is taken, stay with the owner (BACKLOG 30).
+- The other points of that list are unchanged.

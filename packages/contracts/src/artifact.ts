@@ -29,14 +29,15 @@ export const PrizeSlotSchema = z.object({
 });
 export type PrizeSlot = z.infer<typeof PrizeSlotSchema>;
 
-/** The text a prize slot is shown with. */
-export function prizeLabel(slot: PrizeSlot): string {
-  const label = slot.label.trim();
-  return label === '' ? `Prize ${String(slot.slot)}` : label;
+/**
+ * How every screen names a prize: "Prize 2" without a label, "Prize 1 · Gold" with one. The slot
+ * is named once; a label that only repeats "Prize n" counts as none (SC-N3 piece 1).
+ */
+export function prizeName(slot: number, label: string): string {
+  const own = label.trim();
+  const plain = `Prize ${String(slot)}`;
+  return own === '' || own === plain ? plain : `${plain} · ${own}`;
 }
 
-/** "Prize 2" for an empty label, "Prize 1: Gold" for a given one: no "Prize 2: Prize 2". */
-export function prizeTitle(slot: PrizeSlot): string {
-  const label = slot.label.trim();
-  return label === '' ? `Prize ${String(slot.slot)}` : `Prize ${String(slot.slot)}: ${label}`;
-}
+/** A prize slot's name (`prizeName`). */
+export const prizeTitle = (slot: PrizeSlot): string => prizeName(slot.slot, slot.label);

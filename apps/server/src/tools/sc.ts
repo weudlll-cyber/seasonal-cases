@@ -1,23 +1,26 @@
 /**
  * @file   apps/server/src/tools/sc.ts
- * @brief  The server's command line: `pnpm sc admin promote <name>` makes the first admin
+ * @brief  The server's command line: `pnpm sc admin promote <name>` makes an admin,
+ *         `pnpm sc admin reset-2fa <name>` removes an account's second factor
  *         (`pnpm dev:sc …` on the development database, with dev.env).
  *
- * Responsibility: on the server's own database (DATABASE_URL, SC_DATA_KEY from the shell, never
- *                 a file's development key, security pass 14), give the standalone
- *                 account with that name the admin role and end its sessions, so the next
- *                 sign-in carries the role. Further roles are set by an admin in the admin area.
- *                 Website accounts take their role from the website and are refused, as in
- *                 seasonal-mini-games' `smg admin create-super`.
- * Depends on:     ../auth/credentials.js, ../config.js, ../db/open.js
+ * Responsibility: open the server's own database (DATABASE_URL, SC_DATA_KEY from the shell,
+ *                 never a file's development key, security pass 14), run one command of
+ *                 ./adminCommands.ts and print its answer. Further roles are set by an admin in
+ *                 the admin area. As seasonal-mini-games' `smg admin …`.
+ * Depends on:     ../config.js, ../db/open.js, ./adminCommands.js
  */
-import { nameKey } from '../auth/credentials.js';
 import { configFrom } from '../config.js';
 import { openDatabase } from '../db/open.js';
+import { promote, resetTwoFactor, type AdminStores } from './adminCommands.js';
 
-const USAGE = 'usage: pnpm sc admin promote <name>';
+const USAGE = 'usage: pnpm sc admin promote <name> | pnpm sc admin reset-2fa <name>';
+const COMMANDS: Record<string, (stores: AdminStores, name: string) => Promise<string>> = {
+  promote,
+  'reset-2fa': resetTwoFactor,
+};
 
-async function promote(name: string): Promise<string> {
+async function run(command: (stores: AdminStores, name: string) => Promise<string>, name: string) {
   const { database } = configFrom(process.env);
   if (database === null) {
     return 'the command needs DATABASE_URL and SC_DATA_KEY (on the development database: pnpm dev:sc)';
@@ -29,21 +32,16 @@ async function promote(name: string): Promise<string> {
     },
   });
   try {
-    const { credentials, accounts, sessions } = db.stores;
-    const found = await credentials.byName(nameKey(name));
-    const account = found === undefined ? undefined : await accounts.byId(found.accountId);
-    if (account === undefined || account.deleted) return `there is no account named ${name}`;
-    await accounts.save({ ...account, role: 'admin' });
-    await sessions.removeForAccount(account.id);
-    return `${account.name} is an admin now; they sign in again`;
+    return await command(db.stores, name);
   } finally {
     await db.close();
   }
 }
 
-const [group, command, name] = process.argv.slice(2);
-if (group !== 'admin' || command !== 'promote' || name === undefined) {
+const [group, name, target] = process.argv.slice(2);
+const command = name === undefined ? undefined : COMMANDS[name];
+if (group !== 'admin' || command === undefined || target === undefined) {
   console.error(USAGE);
   process.exit(1);
 }
-console.log(await promote(name));
+console.log(await run(command, target));
