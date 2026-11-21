@@ -16,7 +16,7 @@
  */
 import { DockedScreen, useDockView, useTheme, WebsiteChatFrame } from '@seasonal/kit/react';
 import { OriginChatFrame } from '@sc/ui';
-import { useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 
 import { Matches } from './account/Matches.js';
 import { ResetPage } from './account/ResetPage.js';
@@ -46,6 +46,11 @@ export function App() {
   const session = useSession();
   const mode = useServerMode();
   const current = useCurrentShow();
+  // Leaving the stage lets go of a show that ended while it was watched (its ceremony is over).
+  const { release } = current;
+  useEffect(() => {
+    if (route.name !== 'stage') release();
+  }, [route.name, release]);
   const feed = useShowFeed(current.id, session.me);
   const me = session.me ?? null;
   const shellRef = useRef<HTMLDivElement>(null);

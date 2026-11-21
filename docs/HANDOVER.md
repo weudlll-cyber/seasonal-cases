@@ -62,7 +62,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
 - `pnpm verify` (format, lint, typecheck, tests) and `pnpm test:coverage`.
 - `pnpm dev`: server 127.0.0.1:3970, client 0.0.0.0:5470 (http://localhost:5470; the phone at
   http://192.168.0.66:5470 on the home Wi-Fi). Left running hidden for the owner at the end of
-  SC-N1.
+  SC-N2, on PostgreSQL, with an empty development database; the play-through steps are in
+  [NIGHT-RUN.md](NIGHT-RUN.md) "Final report" (Quick Test seed `sc-n1-01`).
 - The development services: `docker compose --env-file ops/compose.dev.env -f
 ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   http://localhost:8570); they restart by themselves. `pnpm dev:reset-db` empties the database.
@@ -70,7 +71,8 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   their events on start. Without `DATABASE_URL` the server uses `.local/data/*.jsonl` and memory.
 - `pnpm e2e --project=chromium`: the journeys on their own stack (3980/5480; 3990/5485 for
   website mode), without a database.
-- `pnpm e2e --project=screens`: the pictures at the check sizes, light and dark.
+- `pnpm e2e --project=screens`: eight screens and the phone's direction panel at the ten check
+  sizes, light and dark, into `.local/screens/proto-v2/`.
 - The store tests need PostgreSQL: the development database, or `SC_TEST_DATABASE_URL` (CI).
 - Journey 5 needs Mailpit (the development services above; a service in CI).
 - `pnpm dev:sc admin promote <name>` makes a standalone account an admin on the dev database

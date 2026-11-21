@@ -192,3 +192,22 @@ html[data-sk-focus] {
 .focus-panel .direction-bar .button {
   width: 100%;
 }
+
+/* The opening on a phone: in the stage's column under the cases, as the front case is there
+   (./stageParts.css), without the artifact table the scoreboard above already shows (SC-N2
+   piece 10: absolute in a stage as tall as its rows, the card was cut off). */
+@media (max-width: 699px) {
+  .opening {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    max-width: calc(100% - 2 * var(--space-1));
+    margin: 0 auto;
+    padding: var(--space-1) var(--space-2);
+    translate: none;
+  }
+
+  .opening-table {
+    display: none;
+  }
+}

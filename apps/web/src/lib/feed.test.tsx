@@ -74,4 +74,37 @@ describe('useCurrentShow', () => {
     await act(() => result.current.refresh());
     expect(result.current.id).toBe('show-b');
   });
+
+  it('keeps a show it watched live after it ends, until released or another goes live', async () => {
+    let answer = { id: 'live-1', state: 'live' };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(JSON.stringify({ show: answer }), {
+            headers: { 'content-type': 'application/json' },
+          }),
+        ),
+      ),
+    );
+    const { result } = renderHook(() => useCurrentShow());
+    await waitFor(() => {
+      expect(result.current.id).toBe('live-1');
+    });
+    // live-1 ended; the server now names a show in registration: the ceremony stays.
+    answer = { id: 'next-2', state: 'registration' };
+    await act(() => result.current.refresh());
+    expect(result.current.id).toBe('live-1');
+    // Another show goes live: the page follows it at once.
+    answer = { id: 'live-3', state: 'live' };
+    await act(() => result.current.refresh());
+    expect(result.current.id).toBe('live-3');
+    // live-3 ended and the viewer left the stage: the server's choice again.
+    answer = { id: 'next-2', state: 'registration' };
+    act(() => {
+      result.current.release();
+    });
+    await act(() => result.current.refresh());
+    expect(result.current.id).toBe('next-2');
+  });
 });

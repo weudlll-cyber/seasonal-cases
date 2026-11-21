@@ -10,22 +10,65 @@ nothing merged.
 
 ### Final report
 
-Written when the chain ends.
+**Done.** All ten pieces, on `proto/cases-v1`, nothing merged, nothing dropped from the budget
+list (the chronicle, the season tint and phone polish, the forgotten-password mail and the
+ceremony's animation were all built). Every piece was pushed; every CI run is green (the pieces
+table).
+
+- Pieces 1–3: kit v0.8.0, the click and three steps, the scoreboard, the moving case, the start
+  page, the opening with Begin, focus mode, the ceremony and the result frame.
+- Piece 4: website mode with the website's sign-in, rights, rank and badges, the account feed,
+  the docked chat, everything under `/games/cases/`.
+- Pieces 5–7: PostgreSQL (accounts, sessions, the event log with the sealed secret encrypted),
+  standalone accounts (register, sign in by name or e-mail, forgotten password by mail, roles and
+  ranks, lobby, "My matches"), 2FA for standalone admins, then an independent security review
+  ([security-pass.md](security-pass.md)): 13 findings, 12 fixed with tests, one for the owner.
+- Pieces 8–9: the settings catalogue in the admin area (new shows copy it), the season tint, the
+  polish from the pictures, the chronicle.
+- Piece 10: the play-through through the pictures and journeys; it found and fixed the ceremony
+  that a show in registration hid, the opening cut off on phones, the scoreboard eating a phone's
+  stage, cut artifact names on the result, and the header overflowing phones.
+
+**Checks at the end:** `pnpm verify` green (26 files, 140 tests); journeys 1–6 passed in
+Chromium; 160 pictures (8 screens × 10 sizes × 2 themes) plus the phone's direction panel in
+`.local/screens/proto-v2/`, no text under 14 px, no sideways overflow; `proto-v1` deleted.
+
+**What runs now** (hidden, in the background): PostgreSQL 127.0.0.1:5570 and Mailpit (web
+http://localhost:8570) from `ops/compose.dev.yml`; the server 127.0.0.1:3970 on PostgreSQL; the
+client http://localhost:5470 (phone on the home Wi-Fi: http://192.168.0.66:5470). The development
+database is empty.
+
+**How to play it through (development sign-in, no password):**
+
+1. http://localhost:5470, "Development sign-in" as `Mia`, role `organiser` (or `admin`).
+2. Admin: Quick Test with the seed `sc-n1-01` (24 cases, 3 prizes): a live show with bots, Mia
+   holds the direction. Stage: the opening, Begin, click a case, Open, Owner, Back to stage; End
+   show for the ceremony, then "See the result".
+3. A second tab (private window) as a player to watch; the Chronicle lists ended shows.
+4. Standalone accounts: "Create an account" on the start page; "Forgotten password" mails go to
+   Mailpit (http://localhost:8570). For an admin with 2FA: `pnpm dev:sc admin promote <name>`,
+   sign in again, Admin, "Set up", scan the key with an authenticator app.
+5. Settings (Admin, as an admin): change names, durations or confetti; the next show uses them.
+
+**Needs the owner's word:** see HANDOVER "Needs the owner's word": among them the security
+review's questions (BACKLOG 29–31), the motion and ceremony pace, website mode's rank and badge
+rules, the website's side for `cases` (BACKLOG 27), `e2e` as a required check (BACKLOG 22), and
+every choice listed under "Choices made without the owner (SC-N2)" below.
 
 ### Pieces
 
-| Piece                                                     | Done | Running | Open             | Needs the owner's word                                   | Commits                                  | CI run ids                                                                       |
-| --------------------------------------------------------- | ---- | ------- | ---------------- | -------------------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------- |
-| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —       | —                | —                                                        | `c36b3e1`                                | CI 44885929803 green                                                             |
-| 2 The moving case                                         | all  | —       | —                | the durations (HANDOVER)                                 | `aaa6022`, report `a31fd7b`              | `aaa6022` cancelled by the next push; `a31fd7b` (same code) CI 44886487846 green |
-| 3 Start page, opening, focus mode, ceremony, result frame | all  | —       | —                | the ceremony's pace (HANDOVER)                           | `ad20ab0`                                | CI 44887472450 green                                                             |
-| 4 Website mode                                            | all  | —       | BACKLOG 24–27    | the rank and badge rules; the website's side for `cases` | `3d2d783`                                | CI 44890310077 green                                                             |
-| 5 PostgreSQL and the accounts store                       | all  | —       | —                | —                                                        | `2b326a2`                                | CI 44891199382 green                                                             |
-| 6 Standalone accounts                                     | all  | —       | —                | the reset link's rules (choices list)                    | `2edcd6a`                                | CI 44892910589 green                                                             |
-| 7 2FA and the independent review                          | all  | —       | security pass 11 | the security pass's owner list (HANDOVER)                | `f482024` (2FA), `49433d9` (fixes)       | CI 44893758086 and 44895315472 green                                             |
-| 8 Settings, season tint, polish                           | all  | —       | BACKLOG 32 (kit) | rank source, chronicle length                            | `3d81756` (settings), polish see piece 9 | see piece 9 row                                                                  |
-| 9 Chronicle                                               | all  | —       | —                | the chronicle's length (50)                              | see piece 10 row                         | see piece 10 row                                                                 |
-| 10 Play-through, pictures, hand-over                      | —    | —       | all              | —                                                        | —                                        | —                                                                                |
+| Piece                                                     | Done | Running                                           | Open             | Needs the owner's word                                   | Commits                                        | CI run ids                                                                       |
+| --------------------------------------------------------- | ---- | ------------------------------------------------- | ---------------- | -------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
+| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —                                                 | —                | —                                                        | `c36b3e1`                                      | CI 44885929803 green                                                             |
+| 2 The moving case                                         | all  | —                                                 | —                | the durations (HANDOVER)                                 | `aaa6022`, report `a31fd7b`                    | `aaa6022` cancelled by the next push; `a31fd7b` (same code) CI 44886487846 green |
+| 3 Start page, opening, focus mode, ceremony, result frame | all  | —                                                 | —                | the ceremony's pace (HANDOVER)                           | `ad20ab0`                                      | CI 44887472450 green                                                             |
+| 4 Website mode                                            | all  | —                                                 | BACKLOG 24–27    | the rank and badge rules; the website's side for `cases` | `3d2d783`                                      | CI 44890310077 green                                                             |
+| 5 PostgreSQL and the accounts store                       | all  | —                                                 | —                | —                                                        | `2b326a2`                                      | CI 44891199382 green                                                             |
+| 6 Standalone accounts                                     | all  | —                                                 | —                | the reset link's rules (choices list)                    | `2edcd6a`                                      | CI 44892910589 green                                                             |
+| 7 2FA and the independent review                          | all  | —                                                 | security pass 11 | the security pass's owner list (HANDOVER)                | `f482024` (2FA), `49433d9` (fixes)             | CI 44893758086 and 44895315472 green                                             |
+| 8 Settings, season tint, polish                           | all  | —                                                 | BACKLOG 32 (kit) | rank source, chronicle length                            | `3d81756` (settings), `17886f4` (tint, polish) | CI 44897326662 green (`17886f4`; `3d81756` was pushed with `49433d9`)            |
+| 9 Chronicle                                               | all  | —                                                 | —                | the chronicle's length (50)                              | `17886f4`                                      | CI 44897326662 green                                                             |
+| 10 Play-through, pictures, hand-over                      | all  | server 3970 and client 5470 on PostgreSQL, hidden | —                | see the final report                                     | the hand-over commit                           | its CI run in HANDOVER                                                           |
 
 ### Piece 1 report
 
@@ -373,6 +416,22 @@ verify` green (19 files, 95 tests); journey 1 passed.
   `/chronicle`, linked in the header. Test in `routes.test.ts` (ended only, verified, winners).
 - `pnpm verify` green (26 files, 139 tests); journeys 1–6 passed.
 
+### Piece 10 report
+
+- **Play-through:** the journeys (1–6) and the pictures play every step: the start page, the
+  board, the opening, Begin, a click, Open, Owner, Back to stage, End show, the ceremony, the
+  result, the admin area; light and dark; ten PC and phone sizes. Every picture was looked at.
+- **Found and fixed:**
+  - the ceremony never showed when another show was in registration: the stage followed the
+    server's next show at once. A page now keeps a show it watched live until the viewer leaves
+    the stage or another show goes live (`useCurrentShow`, test in `feed.test.tsx`);
+  - the opening on a phone was cut off (absolute in a stage as tall as its rows): it sits in the
+    phone's stage column now, without the table the scoreboard already shows;
+  - the scoreboard took four rows of a phone's height: one scrolling row of pills now;
+  - the result's case grid cut long names: the gem stands over the name, which wraps.
+- **Servers:** the SC-N1 server (3970) and client (5470) ran pre-SC-N2 code; they were stopped and
+  `pnpm dev` started again in the background, now on PostgreSQL.
+
 ### Choices made without the owner (SC-N2)
 
 - **"Opens in N s"** of the kit's start card is hidden: shows have no start time yet, and the
@@ -415,6 +474,9 @@ verify` green (19 files, 95 tests); journey 1 passed.
   owner names one.
 - **On a narrow phone** the game bar shows no "Seasonal Cases" lead (the kit's bar would
   overflow otherwise).
+- **A page keeps a show it watched live** until the viewer leaves the stage, so the ceremony
+  plays even when the server's next show is already in registration; newcomers get the server's
+  choice (fix A unchanged).
 
 ## Night chain SC-N1 (2026-11-21)
 

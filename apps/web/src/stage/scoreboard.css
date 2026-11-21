@@ -2,8 +2,8 @@
  * @file   apps/web/src/stage/scoreboard.css
  * @brief  The scoreboard above the stage: one row per artifact, open, lit or taken.
  *
- * Responsibility: the rows side by side on a desktop, one line per row on a phone (under 700 px
- *                 of width). "Lit" glows in Autumn's colour; "taken" is struck through and muted
+ * Responsibility: the rows side by side on a desktop, one scrolling line of pills on a phone
+ *                 (under 700 px of width). "Lit" glows in Autumn's colour; "taken" is struck through and muted
  *                 but keeps its owner readable. Colours only from the kit's tokens; text never
  *                 under the cases' 14 px floor.
  * Depends on:     @seasonal/kit/tokens.css, @sc/ui pending/fit-cases.css, ./artifact.css
@@ -75,19 +75,18 @@
   text-decoration-thickness: 2px;
 }
 
+/* A phone: one row of pills that scrolls sideways in its own box, so the stage keeps its height
+   (SC-N2 piece 10: four stacked rows left the opening a stage of 160 px at 375 × 667). */
 @media (max-width: 699px) {
   .scoreboard-rows {
-    flex-direction: column;
+    flex-wrap: nowrap;
     width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
   }
 
   .score-row {
-    display: flex;
-    width: 100%;
-    border-radius: var(--radius);
-  }
-
-  .score-owner {
-    margin-left: auto;
+    flex: none;
   }
 }

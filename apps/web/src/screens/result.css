@@ -74,6 +74,18 @@
   max-width: 100%;
 }
 
+/* In the reveal's narrow cells the gem stands over the name, which wraps instead of being cut
+   ("Halving Ston…" on a phone, SC-N2 piece 10). */
+.result-reveal .artifact {
+  flex-direction: column;
+  text-align: center;
+}
+
+.result-reveal .artifact-name {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .result-cases {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));

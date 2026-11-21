@@ -2,8 +2,9 @@
  * @file   apps/web/src/lib/feed.ts
  * @brief  The live feed of a show: the current show's id and the projections the socket sends.
  *
- * Responsibility: `useCurrentShowId` asks the server which show the lobby shows and asks again
- *                 every few seconds, so a new show from /admin appears by itself. `useShowFeed`
+ * Responsibility: `useCurrentShow` asks the server which show the lobby shows and asks again
+ *                 every few seconds, so a new show from /admin appears by itself; a show that
+ *                 ended while this page watched it stays until the viewer leaves the stage. `useShowFeed`
  *                 watches one show over socket.io and keeps the last public, organiser and
  *                 personal view it received; `direct` sends a direction message and resolves
  *                 with its ack. The client only renders what it receives (CONCEPT §8).
@@ -31,14 +32,27 @@ export interface CurrentShow {
   readonly id: string | null | undefined;
   /** Asks the server at once; resolves once the answer is in the state. */
   readonly refresh: () => Promise<void>;
+  /** Lets go of a show that ended while this page watched it (the viewer left the stage). */
+  readonly release: () => void;
 }
 
-/** The id of the show the lobby and the stage follow (the server's rule, fix A of SC-N2). */
+/**
+ * The id of the show the lobby and the stage follow (the server's rule, fix A of SC-N2). A show
+ * this page followed while it was live stays followed after it ends, so its ceremony plays even
+ * when another show is already in registration (SC-N2 piece 10), until `release` or until
+ * another show goes live.
+ */
 export function useCurrentShow(): CurrentShow {
   const [id, setId] = useState<string | null | undefined>(undefined);
+  const held = useRef<string | null>(null);
   const refresh = useCallback(async () => {
     const answer = await getJson<{ show: PublicShowView | null }>(apiPath('/shows/current'));
-    setId(answer.show?.id ?? null);
+    const show = answer.show;
+    if (show?.state === 'live') held.current = show.id;
+    setId(held.current ?? show?.id ?? null);
+  }, []);
+  const release = useCallback(() => {
+    held.current = null;
   }, []);
   useEffect(() => {
     const ask = () => {
@@ -50,7 +64,7 @@ export function useCurrentShow(): CurrentShow {
       window.clearInterval(timer);
     };
   }, [refresh]);
-  return { id, refresh };
+  return { id, refresh, release };
 }
 
 export interface ShowFeed {
