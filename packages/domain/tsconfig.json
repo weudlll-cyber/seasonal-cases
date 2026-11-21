@@ -1,0 +1,15 @@
+/**
+ * @file   packages/domain/tsconfig.json
+ * @brief  TypeScript settings for @sc/domain.
+ *
+ * Responsibility: extend the shared strict base and limit the program to src/. node types are
+ *                 included so the commitment can call node:crypto's sha256; the module stays
+ *                 pure (same input → same output, no I/O, no clock, no randomness).
+ */
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["src"]
+}

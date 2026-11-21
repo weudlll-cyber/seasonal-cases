@@ -1,0 +1,33 @@
+# @file   pnpm-workspace.yaml
+# @brief  Declares the workspace packages and the pnpm settings of the monorepo.
+#
+# Responsibility: list where pnpm finds the shared packages and the apps; hold pnpm's own
+#                 settings (pnpm 11+ reads them here, not from .npmrc). After the pattern of
+#                 seasonal-mini-games pnpm-workspace.yaml.
+packages:
+  - packages/*
+  - apps/*
+
+# Refuse installs on a Node version outside package.json "engines".
+engineStrict: true
+# "pnpm add" pins exact versions; upgrades arrive as Renovate PRs.
+saveExact: true
+
+# Dependency install scripts run only when listed here as true.
+allowBuilds:
+  # Its postinstall only downloads a native binding as a fallback; the platform-specific
+  # optional dependency already ships it.
+  unrs-resolver: false
+  # Its postinstall runs "lefthook install" (skipped in CI), wiring the git hooks of lefthook.yml.
+  lefthook: true
+  # The platform binary arrives as an optional dependency; the postinstall only verifies it.
+  esbuild: false
+
+# Forced versions for transitive dependencies. Remove an entry once its parent ships the fix.
+overrides:
+  # eslint-plugin-boundaries 7.2.0 pins handlebars 4.7.9 (GHSA-8r5x-fm3f-whwj, GHSA-p8wg-vrv2-v86f,
+  # GHSA-xw65-4hp5-5hc7); 4.7.10 is the patch release that fixes them.
+  handlebars@4.7.9: 4.7.10
+  # typescript-eslint 8.71.2 pins minimatch 10.2.6 (GHSA-g3hv-75wg-m249, ReDoS in glob
+  # patterns); 11.0.9 is the fixed line ESLint itself already uses (as the kit does).
+  minimatch@10.2.6: 11.0.9

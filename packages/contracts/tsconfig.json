@@ -1,0 +1,12 @@
+/**
+ * @file   packages/contracts/tsconfig.json
+ * @brief  TypeScript settings for @sc/contracts.
+ *
+ * Responsibility: extend the shared strict base and limit the program to src/. The contracts
+ *                 are read by the server (NodeNext) and the client (Bundler); NodeNext is the
+ *                 stricter of the two, so the sources import with ".js" extensions.
+ */
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"]
+}

@@ -1,0 +1,13 @@
+/**
+ * @file   packages/application/tsconfig.json
+ * @brief  TypeScript settings for @sc/application.
+ *
+ * Responsibility: extend the shared strict base; node types for the event log's file access.
+ */
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["src"]
+}

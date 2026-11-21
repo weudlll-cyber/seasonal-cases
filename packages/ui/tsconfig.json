@@ -1,0 +1,14 @@
+/**
+ * @file   packages/ui/tsconfig.json
+ * @brief  TypeScript settings for @sc/ui, the client's shared pieces.
+ *
+ * Responsibility: extend the bundler base (browser code) and opt into the React JSX runtime.
+ */
+{
+  "extends": "../../tsconfig.bundler.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "noEmit": true
+  },
+  "include": ["src"]
+}

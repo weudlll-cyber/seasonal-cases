@@ -1,0 +1,14 @@
+/**
+ * @file   apps/server/tsconfig.json
+ * @brief  TypeScript settings for @sc/server.
+ *
+ * Responsibility: extend the shared strict base; include src/; pull in the @types/node ambient
+ *                 types the server needs (fs, crypto, http).
+ */
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["src"]
+}
