@@ -13,12 +13,12 @@ Written when the chain ends.
 
 ### Pieces
 
-| Piece                                      | Done                                                                            | Running | Open                            | Needs the owner's word                        | Commits                    | CI run ids                                     |
-| ------------------------------------------ | ------------------------------------------------------------------------------- | ------- | ------------------------------- | --------------------------------------------- | -------------------------- | ---------------------------------------------- |
-| 1 Repository and standards                 | standards, skeleton, CI, kit v0.5.0, docs; repository created; master protected | —       | Renovate onboarding (see below) | kit tag v0.5.0 vs. the concept's v0.4.1 (D15) | master `0aee998`…`2bf720c` | CI 44850888611 green; CodeQL 44850888453 green |
-| 2 Contracts, domain, server                | —                                                                               | —       | all                             | —                                             | —                          | —                                              |
-| 3 The client                               | —                                                                               | —       | all                             | —                                             | —                          | —                                              |
-| 4 Play-through, browser tests, screenshots | —                                                                               | —       | all                             | —                                             | —                          | —                                              |
+| Piece                                      | Done                                                                            | Running | Open                            | Needs the owner's word                        | Commits                              | CI run ids                                     |
+| ------------------------------------------ | ------------------------------------------------------------------------------- | ------- | ------------------------------- | --------------------------------------------- | ------------------------------------ | ---------------------------------------------- |
+| 1 Repository and standards                 | standards, skeleton, CI, kit v0.5.0, docs; repository created; master protected | —       | Renovate onboarding (see below) | kit tag v0.5.0 vs. the concept's v0.4.1 (D15) | master `0aee998`…`2bf720c`           | CI 44850888611 green; CodeQL 44850888453 green |
+| 2 Contracts, domain, server                | contracts, domain with probes, application, server with socket tests            | —       | BACKLOG 17, 18 (later)          | the "Start show" step (below)                 | `proto/cases-v1`, see piece 2 report | see piece 3 row                                |
+| 3 The client                               | —                                                                               | —       | all                             | —                                             | —                                    | —                                              |
+| 4 Play-through, browser tests, screenshots | —                                                                               | —       | all                             | —                                             | —                                    | —                                              |
 
 ### Piece 1 report
 
@@ -45,7 +45,53 @@ Written when the chain ends.
   imports `@seasonal/kit`, `@seasonal/kit/react` and reads `tokens.css`, `fonts.css`,
   `motion.css`, `fit.css`.
 
+### Piece 2 report
+
+- **Contracts** (`packages/contracts`, zod): show states, roles, ranks 0–5, seasons, reveal steps
+  (`show.ts`); artifacts and prize slots (`artifact.ts`); the public, moderator and personal views
+  and the result (`view.ts`); the HTTP shapes (`api.ts`); the socket events (`socket.ts`).
+- **Domain** (`packages/domain`, pure; time and randomness arrive in the commands): events
+  (`events.ts`) and their fold (`model.ts`); setup and artifact table from one settings object
+  (`setup.ts`, `settings.ts`); claims, conflict view, standings, bots (`registration.ts`); seal,
+  canonical JSON, sha256 commitment, `verify` (`sealing.ts`); the direction holder and the five
+  steps (`live.ts`); `decide` (`commands.ts`); the projections (`projection.ts`); the seeded
+  sha256 counter generator (`random.ts`).
+- **Application** (`packages/application`): `createShowService` with every use case and
+  `quickTest`, the in-memory and the JSON-lines stores, replay on start, the season of a date.
+- **Server** (`apps/server`, Fastify 5.12.7, @fastify/cookie 11.1.3, @fastify/helmet 13.2.0,
+  socket.io 4.8.4, zod 4.6.7; socket.io-client 4.8.4 for its tests): dev sign-in with a signed
+  cookie, `/api/me`, the dev admin API, the claim, the socket projections and the direction, a
+  same-origin check on the socket handshake. Bound to 127.0.0.1:3970.
+- **Tests:** `pnpm verify` green, 14 files, 62 tests. Coverage: domain 94.4 % branches, 99.5 %
+  lines (threshold 85 % branches); application 86.4 % branches. The resolution fuzz compares 200
+  random claim sets with a brute-force reference.
+- **Sabotage probes, each run once:** (a) the rank line removed from `compareClaims` → 3 tests
+  red (the rank test, the conflict view, the fuzz); (b) the redaction in `caseView` replaced by
+  "always the sealed artifact" → "never leaks" red; (c) one case of the logged assignment altered
+  → `verified: false`, kept as a permanent test. (a) and (b) restored before the commit.
+- **Removed:** the skeleton's `checkSetup` use case and the health-only `app.test.ts`, replaced by
+  the real ones. **Reused:** node:crypto for sha256 and the secure port; `@fastify/cookie`'s
+  signing; nothing in the kit covers server logic.
+- **Lines (new files):** contracts 13–127, domain 19–152 (tests ≤ 161), application 17–158,
+  server 9–180 (tests ≤ 151). The largest source file is `apps/server/src/realtime.ts` (180).
+
 ### Choices made without the owner
+
+- **"Start show":** the concept goes SEALED → LIVE, and the task names no start action. The
+  smallest option: a separate start step (`start` use case, `POST /api/dev/shows/:id/start`, a
+  button in the dev admin); whoever starts holds the direction. Quick Test starts by itself.
+- **Closed registration has no state of its own:** the show stays in `registration` with
+  `registrationOpen: false` until it is sealed, so the five states of the task stay as they are.
+- **The five steps as one use case:** `step(showId, by, step)` with `tension | open | prize |
+owner | return` in place of five functions; the socket sends `direction:step`.
+- **"The current season"** (relics and the blank, CONCEPT §6): the meteorological season of the
+  show's creation date in the northern hemisphere (`packages/application/src/season.ts`).
+- **Who counts as a moderator:** roles `moderator` and `admin`. The hand-over goes only to a
+  moderator who is watching the show (the "signed-in moderator" of the task).
+- **One id per sign-in:** the dev sign-in draws a new UUID each time, so two tabs with the same
+  name are two people.
+- **A found prize:** it enters the top bar's "found" list at its "Prize" step; at "Open" the
+  artifact is already visible on the stage but its meaning is not yet named.
 
 - **Kit tag:** `git ls-remote` showed `v0.5.0` as the newest tag (the task expected v0.4.1). The
   task's rule is the newest tag, so `v0.5.0` is pinned (DECISIONS D15).
