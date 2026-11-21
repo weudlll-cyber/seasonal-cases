@@ -111,5 +111,12 @@ export function pgSessions(pool: DbPool): SessionStore {
       );
       return result.rows.map((r) => r.id);
     },
+    async removeOthers(accountId, keepId) {
+      const result = await pool.query<{ id: string }>(
+        'DELETE FROM sessions WHERE account_id = $1 AND id <> $2 RETURNING id',
+        [accountId, keepId],
+      );
+      return result.rows.map((r) => r.id);
+    },
   };
 }

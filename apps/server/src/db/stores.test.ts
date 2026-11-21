@@ -130,13 +130,15 @@ describe('the event log', () => {
 });
 
 describe('the box', () => {
-  it('opens with its key only, and refuses a changed box', () => {
+  it('opens with its key and in its place only, and refuses a changed box', () => {
     const key = dataKey(KEY);
-    const box = seal(key, 'the secret');
-    expect(open(key, box)).toBe('the secret');
-    expect(() => open(dataKey('cd'.repeat(32)), box)).toThrow();
+    const box = seal(key, 'the secret', 'show:a');
+    expect(open(key, box, 'show:a')).toBe('the secret');
+    // Bound to its place: the same box does not open as another row's.
+    expect(() => open(key, box, 'show:b')).toThrow();
+    expect(() => open(dataKey('cd'.repeat(32)), box, 'show:a')).toThrow();
     const changed = `${box.slice(0, -2)}${box.endsWith('AA') ? 'BB' : 'AA'}`;
-    expect(() => open(key, changed)).toThrow();
+    expect(() => open(key, changed, 'show:a')).toThrow();
     expect(() => dataKey('short')).toThrow();
   });
 });

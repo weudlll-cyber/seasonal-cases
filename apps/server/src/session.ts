@@ -4,9 +4,10 @@
  *
  * Responsibility: the cookie `sc_session` holds the session's random token, signed
  *                 (@fastify/cookie), http-only, same-site lax, scoped to the base path, secure in
- *                 website mode, for 7 days (GAME-INTEGRATION §3). `signIn` rotates the session:
+ *                 website mode and behind https, for 7 days (GAME-INTEGRATION §3). `signIn` rotates the session:
  *                 the browser's old one ends and a new one opens. The user comes from the account
- *                 behind a live session; a deleted account signs nobody in.
+ *                 behind a live session; a deleted account signs nobody in, nor does a development
+ *                 account once the development features are off.
  * Depends on:     fastify, @fastify/cookie, @seasonal/kit/server (SessionEnds), @sc/contracts,
  *                 ./auth/accounts.js, ./auth/sessions.js, ./auth/twoFactor.js (types)
  */
@@ -34,6 +35,9 @@ export interface Auth {
   readonly ends: SessionEnds;
   readonly cookiePath: string;
   readonly secure: boolean;
+  // Whether development accounts may sign in: only while the development features are on, so
+  // a database that once ran in development keeps no back door (security pass, finding 12).
+  readonly devAccounts: boolean;
   readonly now: () => number;
 }
 
@@ -54,6 +58,7 @@ async function signedInBy(auth: Auth, token: string | null): Promise<SignedIn | 
   if (session === null) return null;
   const account = await auth.accounts.byId(session.accountId);
   if (account === undefined || account.deleted) return null;
+  if (account.kind === 'dev' && !auth.devAccounts) return null;
   return { me: meOf(account), session };
 }
 

@@ -15,7 +15,9 @@
  *                 games' sync token (SC_WEBSITE_LOCAL_ORIGIN, SC_GAMES_SYNC_TOKEN); in local
  *                 mode an optional chat origin to frame (SC_CHAT_ORIGIN, development), the SMTP
  *                 relay for the forgotten-password mail (SC_SMTP_HOST, SC_SMTP_PORT, SC_MAIL_FROM)
- *                 and the address its link opens (SC_PUBLIC_ORIGIN, default the dev client). Website
+ *                 and the address its link opens (SC_PUBLIC_ORIGIN; the dev client only in
+ *                 development); the proxies whose X-Forwarded-For names the visitor
+ *                 (SC_TRUSTED_PROXIES in both modes; locally this machine by default). Website
  *                 mode without its trust settings refuses to start.
  * Depends on:     node:crypto, node:url, ./mail.js (types)
  */
@@ -48,6 +50,8 @@ export interface ServerConfig {
   readonly chatOrigin: string | null;
   readonly smtp: SmtpConfig | null;
   readonly publicOrigin: string;
+  // Whose X-Forwarded-For names the visitor, so rate limits count visitors, not the proxy.
+  readonly proxies: readonly string[];
 }
 
 // apps/server/src → the repository root.
@@ -103,19 +107,40 @@ function smtpFrom(env: NodeJS.ProcessEnv): SmtpConfig | null {
   };
 }
 
+// The address the reset mail links to. Outside development a server that sends mail must name
+// it: a default would send every link to the user's own machine (security pass, finding 9).
+function publicOriginFrom(env: NodeJS.ProcessEnv, dev: boolean, mails: boolean): string {
+  const origin = env['SC_PUBLIC_ORIGIN'] ?? '';
+  if (origin !== '') return new URL(origin).origin;
+  if (mails && !dev) throw new Error('a server that sends mail needs SC_PUBLIC_ORIGIN');
+  return 'http://localhost:5470';
+}
+
+// Website mode: the website's proxies. Local mode: SC_TRUSTED_PROXIES, else this machine (the
+// reverse proxy of a standalone server, or Vite in development).
+function proxiesFrom(env: NodeJS.ProcessEnv, website: WebsiteConfig | null): readonly string[] {
+  if (website !== null) return website.trustedProxies;
+  const listed = list(env['SC_TRUSTED_PROXIES']);
+  return listed.length > 0 ? listed : ['127.0.0.1', '::1'];
+}
+
 export function configFrom(env: NodeJS.ProcessEnv): ServerConfig {
   const mode: Mode = env['SC_MODE'] === 'website' ? 'website' : 'local';
+  const dev = mode === 'local' && env['NODE_ENV'] === 'development' && env['SC_DEV'] === '1';
+  const website = mode === 'website' ? websiteFrom(env) : null;
+  const smtp = mode === 'local' ? smtpFrom(env) : null;
   return {
     port: Number(env['SC_PORT'] ?? 3970),
     mode,
     basePath: mode === 'website' ? `/games/${GAME_SLUG}/` : '/',
-    dev: mode === 'local' && env['NODE_ENV'] === 'development' && env['SC_DEV'] === '1',
+    dev,
     dataDir: env['SC_DATA_DIR'] ?? `${ROOT}.local/data`,
     database: databaseFrom(env),
     cookieSecret: env['SC_COOKIE_SECRET'] ?? randomBytes(32).toString('hex'),
-    website: mode === 'website' ? websiteFrom(env) : null,
+    website,
     chatOrigin: mode === 'local' ? chatOriginFrom(env) : null,
-    smtp: mode === 'local' ? smtpFrom(env) : null,
-    publicOrigin: new URL(env['SC_PUBLIC_ORIGIN'] ?? 'http://localhost:5470').origin,
+    smtp,
+    publicOrigin: publicOriginFrom(env, dev, smtp !== null),
+    proxies: proxiesFrom(env, website),
   };
 }

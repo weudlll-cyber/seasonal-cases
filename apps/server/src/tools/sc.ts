@@ -1,8 +1,10 @@
 /**
  * @file   apps/server/src/tools/sc.ts
- * @brief  The server's command line: `pnpm sc admin promote <name>` makes the first admin.
+ * @brief  The server's command line: `pnpm sc admin promote <name>` makes the first admin
+ *         (`pnpm dev:sc …` on the development database, with dev.env).
  *
- * Responsibility: on the server's own database (DATABASE_URL, SC_DATA_KEY), give the standalone
+ * Responsibility: on the server's own database (DATABASE_URL, SC_DATA_KEY from the shell, never
+ *                 a file's development key, security pass 14), give the standalone
  *                 account with that name the admin role and end its sessions, so the next
  *                 sign-in carries the role. Further roles are set by an admin in the admin area.
  *                 Website accounts take their role from the website and are refused, as in
@@ -17,7 +19,9 @@ const USAGE = 'usage: pnpm sc admin promote <name>';
 
 async function promote(name: string): Promise<string> {
   const { database } = configFrom(process.env);
-  if (database === null) return 'the command needs DATABASE_URL and SC_DATA_KEY';
+  if (database === null) {
+    return 'the command needs DATABASE_URL and SC_DATA_KEY (on the development database: pnpm dev:sc)';
+  }
   const db = await openDatabase({
     ...database,
     onError: (e) => {

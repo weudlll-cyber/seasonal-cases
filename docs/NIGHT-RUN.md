@@ -14,18 +14,18 @@ Written when the chain ends.
 
 ### Pieces
 
-| Piece                                                     | Done | Running | Open          | Needs the owner's word                                   | Commits                     | CI run ids                                                                       |
-| --------------------------------------------------------- | ---- | ------- | ------------- | -------------------------------------------------------- | --------------------------- | -------------------------------------------------------------------------------- |
-| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —       | —             | —                                                        | `c36b3e1`                   | CI 44885929803 green                                                             |
-| 2 The moving case                                         | all  | —       | —             | the durations (HANDOVER)                                 | `aaa6022`, report `a31fd7b` | `aaa6022` cancelled by the next push; `a31fd7b` (same code) CI 44886487846 green |
-| 3 Start page, opening, focus mode, ceremony, result frame | all  | —       | —             | the ceremony's pace (HANDOVER)                           | `ad20ab0`                   | CI 44887472450 green                                                             |
-| 4 Website mode                                            | all  | —       | BACKLOG 24–27 | the rank and badge rules; the website's side for `cases` | `3d2d783`                   | CI 44890310077 green                                                             |
-| 5 PostgreSQL and the accounts store                       | all  | —       | —             | —                                                        | `2b326a2`                   | CI 44891199382 green                                                             |
-| 6 Standalone accounts                                     | all  | —       | —             | the reset link's rules (choices list)                    | see piece 7 row             | see piece 7 row                                                                  |
-| 7 2FA and the independent review                          | —    | —       | all           | —                                                        | —                           | —                                                                                |
-| 8 Settings, season tint, polish                           | —    | —       | all           | —                                                        | —                           | —                                                                                |
-| 9 Chronicle                                               | —    | —       | all           | —                                                        | —                           | —                                                                                |
-| 10 Play-through, pictures, hand-over                      | —    | —       | all           | —                                                        | —                           | —                                                                                |
+| Piece                                                     | Done | Running | Open             | Needs the owner's word                                   | Commits                                                      | CI run ids                                                                       |
+| --------------------------------------------------------- | ---- | ------- | ---------------- | -------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —       | —                | —                                                        | `c36b3e1`                                                    | CI 44885929803 green                                                             |
+| 2 The moving case                                         | all  | —       | —                | the durations (HANDOVER)                                 | `aaa6022`, report `a31fd7b`                                  | `aaa6022` cancelled by the next push; `a31fd7b` (same code) CI 44886487846 green |
+| 3 Start page, opening, focus mode, ceremony, result frame | all  | —       | —                | the ceremony's pace (HANDOVER)                           | `ad20ab0`                                                    | CI 44887472450 green                                                             |
+| 4 Website mode                                            | all  | —       | BACKLOG 24–27    | the rank and badge rules; the website's side for `cases` | `3d2d783`                                                    | CI 44890310077 green                                                             |
+| 5 PostgreSQL and the accounts store                       | all  | —       | —                | —                                                        | `2b326a2`                                                    | CI 44891199382 green                                                             |
+| 6 Standalone accounts                                     | all  | —       | —                | the reset link's rules (choices list)                    | `2edcd6a`                                                    | CI 44892910589 green                                                             |
+| 7 2FA and the independent review                          | all  | —       | security pass 11 | the security pass's owner list (HANDOVER)                | `f482024` (2FA, CI 44893758086 green), fixes see piece 8 row | see piece 8 row                                                                  |
+| 8 Settings, season tint, polish                           | —    | —       | all              | —                                                        | —                                                            | —                                                                                |
+| 9 Chronicle                                               | —    | —       | all              | —                                                        | —                                                            | —                                                                                |
+| 10 Play-through, pictures, hand-over                      | —    | —       | all              | —                                                        | —                                                            | —                                                                                |
 
 ### Piece 1 report
 
@@ -298,6 +298,39 @@ verify` green (19 files, 95 tests); journey 1 passed.
 - **Dependencies:** `@node-rs/argon2` 2.2.2 (as Mini Games), `nodemailer` 10.6.1 (SMTP; Mini
   Games has no mailer yet), `@types/nodemailer` 8.0.2.
 
+### Piece 7 report
+
+- **Two-factor sign-in for standalone admins** (D24), on the kit's `newSecret`, `otpauthUri`,
+  `matchingStep`, `base32Encode`, `newRecoveryCodes('grouped')`, `recoveryHash` and
+  `looksLikeRecoveryCode`:
+  - `auth/twoFactor.ts` (port, memory store, `codeAccepted`, `needsTwoFactor`: a local admin),
+    `db/twoFactorStore.ts` (the tables of migration 0001; the secret encrypted with
+    `SC_DATA_KEY`; a step moves forward and a recovery code is used in one conditional `UPDATE`);
+  - `twoFactorRoutes.ts`: `GET /api/me/2fa`, `POST /api/me/2fa/setup`, `POST /api/me/2fa/confirm`
+    (10 per 15 minutes per account, Mini Games' rule);
+  - sign-in answers `{ twoFactor: true }` until the code comes with the password; the admin area
+    (accounts, settings) waits until a local admin has it set up;
+  - client: the code field in the sign-in form, `account/TwoFactorSetup.tsx` (key, setup link,
+    code, then the ten recovery codes once).
+- **Journey 6:** the e2e server seeds one standalone admin (`e2e/rootAdmin.ts`); the journey sets
+  up 2FA from the page's key with the kit's `hotp`, keeps a recovery code, signs in with a TOTP code
+  and once with the recovery code. It runs once per e2e server start (the admin's 2FA stays set).
+- **The independent review:** a fresh agent read `ad20ab0..f482024` (website mode, PostgreSQL,
+  accounts, 2FA) and wrote [security-pass.md](security-pass.md): 13 findings, two medium, none
+  high. All were fixed except 11 (Mini Games' common-password list), with
+  `apps/server/src/securityPass.test.ts`; its "Outcome" table names each fix. In short:
+  - limits count the visitor (Fastify `trustProxy` from `SC_TRUSTED_PROXIES`, both modes);
+  - confirming 2FA ends the account's other sessions, and enables once;
+  - writes only from this origin and as JSON (415 for a plain form; Fastify's 4xx kept);
+  - the cookie Secure behind https; errors logged; older reset links ended by a reset;
+  - `SC_PUBLIC_ORIGIN` required of a server that mails; setup only where the code is asked;
+  - development accounts refused outside development; boxes `v2`, bound to their row;
+  - `dev:reset-db` only on port 5570; `pnpm sc` reads no env file (`pnpm dev:sc` in development);
+    expired rows deleted on open; a deleted website account not saved again.
+- `pnpm verify` green (26 files, 138 tests); journeys 1–6 passed.
+- **Dependencies:** `@seasonal/kit` (the same tag v0.8.0) as a root dev dependency, for journey
+  6's TOTP codes.
+
 ### Choices made without the owner (SC-N2)
 
 - **"Opens in N s"** of the kit's start card is hidden: shows have no start time yet, and the
@@ -330,6 +363,12 @@ verify` green (19 files, 95 tests); journey 1 passed.
   carries it). An admin cannot take away their own admin role.
 - **The lobby** is the list of every show on the start page, newest first.
 - **The development sign-in** stays beside the account forms in development (D24).
+- **An admin's sign-in costs two tries** of the 5 per login and address (password, then password
+  and code). The limit stays as Mini Games has it.
+- **The settings catalogue** holds what has behaviour today: default N and W, the prize artifacts
+  with seasons, the further-prize and no-prize names, travel and opening durations, confetti.
+  "Registration shows the current claimants" stays always on (its default); rank source and
+  chronicle length wait for the owner.
 
 ## Night chain SC-N1 (2026-11-21)
 

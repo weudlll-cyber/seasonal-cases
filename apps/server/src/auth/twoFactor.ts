@@ -24,8 +24,9 @@ export interface TwoFactorStore {
   get(accountId: string): Promise<TwoFactor | undefined>;
   // A new secret, not yet enabled; replaces an earlier one that was never confirmed.
   setUp(accountId: string, secret: Uint8Array): Promise<void>;
-  // Enables the secret at `step` and keeps these recovery code hashes in place of any others.
-  enable(accountId: string, step: number, codeHashes: readonly Buffer[]): Promise<void>;
+  // Enables the secret at `step` with these recovery code hashes, once: answers false when it
+  // was already enabled (two confirmations at once, security pass finding 6).
+  enable(accountId: string, step: number, codeHashes: readonly Buffer[]): Promise<boolean>;
   // Moves the last step forward; answers false if `step` is not after the stored one.
   useStep(accountId: string, step: number): Promise<boolean>;
   // Marks the recovery code used; answers false if it is unknown or used.
@@ -67,9 +68,10 @@ export function memoryTwoFactor(): TwoFactorStore {
     },
     enable: (id, step, hashes) => {
       const found = all.get(id);
-      if (found !== undefined) all.set(id, { ...found, lastStep: step, enabled: true });
+      if (found === undefined || found.enabled) return Promise.resolve(false);
+      all.set(id, { ...found, lastStep: step, enabled: true });
       codes.set(id, new Map(hashes.map((h) => [h.toString('hex'), false])));
-      return Promise.resolve();
+      return Promise.resolve(true);
     },
     useStep: (id, step) => {
       const found = all.get(id);

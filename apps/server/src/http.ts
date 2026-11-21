@@ -74,10 +74,16 @@ export function summary(model: ShowModel): ShowSummary {
   };
 }
 
-/** Answers every Refusal with its status and `{ error }`; anything else stays a 500. */
+/** Answers every Refusal with its status and `{ error }`, a request Fastify refused with its
+ * 4xx; anything else is logged and a 500. */
 export function handleRefusals(app: FastifyInstance): void {
   app.setErrorHandler((error, _request, reply: FastifyReply) => {
     if (error instanceof Refusal) return reply.code(error.status).send({ error: error.message });
+    // Fastify's own refusals of a request (broken JSON, a body that is not JSON) keep their 4xx.
+    const status = (error as { statusCode?: unknown }).statusCode;
+    if (typeof status === 'number' && status >= 400 && status < 500) {
+      return reply.code(status).send({ error: 'the request is not one this server takes' });
+    }
     app.log.error(error);
     return reply.code(500).send({ error: 'something went wrong on the server' });
   });

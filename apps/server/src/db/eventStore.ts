@@ -5,8 +5,8 @@
  * Responsibility: `pgEventStore` reads every show's events once (the rebuild on start, CONCEPT §8)
  *                 and then appends each new event as a row, in order, through one write queue, so
  *                 the show service never waits on the database. A sealed event's assignment and
- *                 secret are stored as one encrypted box (./box.ts, SC_DATA_KEY); only the
- *                 commitment stays readable, as the screens already show it. A failed write is
+ *                 secret are stored as one encrypted box bound to the show (./box.ts,
+ *                 SC_DATA_KEY); only the commitment stays readable, as the screens already show it. A failed write is
  *                 reported through `onError` and the queue goes on; `flush` waits for every
  *                 pending write (shutdown, tests).
  * Depends on:     @sc/application (types), @sc/domain (types), ./box.js, ./pool.js
@@ -25,17 +25,17 @@ export interface PgEventStore extends EventStore {
 type Stored = Record<string, unknown>;
 
 // What goes into the row: a sealed event without its assignment and secret in the clear.
-function toRow(key: Buffer, event: ShowEvent): Stored {
+function toRow(key: Buffer, showId: string, event: ShowEvent): Stored {
   if (event.type !== 'sealed') return { ...event };
   const { assignment, secret, ...rest } = event;
-  return { ...rest, box: seal(key, JSON.stringify({ assignment, secret })) };
+  return { ...rest, box: seal(key, JSON.stringify({ assignment, secret }), `show:${showId}`) };
 }
 
-function fromRow(key: Buffer, row: Stored): ShowEvent {
+function fromRow(key: Buffer, showId: string, row: Stored): ShowEvent {
   if (row.type !== 'sealed') return row as unknown as ShowEvent;
   const { box, ...rest } = row;
   if (typeof box !== 'string') throw new Error('a sealed event without its box');
-  const hidden = JSON.parse(open(key, box)) as Pick<
+  const hidden = JSON.parse(open(key, box, `show:${showId}`)) as Pick<
     Extract<ShowEvent, { type: 'sealed' }>,
     'assignment' | 'secret'
   >;
@@ -49,7 +49,7 @@ async function loadEvents(pool: DbPool, key: Buffer): Promise<Map<string, ShowEv
   const shows = new Map<string, ShowEvent[]>();
   for (const row of result.rows) {
     const list = shows.get(row.show_id) ?? [];
-    list.push(fromRow(key, row.event));
+    list.push(fromRow(key, row.show_id, row.event));
     shows.set(row.show_id, list);
   }
   return shows;
@@ -69,7 +69,7 @@ export async function pgEventStore(
     append(showId, events) {
       const first = next.get(showId) ?? 0;
       next.set(showId, first + events.length);
-      const rows = events.map((e) => JSON.stringify(toRow(key, e)));
+      const rows = events.map((e) => JSON.stringify(toRow(key, showId, e)));
       queue = queue
         .then(async () => {
           for (const [i, row] of rows.entries()) {

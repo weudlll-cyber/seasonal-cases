@@ -11,7 +11,7 @@
  *                 and its account feed only in website mode, the standalone accounts only in local
  *                 mode. A session that ends closes its live
  *                 connections (the kit's SessionEnds). The socket accepts only same-origin
- *                 handshakes. ./main.ts listens on 127.0.0.1.
+ *                 handshakes, and every write only same-origin requests with a JSON body. ./main.ts listens on 127.0.0.1.
  * Depends on:     node:crypto, node:http (types), fastify, @fastify/cookie, @fastify/helmet,
  *                 socket.io, @seasonal/kit/server, @sc/application, @sc/domain, ./auth/*,
  *                 ./accountRoutes.js, ./config.js, ./devRoutes.js, ./http.js, ./localRoutes.js,
@@ -96,6 +96,24 @@ function sameOrigin(request: IncomingMessage): boolean {
   }
 }
 
+/**
+ * Refuses a write (anything but GET, HEAD, OPTIONS) that another site's page sends with the
+ * visitor's cookie: the browser names the page's origin and its relation (security pass, 3).
+ * Through the proxy the Origin's host equals the Host header, as for the socket.
+ */
+function sameSiteWrites(app: FastifyInstance): void {
+  app.addHook('onRequest', (request, reply, done) => {
+    const site = request.headers['sec-fetch-site'];
+    const crossSite = site !== undefined && site !== 'same-origin' && site !== 'none';
+    const write = !['GET', 'HEAD', 'OPTIONS'].includes(request.method);
+    if (write && (crossSite || !sameOrigin(request.raw))) {
+      void reply.code(403).send({ error: 'this request came from another site' });
+      return;
+    }
+    done();
+  });
+}
+
 async function authOf(app: FastifyInstance, config: ServerConfig, stores: Stores): Promise<Auth> {
   const accounts = stores.accounts ?? memoryAccounts();
   return {
@@ -107,7 +125,10 @@ async function authOf(app: FastifyInstance, config: ServerConfig, stores: Stores
       app.log.error(error);
     }),
     cookiePath: config.basePath,
-    secure: config.mode === 'website',
+    // Secure whenever the public address is https (security pass, finding 4); only plain
+    // http://localhost development goes without.
+    secure: config.mode === 'website' || config.publicOrigin.startsWith('https:'),
+    devAccounts: config.dev,
     now: () => Date.now(),
   };
 }
@@ -143,7 +164,12 @@ async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Pro
 }
 
 export async function buildServer(config: ServerConfig, stores: Stores = {}): Promise<BuiltServer> {
-  const app = Fastify({ logger: false });
+  // Errors only (no request lines, so no cookies or bodies in the log); the visitor's address
+  // from X-Forwarded-For, trusted only from the configured proxies (security pass, 1 and 5).
+  const app = Fastify({ logger: { level: 'error' }, trustProxy: [...config.proxies] });
+  // JSON bodies only: a plain HTML form (text/plain) from another page cannot reach a route.
+  app.removeContentTypeParser('text/plain');
+  sameSiteWrites(app);
   await app.register(helmet);
   await app.register(cookie, { secret: config.cookieSecret });
   handleRefusals(app);

@@ -24,6 +24,8 @@ export interface CredentialStore {
   addReset(tokenHash: string, accountId: string, expiresAt: number): Promise<void>;
   // Marks the token used and answers its account, if it is unused and not expired at `now`.
   takeReset(tokenHash: string, now: number): Promise<string | undefined>;
+  // Marks every unused reset of the account used: after a reset no older link works.
+  endResets(accountId: string): Promise<void>;
 }
 
 export const nameKey = (name: string): string => name.trim().toLowerCase();
@@ -65,6 +67,10 @@ export function memoryCredentials(): CredentialStore {
       }
       reset.used = true;
       return Promise.resolve(reset.accountId);
+    },
+    endResets: (accountId) => {
+      for (const reset of resets.values()) if (reset.accountId === accountId) reset.used = true;
+      return Promise.resolve();
     },
   };
 }

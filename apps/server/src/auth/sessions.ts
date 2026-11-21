@@ -28,6 +28,8 @@ export interface SessionStore {
   remove(sessionId: string): Promise<void>;
   // Removes every session of the account; answers their ids.
   removeForAccount(accountId: string): Promise<readonly string[]>;
+  // Removes every session of the account but `keepId`; answers their ids.
+  removeOthers(accountId: string, keepId: string): Promise<readonly string[]>;
 }
 
 export const tokenHash = (token: string): string =>
@@ -36,6 +38,15 @@ export const tokenHash = (token: string): string =>
 /** Every session in memory, for tests and for a run without a database. */
 export function memorySessions(): SessionStore {
   const sessions = new Map<string, Session>();
+  const removeWhere = (match: (s: Session) => boolean): string[] => {
+    const ended: string[] = [];
+    for (const [hash, s] of sessions) {
+      if (!match(s)) continue;
+      sessions.delete(hash);
+      ended.push(s.id);
+    }
+    return ended;
+  };
   return {
     insert: (hash, session) => {
       sessions.set(hash, session);
@@ -46,15 +57,9 @@ export function memorySessions(): SessionStore {
       for (const [hash, s] of sessions) if (s.id === sessionId) sessions.delete(hash);
       return Promise.resolve();
     },
-    removeForAccount: (accountId) => {
-      const ended: string[] = [];
-      for (const [hash, s] of sessions) {
-        if (s.accountId !== accountId) continue;
-        sessions.delete(hash);
-        ended.push(s.id);
-      }
-      return Promise.resolve(ended);
-    },
+    removeForAccount: (accountId) => Promise.resolve(removeWhere((s) => s.accountId === accountId)),
+    removeOthers: (accountId, keepId) =>
+      Promise.resolve(removeWhere((s) => s.accountId === accountId && s.id !== keepId)),
   };
 }
 

@@ -3,7 +3,8 @@
  * @brief  Opens the database for a server: pool, migrations, and every store over it.
  *
  * Responsibility: one call that ./main.ts (and the store tests) make: create the pool in its
- *                 schema, apply the pending migrations, load the event log, and answer the stores
+ *                 schema, apply the pending migrations, clear expired sessions and spent reset
+ *                 links, load the event log, and answer the stores
  *                 for buildServer plus a close that waits for pending writes first.
  * Depends on:     ../app.js (types), ./accountStore.js, ./box.js, ./credentialStore.js,
  *                 ./eventStore.js, ./migrator.js, ./pool.js, ./state.js, ./twoFactorStore.js
@@ -33,11 +34,18 @@ export interface DatabaseOptions {
   readonly onError: (error: unknown) => void;
 }
 
+// Expired sessions and spent or expired reset links are of no use: gone at every start.
+async function cleanUp(pool: DbPool): Promise<void> {
+  await pool.query('DELETE FROM sessions WHERE expires_at <= now()');
+  await pool.query('DELETE FROM password_resets WHERE used_at IS NOT NULL OR expires_at <= now()');
+}
+
 export async function openDatabase(options: DatabaseOptions): Promise<Database> {
   const key = dataKey(options.keyHex);
   const schema = options.schema ?? SCHEMA;
   const pool = createPool(options.url, schema);
   await migrate(pool, schema);
+  await cleanUp(pool);
   const events = await pgEventStore(pool, key, options.onError);
   return {
     pool,

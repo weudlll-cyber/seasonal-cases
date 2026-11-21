@@ -56,6 +56,8 @@ export async function websiteAccount(
   who: WebsiteIdentity,
 ): Promise<Account> {
   const known = await accounts.byWebsite(origin, who.subject);
+  // A deleted account stays as the feed left it: no name comes back (security pass, 14).
+  if (known?.deleted === true) return known;
   const account: Account = {
     id: known?.id ?? randomUUID(),
     kind: 'website',
@@ -66,7 +68,7 @@ export async function websiteAccount(
     badges: who.steps.flatMap((s) => (s.icon === null ? [] : [s.icon])),
     websiteOrigin: origin,
     websiteUserId: who.subject,
-    deleted: known?.deleted ?? false,
+    deleted: false,
   };
   await accounts.save(account);
   return account;

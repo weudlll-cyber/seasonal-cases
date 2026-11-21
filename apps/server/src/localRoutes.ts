@@ -12,7 +12,7 @@
  *                   (counted once the form passes the rules).
  *                 - Forgotten password: always the same answer; a known e-mail gets a link with a
  *                   random token, stored as its sha256, valid 1 hour, used once. The reset ends
- *                   every session of the account.
+ *                   every session and every other link of the account.
  *                 Registered only in local mode (./app.ts); website mode answers 404 here.
  * Depends on:     node:crypto, fastify (types), @seasonal/kit/server, @sc/contracts,
  *                 ./auth/*, ./http.js, ./mail.js (types), ./session.js
@@ -175,6 +175,7 @@ function passwordRoutes(ctx: Ctx, local: LocalAccounts): void {
     const accountId = await local.credentials.takeReset(tokenHash(token), auth.now());
     if (accountId === undefined) throw new Refusal(400, 'This link is no longer valid.');
     await local.credentials.setPassword(accountId, await hashPassword(password));
+    await local.credentials.endResets(accountId);
     const ended = await auth.sessions.removeForAccount(accountId);
     if (ended.length > 0) void auth.ends.end(ended);
     return { ok: true };

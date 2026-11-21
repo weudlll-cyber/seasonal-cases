@@ -65,5 +65,11 @@ export function pgCredentials(pool: DbPool): CredentialStore {
       );
       return result.rows[0]?.account_id;
     },
+    async endResets(accountId) {
+      await pool.query(
+        'UPDATE password_resets SET used_at = now() WHERE account_id = $1 AND used_at IS NULL',
+        [accountId],
+      );
+    },
   };
 }
