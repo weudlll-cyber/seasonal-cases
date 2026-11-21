@@ -18,7 +18,7 @@ import { getJson, postJson } from '../lib/api.js';
 import { apiPath } from '../lib/base.js';
 import { navigate } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
-import { AccountsAdmin } from './AccountsAdmin.js';
+import { AdminAccounts } from './AccountsAdmin.js';
 import { SetupForm, type Setup } from './SetupForm.js';
 
 // The organiser's steps per show: path, label, tooltip.
@@ -120,7 +120,7 @@ export function Admin({ me, onShowChanged, dev }: AdminProps) {
         </p>
       )}
       <ShowList shows={shows} busy={action.busy} act={act} />
-      {me.role === 'admin' && <AccountsAdmin me={me} />}
+      {me.role === 'admin' && <AdminAccounts me={me} />}
     </main>
   );
 }

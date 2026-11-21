@@ -1,7 +1,7 @@
 /**
  * @file   packages/contracts/src/accounts.ts
- * @brief  The shapes of standalone accounts: registration, sign-in, forgotten password, the
- *         admin's account list, and a player's matches.
+ * @brief  The shapes of standalone accounts: registration, sign-in with two-factor sign-in,
+ *         forgotten password, the admin's account list, and a player's matches.
  *
  * Responsibility: what the client and the server send for local accounts (DECISIONS D24). The
  *                 name and password rules are those of seasonal-mini-games: a name of 3 to 24
@@ -37,12 +37,41 @@ export const RegisterRequestSchema = z.object({
 });
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
 
+// A six-digit TOTP code or a recovery code ("xxxx-xxxx").
+export const TwoFactorCodeSchema = z.string().trim().min(6).max(20);
+
 export const LocalSignInRequestSchema = z.object({
   // The name or the e-mail.
   login: z.string().trim().min(1).max(EMAIL_MAX),
   password: z.string().min(1).max(PASSWORD_LIMIT),
+  // Only for an account with two-factor sign-in, after the server asked for it.
+  code: TwoFactorCodeSchema.optional(),
 });
 export type LocalSignInRequest = z.infer<typeof LocalSignInRequestSchema>;
+
+/** The sign-in's answer when the password is right and the second factor is still missing. */
+export const TwoFactorNeededSchema = z.object({ twoFactor: z.literal(true) });
+export type TwoFactorNeeded = z.infer<typeof TwoFactorNeededSchema>;
+
+/** Whether the signed-in account must use two-factor sign-in, and whether it is set up. */
+export const TwoFactorStatusSchema = z.object({ required: z.boolean(), enabled: z.boolean() });
+export type TwoFactorStatus = z.infer<typeof TwoFactorStatusSchema>;
+
+/** A new secret for the authenticator app: as text and as an otpauth:// address. */
+export const TwoFactorSetupSchema = z.object({ secret: z.string(), uri: z.string() });
+export type TwoFactorSetup = z.infer<typeof TwoFactorSetupSchema>;
+
+export const TwoFactorConfirmSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/),
+});
+export type TwoFactorConfirm = z.infer<typeof TwoFactorConfirmSchema>;
+
+/** The recovery codes, shown once when two-factor sign-in is enabled. */
+export const RecoveryCodesSchema = z.object({ recoveryCodes: z.array(z.string()) });
+export type RecoveryCodes = z.infer<typeof RecoveryCodesSchema>;
 
 export const ForgotRequestSchema = z.object({ email: z.email().max(EMAIL_MAX) });
 export type ForgotRequest = z.infer<typeof ForgotRequestSchema>;

@@ -179,3 +179,29 @@ describe('the credentials', () => {
     expect(await credentials.takeReset('r1', now)).toBeUndefined();
   });
 });
+
+describe('the two-factor store', () => {
+  it('keeps the secret encrypted, moves steps forward only, and uses a recovery code once', async () => {
+    const { accounts, twoFactor } = db.stores;
+    await accounts.save({
+      ...ANA,
+      id: 'acc-t',
+      kind: 'local',
+      websiteOrigin: null,
+      websiteUserId: null,
+    });
+    const secret = new Uint8Array(20).fill(7);
+    await twoFactor.setUp('acc-t', secret);
+    expect(await twoFactor.get('acc-t')).toEqual({ secret, lastStep: null, enabled: false });
+    const raw = JSON.stringify((await db.pool.query('SELECT * FROM two_factor')).rows);
+    expect(raw).not.toContain(Buffer.from(secret).toString('base64'));
+    const hash = Buffer.alloc(32, 1);
+    await twoFactor.enable('acc-t', 100, [hash, Buffer.alloc(32, 2)]);
+    expect(await twoFactor.get('acc-t')).toMatchObject({ lastStep: 100, enabled: true });
+    expect(await twoFactor.useStep('acc-t', 100)).toBe(false);
+    expect(await twoFactor.useStep('acc-t', 101)).toBe(true);
+    expect(await twoFactor.useRecovery('acc-t', hash)).toBe(true);
+    expect(await twoFactor.useRecovery('acc-t', hash)).toBe(false);
+    expect(await twoFactor.useRecovery('acc-t', Buffer.alloc(32, 3))).toBe(false);
+  });
+});

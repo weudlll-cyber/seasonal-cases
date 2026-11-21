@@ -176,3 +176,31 @@
   padding-bottom: var(--space-1);
   border-bottom: 1px solid var(--color-border);
 }
+
+/* Two-factor setup (../account/TwoFactorSetup.tsx): the key and the codes in a fixed font. */
+.two-factor form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.two-factor form p {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.two-factor-secret,
+.recovery-codes code {
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  overflow-wrap: anywhere;
+}
+
+.recovery-codes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--space-1);
+  padding: 0;
+  list-style: none;
+}

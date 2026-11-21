@@ -6,7 +6,8 @@
  *                 - Register: a name, an e-mail and a password; a new account is a player of rank
  *                   0. A taken name or e-mail answers one sentence for both.
  *                 - Sign-in by name or e-mail; a wrong name and a wrong password answer the same
- *                   and take as long (the dummy hash). The kit's RateLimiter: 20 per 15 minutes
+ *                   and take as long (the dummy hash). An admin with two-factor sign-in gets
+ *                   `{ twoFactor: true }` until a TOTP or recovery code comes with the password. The kit's RateLimiter: 20 per 15 minutes
  *                   per address, 5 per login and address, 5 registrations an hour per address
  *                   (counted once the form passes the rules).
  *                 - Forgotten password: always the same answer; a known e-mail gets a link with a
@@ -33,6 +34,7 @@ import type { Account } from './auth/accounts.js';
 import { emailKey, nameKey, type CredentialStore } from './auth/credentials.js';
 import { dummyHash, hashPassword, passwordMatches, passwordProblem } from './auth/passwords.js';
 import { tokenHash } from './auth/sessions.js';
+import { codeAccepted, needsTwoFactor } from './auth/twoFactor.js';
 import { parseBody, Refusal, type Ctx } from './http.js';
 import type { Mailer } from './mail.js';
 import { signIn } from './session.js';
@@ -96,12 +98,34 @@ async function registerAccount(ctx: Ctx, credentials: CredentialStore, body: Reg
   return account;
 }
 
+/**
+ * True when the account has two-factor sign-in and no code came yet; a wrong code is a 401.
+ * Codes are limited to 10 per 15 minutes per account (Mini Games' twoFactor rule).
+ */
+async function secondFactorMissing(
+  ctx: Ctx,
+  account: Account,
+  code: string | undefined,
+  perAccount: RateLimiter,
+): Promise<boolean> {
+  if (!needsTwoFactor(account)) return false;
+  const found = await ctx.auth.twoFactor.get(account.id);
+  if (found?.enabled !== true) return false;
+  if (code === undefined) return true;
+  limited(perAccount, account.id);
+  if (!(await codeAccepted(ctx.auth.twoFactor, account.id, code, ctx.auth.now()))) {
+    throw new Refusal(401, 'Wrong code.');
+  }
+  return false;
+}
+
 // Register and sign in.
 function entryRoutes(ctx: Ctx, credentials: CredentialStore): void {
   const { app, auth } = ctx;
   const perAddress = new RateLimiter({ limit: 20, windowMs: 15 * MINUTE });
   const perLogin = new RateLimiter({ limit: 5, windowMs: 15 * MINUTE });
   const registrations = new RateLimiter({ limit: 5, windowMs: 60 * MINUTE });
+  const perAccount = new RateLimiter({ limit: 10, windowMs: 15 * MINUTE });
 
   app.post('/api/auth/register', async (request, reply) => {
     const body = parseBody(RegisterRequestSchema, request.body);
@@ -113,7 +137,7 @@ function entryRoutes(ctx: Ctx, credentials: CredentialStore): void {
 
   app.post('/api/auth/sign-in', async (request, reply) => {
     limited(perAddress, request.ip);
-    const { login, password } = parseBody(LocalSignInRequestSchema, request.body);
+    const { login, password, code } = parseBody(LocalSignInRequestSchema, request.body);
     limited(perLogin, `${login.toLowerCase()}|${request.ip}`);
     const found = login.includes('@')
       ? await credentials.byEmail(emailKey(login))
@@ -123,6 +147,7 @@ function entryRoutes(ctx: Ctx, credentials: CredentialStore): void {
     if (!matches || account === undefined || account.deleted) {
       throw new Refusal(401, SIGN_IN_FAILED);
     }
+    if (await secondFactorMissing(ctx, account, code, perAccount)) return { twoFactor: true };
     return signIn(ctx, request, reply, account);
   });
 }

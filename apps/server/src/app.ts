@@ -16,7 +16,7 @@
  *                 socket.io, @seasonal/kit/server, @sc/application, @sc/domain, ./auth/*,
  *                 ./accountRoutes.js, ./config.js, ./devRoutes.js, ./http.js, ./localRoutes.js,
  *                 ./mail.js, ./organiserRoutes.js, ./realtime.js, ./session.js, ./showRoutes.js,
- *                 ./websiteRoutes.js
+ *                 ./twoFactorRoutes.js, ./websiteRoutes.js
  */
 import { randomBytes, randomInt, randomUUID } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
@@ -41,6 +41,7 @@ import { memoryCursor, startFeed, type CursorStore } from './auth/accountFeed.js
 import { Directory, memoryAccounts, type AccountStore } from './auth/accounts.js';
 import { memoryCredentials, type CredentialStore } from './auth/credentials.js';
 import { memorySessions, type SessionStore } from './auth/sessions.js';
+import { memoryTwoFactor, type TwoFactorStore } from './auth/twoFactor.js';
 import type { ServerConfig } from './config.js';
 import { devRoutes } from './devRoutes.js';
 import { handleRefusals, type Ctx } from './http.js';
@@ -50,6 +51,7 @@ import { organiserRoutes } from './organiserRoutes.js';
 import { attachRealtime } from './realtime.js';
 import type { Auth } from './session.js';
 import { showRoutes } from './showRoutes.js';
+import { twoFactorRoutes } from './twoFactorRoutes.js';
 import { websiteRoutes } from './websiteRoutes.js';
 
 // Production randomness: node:crypto, never Math.random (CONCEPT §8).
@@ -67,6 +69,7 @@ export interface Stores {
   readonly sessions?: SessionStore;
   readonly cursor?: CursorStore;
   readonly credentials?: CredentialStore;
+  readonly twoFactor?: TwoFactorStore;
   // The outgoing mail; by default SMTP from the settings, or none.
   readonly mailer?: Mailer | null;
 }
@@ -95,6 +98,7 @@ async function authOf(app: FastifyInstance, config: ServerConfig, stores: Stores
   return {
     accounts,
     sessions: stores.sessions ?? memorySessions(),
+    twoFactor: stores.twoFactor ?? memoryTwoFactor(),
     directory: await Directory.load(accounts),
     ends: new SessionEnds((error) => {
       app.log.error(error);
@@ -124,8 +128,10 @@ async function routes(root: Ctx, stores: Stores): Promise<void> {
       organiserRoutes(ctx);
       accountRoutes(ctx);
       if (config.dev) devRoutes(ctx);
-      if (config.website === null) localRoutes(ctx, local);
-      else websiteRoutes(ctx, config.website);
+      if (config.website === null) {
+        localRoutes(ctx, local);
+        twoFactorRoutes(ctx);
+      } else websiteRoutes(ctx, config.website);
       done();
     },
     { prefix: config.basePath.replace(/\/$/, '') },

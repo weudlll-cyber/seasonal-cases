@@ -8,13 +8,14 @@
  *                 the browser's old one ends and a new one opens. The user comes from the account
  *                 behind a live session; a deleted account signs nobody in.
  * Depends on:     fastify, @fastify/cookie, @seasonal/kit/server (SessionEnds), @sc/contracts,
- *                 ./auth/accounts.js, ./auth/sessions.js
+ *                 ./auth/accounts.js, ./auth/sessions.js, ./auth/twoFactor.js (types)
  */
 import type { SessionEnds } from '@seasonal/kit/server';
 import type { Me } from '@sc/contracts';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 import { meOf, type Account, type AccountStore, type Directory } from './auth/accounts.js';
+import type { TwoFactorStore } from './auth/twoFactor.js';
 import {
   findSession,
   openSession,
@@ -28,6 +29,7 @@ export const SESSION_COOKIE = 'sc_session';
 export interface Auth {
   readonly accounts: AccountStore;
   readonly sessions: SessionStore;
+  readonly twoFactor: TwoFactorStore;
   readonly directory: Directory;
   readonly ends: SessionEnds;
   readonly cookiePath: string;

@@ -2,10 +2,11 @@
  * @file   apps/web/src/screens/AccountsAdmin.tsx
  * @brief  The admin's accounts: each account's role and rank (CONCEPT §4, DECISIONS D24).
  *
- * Responsibility: list the accounts and change a role or a rank in place. Website accounts take
+ * Responsibility: list the accounts and change a role or a rank in place; a standalone admin
+ *                 sets up two-factor sign-in first (../account/TwoFactorSetup.tsx). Website accounts take
  *                 both from the website and show them read-only; the server refuses changes to
  *                 them and to the admin's own admin role, and ends a changed role's sessions.
- * Depends on:     react, @sc/contracts, ../lib/*, ./fields.js
+ * Depends on:     react, @sc/contracts, ../account/TwoFactorSetup.js, ../lib/*
  */
 import {
   ACCOUNT_ROLES,
@@ -13,12 +14,14 @@ import {
   type AccountRow,
   type AccountUpdate,
   type Me,
+  type TwoFactorStatus,
 } from '@sc/contracts';
 import { useCallback, useEffect, useState } from 'react';
 
 import { getJson, postJson } from '../lib/api.js';
 import { apiPath } from '../lib/base.js';
 import { useAction } from '../lib/useAction.js';
+import { TwoFactorSetup } from '../account/TwoFactorSetup.js';
 
 const RANKS = Array.from({ length: RANK_MAX + 1 }, (_, r) => r);
 
@@ -70,7 +73,26 @@ function AccountItem({ account: a, self, busy, change }: ItemProps) {
   );
 }
 
-export function AccountsAdmin({ me }: { me: Me }) {
+// Website mode has no two-factor routes: the website signs its admins in.
+const NOT_ASKED: TwoFactorStatus = { required: false, enabled: false };
+
+/** The accounts, after two-factor sign-in is set up where it is required. */
+export function AdminAccounts({ me }: { me: Me }) {
+  const [status, setStatus] = useState<TwoFactorStatus | null>(null);
+  const load = useCallback(() => {
+    getJson<TwoFactorStatus>(apiPath('/me/2fa'))
+      .then(setStatus)
+      .catch(() => {
+        setStatus(NOT_ASKED);
+      });
+  }, []);
+  useEffect(load, [load]);
+  if (status === null) return null;
+  if (status.required && !status.enabled) return <TwoFactorSetup onEnabled={load} />;
+  return <AccountsAdmin me={me} />;
+}
+
+function AccountsAdmin({ me }: { me: Me }) {
   const [rows, setRows] = useState<AccountRow[]>([]);
   const action = useAction();
   const refresh = useCallback(() => {

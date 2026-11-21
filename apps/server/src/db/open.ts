@@ -6,7 +6,7 @@
  *                 schema, apply the pending migrations, load the event log, and answer the stores
  *                 for buildServer plus a close that waits for pending writes first.
  * Depends on:     ../app.js (types), ./accountStore.js, ./box.js, ./credentialStore.js,
- *                 ./eventStore.js, ./migrator.js, ./pool.js, ./state.js
+ *                 ./eventStore.js, ./migrator.js, ./pool.js, ./state.js, ./twoFactorStore.js
  */
 import type { Stores } from '../app.js';
 import { pgAccounts, pgSessions } from './accountStore.js';
@@ -16,6 +16,7 @@ import { pgEventStore, type PgEventStore } from './eventStore.js';
 import { migrate } from './migrator.js';
 import { createPool, SCHEMA, type DbPool } from './pool.js';
 import { pgCursor } from './state.js';
+import { pgTwoFactor } from './twoFactorStore.js';
 
 export interface Database {
   readonly pool: DbPool;
@@ -46,6 +47,7 @@ export async function openDatabase(options: DatabaseOptions): Promise<Database> 
       sessions: pgSessions(pool),
       cursor: pgCursor(pool),
       credentials: pgCredentials(pool),
+      twoFactor: pgTwoFactor(pool, key),
     },
     async close() {
       await events.flush();

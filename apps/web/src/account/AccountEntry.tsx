@@ -3,8 +3,10 @@
  * @brief  The way in for a guest in local mode: sign in, register, or ask for a new password.
  *
  * Responsibility: three small forms behind one switch (DECISIONS D24). Sign-in takes the name
- *                 or the e-mail; registration a name, an e-mail and a password, with the rules
- *                 shown before sending; the forgotten password always answers the same sentence.
+ *                 or the e-mail, and asks for the second factor when the server wants it (an
+ *                 admin with two-factor sign-in); registration a name, an e-mail and a password,
+ *                 with the rules shown before sending; the forgotten password always answers the
+ *                 same sentence.
  *                 The server checks everything again and answers each refusal in one sentence.
  * Depends on:     react, @sc/contracts, ../lib/api.js, ../lib/base.js, ../lib/useAction.js,
  *                 ../screens/fields.js
@@ -17,6 +19,7 @@ import {
   type LocalSignInRequest,
   type Me,
   type RegisterRequest,
+  type TwoFactorNeeded,
 } from '@sc/contracts';
 import { useState } from 'react';
 
@@ -38,15 +41,23 @@ const PASSWORD_TIP = 'At least 12 characters; a long sentence is easy to remembe
 function SignInForm({ onEnter }: { onEnter: (me: Me) => void }) {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
+  // Asked once the server says the account has two-factor sign-in (an admin).
+  const [code, setCode] = useState<string | null>(null);
   const action = useAction();
-  const body: LocalSignInRequest = { login: login.trim(), password };
+  const body: LocalSignInRequest = {
+    login: login.trim(),
+    password,
+    ...(code === null ? {} : { code: code.trim() }),
+  };
   return (
     <form
       aria-label="Sign in"
       onSubmit={(event) => {
         event.preventDefault();
         action.run(async () => {
-          onEnter(await postJson<Me>(apiPath('/auth/sign-in'), body));
+          const answer = await postJson<Me | TwoFactorNeeded>(apiPath('/auth/sign-in'), body);
+          if ('twoFactor' in answer) setCode('');
+          else onEnter(answer);
         });
       }}
     >
@@ -69,6 +80,17 @@ function SignInForm({ onEnter }: { onEnter: (me: Me) => void }) {
         value={password}
         onChange={setPassword}
       />
+      {code !== null && (
+        <TextField
+          label="Code"
+          tip="The six digits of your authenticator app, or one of your recovery codes"
+          maxLength={20}
+          required
+          autoComplete="one-time-code"
+          value={code}
+          onChange={setCode}
+        />
+      )}
       <button type="submit" className="button button-solid" disabled={action.busy} title="Sign in">
         Sign in
       </button>

@@ -7,10 +7,10 @@
  *     and sets a role or a rank (CONCEPT §4, ranks assigned by admins, DECISIONS D24). A website
  *     account takes both from the website and is refused; an admin cannot take their own admin
  *     role, so there is always one. A role change ends the account's sessions; the next sign-in
- *     carries the new role.
+ *     carries the new role. A standalone admin needs two-factor sign-in set up first.
  *   - `GET /api/me/matches` ("My matches", CONCEPT §3.5): the signed-in user's case in every
  *     show, from the public view only, so a prize shows once its case is open and never before.
- * Depends on:     @sc/contracts, @sc/domain, ./auth/accounts.js, ./http.js
+ * Depends on:     @sc/contracts, @sc/domain, ./auth/accounts.js, ./auth/twoFactor.js, ./http.js
  */
 import {
   AccountUpdateSchema,
@@ -24,6 +24,7 @@ import { publicView, type ShowModel } from '@sc/domain';
 import type { FastifyRequest } from 'fastify';
 
 import { shownName, type Account } from './auth/accounts.js';
+import { needsTwoFactor } from './auth/twoFactor.js';
 import { parseBody, Refusal, signedIn, type Ctx } from './http.js';
 
 const rowOf = (a: Account): AccountRow => ({
@@ -34,9 +35,15 @@ const rowOf = (a: Account): AccountRow => ({
   rank: a.rank,
 });
 
+// An admin; a standalone admin also has two-factor sign-in set up (DECISIONS D24).
 async function admin(ctx: Ctx, request: FastifyRequest): Promise<Me> {
   const me = await signedIn(ctx, request);
   if (me.role !== 'admin') throw new Refusal(403, 'only an admin can do this');
+  const account = await ctx.auth.accounts.byId(me.id);
+  if (account !== undefined && needsTwoFactor(account)) {
+    const found = await ctx.auth.twoFactor.get(account.id);
+    if (found?.enabled !== true) throw new Refusal(403, 'set up two-factor sign-in first');
+  }
   return me;
 }
 
