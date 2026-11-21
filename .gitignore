@@ -1,0 +1,24 @@
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+# Test output
+test-results/
+playwright-report/
+# Local environment files hold secrets and never go into git
+.env
+.env.*
+!.env.example
+# Night runs (docs/NIGHT-RUN.md): the run log and the task text stay local
+logs/
+night-task.md
+# One-off scripts of a run, deleted when the step is done
+tmp/
+# Local outputs: screenshots (.local/screens/<topic>/), the prototype's event logs
+# (.local/data/), the browser tests' data (.local/e2e/). Never in git (CLAUDE.md).
+.local/
+# Claude Code's machine-local settings
+.claude/settings.local.json
+# Editor and OS noise
+.DS_Store
+Thumbs.db

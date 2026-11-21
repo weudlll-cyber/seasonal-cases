@@ -1,0 +1,17 @@
+# @file   lefthook.yml
+# @brief  Git hooks: format the staged files and scan them for secrets before each commit.
+#
+# Responsibility: keep the pre-commit hook fast (Prettier on staged files, gitleaks over the
+#                 staged changes); every heavier check runs in "pnpm verify" and CI. After the
+#                 pattern of seasonal-mini-games lefthook.yml; the gitleaks step as the kit's
+#                 CONTRIBUTING.md describes it (Docker must be running).
+pre-commit:
+  commands:
+    format:
+      # No glob: --ignore-unknown skips what Prettier cannot parse; .prettierignore still applies.
+      run: pnpm exec prettier --write --ignore-unknown {staged_files}
+      # Re-stage the files Prettier rewrote so the commit contains the formatted version.
+      stage_fixed: true
+    gitleaks:
+      # The image CI uses, pinned by digest, over the staged changes.
+      run: sh scripts/gitleaks-staged.sh

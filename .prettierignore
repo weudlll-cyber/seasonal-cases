@@ -1,0 +1,14 @@
+# @file   .prettierignore
+# @brief  Files Prettier leaves untouched.
+#
+# Responsibility: skip generated files, delivered assets, the owner's concept (kept as the
+#                 owner's planning chat wrote it), the working rules and the settings file
+#                 that Claude Code itself reads.
+pnpm-lock.yaml
+LICENSE
+assets/
+docs/CONCEPT.md
+CLAUDE.md
+.claude/
+.local/
+coverage/
