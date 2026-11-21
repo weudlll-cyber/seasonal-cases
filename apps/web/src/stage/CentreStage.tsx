@@ -7,9 +7,9 @@
  *                 season colour, "prize" its meaning (the prize slot and label, or "No prize"),
  *                 "owner" the same while the lower third names the owner. Everything comes from
  *                 the view; nothing is decided here.
- * Depends on:     @sc/contracts, ./ArtifactEmblem.js
+ * Depends on:     @sc/contracts (types), ./ArtifactEmblem.js
  */
-import { prizeLabel, type CaseView, type PublicShowView, type RevealStep } from '@sc/contracts';
+import type { CaseView, PublicShowView, RevealStep } from '@sc/contracts';
 
 import { ArtifactEmblem } from './ArtifactEmblem.js';
 
@@ -28,7 +28,8 @@ function Meaning({ show, view }: { show: PublicShowView; view: CaseView }) {
   return (
     <p className="centre-meaning">
       <span className="centre-slot">Prize {slot.slot}</span>
-      <span className="centre-label">{prizeLabel(slot)}</span>
+      {/* An empty label would only repeat "Prize n" (CONCEPT §3.1). */}
+      {slot.label.trim() !== '' && <span className="centre-label">{slot.label.trim()}</span>}
     </p>
   );
 }

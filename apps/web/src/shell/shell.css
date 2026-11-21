@@ -157,9 +157,52 @@ select {
   font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
+/* A phone: two rows of known height (title and toggle; navigation and the user), so the stage
+   screens can subtract it. The role is left out there; the name gives way. */
 @media (max-width: 640px) {
+  :root {
+    --shell-height: 108px;
+  }
+
+  .shell-bar {
+    display: grid;
+    grid-template-areas:
+      'title toggle'
+      'nav me';
+    grid-template-columns: 1fr auto;
+    height: var(--shell-height);
+    min-height: 0;
+    padding: 6px var(--gutter);
+    gap: 4px var(--space-1);
+  }
+
+  .shell-title {
+    grid-area: title;
+    align-self: center;
+  }
+
   .shell-nav {
-    flex-basis: 100%;
-    order: 3;
+    grid-area: nav;
+    gap: var(--space-1);
+  }
+
+  .shell-me {
+    grid-area: me;
+  }
+
+  .shell-bar .sk-theme-toggle {
+    grid-area: toggle;
+    justify-self: end;
+  }
+
+  .shell-me-role {
+    display: none;
+  }
+
+  .shell-me-name {
+    max-width: 5.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

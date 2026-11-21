@@ -6,7 +6,7 @@
  *                 `artifactTable` and `prizeSlots`; the commitment once the show is sealed.
  * Depends on:     @sc/contracts, @sc/ui, ../stage/ArtifactEmblem.js
  */
-import { prizeLabel, type PublicShowView } from '@sc/contracts';
+import { prizeTitle, type PublicShowView } from '@sc/contracts';
 import { formatTime, shortCommitment } from '@sc/ui';
 
 import { ArtifactEmblem } from '../stage/ArtifactEmblem.js';
@@ -21,9 +21,7 @@ export function ArtifactTable({ show }: { show: PublicShowView }) {
             <li key={a.id}>
               <ArtifactEmblem artifact={a} />
               <span className="artifact-meaning">
-                {slot === undefined
-                  ? 'no prize'
-                  : `Prize ${String(slot.slot)}: ${prizeLabel(slot)}`}
+                {slot === undefined ? 'no prize' : prizeTitle(slot)}
               </span>
             </li>
           );

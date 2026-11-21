@@ -158,3 +158,16 @@ button.board-case-body:hover {
   margin: 0;
   font-size: 1.05rem;
 }
+
+/* A phone: the lobby is a normal page that scrolls (CONCEPT §7), the board in its flow. */
+@media (max-width: 699px) {
+  .board-screen {
+    height: auto;
+    overflow: visible;
+  }
+
+  .board-scroll {
+    flex: none;
+    overflow: visible;
+  }
+}

@@ -34,3 +34,9 @@ export function prizeLabel(slot: PrizeSlot): string {
   const label = slot.label.trim();
   return label === '' ? `Prize ${String(slot.slot)}` : label;
 }
+
+/** "Prize 2" for an empty label, "Prize 1: Gold" for a given one: no "Prize 2: Prize 2". */
+export function prizeTitle(slot: PrizeSlot): string {
+  const label = slot.label.trim();
+  return label === '' ? `Prize ${String(slot.slot)}` : `Prize ${String(slot.slot)}: ${label}`;
+}

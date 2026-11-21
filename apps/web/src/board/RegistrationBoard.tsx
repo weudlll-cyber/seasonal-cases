@@ -133,7 +133,7 @@ export function RegistrationBoard({ show, personal, onClaim, error }: BoardProps
       aria-label="Registration board"
     >
       <header className="board-head" data-fit-fixed>
-        <h2>{show.registrationOpen ? 'Registration is open' : 'Registration is closed'}</h2>
+        <h2>{show.registrationOpen ? 'Pick a case' : 'The cases and their owners'}</h2>
         <PickLine personal={show.registrationOpen ? personal : null} />
         {error !== null && error !== undefined && (
           <p className="board-error" role="alert">

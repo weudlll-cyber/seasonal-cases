@@ -33,9 +33,12 @@ export interface LobbyProps {
 
 function ShowState({ show }: { show: PublicShowView }) {
   const onStage = show.state === 'sealed' || show.state === 'live';
+  // A closed registration stays in the state 'registration' until sealing.
+  const closed = show.state === 'registration' && !show.registrationOpen;
   return (
     <p className="lobby-state">
-      {STATE_TEXT[show.state]} {onStage && <Link to="/show">Go to the stage</Link>}
+      {closed ? 'Registration is closed: the cases are being sealed.' : STATE_TEXT[show.state]}{' '}
+      {onStage && <Link to="/show">Go to the stage</Link>}
       {show.state === 'ended' && <Link to={`/results/${show.id}`}>See the result</Link>}
     </p>
   );

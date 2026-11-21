@@ -24,6 +24,10 @@ const STEP = 11;
 const ASPECT = 1.9;
 // The half circle's centre, % from the top.
 const BASE = 94;
+// The arc runs from 10 % to 90 % of the half turn, so its ends stay clear of the bottom
+// corners, where the lower third appears at the "Owner" step.
+const FROM = 0.1;
+const SPAN = 0.8;
 
 /** The radius of each ring, outer first, for n cases. */
 function radii(n: number): number[] {
@@ -55,7 +59,7 @@ export function arcSpots(n: number): Spot[] {
   ringSizes(n).forEach((size, ring) => {
     const radius = rs[ring] ?? OUTER;
     for (let i = 0; i < size; i += 1) {
-      const angle = Math.PI - ((i + 0.5) / size) * Math.PI;
+      const angle = Math.PI * (1 - FROM - ((i + 0.5) / size) * SPAN);
       spots.push({
         x: 50 + Math.cos(angle) * radius,
         y: BASE - Math.sin(angle) * radius * ASPECT,

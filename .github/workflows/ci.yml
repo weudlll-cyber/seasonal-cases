@@ -1,12 +1,14 @@
 # @file   .github/workflows/ci.yml
-# @brief  CI: verify with coverage, security scans and the docs' link check.
+# @brief  CI: verify with coverage, security scans, the docs' link check and the browser
+#         journeys in Chromium.
 #
 # Responsibility: run what "pnpm verify" runs and the domain/application coverage, the
-#                 dependency and secret scans and the markdown link check on every push to any
-#                 branch and every pull request against master. Any red job blocks a merge.
+#                 dependency and secret scans, the markdown link check and the Playwright
+#                 journeys on every push to any branch and every pull request against master.
+#                 Any red job blocks a merge.
 #                 After seasonal-mini-games .github/workflows/ci.yml; action SHAs and image
 #                 digests are its own.
-# Depends on:     .github/actions/setup, osv-scanner.toml
+# Depends on:     .github/actions/setup, osv-scanner.toml, e2e/
 name: CI
 
 on:
@@ -81,3 +83,23 @@ jobs:
         run: |
           docker run --rm -v "$PWD:/src" -w /src "$LYCHEE_IMAGE" --offline --no-progress \
             --exclude-path node_modules '**/*.md'
+
+  e2e:
+    # The three journeys in Chromium on every push and pull request; Firefox and WebKit run
+    # nightly in ./browsers.yml (CLAUDE.md "Tests and checks").
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+      - name: Playwright browser (Chromium)
+        run: pnpm exec playwright install --with-deps chromium
+      # The run's own stack: server 127.0.0.1:3980 with data under .local/e2e (cleaned at
+      # start), client 5480 (e2e/playwright.config.ts).
+      - run: pnpm e2e --project=chromium
+      # On a failure: the traces of the failed tests, for a week.
+      - if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: playwright-results
+          path: test-results
+          retention-days: 7

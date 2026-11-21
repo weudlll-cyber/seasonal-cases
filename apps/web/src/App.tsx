@@ -41,8 +41,13 @@ export function App() {
         </nav>
         {me !== null && (
           <span className="shell-me">
-            {me.name} · {me.role}
-            {me.role === 'player' ? ` · rank ${String(me.rank)}` : ''}
+            <span className="shell-me-name" title={me.name}>
+              {me.name}
+            </span>
+            <span className="shell-me-role">
+              · {me.role}
+              {me.role === 'player' ? ` · rank ${String(me.rank)}` : ''}
+            </span>
             <button
               type="button"
               className="button"

@@ -1,0 +1,28 @@
+/**
+ * @file   e2e/server.ts
+ * @brief  The browser tests' own server: a clean data folder, then the real server on 3980.
+ *
+ * Responsibility: delete `.local/e2e/` (the previous run's event logs), then start the server
+ *                 in development mode on 127.0.0.1:3980 with its logs under `.local/e2e/data`.
+ *                 A running `pnpm dev` (3970, `.local/data`) is neither used nor touched.
+ * Depends on:     node:fs, node:url, ../apps/server/src/index.ts
+ */
+import { rmSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+import { buildServer, configFrom } from '../apps/server/src/index.js';
+
+const E2E_DIR = fileURLToPath(new URL('../.local/e2e/', import.meta.url));
+const SERVER_PORT = 3980;
+
+rmSync(E2E_DIR, { recursive: true, force: true });
+const config = configFrom({
+  ...process.env,
+  NODE_ENV: 'development',
+  SC_DEV: '1',
+  SC_PORT: String(SERVER_PORT),
+  SC_DATA_DIR: `${E2E_DIR}data`,
+});
+const { app } = await buildServer(config);
+await app.listen({ host: '127.0.0.1', port: config.port });
+console.log(`e2e server on http://127.0.0.1:${String(config.port)}`);

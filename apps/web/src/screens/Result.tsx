@@ -33,7 +33,10 @@ export function ResultView({ result }: { result: ShowResult }) {
         {result.winners.map((w) => (
           <li key={w.slot}>
             <span className="result-slot">Prize {w.slot}</span>
-            <span className="result-label">{w.label}</span>
+            {/* The label is "Prize n" when none was given; it is not repeated. */}
+            {w.label !== `Prize ${String(w.slot)}` && (
+              <span className="result-label">{w.label}</span>
+            )}
             <ArtifactEmblem artifact={w.artifact} />
             <span className="result-owner">{w.ownerName ?? 'no owner'}</span>
             <span className="result-case">case {w.caseNumber}</span>

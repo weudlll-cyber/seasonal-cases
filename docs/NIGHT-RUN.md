@@ -9,16 +9,85 @@ Repository, standards and the playable prototype. Branch of the prototype: `prot
 
 ### Final report
 
-Written when the chain ends.
+**Done.** All four pieces. Piece 1 on `master`, protected, CI green. Pieces 2–4 on
+`proto/cases-v1`, pushed, nothing merged:
+
+- the rules with sealing and commitment, the use cases and the server (piece 2);
+- the client (piece 3);
+- the three browser journeys, 80 pictures, and the fixes they showed (piece 4).
+
+`pnpm verify` is green (16 files, 81 tests). The three journeys pass once in Chromium. CI for the
+branch: see the piece 4 row.
+
+**What runs now.** Server 127.0.0.1:3970 and client 0.0.0.0:5470 run hidden in the background on
+`proto/cases-v1`.
+
+- **On this PC:** http://localhost:5470
+- **On the phone (same Wi-Fi):** http://192.168.0.66:5470. Windows may ask once whether Node.js
+  may accept connections on private networks; allow it for the phone to reach the client.
+- **Sign-in names (development sign-in, no password):**
+  - a moderator: any name with role `moderator`, or `admin` (who can also use `/admin`);
+  - a player: any name with role `player` and a rank from 0 to 5.
+- **Quick Test seed:** `sc-n1-01`.
+
+**One two-tab play-through.** One sign-in per browser window: the second person goes in a
+private window, or another browser.
+
+1. **Window A:** open http://localhost:5470, sign in as `Mia`, role `admin`. Open **Admin**
+   (`/admin`).
+2. **Window B (private):** open http://localhost:5470, sign in as `Ana`, role `player`, rank `3`.
+3. **A, Admin:** keep Cases 24 and Winners 3, type a label for prize 1 if you like, and click
+   **Create show**. Under "Shows", click **Open registration** on the new show.
+4. **B, Lobby:** the registration board appears. Click a case to pick it. "Your pick: case n,
+   you hold it" appears.
+5. **A, Admin:** click, on the same show:
+   1. **Fill with bots**;
+   2. **Close**;
+   3. **Seal** (the commitment now shows on the lobby's artifact table);
+   4. **Start show**.
+6. **A:** open **Stage**; the direction bar is at the bottom. **B:** open **Stage**; no bar,
+   the same stage.
+7. **A:** click a case (it moves to the centre), then **Tension**, **Open**, **Prize**,
+   **Owner** and **Back to stage**. B sees every step. Open Ana's case too: the lower third names
+   her.
+8. **A:** go on until "Found" lists every prize, and **End show** lights up. Click it, then
+   **See the result**: the winners, every case, and "sealed at … · commitment … · verified".
+
+The shortcut: on `/admin` click **Quick Test** with the seed `sc-n1-01`. It makes a live show with
+bots in every case and takes you to the stage with the direction.
+
+**What is open.** BACKLOG part one, among them:
+
+- the foundation (1–6);
+- show polish (7–10);
+- the sealed assignment encrypted at rest (17);
+- sessions across restarts (18);
+- two kit adoption items (19 floors for cases, 20 dock reserve).
+
+**Needs the owner's word.**
+
+- The proposals of CONCEPT §14:
+  - the five reveal steps, moved by the moderator only;
+  - the artifact names and order;
+  - Fredoka as the stage font;
+  - the defaults N = 24 and W = 3.
+- The kit tag v0.5.0, where the concept named v0.4.1 (DECISIONS D15).
+- The separate "Start show" step after sealing.
+- Adding `e2e` to master's required checks.
+- A write right for a sibling clone, so future nights can run pieces in parallel.
+- Everything under "Choices made without the owner" below.
+
+**Needs the owner's hand.** The Renovate app for the new repository (no onboarding PR by the end
+of the chain).
 
 ### Pieces
 
-| Piece                                      | Done                                                                                   | Running | Open                            | Needs the owner's word                        | Commits                              | CI run ids                                     |
-| ------------------------------------------ | -------------------------------------------------------------------------------------- | ------- | ------------------------------- | --------------------------------------------- | ------------------------------------ | ---------------------------------------------- |
-| 1 Repository and standards                 | standards, skeleton, CI, kit v0.5.0, docs; repository created; master protected        | —       | Renovate onboarding (see below) | kit tag v0.5.0 vs. the concept's v0.4.1 (D15) | master `0aee998`…`2bf720c`           | CI 44850888611 green; CodeQL 44850888453 green |
-| 2 Contracts, domain, server                | contracts, domain with probes, application, server with socket tests                   | —       | BACKLOG 17, 18 (later)          | the "Start show" step (below)                 | `proto/cases-v1` `90a40e1`           | CI 44853721518 green                           |
-| 3 The client                               | lobby, board, stage with five steps, direction bar, result, dev admin, component tests | —       | screenshots and fixes (piece 4) | Fredoka (CONCEPT §14), the phone's two rows   | `proto/cases-v1`, see piece 3 report | see piece 4 row                                |
-| 4 Play-through, browser tests, screenshots | —                                                                                      | —       | all                             | —                                             | —                                    | —                                              |
+| Piece                                      | Done                                                                                   | Running                             | Open                            | Needs the owner's word                        | Commits                               | CI run ids                                     |
+| ------------------------------------------ | -------------------------------------------------------------------------------------- | ----------------------------------- | ------------------------------- | --------------------------------------------- | ------------------------------------- | ---------------------------------------------- |
+| 1 Repository and standards                 | standards, skeleton, CI, kit v0.5.0, docs; repository created; master protected        | —                                   | Renovate onboarding (see below) | kit tag v0.5.0 vs. the concept's v0.4.1 (D15) | master `0aee998`…`2bf720c`            | CI 44850888611 green; CodeQL 44850888453 green |
+| 2 Contracts, domain, server                | contracts, domain with probes, application, server with socket tests                   | —                                   | BACKLOG 17, 18 (later)          | the "Start show" step (below)                 | `proto/cases-v1` `90a40e1`            | CI 44853721518 green                           |
+| 3 The client                               | lobby, board, stage with five steps, direction bar, result, dev admin, component tests | —                                   | screenshots and fixes (piece 4) | Fredoka (CONCEPT §14), the phone's two rows   | `proto/cases-v1` `10b486a`            | CI 44856786489 green                           |
+| 4 Play-through, browser tests, screenshots | three journeys, 80 pictures, the fixes they showed, docs, hand-over                    | server 3970 and client 5470, hidden | see the final report            | see the final report                          | `proto/cases-v1`, the piece 4 commits | see "CI of the last push" below                |
 
 ### Piece 1 report
 
@@ -111,6 +180,61 @@ Written when the chain ends.
 - **Removed:** the skeleton's heading-only `App` and its test. **Lines:** web sources 30–159,
   CSS 21–264, tests 68–117; ui 11–34.
 
+### Piece 4 report
+
+- **Browser tests** (`e2e/`, Playwright 1.64.1, Chromium): their own server on 127.0.0.1:3980
+  with data under `.local/e2e/` (deleted at every start, `e2e/server.ts`) and their own client on 5480. Journey 1: admin sign-in, Quick Test N = 12, W = 3, seed `sc-n1-01`, four cases through
+  the five steps (a blank first, then the main prize and the two others), each step asserted
+  visible and the lower third naming the owner, hand-over to "Noah" in a second context, who ends
+  the show; the result says "verified" with the commitment shown at sealing. Journey 2: Lena
+  (rank 2) and Hugo (rank 4) claim case 7, Hugo holds it, Lena sees "Your rank is lower" and
+  re-picks case 8; Ivy (rank 4, later) sees "Equal rank: the earlier pick holds" and does not
+  take it; after the close Hugo owns 7, Lena 8, Ivy nothing. Journey 3: every socket frame a
+  player receives is recorded; no public view before the end holds the secret, the assignment or
+  an unopened case's artifact, no moderator view reaches the player, and the commitment on the
+  lobby before the show equals the result's. Journey 1 finds the main prize by replaying the
+  Quick Test from the seed in memory (`e2e/helpers.ts`), not from anything the client receives.
+- **CI:** job `e2e` (Chromium) added to `ci.yml`; `browsers.yml` runs the projects `firefox`
+  and `webkit-mobile` nightly once master holds the suite.
+- **Pictures:** `.local/screens/proto-v1/`, 80 files: board, stage-tension, stage-owner and
+  result at the ten check sizes of CONCEPT §7, light and dark, plus `checks.json` (smallest
+  visible text and sideways overflow per picture: no text under 14 px, no sideways overflow).
+- **Fixed after looking at the pictures:**
+  - `stage-owner-1920x1080-dark.png`: every case shrank to the floor and the owner names
+    became "bot…". The confetti pieces fall below the stage, the fit counted them as overflow
+    and scaled the whole screen down. The confetti now sits outside the measured parts.
+  - `stage-owner-375x667-*.png`: the centre case was cut off. The phone's shell bar wrapped to
+    three rows, about 140 px against the 64 px the stage subtracts, and the stage could not
+    scroll. Phones now get a two-row shell bar of a known 108 px, and below 700 px the stage and
+    result screens are their own named scroll areas. The owner's caption sits above the centre
+    case on a phone.
+  - `stage-owner-1366x768-light.png`:
+    - the lower third covered cases 1 and 15; the half circle now keeps the bottom corners free;
+    - an opened case's artifact name ran out of its card; the card now shows the gem only,
+      with the name as its tooltip;
+    - the found prize stood in the "Still hidden" row; it now has its own "Found:" label;
+    - case cards keep at least 62 px, so a name like "bot-24" stays whole.
+  - `result-1366x768-dark.png` and `board-*`: "Prize 2 · Prize 2" and "Prize 2: Prize 2" for an
+    empty label. They now read "Prize 2" (`prizeTitle` in contracts).
+  - `board-1366x768-light.png`: the lobby line and the board heading both said "Registration is
+    open". The board heading is now "Pick a case" or "The cases and their owners". The lobby
+    says "Registration is closed" once it is, where it said "open" before (a real defect).
+- **Seen and left:**
+  - `stage-owner-1280x720-light.png`: the large centre case covers the two dimmed cases
+    behind it (19, 20) at the smallest PC height. They are dimmed and stand behind the
+    spotlight, as on a studio floor.
+  - `board-1920x1080-dark.png`: the artifact table sits below an empty band, because the board
+    keeps the dock's height free (DECISIONS D7).
+  - `stage-tension-1280x720-light.png`: "lights down" in the light theme greys the stage rather
+    than darkening it to night. Readable, but less dramatic than in dark.
+- **Tests:** `pnpm verify` green, 16 files, 81 tests; the three journeys in Chromium passed
+  (journey 1 24 s, journey 2 28 s, journey 3 36 s).
+- **Dependencies added:**
+  - @playwright/test 1.64.1, Mini Games' version;
+  - tsx 4.23.15 at the root, to start the test server;
+  - the workspace packages `@sc/application` and `@sc/domain` as root dev dependencies, for the
+    Quick Test replay.
+
 ### Choices made without the owner
 
 - **"Start show":** the concept goes SEALED → LIVE, and the task names no start action. The
@@ -136,7 +260,10 @@ owner | return` in place of five functions; the socket sends `direction:step`.
 - **Selecting a case** is a click on the case for the holder; the bar holds the later steps.
 - **A found prize:** it enters the top bar's "found" list at its "Prize" step; at "Open" the
   artifact is already visible on the stage but its meaning is not yet named.
-
+- **Phones below the floors:** the stage and the result scroll as their own named region
+  ("Stage", "Result"); the lobby with its board scrolls as a normal page.
+- **The `e2e` job is not a required check** of master; the protection lists `verify`,
+  `security`, `docs` as set in piece 1.
 - **Kit tag:** `git ls-remote` showed `v0.5.0` as the newest tag (the task expected v0.4.1). The
   task's rule is the newest tag, so `v0.5.0` is pinned (DECISIONS D15).
 - **Kit's local checkout:** another session was switching `C:\Users\weudl\seasonal-kit` while this
@@ -150,4 +277,5 @@ owner | return` in place of five functions; the socket sends `direction:step`.
 ### Needs the owner's hand
 
 - **Renovate:** `renovate.json` is in the tree; whether the Renovate app covers the new repository
-  is the owner's setting. Checked again at the end of the chain.
+  is the owner's setting. At the end of the chain no onboarding PR had appeared
+  (`gh pr list --state all` empty).

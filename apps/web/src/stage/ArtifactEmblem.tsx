@@ -22,6 +22,7 @@ export function ArtifactEmblem({
     <span
       className={`artifact artifact-${size} season-${artifact.season}${blank ? ' artifact-blank' : ''}`}
       data-artifact={artifact.name}
+      title={artifact.name}
     >
       <span className="artifact-gem" aria-hidden="true" />
       <span className="artifact-name show-font">{artifact.name}</span>

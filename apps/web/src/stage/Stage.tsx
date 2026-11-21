@@ -22,7 +22,7 @@ import { arcSpots, tokenSize } from './arc.js';
 import { CaseToken } from './CaseToken.js';
 import { CentreStage } from './CentreStage.js';
 import { DirectionBar } from './DirectionBar.js';
-import { LowerThird } from './LowerThird.js';
+import { Confetti, LowerThird } from './LowerThird.js';
 import { TopBar } from './TopBar.js';
 
 export interface StageProps {
@@ -99,6 +99,7 @@ export function Stage({ show, moderator, me, direct }: StageProps) {
         <CentreStage show={show} />
         <LowerThird show={show} />
       </div>
+      <Confetti show={show} />
       {holder !== null && me !== null && <DirectionBar view={holder} me={me} direct={direct} />}
     </section>
   );

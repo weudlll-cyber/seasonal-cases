@@ -88,7 +88,8 @@
   position: absolute;
   left: var(--x);
   top: var(--y);
-  width: max(var(--sk-floor-target), calc(var(--fit, 1) * var(--token, 80px)));
+  /* 62 px at least: an owner name like "bot-24" stays whole at the 14 px floor. */
+  width: max(62px, calc(var(--fit, 1) * var(--token, 80px)));
   translate: -50% -50%;
   transition:
     opacity var(--duration-base) var(--ease-out),
@@ -148,6 +149,17 @@ button.case-body:focus-visible {
   border-style: dashed;
   box-shadow: none;
   background: var(--color-surface-2);
+}
+
+/* An opened case shows its artifact's gem; the name is the gem's tooltip and stays readable to
+   screen readers, so the small case never overflows. */
+.case-token .artifact-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* The rest dims while a case is on the centre stage; the selected one leaves a trace. */

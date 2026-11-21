@@ -24,14 +24,17 @@ export function TopBar({ show }: { show: PublicShowView }) {
         )}
       </div>
       {show.found.length > 0 && (
-        <ul className="stage-found" aria-label="Found prizes">
-          {show.found.map((f) => (
-            <li key={f.slot}>
-              <ArtifactEmblem artifact={f.artifact} />
-              <span className="stage-found-owner">{f.ownerName ?? 'no owner'}</span>
-            </li>
-          ))}
-        </ul>
+        <div className="stage-hidden">
+          <span className="stage-top-label">Found:</span>
+          <ul className="stage-found" aria-label="Found prizes">
+            {show.found.map((f) => (
+              <li key={f.slot}>
+                <ArtifactEmblem artifact={f.artifact} />
+                <span className="stage-found-owner">{f.ownerName ?? 'no owner'}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       {show.commitment !== null && (
         <span className="stage-commitment" title={`Commitment ${show.commitment}`}>

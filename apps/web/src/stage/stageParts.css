@@ -233,7 +233,25 @@
     translate: none;
   }
 
+  /* The owner's caption above the centre case, so it is in sight without scrolling. */
+  .lower-third {
+    order: 1;
+  }
+
+  .centre {
+    order: 2;
+  }
+
   .spotlight {
     inset: 0 5%;
+  }
+
+  /* Below the floors the screen itself is the named scroll area ("Stage"). */
+  .stage-screen {
+    overflow-y: auto;
+  }
+
+  .stage {
+    flex: none;
   }
 }

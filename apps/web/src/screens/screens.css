@@ -156,3 +156,15 @@
   color: var(--color-text-muted);
   font-size: max(var(--sk-floor-text), 14px);
 }
+
+/* A phone: the result screen itself is the named scroll area ("Result"). */
+@media (max-width: 699px) {
+  .result-screen {
+    overflow-y: auto;
+  }
+
+  .result-scroll {
+    flex: none;
+    overflow: visible;
+  }
+}
