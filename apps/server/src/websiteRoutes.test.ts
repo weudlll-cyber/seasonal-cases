@@ -123,8 +123,11 @@ describe('the website sign-in', () => {
         .statusCode,
     ).toBe(404);
     expect((await app.inject({ method: 'GET', url: '/api/health' })).statusCode).toBe(404);
-    expect((await app.inject({ method: 'GET', url: '/games/cases/api/health' })).json()).toEqual({
+    expect(
+      (await app.inject({ method: 'GET', url: '/games/cases/api/health' })).json(),
+    ).toMatchObject({
       ok: true,
+      mode: 'website',
     });
   });
 });

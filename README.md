@@ -37,6 +37,19 @@ on every interface, so a phone on the same network reaches it at `http://<PC's I
 | 3990 | the browser tests' server in website mode        |
 | 5485 | the browser tests' stand-in website              |
 
+## Run it in production
+
+Node 22+, pnpm and PostgreSQL; the installer (`deploy/install.sh`) does all of this on a VPS.
+
+```sh
+pnpm install --frozen-lockfile
+SC_MODE=local pnpm build    # or SC_MODE=website for /games/cases/
+pnpm start                  # one process: API, sockets, the built client, /api/health
+```
+
+`pnpm start` needs `DATABASE_URL`, `SC_DATA_KEY`, `SC_COOKIE_SECRET` and, in local mode,
+`SC_PUBLIC_ORIGIN`; every variable is in [docs/CONFIG.md](docs/CONFIG.md).
+
 ## Accounts and admins (local mode)
 
 Players create their own accounts on the start page. Admins come from the command line, on the

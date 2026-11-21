@@ -13,16 +13,16 @@ Written when the chain ends.
 
 ### Pieces
 
-| Piece                                      | Done | Running | Open | Needs the owner's word | Commits         | CI run ids      |
-| ------------------------------------------ | ---- | ------- | ---- | ---------------------- | --------------- | --------------- |
-| 1 Small fixes, remaining security findings | all  | —       | —    | BACKLOG 29, 30         | see piece 2 row | see piece 2 row |
-| 2 Production run                           | —    | —       | all  | —                      | —               | —               |
-| 3 Member summary                           | —    | —       | all  | —                      | —               | —               |
-| 4 Installer                                | —    | —       | all  | —                      | —               | —               |
-| 5 Sound                                    | —    | —       | all  | —                      | —               | —               |
-| 6 Phone polish, Firefox and WebKit         | —    | —       | all  | —                      | —               | —               |
-| 7 Security review, release readiness       | —    | —       | all  | —                      | —               | —               |
-| 8 Play-through, pictures, hand-over        | —    | —       | all  | —                      | —               | —               |
+| Piece                                      | Done | Running | Open | Needs the owner's word | Commits         | CI run ids           |
+| ------------------------------------------ | ---- | ------- | ---- | ---------------------- | --------------- | -------------------- |
+| 1 Small fixes, remaining security findings | all  | —       | —    | BACKLOG 29, 30         | `06eafb6`       | CI 44953788972 green |
+| 2 Production run                           | all  | —       | —    | —                      | see piece 3 row | see piece 3 row      |
+| 3 Member summary                           | —    | —       | all  | —                      | —               | —                    |
+| 4 Installer                                | —    | —       | all  | —                      | —               | —                    |
+| 5 Sound                                    | —    | —       | all  | —                      | —               | —                    |
+| 6 Phone polish, Firefox and WebKit         | —    | —       | all  | —                      | —               | —                    |
+| 7 Security review, release readiness       | —    | —       | all  | —                      | —               | —                    |
+| 8 Play-through, pictures, hand-over        | —    | —       | all  | —                      | —               | —                    |
 
 ### Piece 1 report
 
@@ -49,6 +49,44 @@ Written when the chain ends.
 - **docs/security-pass.md:** finding 11 fixed; a status section for the owner's list.
 - `pnpm verify` green (29 files, 145 tests); journeys 1–6 passed.
 - **Dependencies:** `@zxcvbn-ts/language-common` 4.2.0 (the common-password dictionary).
+
+### Piece 2 report
+
+- **`pnpm build`** builds the client with Vite (base path from `SC_MODE`) and typechecks the
+  server. **`pnpm start`** (`apps/server/src/start.ts`: `NODE_ENV` defaults to `production`) runs
+  one Node process for the API, the sockets, `/api/health`, `/api/ready` and the built client.
+  The server keeps running its TypeScript through `tsx`, as in development (smallest option: no
+  second build of the server; `tsx` is a runtime dependency already). At runtime only Node and
+  PostgreSQL are needed.
+- **The built client** (`web.ts` `serveClient`, `@fastify/static`) under the base path: hashed
+  assets cached for a year, the page never; any other GET under the base path that is not the API
+  answers the page (client routes from a link); the API's unknown paths stay 404.
+- **Headers** (`web.ts` `helmetOptions`): helmet's defaults (CSP `default-src 'self'`, no inline
+  script; the built page has none), `frame-src 'self'` plus the chat's origin in local
+  development, `connect-src 'self'`, `Referrer-Policy: strict-origin` (GAME-INTEGRATION §5).
+  Secure cookies and `trustProxy` from the config as before; the dev routes stay off in
+  production (the guard is unchanged).
+- **Config** (`config.ts`, `configRead.ts`): every variable read in one place; one message names
+  every missing or malformed value and the mode that needs it. Production requires
+  `DATABASE_URL`, `SC_DATA_KEY`, `SC_COOKIE_SECRET` (32 characters at least) and, in local mode,
+  `SC_PUBLIC_ORIGIN`; the feed's two values go together; ports, origins, postgres URL and the
+  key are checked for their form. New: `SC_LOG_LEVEL`, `SC_CLIENT_DIR`.
+- **Health** (`healthRoutes.ts`): `{ ok, mode, version, db }`, `db` `ok`/`down` by a two-second
+  query, `none` without a database; `/api/ready` 503 while the database does not answer.
+- **Logs:** one JSON line per event on stdout (Fastify's pino); a request by method and path
+  only, never its query (a reset token), headers or cookies; request lines in production only.
+  **Shutdown:** SIGTERM or SIGINT closes the server and the sockets, lets database writes finish
+  and ends the pool; after 10 s the process exits anyway.
+- **Docs:** `docs/CONFIG.md` (every variable, default, mode, source), README "Run it in
+  production".
+- **Tests:** `production.test.ts` (production's required values in one message, six malformed
+  values at once, website mode and the feed pair, health and ready with the database up and
+  down, the built client under `/` and `/games/cases/` with its caching, client routes and API
+  404s, on a free port). The real build was booted by hand against the development database on
+  port 3961: health `db: ok`, the page with its headers, `/chronicle`, a 404 for an unknown API
+  path and for the dev sign-in, JSON log lines without queries.
+- `pnpm verify` green (30 files, 151 tests); journeys 1–6 passed.
+- **Dependencies:** `@fastify/static` 10.1.12 (the built client).
 
 ## Night chain SC-N2 (2026-11-21)
 

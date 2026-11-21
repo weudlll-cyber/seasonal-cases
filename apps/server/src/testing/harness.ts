@@ -37,6 +37,8 @@ export async function startHarness(
   const config = configFrom({
     ...(dev ? DEV_ENV : {}),
     SC_COOKIE_SECRET: 'test-secret-'.repeat(4),
+    // A test says only what fails.
+    SC_LOG_LEVEL: 'error',
     SC_PORT: '0',
     ...env,
   });

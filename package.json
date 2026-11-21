@@ -10,6 +10,8 @@
   },
   "scripts": {
     "dev": "pnpm --parallel --filter @sc/server --filter @sc/web run dev",
+    "build": "pnpm --filter @sc/web build && pnpm --filter @sc/server typecheck",
+    "start": "pnpm --filter @sc/server start",
     "dev:reset-db": "pnpm --filter @sc/server run dev:reset-db",
     "sc": "pnpm --filter @sc/server run sc",
     "dev:sc": "pnpm --filter @sc/server run dev:sc",

@@ -34,6 +34,20 @@ export interface DatabaseOptions {
   readonly onError: (error: unknown) => void;
 }
 
+/** Whether the database answers within two seconds. */
+async function probe(pool: DbPool): Promise<boolean> {
+  const timeout = new Promise<boolean>((resolve) => {
+    setTimeout(() => {
+      resolve(false);
+    }, 2000).unref();
+  });
+  const answer = pool.query('SELECT 1').then(
+    () => true,
+    () => false,
+  );
+  return Promise.race([answer, timeout]);
+}
+
 // Expired sessions and spent or expired reset links are of no use: gone at every start.
 async function cleanUp(pool: DbPool): Promise<void> {
   await pool.query('DELETE FROM sessions WHERE expires_at <= now()');
@@ -57,6 +71,7 @@ export async function openDatabase(options: DatabaseOptions): Promise<Database> 
       settings: pgSettings(pool),
       credentials: pgCredentials(pool),
       twoFactor: pgTwoFactor(pool, key),
+      probe: () => probe(pool),
     },
     async close() {
       await events.flush();

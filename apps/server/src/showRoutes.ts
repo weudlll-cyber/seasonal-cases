@@ -63,8 +63,6 @@ export function showRoutes(ctx: Ctx): void {
   const { app, shows, auth, config } = ctx;
   const people = auth.directory.lookup;
 
-  app.get('/api/health', () => ({ ok: true }));
-
   // What the client needs to know of the mode: the back link, the dock, the sign-in.
   app.get('/api/config', () => ({
     mode: config.mode,

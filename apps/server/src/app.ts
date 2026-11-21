@@ -33,7 +33,7 @@ import {
 } from '@sc/application';
 import type { ClientToServerEvents, ServerToClientEvents } from '@sc/contracts';
 import { seededRandom } from '@sc/domain';
-import Fastify, { type FastifyInstance } from 'fastify';
+import Fastify, { LogController, type FastifyInstance } from 'fastify';
 import { Server } from 'socket.io';
 
 import { accountRoutes } from './accountRoutes.js';
@@ -44,6 +44,7 @@ import { memorySessions, type SessionStore } from './auth/sessions.js';
 import { memoryTwoFactor, type TwoFactorStore } from './auth/twoFactor.js';
 import type { ServerConfig } from './config.js';
 import { devRoutes } from './devRoutes.js';
+import { healthRoutes, type Probe } from './healthRoutes.js';
 import { handleRefusals, type Ctx } from './http.js';
 import { localRoutes } from './localRoutes.js';
 import { smtpMailer, type Mailer } from './mail.js';
@@ -55,6 +56,7 @@ import { CurrentSettings, memorySettings, type SettingsStore } from './settings.
 import { settingsRoutes } from './settingsRoutes.js';
 import { showRoutes } from './showRoutes.js';
 import { twoFactorRoutes } from './twoFactorRoutes.js';
+import { helmetOptions, loggerOptions, serveClient } from './web.js';
 import { websiteRoutes } from './websiteRoutes.js';
 
 // Production randomness: node:crypto, never Math.random (CONCEPT §8).
@@ -74,6 +76,8 @@ export interface Stores {
   readonly credentials?: CredentialStore;
   readonly twoFactor?: TwoFactorStore;
   readonly settings?: SettingsStore;
+  // Whether the database answers (`/api/health`, `/api/ready`); none without a database.
+  readonly probe?: Probe;
   // The outgoing mail; by default SMTP from the settings, or none.
   readonly mailer?: Mailer | null;
 }
@@ -154,6 +158,7 @@ async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Pro
       accountRoutes(ctx);
       openRoundsRoutes(ctx);
       settingsRoutes(ctx, settings);
+      healthRoutes(ctx, stores.probe ?? null);
       if (config.dev) devRoutes(ctx);
       if (config.website === null) {
         localRoutes(ctx, local);
@@ -166,13 +171,18 @@ async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Pro
 }
 
 export async function buildServer(config: ServerConfig, stores: Stores = {}): Promise<BuiltServer> {
-  // Errors only (no request lines, so no cookies or bodies in the log); the visitor's address
-  // from X-Forwarded-For, trusted only from the configured proxies (security pass, 1 and 5).
-  const app = Fastify({ logger: { level: 'error' }, trustProxy: [...config.proxies] });
+  // JSON lines without cookies, tokens or bodies (./web.ts); the visitor's address from
+  // X-Forwarded-For, trusted only from the configured proxies (security pass, 1 and 5).
+  const app = Fastify({
+    logger: loggerOptions(config),
+    // One line per request in production only; development stays readable.
+    logController: new LogController({ disableRequestLogging: !config.production }),
+    trustProxy: [...config.proxies],
+  });
   // JSON bodies only: a plain HTML form (text/plain) from another page cannot reach a route.
   app.removeContentTypeParser('text/plain');
   sameSiteWrites(app);
-  await app.register(helmet);
+  await app.register(helmet, helmetOptions(config));
   await app.register(cookie, { secret: config.cookieSecret });
   handleRefusals(app);
   const auth = await authOf(app, config, stores);
@@ -197,6 +207,8 @@ export async function buildServer(config: ServerConfig, stores: Stores = {}): Pr
     },
   });
   await routes({ app, auth, shows, config }, stores, settings);
+  // In production the same process serves the built client (SC-N3 piece 2).
+  await serveClient(app, config);
   const feed = config.website?.feed;
   const stopFeed =
     feed === null || feed === undefined

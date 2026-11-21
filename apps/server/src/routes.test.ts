@@ -18,7 +18,14 @@ afterEach(async () => {
 describe('development mode', () => {
   it('is on only with NODE_ENV=development and SC_DEV=1', () => {
     expect(configFrom({ NODE_ENV: 'development', SC_DEV: '1' }).dev).toBe(true);
-    expect(configFrom({ NODE_ENV: 'production', SC_DEV: '1' }).dev).toBe(false);
+    const production = {
+      NODE_ENV: 'production',
+      DATABASE_URL: 'postgres://u:p@127.0.0.1:5432/db',
+      SC_DATA_KEY: 'ab'.repeat(32),
+      SC_COOKIE_SECRET: 'x'.repeat(32),
+      SC_PUBLIC_ORIGIN: 'https://cases.example',
+    };
+    expect(configFrom({ ...production, SC_DEV: '1' }).dev).toBe(false);
     expect(configFrom({ NODE_ENV: 'development' }).dev).toBe(false);
     expect(configFrom({ NODE_ENV: 'development', SC_DEV: 'true' }).dev).toBe(false);
   });
@@ -30,7 +37,11 @@ describe('development mode', () => {
       const response = await app.inject({ method: 'POST', url, payload: {} });
       expect(response.statusCode).toBe(404);
     }
-    expect((await app.inject({ method: 'GET', url: '/api/health' })).json()).toEqual({ ok: true });
+    expect((await app.inject({ method: 'GET', url: '/api/health' })).json()).toMatchObject({
+      ok: true,
+      mode: 'local',
+      db: 'none',
+    });
   });
 });
 

@@ -60,6 +60,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
 
 - **Night chain SC-N3 (running):** toward production. Piece 1: prize names through one helper,
   look-alike names refused, the common-password dictionary, `pnpm sc admin reset-2fa`.
+  Piece 2: `pnpm build` and `pnpm start` (one process, the built client, health and ready,
+  JSON logs, graceful stop), every variable in [CONFIG.md](CONFIG.md).
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
