@@ -13,9 +13,9 @@
 import type { Outcome, ShowService } from '@sc/application';
 import {
   canModerate,
-  EndRequestSchema,
   HandOverRequestSchema,
   SelectRequestSchema,
+  ShowRequestSchema,
   StepRequestSchema,
   WatchRequestSchema,
   type Ack,
@@ -171,9 +171,15 @@ function directionHandlers(
       return ackOf(shows().handOver(p.data.showId, m.id, to));
     });
   });
+  socket.on('direction:begin', (request, ack) => {
+    guard(ack, (m) => {
+      const p = ShowRequestSchema.safeParse(request);
+      return p.success ? ackOf(shows().begin(p.data.showId, m.id)) : refused('which show?');
+    });
+  });
   socket.on('direction:end', (request, ack) => {
     guard(ack, (m) => {
-      const p = EndRequestSchema.safeParse(request);
+      const p = ShowRequestSchema.safeParse(request);
       return p.success ? ackOf(shows().endShow(p.data.showId, m.id)) : refused('which show?');
     });
   });

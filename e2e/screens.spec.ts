@@ -110,6 +110,7 @@ test('screens: board, selected, owner on the main prize, result', async ({ page,
   });
   const { id } = (await created.json()) as { id: string };
   await page.goto('/show');
+  await page.getByRole('button', { name: 'Begin' }).click();
   const bar = page.getByRole('navigation', { name: 'Direction' });
   await page.locator(`.case-token[data-case="${String(main)}"] button`).click();
   await expect(page.locator('.stage-screen')).toHaveAttribute('data-step', 'selected');

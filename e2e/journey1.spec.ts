@@ -76,6 +76,9 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
   await setup.getByLabel('Quick Test seed').fill(SEED);
   await setup.getByRole('button', { name: 'Quick Test' }).click();
   await expect(page).toHaveURL(/\/show$/);
+  // The opening: everyone sees it, only the holder begins.
+  await expect(page.getByRole('region', { name: 'Opening' })).toBeVisible();
+  await page.getByRole('button', { name: 'Begin' }).click();
   await expect(page.getByRole('navigation', { name: 'Direction' })).toBeVisible();
   const commitment = await page.locator('.stage-commitment').getAttribute('title');
 
@@ -99,7 +102,11 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
   await expect(page.getByRole('navigation', { name: 'Direction' })).toHaveCount(0);
   const noahBar = noah.getByRole('navigation', { name: 'Direction' });
   await noahBar.getByRole('button', { name: 'End show' }).click();
-  await noah.getByRole('link', { name: 'See the result' }).click();
+  // The ceremony: the winners one after another, the main prize last, then the way on.
+  const ceremony = noah.getByRole('region', { name: 'The winners' });
+  await expect(ceremony.getByRole('status')).toContainText(/Prize 3/);
+  await expect(ceremony.getByRole('status')).toContainText(/Prize 1/, { timeout: 8000 });
+  await ceremony.getByRole('link', { name: 'See the result' }).click({ timeout: 8000 });
 
   const seal = noah.locator('.result-seal');
   await expect(seal).toContainText('verified');

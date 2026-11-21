@@ -59,6 +59,7 @@ export interface ShowService {
   fillWithBots(showId: string, random?: RandomPort): Outcome;
   seal(showId: string, by: string, random?: RandomPort): Outcome;
   start(showId: string, by: Actor): Outcome;
+  begin(showId: string, by: string): Outcome;
   select(showId: string, by: string, caseNumber: number): Outcome;
   step(showId: string, by: string, step: Step): Outcome;
   handOver(showId: string, by: string, to: Actor): Outcome;
@@ -122,6 +123,7 @@ export function createShowService(deps: ShowDeps): ShowService {
     seal: (id, by, port = random.secure()) =>
       run(id, (at) => ({ type: 'seal', at, by, random: port })),
     start: (id, by) => run(id, (at) => ({ type: 'start', at, by })),
+    begin: (id, by) => run(id, (at) => ({ type: 'begin', at, by })),
     select: (id, by, caseNumber) => run(id, (at) => ({ type: 'select', at, by, caseNumber })),
     step: (id, by, step) => run(id, (at) => ({ type: 'step', at, by, step })),
     handOver: (id, by, to) => run(id, (at) => ({ type: 'handOver', at, by, to })),

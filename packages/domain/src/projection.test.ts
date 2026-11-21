@@ -22,6 +22,7 @@ function sealedShow(): Driver {
   show.run({ type: 'closeRegistration', at: at(), by: MOD.id });
   show.run({ type: 'seal', at: at(), by: MOD.id, random: seededRandom('sc-n1-01') });
   show.run({ type: 'start', at: at(), by: MOD });
+  show.run({ type: 'begin', at: at(), by: MOD.id });
   return show;
 }
 

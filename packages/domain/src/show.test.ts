@@ -23,6 +23,7 @@ function liveShow(): Driver {
   show.run({ type: 'closeRegistration', at: at(), by: MOD.id });
   show.run({ type: 'seal', at: at(), by: MOD.id, random: seededRandom('sc-n1-01') });
   show.run({ type: 'start', at: at(), by: MOD });
+  show.run({ type: 'begin', at: at(), by: MOD.id });
   return show;
 }
 
@@ -86,6 +87,24 @@ describe('setup and registration', () => {
     expect(show.refused({ type: 'start', at: at(), by: MOD })).toMatch(/sealed/);
     show.run({ type: 'seal', at: at(), by: MOD.id, random: seededRandom('x') });
     expect(show.model().state).toBe('sealed');
+  });
+});
+
+describe('the opening', () => {
+  it('holds back every selection until the holder begins, once', () => {
+    const show = newShow(4, 1);
+    show.run({ type: 'openRegistration', at: at(), by: MOD.id });
+    show.run({ type: 'fillWithBots', at: at(), random: seededRandom('b') });
+    show.run({ type: 'closeRegistration', at: at(), by: MOD.id });
+    show.run({ type: 'seal', at: at(), by: MOD.id, random: seededRandom('s') });
+    show.run({ type: 'start', at: at(), by: MOD });
+    expect(show.model().begun).toBe(false);
+    expect(show.refused({ type: 'select', at: at(), by: MOD.id, caseNumber: 1 })).toMatch(/begin/);
+    expect(show.refused({ type: 'begin', at: at(), by: MOD2.id })).toMatch(/holder/);
+    show.run({ type: 'begin', at: at(), by: MOD.id });
+    expect(show.refused({ type: 'begin', at: at(), by: MOD.id })).toMatch(/already/);
+    show.run({ type: 'select', at: at(), by: MOD.id, caseNumber: 1 });
+    expect(show.model()).toMatchObject({ begun: true, selected: 1 });
   });
 });
 

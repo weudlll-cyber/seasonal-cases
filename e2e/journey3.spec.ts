@@ -56,16 +56,15 @@ test('journey 3: no unopened content reaches a player; the commitment holds', as
   expect(created.ok()).toBe(true);
   const { id } = (await created.json()) as { id: string };
 
-  // Before the show: the commitment on the lobby's artifact table.
-  await page.goto('/');
-  const before = await page
-    .locator('.artifact-commitment .commitment')
-    .getAttribute('data-commitment');
-  expect(before).toMatch(/^[0-9a-f]{64}$/);
+  // Before the first case: the commitment on the scoreboard during the opening.
   await page.goto('/show');
-  await expect(page.locator('.stage-screen')).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Opening' })).toBeVisible();
+  const shown = await page.locator('.stage-commitment').getAttribute('title');
+  const before = shown?.replace('Commitment ', '');
+  expect(before).toMatch(/^[0-9a-f]{64}$/);
 
   await mod.goto('/show');
+  await mod.getByRole('button', { name: 'Begin' }).click();
   const bar = mod.getByRole('navigation', { name: 'Direction' });
   for (const caseNumber of [sealing.get('prize-1'), sealing.get('blank-1')]) {
     await mod.locator(`.case-token[data-case="${String(caseNumber)}"] button`).click();

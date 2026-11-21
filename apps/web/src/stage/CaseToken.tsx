@@ -25,7 +25,12 @@ export interface CaseTokenProps {
 export function CaseToken({ view, spot, away, onSelect }: CaseTokenProps) {
   const owner = view.ownerName ?? 'no owner';
   const label = `Case ${String(view.number)}, ${owner}${view.opened ? ', opened' : ''}`;
-  const style = { '--x': `${String(spot.x)}%`, '--y': `${String(spot.y)}%` } as CSSProperties;
+  // --roll-index staggers the cases rolling in during the opening (./moments.css).
+  const style = {
+    '--x': `${String(spot.x)}%`,
+    '--y': `${String(spot.y)}%`,
+    '--roll-index': view.number,
+  } as CSSProperties;
   const body = (
     <>
       <span className="case-number show-font">{view.number}</span>

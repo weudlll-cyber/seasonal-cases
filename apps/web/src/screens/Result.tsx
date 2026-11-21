@@ -1,78 +1,97 @@
 /**
  * @file   apps/web/src/screens/Result.tsx
- * @brief  The result screen: the winners, then all cases, then the sealing line (CONCEPT §3.5).
+ * @brief  The result page (`/results/<id>`) on the kit's result frame (CONCEPT §3.5, D22).
  *
- * Responsibility: render the ended show's result as the server sent it, with the line
- *                 "sealed at <time> · commitment <first 12 hex> · verified". The server checked
- *                 the commitment; the client shows its answer.
+ * Responsibility: the frame's headline "The winners", the winners as its placings (slot, label,
+ *                 artifact, owner, case), the proof line "sealed at <time> · commitment <first 12
+ *                 hex> · verified", the reveal of every case as its reveal part, and the full list
+ *                 with the owners as `more`. The server checked the commitment; the client shows
+ *                 its answer as it came.
  * Depends on:     react, @seasonal/kit/react, @sc/contracts, @sc/ui, ../lib/api.js,
- *                 ../stage/ArtifactEmblem.js
+ *                 ../lib/base.js, ../stage/ArtifactEmblem.js
  */
-import { useFitScale } from '@seasonal/kit/react';
+import { ResultFrame } from '@seasonal/kit/react';
 import type { PublicShowView, ShowResult } from '@sc/contracts';
-import { formatTime, shortCommitment, useDockReserve } from '@sc/ui';
-import { useEffect, useState, type CSSProperties } from 'react';
+import { formatTime, shortCommitment } from '@sc/ui';
+import { useEffect, useState } from 'react';
 
 import { getJson } from '../lib/api.js';
 import { apiPath } from '../lib/base.js';
 import { ArtifactEmblem } from '../stage/ArtifactEmblem.js';
 
-export function ResultView({ result }: { result: ShowResult }) {
-  const reserve = useDockReserve();
-  const fitRef = useFitScale<HTMLElement>('mini-games', String(result.cases.length), true);
-  const style = { '--dock-reserve': `${String(reserve)}px` } as CSSProperties;
+function Placings({ result }: { result: ShowResult }) {
   return (
-    <section
-      className="result-screen"
-      data-sk-game="cases"
-      ref={fitRef}
-      style={style}
-      aria-label="Result"
-    >
-      <h2 data-fit-fixed>The winners</h2>
-      <ol className="result-winners" data-fit-fixed>
-        {result.winners.map((w) => (
-          <li key={w.slot}>
-            <span className="result-slot">Prize {w.slot}</span>
-            {/* The label is "Prize n" when none was given; it is not repeated. */}
-            {w.label !== `Prize ${String(w.slot)}` && (
-              <span className="result-label">{w.label}</span>
-            )}
-            <ArtifactEmblem artifact={w.artifact} />
-            <span className="result-owner">{w.ownerName ?? 'no owner'}</span>
-            <span className="result-case">case {w.caseNumber}</span>
+    <ol className="result-winners">
+      {result.winners.map((w) => (
+        <li key={w.slot}>
+          <span className="result-slot">Prize {w.slot}</span>
+          {/* The label is "Prize n" when none was given; it is not repeated. */}
+          {w.label !== `Prize ${String(w.slot)}` && <span className="result-label">{w.label}</span>}
+          <ArtifactEmblem artifact={w.artifact} />
+          <span className="result-owner">{w.ownerName ?? 'no owner'}</span>
+          <span className="result-case">case {w.caseNumber}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function Proof({ result }: { result: ShowResult }) {
+  return (
+    <p className="result-seal" title={`Commitment ${result.commitment}, secret ${result.secret}`}>
+      sealed at {formatTime(result.sealedAt)} · commitment{' '}
+      <span className="commitment" data-commitment={result.commitment}>
+        {shortCommitment(result.commitment)}
+      </span>{' '}
+      · {result.verified ? 'verified' : 'NOT verified'}
+    </p>
+  );
+}
+
+/** Every case's number and artifact: the reveal. */
+function Reveal({ result }: { result: ShowResult }) {
+  return (
+    <ol className="result-reveal" aria-label="Every case">
+      {result.cases.map((c) => (
+        <li key={c.number} className={c.artifact.prizeSlot === null ? '' : 'is-prize'}>
+          <span className="result-number show-font">{c.number}</span>
+          <ArtifactEmblem artifact={c.artifact} />
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function AllCases({ result }: { result: ShowResult }) {
+  return (
+    <section aria-label="All cases">
+      <h2>All cases</h2>
+      <ol className="result-cases">
+        {result.cases.map((c) => (
+          <li key={c.number}>
+            <span className="result-number show-font">{c.number}</span>
+            <span className="result-case-owner">{c.ownerName ?? 'no owner'}</span>
+            <ArtifactEmblem artifact={c.artifact} />
           </li>
         ))}
       </ol>
-      <div
-        className="result-scroll"
-        role="region"
-        aria-label="All cases"
-        tabIndex={0}
-        data-fit-fixed
-      >
-        <ol className="result-cases">
-          {result.cases.map((c) => (
-            <li key={c.number}>
-              <span className="result-number show-font">{c.number}</span>
-              <span className="result-case-owner">{c.ownerName ?? 'no owner'}</span>
-              <ArtifactEmblem artifact={c.artifact} />
-            </li>
-          ))}
-        </ol>
-      </div>
-      <p
-        className="result-seal"
-        data-fit-fixed
-        title={`Commitment ${result.commitment}, secret ${result.secret}`}
-      >
-        sealed at {formatTime(result.sealedAt)} · commitment{' '}
-        <span className="commitment" data-commitment={result.commitment}>
-          {shortCommitment(result.commitment)}
-        </span>{' '}
-        · {result.verified ? 'verified' : 'NOT verified'}
-      </p>
     </section>
+  );
+}
+
+export function ResultView({ result }: { result: ShowResult }) {
+  return (
+    <main className="page result-page" data-sk-game="cases">
+      <ResultFrame
+        game="mini-games"
+        headline="The winners"
+        proof={<Proof result={result} />}
+        reveal={<Reveal result={result} />}
+        placings={<Placings result={result} />}
+        more={<AllCases result={result} />}
+        signature={String(result.cases.length)}
+      />
+    </main>
   );
 }
 

@@ -5,6 +5,7 @@
 | 1.0 | 2026-11-21 | First concept, from the owner's project vision and his answers of 2026-11-21. |
 | 1.1 | 2026-11-21 | Night chain SC-N2, from the owner's decisions of 2026-11-21: three moderator steps after the click on a case (§3.4); the scoreboard and the meaning shown at Open (§7). |
 | 1.2 | 2026-11-21 | Night chain SC-N2: the moving case (§7). |
+| 1.3 | 2026-11-21 | Night chain SC-N2: the opening and the ceremony (§3.4, §3.5), the result frame (§3.5), the start page and focus mode (§7). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -76,9 +77,13 @@ SETUP → REGISTRATION → SEALED → LIVE → ENDED
   After the show the secret is revealed, so anyone can check that no case was changed during the
   show (fairness, §8).
 - From sealing on, the stage shows: all cases with their owners' names and badges, the artifact
-  table, and the "still hidden / already found" bar.
+  table, and the scoreboard (§7).
 
 ### 3.4 Live (moderator)
+**The opening** (decided 2026-11-21): after "Start show" the stage shows the opening for everyone:
+the show's title, the number of cases and prizes, the artifact table, and the cases with their
+owners rolling in. Only the direction holder sees **Begin**; until then no case can be selected.
+
 The moderator opens cases one at a time, in any order. Only the moderator moves the show; no
 timer does (decided 2026-11-21). A case takes a click and three steps:
 
@@ -99,7 +104,12 @@ show**.
 ### 3.5 Ended
 - The show ends when the moderator ends it. The game offers "End show" once the last prize has been
   found, but opening the remaining cases is allowed (decided 2026-11-21).
-- The result screen lists the winners (prize slot, label, artifact, owner), then all cases.
+- **The ceremony** (decided 2026-11-21): after "End show" the stage shows the winners one after
+  another, from the lowest prize up to the main prize, each with its artifact and the lower
+  third, confetti on the main prize; then "See the result". The pace (2.5 s per winner) is a
+  proposal.
+- The result page, on the kit's result frame, lists the winners (prize slot, label, artifact,
+  owner) as its placings, every case as its reveal, and all cases with their owners below.
 - The server reveals the sealing secret; the result screen shows "sealed at <time>, verified".
 - The show goes into the **chronicle**: past shows with winners and prizes. There is no ranking
   (decided 2026-11-21). A player's "My matches" lists their shows and cases.
@@ -140,6 +150,15 @@ point, so the main prize is the Halving Stone.
 ## 7. The stage (look and feel)
 
 Target: a TV-studio feel with small means — SVG, icons, gradients, glow, CSS animation, no 3D.
+
+- **Start page** (decided 2026-11-21): the game's name and the Seasonal Entertainment logo, the
+  current or next show on the kit's start card (state, cases, prizes; "Opens in N s" once shows
+  have a start time), its registration board below while registration is open, and the sign-in
+  where it belongs.
+- **Focus mode:** during a live show the kit's game bar replaces the app header: "Seasonal
+  Cases", the cases left and the prizes left, full screen where offered, and panels for the
+  players (the owners), the chat (website mode) and, for the direction holder on a phone, the
+  direction. On a desktop the direction bar stays under the stage.
 
 - **Stage:** the cases in a half circle (two rows on a phone), each with its number, its owner's name
   and a soft season glow. The selected case moves large into the centre; the rest dims.

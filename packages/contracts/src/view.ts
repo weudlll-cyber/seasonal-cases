@@ -11,7 +11,7 @@
 import { z } from 'zod';
 
 import { ArtifactSchema, PrizeSlotSchema } from './artifact.js';
-import { RankSchema, RevealStepSchema, ShowStateSchema } from './show.js';
+import { RankSchema, RevealStepSchema, SeasonSchema, ShowStateSchema } from './show.js';
 
 export const CaseViewSchema = z.object({
   number: z.number().int().min(1),
@@ -92,7 +92,14 @@ export const PublicShowViewSchema = z.object({
   board: z.array(BoardCaseSchema).nullable(),
   commitment: z.string().nullable(),
   sealedAt: z.string().nullable(),
-  live: z.object({ selected: z.number().int().nullable(), step: RevealStepSchema }),
+  // begun: the opening is over and cases can be selected (DECISIONS D22).
+  live: z.object({
+    begun: z.boolean(),
+    selected: z.number().int().nullable(),
+    step: RevealStepSchema,
+  }),
+  // The season of the show's creation date: the start card's tint (CONCEPT §6, §7).
+  season: SeasonSchema.nullable(),
   allPrizesFound: z.boolean(),
   result: ShowResultSchema.nullable(),
 });

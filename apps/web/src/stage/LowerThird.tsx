@@ -25,6 +25,11 @@ function ownerStepCase(show: PublicShowView): CaseView | undefined {
 
 export function Confetti({ show }: { show: PublicShowView }) {
   if (ownerStepCase(show)?.artifact?.prizeSlot !== MAIN_PRIZE) return null;
+  return <ConfettiPieces />;
+}
+
+/** The falling pieces themselves; the ceremony shows them for the main prize too. */
+export function ConfettiPieces() {
   return (
     <div className="confetti" aria-hidden="true">
       {Array.from({ length: PIECES }, (_, i) => (

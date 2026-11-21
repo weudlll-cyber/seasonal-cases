@@ -1,12 +1,52 @@
 /**
  * @file   apps/web/src/screens/screens.css
- * @brief  The sign-in, the dev admin and the result screen.
+ * @brief  The sign-in, the dev admin and the start page.
  *
- * Responsibility: the sign-in and the admin are normal pages that scroll; the result is a stage
- *                 screen that scales down evenly, keeps the dock's height free (DECISIONS D7),
- *                 and lists all cases in a named scroll area. Colours only from the kit's tokens.
- * Depends on:     @seasonal/kit/tokens.css, @sc/ui pending/fit-cases.css, ../shell/shell.css
+ * Responsibility: normal pages that scroll (CONCEPT §7). The start page holds the logo, the
+ *                 kit's start card (`@seasonal/kit/frames.css`) and the board; the card's
+ *                 "Opens in N s" is hidden while shows have no start time. Colours only from the
+ *                 kit's tokens.
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/frames.css, ../shell/shell.css
  */
+
+.start-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.start-brand h1 {
+  margin: 0;
+}
+
+.start-logo {
+  width: 64px;
+  height: auto;
+}
+
+.start-page .sk-start-icon img {
+  width: 100%;
+  height: auto;
+}
+
+/* No show has a start time yet, so the card's countdown would always say 0. */
+.start-page .sk-start-count {
+  display: none;
+}
+
+.start-badge {
+  padding: 2px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-solid);
+  color: var(--color-on-solid);
+  font-size: max(var(--sk-floor-text), 14px);
+}
+
+.start-links {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+}
 
 .sign-in,
 .admin-setup {
@@ -72,99 +112,4 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-}
-
-.result-screen {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  height: calc(100dvh - var(--shell-height) - var(--dock-reserve, 0px));
-  padding: var(--space-2) var(--gutter);
-  overflow: hidden;
-}
-
-.result-winners {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.result-winners li {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px var(--space-2);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius);
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
-  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 18px));
-}
-
-.result-slot {
-  font-weight: var(--font-weight-strong);
-}
-
-.result-owner {
-  font-weight: var(--font-weight-strong);
-}
-
-.result-case,
-.result-case-owner {
-  color: var(--color-text-muted);
-}
-
-.result-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-}
-
-.result-cases {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(max(170px, calc(var(--fit, 1) * 200px)), 1fr));
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.result-cases li {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 2px var(--space-1);
-  padding: 6px var(--space-1);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
-}
-
-.result-cases .artifact {
-  grid-column: 1 / -1;
-}
-
-.result-number {
-  font-size: max(var(--sk-floor-display), calc(var(--fit, 1) * 26px));
-}
-
-.result-seal {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: max(var(--sk-floor-text), 14px);
-}
-
-/* A phone: the result screen itself is the named scroll area ("Result"). */
-@media (max-width: 699px) {
-  .result-screen {
-    overflow-y: auto;
-  }
-
-  .result-scroll {
-    flex: none;
-    overflow: visible;
-  }
 }

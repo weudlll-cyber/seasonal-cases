@@ -1,7 +1,7 @@
 /**
  * @file   apps/web/src/stage/Stage.test.tsx
  * @brief  Tests the stage: every step state rendered from a given view, and the direction bar
- *         for the direction holder only, never after the end.
+ *         for the direction holder only (after the end: ./moments.test.tsx).
  */
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -101,12 +101,5 @@ describe('the direction bar', () => {
       expect(screen.queryByRole('button', { name: /^Select Case/ })).toBeNull();
       cleanup();
     }
-  });
-
-  it('is gone once the show has ended, for the holder too', () => {
-    const show = { ...liveView('idle'), state: 'ended' as const };
-    render(<Stage show={show} moderator={moderatorOf(show, MIA)} me={MIA} direct={direct} />);
-    expect(screen.queryByRole('navigation', { name: 'Direction' })).toBeNull();
-    expect(screen.getByRole('link', { name: 'See the result' })).toBeDefined();
   });
 });

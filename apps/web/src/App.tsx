@@ -1,76 +1,72 @@
 /**
  * @file   apps/web/src/App.tsx
- * @brief  The client's root: the shell bar and the four routes.
+ * @brief  The client's root: the header or the game bar, and the routes.
  *
  * Responsibility: hold the session and the current show's feed once for the whole page, and
- *                 render the route: the lobby (`/`), the stage (`/show`), the result
- *                 (`/results/<id>`), the dev admin (`/admin`). The shell bar has the show's name,
- *                 the navigation, the signed-in user and the kit's `ThemeToggle`. No BackLink:
- *                 the prototype runs standalone (CONCEPT §10).
- * Depends on:     react, @seasonal/kit/react, ./lib/*, ./screens/*, ./stage/Stage.js
+ *                 render the route: the start page (`/`), the stage (`/show`), the result
+ *                 (`/results/<id>`), the dev admin (`/admin`). While a live show is on the stage
+ *                 the kit's game bar replaces the header (focus mode, ./shell/FocusBar.tsx); on
+ *                 a phone the direction bar then lives in the bar's panel. No BackLink yet: it
+ *                 comes with website mode.
+ * Depends on:     react, @seasonal/kit/react, ./lib/*, ./screens/*, ./shell/*, ./stage/Stage.js
  */
-import { ThemeToggle, useTheme } from '@seasonal/kit/react';
+import { useDockView, useTheme } from '@seasonal/kit/react';
+import { useRef } from 'react';
 
 import { useCurrentShow, useShowFeed } from './lib/feed.js';
-import { Link, routeOf, usePath } from './lib/router.js';
+import { routeOf, usePath } from './lib/router.js';
 import { useSession } from './lib/session.js';
 import { Admin } from './screens/Admin.js';
-import { Lobby } from './screens/Lobby.js';
 import { Result } from './screens/Result.js';
+import { StartPage } from './screens/StartPage.js';
+import { FocusBar } from './shell/FocusBar.js';
+import { ShellBar } from './shell/ShellBar.js';
 import { Stage } from './stage/Stage.js';
 
 export function App() {
   // The kit's theme hook sets <html data-theme> and follows the system while nothing is stored.
   useTheme();
-  const path = usePath();
-  const route = routeOf(path);
+  const route = routeOf(usePath());
   const session = useSession();
   const current = useCurrentShow();
-  const showId = current.id;
-  const feed = useShowFeed(showId, session.me);
+  const feed = useShowFeed(current.id, session.me);
   const me = session.me ?? null;
+  const shellRef = useRef<HTMLDivElement>(null);
+  const view = useDockView();
+  const show = feed.show;
+  const focus = route.name === 'stage' && show?.state === 'live';
   return (
-    <div className="shell">
-      <header className="shell-bar">
-        <Link to="/" className="shell-title">
-          Seasonal Cases
-        </Link>
-        <nav className="shell-nav" aria-label="Main">
-          <Link to="/">Lobby</Link>
-          <Link to="/show">Stage</Link>
-          <Link to="/admin">Admin</Link>
-        </nav>
-        {me !== null && (
-          <span className="shell-me">
-            <span className="shell-me-name" title={me.name}>
-              {me.name}
-            </span>
-            <span className="shell-me-role">
-              · {me.role}
-              {me.role === 'player' ? ` · rank ${String(me.rank)}` : ''}
-            </span>
-            <button
-              type="button"
-              className="button"
-              title="Sign out"
-              onClick={() => {
-                void session.signOut();
-              }}
-            >
-              Sign out
-            </button>
-          </span>
-        )}
-        <ThemeToggle />
-      </header>
-      {route.name === 'lobby' && (
-        <Lobby me={me} feed={feed} showId={showId} onSignIn={session.signIn} />
+    <div className="shell" ref={shellRef}>
+      {focus ? (
+        <FocusBar
+          show={show}
+          moderator={feed.moderator}
+          me={me}
+          direct={feed.direct}
+          target={shellRef}
+        />
+      ) : (
+        <ShellBar
+          me={me}
+          onSignOut={() => {
+            void session.signOut();
+          }}
+        />
+      )}
+      {route.name === 'start' && (
+        <StartPage me={me} feed={feed} showId={current.id} onSignIn={session.signIn} />
       )}
       {route.name === 'stage' &&
-        (feed.show === null ? (
+        (show === null ? (
           <p className="page">No show on the stage yet.</p>
         ) : (
-          <Stage show={feed.show} moderator={feed.moderator} me={me} direct={feed.direct} />
+          <Stage
+            show={show}
+            moderator={feed.moderator}
+            me={me}
+            direct={feed.direct}
+            barInline={view === 'desktop'}
+          />
         ))}
       {route.name === 'results' && <Result showId={route.showId} />}
       {route.name === 'admin' && <Admin me={me} onShowChanged={current.refresh} />}

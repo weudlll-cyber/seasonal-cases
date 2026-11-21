@@ -44,6 +44,8 @@ export interface ShowModel {
   readonly owners: readonly (Claim | null)[] | null;
   readonly sealing: Sealing | null;
   readonly holder: Actor | null;
+  // The opening is over: the direction holder said "Begin" (DECISIONS D22).
+  readonly begun: boolean;
   readonly selected: number | null;
   readonly step: RevealStep;
   // Opened case numbers in the order they were opened.
@@ -68,6 +70,7 @@ function created(event: Created): ShowModel {
     owners: null,
     sealing: null,
     holder: null,
+    begun: false,
     selected: null,
     step: 'idle',
     opened: [],
@@ -110,6 +113,8 @@ export function applyEvent(model: ShowModel, event: ShowEvent): ShowModel {
     }
     case 'started':
       return { ...model, state: 'live', holder: event.by };
+    case 'begun':
+      return { ...model, begun: true };
     case 'selected':
       return { ...model, selected: event.caseNumber, step: 'selected' };
     case 'stepped':

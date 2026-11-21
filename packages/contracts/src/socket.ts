@@ -28,13 +28,15 @@ export const HandOverRequestSchema = z.object({
   showId: z.string().min(1),
   toModeratorId: z.string().min(1),
 });
-export const EndRequestSchema = z.object({ showId: z.string().min(1) });
+// Begin and End name only the show.
+export const ShowRequestSchema = z.object({ showId: z.string().min(1) });
 
 export type Ack = { readonly ok: true } | { readonly ok: false; readonly error: string };
 export type AckFn = (ack: Ack) => void;
 
 export interface ClientToServerEvents {
   'show:watch': (request: unknown, ack: AckFn) => void;
+  'direction:begin': (request: unknown, ack: AckFn) => void;
   'direction:select': (request: unknown, ack: AckFn) => void;
   'direction:step': (request: unknown, ack: AckFn) => void;
   'direction:handOver': (request: unknown, ack: AckFn) => void;

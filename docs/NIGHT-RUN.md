@@ -14,18 +14,18 @@ Written when the chain ends.
 
 ### Pieces
 
-| Piece                                                     | Done | Running | Open | Needs the owner's word   | Commits            | CI run ids           |
-| --------------------------------------------------------- | ---- | ------- | ---- | ------------------------ | ------------------ | -------------------- |
-| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —       | —    | —                        | `c36b3e1`          | CI 44885929803 green |
-| 2 The moving case                                         | all  | —       | —    | the durations (HANDOVER) | see piece 2 report | see piece 3 row      |
-| 3 Start page, opening, focus mode, ceremony, result frame | —    | —       | all  | —                        | —                  | —                    |
-| 4 Website mode                                            | —    | —       | all  | —                        | —                  | —                    |
-| 5 PostgreSQL and the accounts store                       | —    | —       | all  | —                        | —                  | —                    |
-| 6 Standalone accounts                                     | —    | —       | all  | —                        | —                  | —                    |
-| 7 2FA and the independent review                          | —    | —       | all  | —                        | —                  | —                    |
-| 8 Settings, season tint, polish                           | —    | —       | all  | —                        | —                  | —                    |
-| 9 Chronicle                                               | —    | —       | all  | —                        | —                  | —                    |
-| 10 Play-through, pictures, hand-over                      | —    | —       | all  | —                        | —                  | —                    |
+| Piece                                                     | Done | Running | Open | Needs the owner's word         | Commits                     | CI run ids                                                                       |
+| --------------------------------------------------------- | ---- | ------- | ---- | ------------------------------ | --------------------------- | -------------------------------------------------------------------------------- |
+| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —       | —    | —                              | `c36b3e1`                   | CI 44885929803 green                                                             |
+| 2 The moving case                                         | all  | —       | —    | the durations (HANDOVER)       | `aaa6022`, report `a31fd7b` | `aaa6022` cancelled by the next push; `a31fd7b` (same code) CI 44886487846 green |
+| 3 Start page, opening, focus mode, ceremony, result frame | all  | —       | —    | the ceremony's pace (HANDOVER) | see piece 3 report          | see piece 4 row                                                                  |
+| 4 Website mode                                            | —    | —       | all  | —                              | —                           | —                                                                                |
+| 5 PostgreSQL and the accounts store                       | —    | —       | all  | —                              | —                           | —                                                                                |
+| 6 Standalone accounts                                     | —    | —       | all  | —                              | —                           | —                                                                                |
+| 7 2FA and the independent review                          | —    | —       | all  | —                              | —                           | —                                                                                |
+| 8 Settings, season tint, polish                           | —    | —       | all  | —                              | —                           | —                                                                                |
+| 9 Chronicle                                               | —    | —       | all  | —                              | —                           | —                                                                                |
+| 10 Play-through, pictures, hand-over                      | —    | —       | all  | —                              | —                           | —                                                                                |
 
 ### Piece 1 report
 
@@ -99,7 +99,62 @@ Written when the chain ends.
   more than 20 px, wider), and that neither artifact nor meaning shows before Open. `pnpm
 verify` green (19 files, 95 tests); journey 1 passed.
 
+### Piece 3 report
+
+- **Start page** (`screens/StartPage.tsx`, replaces `Lobby.tsx`):
+  - the Seasonal Entertainment logo, copied unchanged from the website project to
+    `assets/brand/logo.webp`, licence note in `assets/README.md`;
+  - the kit's `StartCard` in the show's season (the public view now carries `season`), with
+    the state as its badge, cases, prizes and owners as its facts, and the links to the stage
+    or the result;
+  - the registration board below while the show is in registration, and the dev sign-in for a
+    guest.
+- **Opening:**
+  - a new domain event `begun` and the command `begin`: the direction holder only, once,
+    after `start`; until then `select` is refused ("begin the show first");
+  - contracts: `live.begun` and the socket message `direction:begin`. The server's handler
+    shares the show-only schema with `direction:end` (`ShowRequestSchema`, which replaces
+    `EndRequestSchema`);
+  - on the stage (`stage/Opening.tsx`): title, cases and prizes, the artifact table, the cases
+    rolling in; "Begin" for the holder only, no clickable case and no direction bar before it.
+- **Focus mode** (`shell/FocusBar.tsx`): during a live show on the stage the kit's `GameBar`
+  replaces the header (`useFocusMode`).
+  - Its facts are the cases left and the prizes left. Full screen comes from `useFullscreen`.
+  - Its panels (`usePanels`) are the players and, for the direction holder on a phone, the
+    direction bar, which is then not under the stage. The chat panel is ready for piece 4.
+  - The header moved to `shell/ShellBar.tsx`.
+- **Ceremony** (`stage/Ceremony.tsx`): client-only, driven by the ended view's result. It shows
+  the winners from the highest slot to slot 1, one every 2.5 s, each with its artifact and the
+  lower third. Confetti comes with the main prize, then "See the result".
+- **Result page** on the kit's `ResultFrame`:
+  - headline "The winners";
+  - the placings;
+  - the proof line;
+  - the reveal of every case;
+  - the full list as `more`.
+
+  Its CSS moved to `screens/result.css`; the old one-screen result layout is gone.
+
+- **Kit, reused:** `StartCard`, `ResultFrame`, `GameBar`, `usePanels`, `useFullscreen`,
+  `useFocusMode`, `useDockView`, `frames.css`, `bar.css`.
+- **Tests:**
+  - `stage/moments.test.tsx`: the opening (Begin for the holder only, no click before), the
+    ceremony's order and sequence with faked timers, the ceremony after the end without the
+    bar;
+  - `App.test.tsx`: the result frame's parts;
+  - domain: "the opening".
+  - Journeys 1–3 click Begin. Journey 1 waits through the ceremony to the result; journey 3
+    reads the commitment on the scoreboard during the opening.
+
+  `pnpm verify` green (20 files, 100 tests); journeys 1–3 passed in Chromium.
+
 ### Choices made without the owner (SC-N2)
+
+- **"Opens in N s"** of the kit's start card is hidden: shows have no start time yet, and the
+  card would always say 0.
+- **During the opening** the direction holder has only "Begin"; the hand-over and "End show"
+  come with the direction bar once begun.
+- **The start card's title** is "The next show"; the page's own header carries the name and logo.
 
 - **The budget rule's piece numbers** do not all match the piece headings. It names "piece 5
   (website mode)", "piece 7 the forgotten-password mail" and "piece 4 the ceremony's animation";

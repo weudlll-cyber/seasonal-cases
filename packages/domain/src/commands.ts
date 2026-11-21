@@ -13,6 +13,7 @@ import type { DirectionStep, Rank, Season } from '@sc/contracts';
 import type { Actor } from './events.js';
 import {
   accept,
+  decideBegin,
   decideEnd,
   decideHandOver,
   decideSelect,
@@ -52,6 +53,7 @@ export type ShowCommand =
   | { readonly type: 'fillWithBots'; readonly at: string; readonly random: RandomPort }
   | { readonly type: 'seal'; readonly at: string; readonly by: string; readonly random: RandomPort }
   | { readonly type: 'start'; readonly at: string; readonly by: Actor }
+  | { readonly type: 'begin'; readonly at: string; readonly by: string }
   | {
       readonly type: 'select';
       readonly at: string;
@@ -119,6 +121,7 @@ const HANDLERS: Handlers = {
     model.state === 'sealed'
       ? accept({ type: 'started', at, by })
       : refuse('only a sealed show can start'),
+  begin: decideBegin,
   select: decideSelect,
   step: decideStep,
   handOver: decideHandOver,

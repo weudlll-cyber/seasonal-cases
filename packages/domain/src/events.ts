@@ -45,6 +45,7 @@ export type ShowEvent =
       readonly secret: string;
     }
   | { readonly type: 'started'; readonly at: string; readonly by: Actor }
+  | { readonly type: 'begun'; readonly at: string; readonly by: string }
   | {
       readonly type: 'selected';
       readonly at: string;

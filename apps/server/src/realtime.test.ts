@@ -20,6 +20,8 @@ async function liveShow(h: Harness) {
   const { me } = mia;
   const outcome = h.server.shows.quickTest({ cases: 6, winners: 2, labels: [], seed: 'rt' }, me);
   if (!outcome.ok) throw new Error(outcome.error);
+  // The opening is over: the direction holder said "Begin".
+  h.server.shows.begin(outcome.model.id, me.id);
   return { id: outcome.model.id, mia };
 }
 

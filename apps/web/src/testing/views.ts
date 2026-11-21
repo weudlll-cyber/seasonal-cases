@@ -14,6 +14,7 @@ import type {
   ModeratorView,
   PublicShowView,
   RevealStep,
+  ShowResult,
 } from '@sc/contracts';
 
 export const STONE: Artifact = {
@@ -74,7 +75,8 @@ export function liveView(
     board: null,
     commitment: 'c0ffee'.repeat(10) + 'beef',
     sealedAt: '2026-11-21T20:01:00.000Z',
-    live: { selected: step === 'idle' ? null : 7, step },
+    live: { begun: true, selected: step === 'idle' ? null : 7, step },
+    season: 'autumn',
     allPrizesFound: false,
     result: null,
   };
@@ -114,5 +116,26 @@ export function registrationView(): PublicShowView {
           ? [{ playerId: 'ana', name: 'Ana', rank: 3, at: '2026-11-21T20:00:09.000Z' }]
           : [],
     })),
+  };
+}
+
+/** An ended show's result: two winners, three cases. */
+export function resultOf(verified: boolean): ShowResult {
+  return {
+    winners: [
+      { slot: 1, label: 'Gold', artifact: STONE, caseNumber: 4, ownerName: 'Ana' },
+      { slot: 2, label: 'Prize 2', artifact: KEY, caseNumber: 9, ownerName: 'bot-9' },
+    ],
+    cases: [
+      { number: 4, ownerName: 'Ana', artifact: STONE },
+      { number: 5, ownerName: 'bot-5', artifact: { ...LEAF, id: 'blank-1' } },
+      { number: 9, ownerName: 'bot-9', artifact: KEY },
+    ],
+    sealedAt: '2026-11-21T20:01:00.000Z',
+    endedAt: '2026-11-21T20:30:00.000Z',
+    commitment: '0123456789abcdef'.repeat(4),
+    secret: 'ff'.repeat(32),
+    assignment: [],
+    verified,
   };
 }

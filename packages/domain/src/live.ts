@@ -43,6 +43,7 @@ export function decideSelect(
 ): Decision {
   const problem = directionProblem(model, by);
   if (problem !== null) return refuse(problem);
+  if (!model.begun) return refuse('begin the show first');
   if (!BEFORE_OPEN.includes(model.step))
     return refuse('the open case must return to the stage first');
   if (!Number.isInteger(caseNumber) || caseNumber < 1 || caseNumber > model.caseCount) {
@@ -70,6 +71,13 @@ export function decideHandOver(
   if (problem !== null) return refuse(problem);
   if (to.id === by) return refuse('you already hold the direction');
   return accept({ type: 'handedOver', at, by, to });
+}
+
+/** The end of the opening: from now on cases can be selected. */
+export function decideBegin(model: ShowModel, { at, by }: { at: string; by: string }): Decision {
+  const problem = directionProblem(model, by);
+  if (problem !== null) return refuse(problem);
+  return model.begun ? refuse('the show has begun already') : accept({ type: 'begun', at, by });
 }
 
 export function decideEnd(model: ShowModel, { at, by }: { at: string; by: string }): Decision {

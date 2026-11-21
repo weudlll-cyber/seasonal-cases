@@ -1,0 +1,103 @@
+/**
+ * @file   apps/web/src/screens/result.css
+ * @brief  The result page's parts inside the kit's result frame: placings, proof, reveal, list.
+ *
+ * Responsibility: the frame's layout is the kit's (`@seasonal/kit/frames.css`); these rules fill
+ *                 its slots. Colours only from the kit's tokens; text never under the cases'
+ *                 14 px floor.
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/frames.css, @sc/ui pending/fit-cases.css
+ */
+
+.result-winners {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result-winners li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-card);
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 18px));
+}
+
+.result-slot,
+.result-owner {
+  font-weight: var(--font-weight-strong);
+}
+
+.result-case,
+.result-case-owner {
+  color: var(--color-text-muted);
+}
+
+.result-seal {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: max(var(--sk-floor-text), 14px);
+}
+
+/* The reveal: every case's number with its artifact's gem; the prizes stand out. */
+.result-reveal {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result-reveal li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px;
+  border-radius: var(--radius);
+  background: var(--color-surface-2);
+}
+
+.result-reveal li.is-prize {
+  background: var(--color-surface);
+  box-shadow: 0 0 0 2px var(--color-autumn);
+}
+
+.result-reveal .artifact-name {
+  max-width: 100%;
+}
+
+.result-cases {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result-cases li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 2px var(--space-1);
+  padding: 6px var(--space-1);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  font-size: max(var(--sk-floor-text), 15px);
+}
+
+.result-cases .artifact {
+  grid-column: 1 / -1;
+}
+
+.result-number {
+  font-size: max(var(--sk-floor-display), calc(var(--fit, 1) * 26px));
+}

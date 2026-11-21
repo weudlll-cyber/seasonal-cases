@@ -11,6 +11,7 @@
  */
 import {
   prizeLabel,
+  SEASONS,
   type Artifact,
   type CaseView,
   type FoundPrize,
@@ -112,7 +113,8 @@ export function publicView(model: ShowModel): PublicShowView {
     board: model.registrationOpen ? board(model.claims, model.caseCount) : null,
     commitment: model.sealing?.commitment ?? null,
     sealedAt: model.sealing?.at ?? null,
-    live: { selected: model.selected, step: model.step },
+    live: { begun: model.begun, selected: model.selected, step: model.step },
+    season: SEASONS.find((s) => s === model.blank.season) ?? null,
     allPrizesFound: allPrizesFound(model),
     result: showResult(model),
   };

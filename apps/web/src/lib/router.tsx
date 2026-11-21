@@ -38,7 +38,7 @@ export function usePath(): string {
 }
 
 export type Route =
-  | { readonly name: 'lobby' }
+  | { readonly name: 'start' }
   | { readonly name: 'stage' }
   | { readonly name: 'results'; readonly showId: string }
   | { readonly name: 'admin' };
@@ -48,7 +48,7 @@ export function routeOf(path: string): Route {
   if (path === '/admin') return { name: 'admin' };
   const results = /^\/results\/([A-Za-z0-9_-]+)$/.exec(path);
   if (results?.[1] !== undefined) return { name: 'results', showId: results[1] };
-  return { name: 'lobby' };
+  return { name: 'start' };
 }
 
 export function Link({

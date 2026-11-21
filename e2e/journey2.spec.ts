@@ -27,7 +27,7 @@ test('journey 2: the higher rank holds, the lower re-picks, the earlier of equal
   const id = await openShow(page.request, 12, 3);
 
   const lena = await player(browser, 'Lena', 2);
-  await expect(lena.locator('.lobby-state')).toContainText('Registration is open');
+  await expect(lena.locator('.start-badge')).toHaveText('Registration open');
   await boardCase(lena, 7).getByRole('button').click();
   await expect(lena.locator('.board-pick')).toContainText('Your pick: case 7, you hold it');
 
@@ -55,7 +55,7 @@ test('journey 2: the higher rank holds, the lower re-picks, the earlier of equal
   await expect(boardCase(lena, 7)).toContainText('Hugo');
   await expect(boardCase(lena, 8)).toContainText('Lena');
   await expect(lena.locator('.board-screen h2')).toHaveText('The cases and their owners');
-  await expect(lena.locator('.lobby-state')).toContainText('Registration is closed');
+  await expect(lena.locator('.start-badge')).toHaveText('Registration closed');
   const view = (await (await page.request.get(`/api/shows/${id}`)).json()) as {
     cases: { number: number; ownerName: string | null }[];
   };

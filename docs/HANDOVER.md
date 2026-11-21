@@ -30,7 +30,9 @@ the cases in five reveal steps. [CONCEPT.md](CONCEPT.md) v1.0 governs it; the de
 - **Night chain SC-N2 (running):** kit v0.8.0 (D18), the click and three steps (D19), the
   scoreboard (D20), fix A (the stage follows live → sealed → registration → setup → ended) and
   fix B (no direction bar after the end) are on `proto/cases-v1` (piece 1). The moving case
-  (D21): the travel to the front and home, the slow opening (piece 2). Concept v1.2.
+  (D21): the travel to the front and home, the slow opening (piece 2). The start page on the
+  kit's start card, the opening with Begin, focus mode with the kit's game bar, the ceremony and
+  the result on the kit's result frame (D22, piece 3). Concept v1.3.
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
 
@@ -65,6 +67,8 @@ the cases in five reveal steps. [CONCEPT.md](CONCEPT.md) v1.0 governs it; the de
   chain's decision rule: the travel to the front and back 0.8 s ease-in-out, the opening 1.6 s
   (lid in the first 45 %, the artifact from 40 %, the meaning from 80 %), the closing before the
   way home 0.3 s.
+- The ceremony's pace and order (piece 3 of SC-N2): one winner every 2.5 s, from the lowest
+  prize up to the main prize, then "See the result".
 - A write right for a sibling clone of this repository (for example
   `C:\Users\weudl\seasonal-cases-2`) would let future night chains run independent pieces in
   parallel; tonight's permissions cover this folder only.
