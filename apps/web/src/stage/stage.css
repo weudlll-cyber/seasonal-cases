@@ -1,7 +1,6 @@
 /**
  * @file   apps/web/src/stage/stage.css
- * @brief  The stage: the studio panel, the half circle of cases, the spotlight, the centre stage
- *         through the steps, the lower third and the confetti.
+ * @brief  The stage: the studio panel, the half circle of cases, the spotlight and the dimming.
  *
  * Responsibility: every step is a visible state change (`data-step` on the screen) with short
  *                 transitions; colours only from the kit's tokens; sizes follow `--fit` with the
@@ -162,115 +161,14 @@ button.case-body:focus-visible {
   white-space: nowrap;
 }
 
-/* The rest dims while a case is on the centre stage; the selected one leaves a trace. */
-.stage-screen[data-dimmed='true'] .case-token:not(.is-selected) {
+/* The rest dims while a case is at the front. The case at the front (or on its way back) is
+   away from its place: the place keeps its room, the case itself shows only at the front, so it
+   never shows twice (./front.css). */
+.stage-screen[data-dimmed='true'] .case-token:not(.is-away) {
   opacity: 0.4;
   filter: saturate(0.6);
 }
 
-.case-token.is-selected {
-  opacity: 0.2;
-}
-
-/* The centre stage: the selected case large, under the spotlight. */
-.centre {
-  position: absolute;
-  left: 50%;
-  bottom: 6%;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
-  translate: -50% 0;
-  animation: sc-rise var(--duration-base) var(--ease-out);
-}
-
-@keyframes sc-rise {
-  from {
-    opacity: 0;
-    transform: translateY(24px) scale(0.85);
-  }
-}
-
-.centre-step {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 16px));
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.centre-case {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-1);
-  min-width: max(140px, calc(var(--fit, 1) * 240px));
-  min-height: max(100px, calc(var(--fit, 1) * 170px));
-  padding: var(--space-2);
-  border: 3px solid var(--color-autumn);
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
-  box-shadow: 0 0 40px rgb(249 168 37 / 45%);
-}
-
-.centre-number {
-  font-size: max(var(--sk-floor-display), calc(var(--fit, 1) * 64px));
-  line-height: 1;
-}
-
-.centre-case.is-open .centre-number {
-  font-size: max(var(--sk-floor-display), calc(var(--fit, 1) * 28px));
-  color: var(--color-text-muted);
-}
-
-/* Selected, before it opens: the drum-roll motion. */
-.stage-screen[data-step='selected'] .centre-case {
-  animation: sc-drumroll 0.32s ease-in-out infinite;
-}
-
-@keyframes sc-drumroll {
-  25% {
-    transform: rotate(-2deg) scale(1.02);
-  }
-  75% {
-    transform: rotate(2deg) scale(1.02);
-  }
-}
-
-.centre-case.is-open .artifact {
-  animation: sc-pop var(--duration-slow) var(--ease-out);
-}
-
-@keyframes sc-pop {
-  from {
-    opacity: 0;
-    transform: scale(0.4);
-  }
-}
-
-.centre-meaning {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0;
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-pill);
-  background: var(--color-solid);
-  color: var(--color-on-solid);
-  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 20px));
-  font-weight: var(--font-weight-strong);
-  animation: sc-rise var(--duration-base) var(--ease-out);
-}
-
-.centre-meaning.is-blank {
-  background: var(--color-surface-2);
-  color: var(--color-text-muted);
-}
-
-.centre-slot {
-  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 14px));
-  opacity: 0.85;
+.case-token.is-away {
+  visibility: hidden;
 }

@@ -19,12 +19,25 @@ const STEPS = ['Open', 'Owner', 'Back to stage'] as const;
 async function revealCase(page: Page, caseNumber: number): Promise<void> {
   const stage = page.locator('.stage-screen');
   const bar = page.getByRole('navigation', { name: 'Direction' });
-  await page.locator(`.case-token[data-case="${String(caseNumber)}"] button`).click();
+  const place = page.locator(`.case-token[data-case="${String(caseNumber)}"] .case-body`);
+  const owner = await place.locator('.case-owner').innerText();
+  const atPlace = await place.boundingBox();
+  await place.click();
   await expect(stage).toHaveAttribute('data-step', 'selected');
-  await expect(page.locator('.centre-number')).toHaveText(String(caseNumber));
-  const owner = await page
-    .locator(`.case-token[data-case="${String(caseNumber)}"] .case-owner`)
-    .innerText();
+  const front = page.locator(`.centre-case[data-case="${String(caseNumber)}"]`);
+  await expect(front.locator('.centre-number')).toHaveText(String(caseNumber));
+  // The case travelled from its place to the front, and shows nothing before "Open".
+  await page.waitForTimeout(900);
+  const atFront = await front.boundingBox();
+  expect(atPlace).not.toBeNull();
+  expect(atFront).not.toBeNull();
+  if (atPlace !== null && atFront !== null) {
+    const moved = Math.hypot(atFront.x - atPlace.x, atFront.y - atPlace.y);
+    expect(moved).toBeGreaterThan(20);
+    expect(atFront.width).toBeGreaterThan(atPlace.width);
+  }
+  await expect(page.locator('.centre .artifact')).toHaveCount(0);
+  await expect(page.locator('.centre-meaning')).toHaveCount(0);
   for (const label of STEPS) {
     await bar.getByRole('button', { name: label }).click();
     if (label === 'Open') {

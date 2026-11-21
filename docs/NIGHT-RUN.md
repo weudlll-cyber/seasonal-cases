@@ -14,18 +14,18 @@ Written when the chain ends.
 
 ### Pieces
 
-| Piece                                                     | Done | Running | Open | Needs the owner's word | Commits            | CI run ids      |
-| --------------------------------------------------------- | ---- | ------- | ---- | ---------------------- | ------------------ | --------------- |
-| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —       | —    | —                      | see piece 1 report | see piece 2 row |
-| 2 The moving case                                         | —    | —       | all  | —                      | —                  | —               |
-| 3 Start page, opening, focus mode, ceremony, result frame | —    | —       | all  | —                      | —                  | —               |
-| 4 Website mode                                            | —    | —       | all  | —                      | —                  | —               |
-| 5 PostgreSQL and the accounts store                       | —    | —       | all  | —                      | —                  | —               |
-| 6 Standalone accounts                                     | —    | —       | all  | —                      | —                  | —               |
-| 7 2FA and the independent review                          | —    | —       | all  | —                      | —                  | —               |
-| 8 Settings, season tint, polish                           | —    | —       | all  | —                      | —                  | —               |
-| 9 Chronicle                                               | —    | —       | all  | —                      | —                  | —               |
-| 10 Play-through, pictures, hand-over                      | —    | —       | all  | —                      | —                  | —               |
+| Piece                                                     | Done | Running | Open | Needs the owner's word   | Commits            | CI run ids           |
+| --------------------------------------------------------- | ---- | ------- | ---- | ------------------------ | ------------------ | -------------------- |
+| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —       | —    | —                        | `c36b3e1`          | CI 44885929803 green |
+| 2 The moving case                                         | all  | —       | —    | the durations (HANDOVER) | see piece 2 report | see piece 3 row      |
+| 3 Start page, opening, focus mode, ceremony, result frame | —    | —       | all  | —                        | —                  | —                    |
+| 4 Website mode                                            | —    | —       | all  | —                        | —                  | —                    |
+| 5 PostgreSQL and the accounts store                       | —    | —       | all  | —                        | —                  | —                    |
+| 6 Standalone accounts                                     | —    | —       | all  | —                        | —                  | —                    |
+| 7 2FA and the independent review                          | —    | —       | all  | —                        | —                  | —                    |
+| 8 Settings, season tint, polish                           | —    | —       | all  | —                        | —                  | —                    |
+| 9 Chronicle                                               | —    | —       | all  | —                        | —                  | —                    |
+| 10 Play-through, pictures, hand-over                      | —    | —       | all  | —                        | —                  | —                    |
 
 ### Piece 1 report
 
@@ -68,6 +68,35 @@ Written when the chain ends.
 - **Tests:** `pnpm verify` green (17 files, 89 tests before the feed test; 18 files, 91 with
   it); journeys 1–3 passed in Chromium.
 - **Left alone:** the SC-N1 section below keeps the five steps as that night's record.
+
+### Piece 2 report
+
+- **The travel** ():
+  - after the click the front case is drawn at the front, then placed onto its place on the
+    half circle with an inverse transform (start and end rectangles measured), and a CSS
+    transition takes it to the front, 0.8 s ease-in-out;
+  - the case's place keeps its room but hides the case (), so it never shows twice
+    and never fades out and in;
+  - after Back to stage, keeps the case at the front while it closes (0.3 s), then
+    it travels home;
+  - a new selection ends any travel at once, and a click during a motion is sent at once.
+- **The slow opening** (, 1.6 s): the lid rises in the first 45 %, the glow
+  grows under it, the artifact emerges from 40 %, the meaning fades in from 80 %. The artifact is
+  drawn only when the view carries it.
+- **One settings object** (): every duration, as the CSS variables
+  , , , on the stage. Under reduced motion
+  the kit's motion.css turns every transition and animation off, and answers 0, so
+  the stage shows end states at once.
+- **Removed:** the drum-roll shake at the click and the centre's fade-in (the travel replaces
+  them); the front case's rules moved from to .
+- **Tests:** covers:
+  - the settings and their CSS variables;
+  - the inverse transform;
+  - the way home, with a new selection ending it;
+  - no artifact while the view has none.
+
+  Journey 1 checks that the case's box at the front differs from its box at its place (moved
+  more than 20 px, wider), and that neither artifact nor meaning shows before Open. green (19 files, 95 tests); journey 1 passed.
 
 ### Choices made without the owner (SC-N2)
 

@@ -18,6 +18,7 @@ import './shell/fonts.css';
 import './shell/shell.css';
 import './stage/artifact.css';
 import './stage/stage.css';
+import './stage/front.css';
 import './stage/stageParts.css';
 import './stage/scoreboard.css';
 import './board/board.css';

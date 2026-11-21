@@ -16,12 +16,13 @@ import type { Spot } from './arc.js';
 export interface CaseTokenProps {
   readonly view: CaseView;
   readonly spot: Spot;
-  readonly selected: boolean;
+  // At the front now, or on its way back: its place stays, the case itself is away.
+  readonly away: boolean;
   // Present only for the direction holder while a case may be selected.
   readonly onSelect?: (caseNumber: number) => void;
 }
 
-export function CaseToken({ view, spot, selected, onSelect }: CaseTokenProps) {
+export function CaseToken({ view, spot, away, onSelect }: CaseTokenProps) {
   const owner = view.ownerName ?? 'no owner';
   const label = `Case ${String(view.number)}, ${owner}${view.opened ? ', opened' : ''}`;
   const style = { '--x': `${String(spot.x)}%`, '--y': `${String(spot.y)}%` } as CSSProperties;
@@ -34,7 +35,7 @@ export function CaseToken({ view, spot, selected, onSelect }: CaseTokenProps) {
       {view.artifact !== null && <ArtifactEmblem artifact={view.artifact} />}
     </>
   );
-  const className = `case-token${selected ? ' is-selected' : ''}${view.opened ? ' is-opened' : ''}`;
+  const className = `case-token${away ? ' is-away' : ''}${view.opened ? ' is-opened' : ''}`;
   return (
     <li className={className} style={style} data-case={view.number}>
       {onSelect !== undefined && !view.opened ? (

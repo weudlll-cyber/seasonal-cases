@@ -21,6 +21,8 @@ import { Link } from '../lib/router.js';
 import { arcSpots, tokenSize } from './arc.js';
 import { CaseToken } from './CaseToken.js';
 import { CentreStage } from './CentreStage.js';
+import { motionVars } from './motion.js';
+import { useReturn } from './travel.js';
 import { DirectionBar } from './DirectionBar.js';
 import { Confetti, LowerThird } from './LowerThird.js';
 import { Scoreboard } from './Scoreboard.js';
@@ -69,7 +71,8 @@ export function Stage({ show, moderator, me, direct }: StageProps) {
           void direct('direction:select', { showId: show.id, caseNumber });
         }
       : undefined;
-  const style = { '--dock-reserve': `${String(reserve)}px` } as CSSProperties;
+  const returning = useReturn(selected);
+  const style = { ...motionVars(), '--dock-reserve': `${String(reserve)}px` } as CSSProperties;
   const arenaStyle = { '--token': `${String(tokenSize(show.caseCount))}px` } as CSSProperties;
   return (
     <section
@@ -92,13 +95,13 @@ export function Stage({ show, moderator, me, direct }: StageProps) {
                 key={c.number}
                 view={c}
                 spot={spots[i] ?? { x: 50, y: 50 }}
-                selected={c.number === selected}
+                away={c.number === selected || c.number === returning}
                 {...(onSelect === undefined ? {} : { onSelect })}
               />
             ))}
           </ol>
         </div>
-        <CentreStage show={show} />
+        <CentreStage show={show} returning={returning} />
         <LowerThird show={show} />
       </div>
       <Confetti show={show} />

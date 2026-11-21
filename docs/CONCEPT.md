@@ -3,7 +3,8 @@
 | Version | Date | Change |
 |---|---|---|
 | 1.0 | 2026-11-21 | First concept, from the owner's project vision and his answers of 2026-11-21. |
-| 1.1 | 2026-11-21 | Night chain SC-N2, from the owner's decisions of 2026-11-21: three moderator steps after the click on a case (§3.4); the scoreboard and the meaning shown at Open (§7). Later rows of this chain add the motion, the opening and ceremony, the start page, focus mode, website mode, the accounts and the settings. |
+| 1.1 | 2026-11-21 | Night chain SC-N2, from the owner's decisions of 2026-11-21: three moderator steps after the click on a case (§3.4); the scoreboard and the meaning shown at Open (§7). |
+| 1.2 | 2026-11-21 | Night chain SC-N2: the moving case (§7). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -149,6 +150,10 @@ Target: a TV-studio feel with small means — SVG, icons, gradients, glow, CSS a
   it is struck through with its owner's name, so everyone sees which prizes are taken and which
   are still open. The commitment stays visible beside it.
 - **Open:** the artifact appears with its meaning under it (§3.4).
+- **The moving case** (decided 2026-11-21): after the click the case travels from its place on the
+  half circle to the front in one continuous motion while the others dim; at Open its lid lifts
+  slowly, the artifact rises with its glow and the meaning appears last. After Back to stage it
+  closes, travels home and stays there marked opened (durations: settings, §9).
 - **Lower third:** owner's name and Discord badge at the "Owner" step.
 - **Confetti** only on the main prize.
 - **Fonts:** Luxora Grotesk from the kit for the frame (Book for text, Bold for headings). The stage
