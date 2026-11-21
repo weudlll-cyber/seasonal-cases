@@ -1,0 +1,160 @@
+/**
+ * @file   apps/web/src/board/board.css
+ * @brief  The registration board and the artifact table.
+ *
+ * Responsibility: a stage screen (CONCEPT §7): it scales down evenly with `--fit`, keeps the
+ *                 dock's height free (`--dock-reserve`, DECISIONS D7), and its cases sit in a
+ *                 named scroll area that takes what does not fit. Colours only from the kit's
+ *                 tokens; the standing hints are told by text and colour together.
+ * Depends on:     @seasonal/kit/tokens.css, @sc/ui pending/fit-cases.css, ../shell/shell.css
+ */
+
+.board-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  height: calc(100dvh - var(--shell-height) - 3.5rem - var(--dock-reserve, 0px));
+  min-height: 320px;
+  overflow: hidden;
+}
+
+.board-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-2);
+}
+
+.board-pick,
+.board-error {
+  margin: 0;
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 16px));
+}
+
+.board-pick.is-holding {
+  color: var(--color-success);
+  font-weight: var(--font-weight-strong);
+}
+
+.board-pick.is-losing,
+.board-error {
+  color: var(--color-danger);
+  font-weight: var(--font-weight-strong);
+}
+
+.board-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(max(150px, calc(var(--fit, 1) * 180px)), 1fr));
+  gap: var(--space-1);
+  margin: 0;
+  padding: 2px;
+  list-style: none;
+}
+
+.board-case-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  min-height: var(--sk-floor-target);
+  padding: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
+  text-align: start;
+}
+
+button.board-case-body {
+  cursor: pointer;
+}
+
+button.board-case-body:hover {
+  border-color: var(--color-border-strong);
+}
+
+.board-case.is-mine .board-case-body {
+  border: 2px solid var(--color-success);
+}
+
+.board-number {
+  font-size: max(var(--sk-floor-display), calc(var(--fit, 1) * 28px));
+  line-height: 1;
+}
+
+.board-holder {
+  font-weight: var(--font-weight-strong);
+}
+
+.board-rank {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-body);
+}
+
+.board-free,
+.board-others {
+  color: var(--color-text-muted);
+}
+
+.board-hint {
+  margin-top: 2px;
+  font-weight: var(--font-weight-strong);
+}
+
+.hint-yours,
+.hint-free,
+.hint-higher {
+  color: var(--color-success);
+}
+
+.hint-equal,
+.hint-lower {
+  color: var(--color-danger);
+}
+
+.artifact-table {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-card);
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
+}
+
+.artifact-table ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.artifact-table li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.artifact-meaning {
+  color: var(--color-text-muted);
+}
+
+.artifact-commitment {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+}
+
+.lobby-state {
+  margin: 0;
+  font-size: 1.05rem;
+}

@@ -1,0 +1,264 @@
+/**
+ * @file   apps/web/src/stage/stage.css
+ * @brief  The stage: the studio panel, the half circle of cases, the spotlight, the centre stage
+ *         through the five steps, the lower third and the confetti.
+ *
+ * Responsibility: every step is a visible state change (`data-step` on the screen) with short
+ *                 transitions; colours only from the kit's tokens; sizes follow `--fit` with the
+ *                 cases' floors. The screen leaves `--dock-reserve` free at the bottom
+ *                 (DECISIONS D7). Phone widths: the cases in two rows in a named scroll area.
+ *                 Reduced motion: the kit's motion.css stops every animation.
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/motion.css, @sc/ui pending/fit-cases.css,
+ *                 ../shell/shell.css (--shell-height)
+ */
+
+.stage-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  height: calc(100dvh - var(--shell-height) - var(--dock-reserve, 0px));
+  padding: var(--space-1) var(--gutter);
+  overflow: hidden;
+}
+
+/* The studio: a card over the page's season glows, never flat black or white (CONCEPT §7). */
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background:
+    radial-gradient(ellipse at 50% 105%, rgb(249 168 37 / 22%), transparent 55%),
+    radial-gradient(ellipse at 10% 0%, rgb(4 170 247 / 16%), transparent 45%),
+    radial-gradient(ellipse at 90% 0%, rgb(224 110 34 / 14%), transparent 45%), var(--color-card);
+  overflow: hidden;
+}
+
+/* Lights down at "tension": the overlay darkens, the spotlight stays. */
+.stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgb(5 8 30 / 0%);
+  pointer-events: none;
+  transition: background var(--duration-slow) var(--ease-out);
+}
+
+.stage-screen[data-step='tension'] .stage::after {
+  background: rgb(5 8 30 / 38%);
+}
+
+.spotlight {
+  position: absolute;
+  inset: 0 20%;
+  z-index: 2;
+  background: linear-gradient(rgb(255 248 220 / 42%), rgb(255 248 220 / 4%) 85%);
+  clip-path: polygon(44% 0, 56% 0, 86% 100%, 14% 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-slow) var(--ease-out);
+}
+
+.stage-screen[data-dimmed='true'] .spotlight {
+  opacity: 1;
+}
+
+.arena-scroll {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+}
+
+.arena {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* One case on the half circle; --x, --y from src/stage/arc.ts, --token from the count. */
+.case-token {
+  --glow: var(--color-winter);
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: max(var(--sk-floor-target), calc(var(--fit, 1) * var(--token, 80px)));
+  translate: -50% -50%;
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    filter var(--duration-base) var(--ease-out);
+}
+
+.case-token:nth-child(4n + 2) {
+  --glow: var(--color-spring);
+}
+.case-token:nth-child(4n + 3) {
+  --glow: var(--color-summer);
+}
+.case-token:nth-child(4n + 4) {
+  --glow: var(--color-autumn);
+}
+
+.case-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  min-height: var(--sk-floor-target);
+  padding: 6px 4px;
+  border: 2px solid color-mix(in srgb, var(--glow) 70%, transparent);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  box-shadow: 0 0 calc(var(--fit, 1) * 14px) color-mix(in srgb, var(--glow) 45%, transparent);
+  color: var(--color-text);
+  font: inherit;
+}
+
+button.case-body {
+  cursor: pointer;
+}
+
+button.case-body:hover,
+button.case-body:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.case-number {
+  font-size: max(var(--sk-floor-display), calc(var(--fit, 1) * var(--token, 80px) * 0.36));
+  line-height: 1;
+}
+
+.case-owner {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.case-token.is-opened .case-body {
+  border-style: dashed;
+  box-shadow: none;
+  background: var(--color-surface-2);
+}
+
+/* The rest dims while a case is on the centre stage; the selected one leaves a trace. */
+.stage-screen[data-dimmed='true'] .case-token:not(.is-selected) {
+  opacity: 0.4;
+  filter: saturate(0.6);
+}
+
+.case-token.is-selected {
+  opacity: 0.2;
+}
+
+/* The centre stage: the selected case large, under the spotlight. */
+.centre {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  translate: -50% 0;
+  animation: sc-rise var(--duration-base) var(--ease-out);
+}
+
+@keyframes sc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.85);
+  }
+}
+
+.centre-step {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 16px));
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.centre-case {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-width: max(140px, calc(var(--fit, 1) * 240px));
+  min-height: max(100px, calc(var(--fit, 1) * 170px));
+  padding: var(--space-2);
+  border: 3px solid var(--color-autumn);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: 0 0 40px rgb(249 168 37 / 45%);
+}
+
+.centre-number {
+  font-size: max(var(--sk-floor-display), calc(var(--fit, 1) * 64px));
+  line-height: 1;
+}
+
+.centre-case.is-open .centre-number {
+  font-size: max(var(--sk-floor-display), calc(var(--fit, 1) * 28px));
+  color: var(--color-text-muted);
+}
+
+/* Tension: the drum-roll motion. */
+.stage-screen[data-step='tension'] .centre-case {
+  animation: sc-drumroll 0.32s ease-in-out infinite;
+}
+
+@keyframes sc-drumroll {
+  25% {
+    transform: rotate(-2deg) scale(1.02);
+  }
+  75% {
+    transform: rotate(2deg) scale(1.02);
+  }
+}
+
+.centre-case.is-open .artifact {
+  animation: sc-pop var(--duration-slow) var(--ease-out);
+}
+
+@keyframes sc-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+.centre-meaning {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-solid);
+  color: var(--color-on-solid);
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 20px));
+  font-weight: var(--font-weight-strong);
+  animation: sc-rise var(--duration-base) var(--ease-out);
+}
+
+.centre-meaning.is-blank {
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+}
+
+.centre-slot {
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 14px));
+  opacity: 0.85;
+}

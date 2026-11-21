@@ -1,0 +1,21 @@
+/**
+ * @file   apps/web/src/shell/fonts.css
+ * @brief  The stage's show font: Fredoka SemiBold, for case numbers and artifact names only.
+ *
+ * Responsibility: CONCEPT §7 allows a playful show font on the stage (Fredoka, proposal of
+ *                 §14); everything else is the kit's Luxora Grotesk. The file is in assets/fonts
+ *                 with its OFL licence (assets/README.md).
+ * Depends on:     ../../../../assets/fonts/fredoka-latin-600-normal.woff2
+ */
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../../../assets/fonts/fredoka-latin-600-normal.woff2') format('woff2');
+}
+
+.show-font {
+  font-family: 'Fredoka', var(--font-family);
+  font-weight: 600;
+}

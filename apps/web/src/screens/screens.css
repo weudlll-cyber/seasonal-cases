@@ -1,0 +1,158 @@
+/**
+ * @file   apps/web/src/screens/screens.css
+ * @brief  The sign-in, the dev admin and the result screen.
+ *
+ * Responsibility: the sign-in and the admin are normal pages that scroll; the result is a stage
+ *                 screen that scales down evenly, keeps the dock's height free (DECISIONS D7),
+ *                 and lists all cases in a named scroll area. Colours only from the kit's tokens.
+ * Depends on:     @seasonal/kit/tokens.css, @sc/ui pending/fit-cases.css, ../shell/shell.css
+ */
+
+.sign-in,
+.admin-setup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.sign-in h2 {
+  flex-basis: 100%;
+}
+
+.sign-in label,
+.admin-setup label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.95rem;
+}
+
+.admin-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.admin-buttons {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.admin-error {
+  margin: 0;
+  color: var(--color-danger);
+  font-weight: var(--font-weight-strong);
+}
+
+.admin-shows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-shows li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-show-id {
+  font-weight: var(--font-weight-strong);
+}
+
+.admin-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.result-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  height: calc(100dvh - var(--shell-height) - var(--dock-reserve, 0px));
+  padding: var(--space-2) var(--gutter);
+  overflow: hidden;
+}
+
+.result-winners {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result-winners li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 18px));
+}
+
+.result-slot {
+  font-weight: var(--font-weight-strong);
+}
+
+.result-owner {
+  font-weight: var(--font-weight-strong);
+}
+
+.result-case,
+.result-case-owner {
+  color: var(--color-text-muted);
+}
+
+.result-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.result-cases {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(max(170px, calc(var(--fit, 1) * 200px)), 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result-cases li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 2px var(--space-1);
+  padding: 6px var(--space-1);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
+}
+
+.result-cases .artifact {
+  grid-column: 1 / -1;
+}
+
+.result-number {
+  font-size: max(var(--sk-floor-display), calc(var(--fit, 1) * 26px));
+}
+
+.result-seal {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: max(var(--sk-floor-text), 14px);
+}

@@ -1,0 +1,117 @@
+/**
+ * @file   apps/web/src/testing/views.ts
+ * @brief  Test fixtures: views as the server sends them, written out by hand.
+ *
+ * Responsibility: give the component tests a public view, a moderator view and a personal view
+ *                 without the server, so each test says exactly which view the client renders.
+ *                 Used by tests only.
+ * Depends on:     @sc/contracts (types)
+ */
+import type {
+  Artifact,
+  CaseView,
+  Me,
+  ModeratorView,
+  PublicShowView,
+  RevealStep,
+} from '@sc/contracts';
+
+export const STONE: Artifact = {
+  id: 'prize-1',
+  name: 'Halving Stone',
+  season: 'all',
+  prizeSlot: 1,
+};
+export const KEY: Artifact = { id: 'prize-2', name: 'Season Key', season: 'autumn', prizeSlot: 2 };
+export const LEAF: Artifact = {
+  id: 'blank',
+  name: 'Fallen Leaf',
+  season: 'autumn',
+  prizeSlot: null,
+};
+
+export const MIA: Me = { id: 'mod-1', name: 'Mia', role: 'moderator', rank: 0 };
+export const NOAH: Me = { id: 'mod-2', name: 'Noah', role: 'moderator', rank: 0 };
+export const ANA: Me = { id: 'ana', name: 'Ana', role: 'player', rank: 3 };
+
+function cases(count: number, opened: Record<number, Artifact>): CaseView[] {
+  return Array.from({ length: count }, (_, i) => {
+    const artifact = opened[i + 1] ?? null;
+    return {
+      number: i + 1,
+      ownerId: `p${String(i + 1)}`,
+      ownerName: i + 1 === 7 ? 'Ana' : `bot-${String(i + 1)}`,
+      ownerRank: i + 1 === 7 ? 3 : 1,
+      opened: artifact !== null,
+      artifact,
+    };
+  });
+}
+
+/** A live show of 12 cases; case 7 (Ana's) is on the centre stage at `step`. */
+export function liveView(step: RevealStep, artifact: Artifact = STONE): PublicShowView {
+  const open = step === 'open' || step === 'prize' || step === 'owner';
+  const found = step === 'prize' || step === 'owner';
+  return {
+    id: 'show-1',
+    state: 'live',
+    registrationOpen: false,
+    createdAt: '2026-11-21T20:00:00.000Z',
+    caseCount: 12,
+    winnerCount: 2,
+    prizeSlots: [
+      { slot: 1, label: 'Gold' },
+      { slot: 2, label: '' },
+    ],
+    artifactTable: [STONE, KEY, LEAF],
+    cases: cases(12, open ? { 7: artifact } : {}),
+    board: null,
+    commitment: 'c0ffee'.repeat(10) + 'beef',
+    sealedAt: '2026-11-21T20:01:00.000Z',
+    live: { selected: step === 'idle' ? null : 7, step },
+    found:
+      found && artifact.prizeSlot !== null
+        ? [{ slot: 1, label: 'Gold', artifact, caseNumber: 7, ownerName: 'Ana' }]
+        : [],
+    stillHidden: found && artifact.prizeSlot === 1 ? [KEY] : [STONE, KEY],
+    allPrizesFound: false,
+    result: null,
+  };
+}
+
+export function moderatorOf(show: PublicShowView, holder: Me): ModeratorView {
+  return {
+    show,
+    holder: { id: holder.id, name: holder.name },
+    moderators: [
+      { id: MIA.id, name: MIA.name },
+      { id: NOAH.id, name: NOAH.name },
+    ],
+  };
+}
+
+/** A show in registration: case 7 held by Bo (rank 4) with Ana (rank 3) also claiming it. */
+export function registrationView(): PublicShowView {
+  const show = liveView('idle');
+  return {
+    ...show,
+    state: 'registration',
+    registrationOpen: true,
+    commitment: null,
+    sealedAt: null,
+    cases: show.cases.map((c) => ({ ...c, ownerId: null, ownerName: null, ownerRank: null })),
+    board: show.cases.map((c) => ({
+      number: c.number,
+      holder:
+        c.number === 7
+          ? { playerId: 'bo', name: 'Bo', rank: 4, at: '2026-11-21T20:00:05.000Z' }
+          : c.number === 8
+            ? { playerId: 'cy', name: 'Cy', rank: 2, at: '2026-11-21T20:00:06.000Z' }
+            : null,
+      others:
+        c.number === 7
+          ? [{ playerId: 'ana', name: 'Ana', rank: 3, at: '2026-11-21T20:00:09.000Z' }]
+          : [],
+    })),
+  };
+}

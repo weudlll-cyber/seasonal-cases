@@ -1,0 +1,165 @@
+/**
+ * @file   apps/web/src/shell/shell.css
+ * @brief  The page and the shell: the background, the top bar, buttons, cards and fields.
+ *
+ * Responsibility: the frame around every screen, from the kit's tokens only: the page's season
+ *                 glows (`--page-background`, night blue in dark, warm white in light, never flat
+ *                 black or white), Luxora Grotesk, 44 px targets, 14 px text at least.
+ *                 `--shell-height` is the bar's height the stage screens subtract.
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/fonts.css, @seasonal/kit/shell.css
+ */
+
+:root {
+  --shell-height: 64px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--page-background);
+  background-attachment: fixed;
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-body);
+}
+
+h1,
+h2 {
+  margin: 0 0 var(--space-1);
+  font-weight: var(--font-weight-heading);
+}
+
+h1 {
+  font-size: var(--font-size-title);
+}
+
+h2 {
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 22px));
+}
+
+a {
+  color: var(--color-text);
+}
+
+.shell-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  min-height: var(--shell-height);
+  padding: 8px var(--gutter);
+  background: var(--sidebar-background);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.shell-title {
+  font-weight: var(--font-weight-heading);
+  font-size: 1.15rem;
+  text-decoration: none;
+}
+
+.shell-nav {
+  display: flex;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.shell-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--hit-target);
+}
+
+.shell-me {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.95rem;
+}
+
+.button {
+  min-height: var(--hit-target);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-glass);
+  color: var(--color-text);
+  font: inherit;
+  font-size: max(var(--sk-floor-text), 15px);
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--color-active-bg);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.button-solid {
+  border-color: transparent;
+  background: var(--color-solid);
+  color: var(--color-on-solid);
+}
+
+.button-solid:hover:not(:disabled) {
+  background: var(--color-solid);
+  opacity: 0.9;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+input,
+select {
+  min-height: var(--hit-target);
+  padding: 0 var(--space-1);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.card {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card);
+}
+
+/* The normal pages (lobby, admin) scroll; the stage screens fit (CONCEPT §7). */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--space-2) var(--gutter);
+}
+
+.commitment {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+
+@media (max-width: 640px) {
+  .shell-nav {
+    flex-basis: 100%;
+    order: 3;
+  }
+}

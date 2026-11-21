@@ -1,0 +1,17 @@
+/**
+ * @file   packages/ui/src/pending/fit-cases.css
+ * @brief  Seasonal Cases' readable floors for sizes that follow the screen's scale `--fit`.
+ *
+ * Responsibility: kit adoption item "kit: floors for cases" (docs/BACKLOG.md 13): the kit's
+ *                 fit.css (v0.5.0) knows `mini-games` and `bingo` only. Until it has a `cases`
+ *                 entry, this file gives `[data-sk-game='cases']` the floors of CONCEPT §7:
+ *                 14 px text, 24 px display values, 22 px rows, 44 px phone targets. Imported
+ *                 after `@seasonal/kit/fit.css`. Delete it once the kit ships the entry.
+ * Depends on:     @seasonal/kit/fit.css (the custom property names)
+ */
+[data-sk-game='cases'] {
+  --sk-floor-text: 14px;
+  --sk-floor-display: 24px;
+  --sk-floor-row: 22px;
+  --sk-floor-target: 44px;
+}

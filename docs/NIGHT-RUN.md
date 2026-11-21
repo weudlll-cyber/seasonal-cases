@@ -13,12 +13,12 @@ Written when the chain ends.
 
 ### Pieces
 
-| Piece                                      | Done                                                                            | Running | Open                            | Needs the owner's word                        | Commits                              | CI run ids                                     |
-| ------------------------------------------ | ------------------------------------------------------------------------------- | ------- | ------------------------------- | --------------------------------------------- | ------------------------------------ | ---------------------------------------------- |
-| 1 Repository and standards                 | standards, skeleton, CI, kit v0.5.0, docs; repository created; master protected | —       | Renovate onboarding (see below) | kit tag v0.5.0 vs. the concept's v0.4.1 (D15) | master `0aee998`…`2bf720c`           | CI 44850888611 green; CodeQL 44850888453 green |
-| 2 Contracts, domain, server                | contracts, domain with probes, application, server with socket tests            | —       | BACKLOG 17, 18 (later)          | the "Start show" step (below)                 | `proto/cases-v1`, see piece 2 report | see piece 3 row                                |
-| 3 The client                               | —                                                                               | —       | all                             | —                                             | —                                    | —                                              |
-| 4 Play-through, browser tests, screenshots | —                                                                               | —       | all                             | —                                             | —                                    | —                                              |
+| Piece                                      | Done                                                                                   | Running | Open                            | Needs the owner's word                        | Commits                              | CI run ids                                     |
+| ------------------------------------------ | -------------------------------------------------------------------------------------- | ------- | ------------------------------- | --------------------------------------------- | ------------------------------------ | ---------------------------------------------- |
+| 1 Repository and standards                 | standards, skeleton, CI, kit v0.5.0, docs; repository created; master protected        | —       | Renovate onboarding (see below) | kit tag v0.5.0 vs. the concept's v0.4.1 (D15) | master `0aee998`…`2bf720c`           | CI 44850888611 green; CodeQL 44850888453 green |
+| 2 Contracts, domain, server                | contracts, domain with probes, application, server with socket tests                   | —       | BACKLOG 17, 18 (later)          | the "Start show" step (below)                 | `proto/cases-v1` `90a40e1`           | CI 44853721518 green                           |
+| 3 The client                               | lobby, board, stage with five steps, direction bar, result, dev admin, component tests | —       | screenshots and fixes (piece 4) | Fredoka (CONCEPT §14), the phone's two rows   | `proto/cases-v1`, see piece 3 report | see piece 4 row                                |
+| 4 Play-through, browser tests, screenshots | —                                                                                      | —       | all                             | —                                             | —                                    | —                                              |
 
 ### Piece 1 report
 
@@ -75,6 +75,42 @@ Written when the chain ends.
 - **Lines (new files):** contracts 13–127, domain 19–152 (tests ≤ 161), application 17–158,
   server 9–180 (tests ≤ 151). The largest source file is `apps/server/src/realtime.ts` (180).
 
+### Piece 3 report
+
+- **Client** (`apps/web`, React 19.3.1 + Vite 8.3.4, socket.io-client 4.8.4): Vite on
+  0.0.0.0:5470 proxying `/api` and `/socket.io` to 127.0.0.1:3970; the kit's `themeInit()` and
+  `<script src="theme-init.js">`. Routes: `/` (dev sign-in for a guest, the current show's state,
+  the registration board with the artifact table), `/show` (the stage), `/results/<id>`, `/admin`
+  (N, W, prize labels, "Quick Test seed", Quick Test, Create show, and per show Open
+  registration, Fill with bots, Close, Seal, Start show).
+- **The stage:** the cases on one to four concentric half circles (`stage/arc.ts`), each with
+  number, owner and a season glow; the selected case large in the centre under a CSS spotlight,
+  the rest dimmed; tension darkens the stage and shakes the case; open shows the artifact; prize
+  its slot and label or "No prize"; owner the lower third with name and rank badge, confetti on
+  the main prize only (hidden under reduced motion). The top bar: still hidden, found with owners,
+  the short commitment. The direction bar only for the holder.
+- **Kit, reused (nothing rebuilt):** `tokens.css`, `fonts.css`, `motion.css`, `fit.css`,
+  `shell.css`; `themeInit()`; `useTheme`, `ThemeToggle`; `useFitScale`; `useDockView` and
+  `CALL_SLOT` (the dock reserve). `useShownTheme` is not used: nothing on these screens must
+  follow the shown theme (no chat frame yet). No `BackLink` (standalone).
+- **Built under `packages/ui/src/pending/`:** `fit-cases.css` (BACKLOG 19, "kit: floors for
+  cases") and `useDockReserve.ts` (BACKLOG 20, "kit: dock reserve without a chat").
+- **Stage font:** Fredoka SemiBold copied from `seasonal-spirits` (its `@fontsource/fredoka`
+  5.3.0, latin 600 woff2) to `assets/fonts/` with its OFL licence (`assets/README.md`), used only
+  for case numbers and artifact names (`.show-font`).
+- **Component tests** (Vitest, jsdom, Testing Library): every step state rendered from a given
+  view (`stage/Stage.test.tsx`), the conflict view and the "your rank is higher / lower" hint
+  (`board/RegistrationBoard.test.tsx`), the direction bar for the holder only, the client
+  importing neither domain nor application and the result showing the server's verdict as it came
+  (`App.test.tsx`).
+- **Tests:** `pnpm verify` green, 16 files, 80 tests.
+- **A flaky-looking timeout fixed at its cause:** a socket test timed out at 5 s in the full run
+  (16 workers at once, ~13 s startup each) and passed alone. Workers are now half the cores, at
+  most four, as Mini Games (`vitest.config.ts`), and the server's tests get 20 s
+  (`apps/server/vitest.config.ts`).
+- **Removed:** the skeleton's heading-only `App` and its test. **Lines:** web sources 30–159,
+  CSS 21–264, tests 68–117; ui 11–34.
+
 ### Choices made without the owner
 
 - **"Start show":** the concept goes SEALED → LIVE, and the task names no start action. The
@@ -90,6 +126,14 @@ owner | return` in place of five functions; the socket sends `direction:step`.
   moderator who is watching the show (the "signed-in moderator" of the task).
 - **One id per sign-in:** the dev sign-in draws a new UUID each time, so two tabs with the same
   name are two people.
+- **The fit hook's game:** the kit's `useFitScale` takes `mini-games` or `bingo` only. The
+  screens pass `mini-games` for its 0.6 scale floor (Bingo's floor of 1 would never shrink); the
+  readable floors come from `data-sk-game="cases"` (BACKLOG 19).
+- **The phone's "two rows":** at widths under 700 px the cases form two rows in a horizontally
+  scrolling, named area ("Cases"), so no case gets smaller than the 44 px target.
+- **The dock reserve** applies to all three stage screens (registration board, stage, result)
+  in the desktop view only, as the kit's dock does.
+- **Selecting a case** is a click on the case for the holder; the bar holds the later steps.
 - **A found prize:** it enters the top bar's "found" list at its "Prize" step; at "Open" the
   artifact is already visible on the stage but its meaning is not yet named.
 

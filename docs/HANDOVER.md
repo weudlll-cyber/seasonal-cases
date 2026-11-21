@@ -19,7 +19,9 @@ the cases in five reveal steps. [CONCEPT.md](CONCEPT.md) v1.0 governs it; the de
 - **On `proto/cases-v1`:** the contracts, the domain (registration with rank conflicts, sealing
   with a sha256 commitment, the five steps under one direction holder, projections that never
   hold unopened content), the use cases with the JSON-lines event log and Quick Test, and the
-  server with dev sign-in, dev admin API, claim and the socket side (piece 2).
+  server with dev sign-in, dev admin API, claim and the socket side (piece 2); the client with
+  lobby, registration board, stage with the five steps, direction bar, result and dev admin, on
+  the kit (piece 3).
 
 ## What runs
 

@@ -14,7 +14,8 @@
     "@sc/ui": "workspace:*",
     "@seasonal/kit": "github:weudlll-cyber/seasonal-kit#v0.5.0",
     "react": "19.3.1",
-    "react-dom": "19.3.1"
+    "react-dom": "19.3.1",
+    "socket.io-client": "4.8.4"
   },
   "devDependencies": {
     "@testing-library/dom": "10.4.2",
