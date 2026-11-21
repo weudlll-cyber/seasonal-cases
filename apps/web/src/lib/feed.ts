@@ -4,7 +4,7 @@
  *
  * Responsibility: `useCurrentShowId` asks the server which show the lobby shows and asks again
  *                 every few seconds, so a new show from /admin appears by itself. `useShowFeed`
- *                 watches one show over socket.io and keeps the last public, moderator and
+ *                 watches one show over socket.io and keeps the last public, organiser and
  *                 personal view it received; `direct` sends a direction message and resolves
  *                 with its ack. The client only renders what it receives (CONCEPT §8).
  * Depends on:     react, socket.io-client, @sc/contracts (types), ./api.js, ./base.js
@@ -13,7 +13,7 @@ import type {
   Ack,
   ClientToServerEvents,
   Me,
-  ModeratorView,
+  OrganiserView,
   PersonalView,
   PublicShowView,
   ServerToClientEvents,
@@ -55,7 +55,7 @@ export function useCurrentShow(): CurrentShow {
 
 export interface ShowFeed {
   readonly show: PublicShowView | null;
-  readonly moderator: ModeratorView | null;
+  readonly organiser: OrganiserView | null;
   readonly personal: PersonalView | null;
   readonly direct: (event: keyof ClientToServerEvents, payload: object) => Promise<Ack>;
 }
@@ -68,7 +68,7 @@ export function useShowFeed(
   me: Me | null | undefined,
 ): ShowFeed {
   const [show, setShow] = useState<PublicShowView | null>(null);
-  const [moderator, setModerator] = useState<ModeratorView | null>(null);
+  const [organiser, setOrganiser] = useState<OrganiserView | null>(null);
   const [personal, setPersonal] = useState<PersonalView | null>(null);
   const socketRef = useRef<Client | null>(null);
   // `me` matters only through its id: a new sign-in needs a new socket with the new cookie.
@@ -79,8 +79,8 @@ export function useShowFeed(
     const socket: Client = io({ path: SOCKET_PATH, transports: ['websocket'] });
     socketRef.current = socket;
     socket.on('show:public', setShow);
-    socket.on('show:moderator', (view) => {
-      setModerator(view);
+    socket.on('show:organiser', (view) => {
+      setOrganiser(view);
       setShow(view.show);
     });
     socket.on('show:personal', setPersonal);
@@ -94,7 +94,7 @@ export function useShowFeed(
       // A new show id starts empty: the previous show's screen (its end, say) never shows for
       // the new one.
       setShow(null);
-      setModerator(null);
+      setOrganiser(null);
       setPersonal(null);
     };
   }, [showId, meId, ready]);
@@ -110,5 +110,5 @@ export function useShowFeed(
       }),
     [],
   );
-  return { show, moderator, personal, direct };
+  return { show, organiser, personal, direct };
 }

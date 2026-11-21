@@ -32,7 +32,15 @@ the cases in five reveal steps. [CONCEPT.md](CONCEPT.md) v1.0 governs it; the de
   fix B (no direction bar after the end) are on `proto/cases-v1` (piece 1). The moving case
   (D21): the travel to the front and home, the slow opening (piece 2). The start page on the
   kit's start card, the opening with Begin, focus mode with the kit's game bar, the ceremony and
-  the result on the kit's result frame (D22, piece 3). Concept v1.3.
+  the result on the kit's result frame (D22, piece 3). Website mode (D23, piece 4):
+  - the sign-in through the website on the kit's checks;
+  - accounts keyed by website origin and user id, with rights mapped and the rank and badges
+    taken from the Discord steps;
+  - the account-changes feed, 7-day sessions in a session store, the docked website chat, the
+    back link, and everything under `/games/cases/`.
+
+  The dev role "moderator" is now "organiser". Concept v1.4.
+
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
 
@@ -69,6 +77,10 @@ the cases in five reveal steps. [CONCEPT.md](CONCEPT.md) v1.0 governs it; the de
   way home 0.3 s.
 - The ceremony's pace and order (piece 3 of SC-N2): one winner every 2.5 s, from the lowest
   prize up to the main prize, then "See the result".
+- Website mode's two rules (piece 4 of SC-N2): the rank is the number of the member's valid
+  Discord steps, at most 5; the steps' icons are the badges beside the name on the stage, the
+  board and the header.
+- The website's side for the slug `cases` (BACKLOG 27): it lives in the website repository.
 - A write right for a sibling clone of this repository (for example
   `C:\Users\weudl\seasonal-cases-2`) would let future night chains run independent pieces in
   parallel; tonight's permissions cover this folder only.

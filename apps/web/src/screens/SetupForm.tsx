@@ -20,7 +20,8 @@ export interface Setup {
 
 export interface SetupFormProps {
   readonly busy: boolean;
-  readonly onQuickTest: (setup: Setup) => void;
+  // Present in development only: without it there is no seed field and no Quick Test.
+  readonly onQuickTest?: (setup: Setup) => void;
   readonly onCreate: (setup: Omit<Setup, 'seed'>) => void;
 }
 
@@ -70,7 +71,8 @@ export function SetupForm({ busy, onQuickTest, onCreate }: SetupFormProps) {
       aria-label="Show setup"
       onSubmit={(event) => {
         event.preventDefault();
-        onQuickTest({ cases, winners, labels: current, seed });
+        if (onQuickTest === undefined) onCreate({ cases, winners, labels: current });
+        else onQuickTest({ cases, winners, labels: current, seed });
       }}
     >
       <NumberField
@@ -90,16 +92,19 @@ export function SetupForm({ busy, onQuickTest, onCreate }: SetupFormProps) {
         onChange={setWinners}
       />
       <PrizeLabels labels={current} onChange={setLabel} />
-      <TextField
-        label="Quick Test seed"
-        tip="The same seed gives the same bots and the same sealing"
-        maxLength={64}
-        required
-        value={seed}
-        onChange={setSeed}
-      />
+      {onQuickTest !== undefined && (
+        <TextField
+          label="Quick Test seed"
+          tip="The same seed gives the same bots and the same sealing"
+          maxLength={64}
+          required
+          value={seed}
+          onChange={setSeed}
+        />
+      )}
       <SetupButtons
         busy={busy}
+        quickTest={onQuickTest !== undefined}
         onCreate={() => {
           onCreate({ cases, winners, labels: current });
         }}
@@ -108,18 +113,21 @@ export function SetupForm({ busy, onQuickTest, onCreate }: SetupFormProps) {
   );
 }
 
-/** "Quick Test" submits the form; "Create show" only creates. */
-function SetupButtons({ busy, onCreate }: { busy: boolean; onCreate: () => void }) {
+/** "Quick Test" (development) submits the form; "Create show" only creates. */
+function SetupButtons(props: { busy: boolean; quickTest: boolean; onCreate: () => void }) {
+  const { busy, quickTest, onCreate } = props;
   return (
     <span className="admin-buttons">
-      <button
-        type="submit"
-        className="button button-solid"
-        disabled={busy}
-        title="Create, fill with bots, seal and start a show from the seed; you hold the direction"
-      >
-        Quick Test
-      </button>
+      {quickTest && (
+        <button
+          type="submit"
+          className="button button-solid"
+          disabled={busy}
+          title="Create, fill with bots, seal and start a show from the seed; you hold the direction"
+        >
+          Quick Test
+        </button>
+      )}
       <button
         type="button"
         className="button"

@@ -11,7 +11,14 @@ export { decide, decideCreate, type CreateCommand, type ShowCommand } from './co
 export type { Actor, ShowEvent, ShowEventType } from './events.js';
 export type { Decision } from './live.js';
 export { applyEvent, foldShow, type Sealing, type ShowModel } from './model.js';
-export { moderatorView, personalView, publicView, showResult } from './projection.js';
+export {
+  organiserView,
+  personalView,
+  publicView,
+  showResult,
+  type People,
+  type Person,
+} from './projection.js';
 export { seededRandom, type RandomPort } from './random.js';
 export { botId, type Claim } from './registration.js';
 export { canonicalJson, commitmentOf, verify } from './sealing.js';

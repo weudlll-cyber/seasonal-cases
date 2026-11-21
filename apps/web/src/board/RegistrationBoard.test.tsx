@@ -62,7 +62,7 @@ describe('RegistrationBoard', () => {
     expect(screen.getByRole('alert').textContent).toBe('registration is not open');
   });
 
-  it('offers no click to a guest or a moderator', () => {
+  it('offers no click to a guest or an organiser', () => {
     render(<RegistrationBoard show={registrationView()} personal={null} />);
     expect(screen.queryAllByRole('button')).toHaveLength(0);
   });

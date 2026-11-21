@@ -7,7 +7,7 @@
  */
 import { z } from 'zod';
 
-import { RankSchema, RoleSchema, ShowStateSchema } from './show.js';
+import { BadgeSchema, RankSchema, RoleSchema, ShowStateSchema } from './show.js';
 
 export const NAME_MAX = 32;
 export const LABEL_MAX = 60;
@@ -25,6 +25,7 @@ export const MeSchema = z.object({
   name: z.string(),
   role: RoleSchema,
   rank: RankSchema,
+  badges: z.array(BadgeSchema),
 });
 export type Me = z.infer<typeof MeSchema>;
 

@@ -14,6 +14,8 @@
 import type { CaseView, PublicShowView } from '@sc/contracts';
 import type { CSSProperties } from 'react';
 
+import { Badges } from './Badges.js';
+
 const PIECES = 36;
 const MAIN_PRIZE = 1;
 
@@ -49,7 +51,10 @@ export function LowerThird({ show }: { show: PublicShowView }) {
   return (
     <div className="lower-third" role="status">
       <span className="lower-third-case">Case {view.number} belongs to</span>
-      <span className="lower-third-name">{view.ownerName ?? 'nobody'}</span>
+      <span className="lower-third-name">
+        <Badges badges={view.ownerBadges} />
+        {view.ownerName ?? 'nobody'}
+      </span>
       {view.ownerRank !== null && (
         <span className="rank-badge" title={`Seasonal rank ${String(view.ownerRank)}`}>
           Rank {view.ownerRank}

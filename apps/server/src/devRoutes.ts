@@ -1,71 +1,52 @@
 /**
  * @file   apps/server/src/devRoutes.ts
- * @brief  The development routes: sign-in by name and role, and the dev admin API.
+ * @brief  The development routes: sign-in by name, role and rank, and the Quick Test.
  *
- * Responsibility: the prototype's only sign-in (CONCEPT §10) and the organiser's actions of
- *                 the development admin (CONCEPT §9): create, open and close registration,
- *                 fill with bots, seal, start, Quick Test. Registered only while the server
- *                 runs with NODE_ENV=development and SC_DEV=1 (./app.ts); otherwise every one
- *                 of these paths answers 404.
- * Depends on:     node:crypto, fastify, @sc/application (types), @sc/contracts, ./http.js,
- *                 ./session.js
+ * Responsibility: the development sign-in (CONCEPT §10, DECISIONS D24): a fresh account of kind
+ *                 `dev` per sign-in, so two tabs with one name are two people, and a session for
+ *                 it; the Quick Test (CONCEPT §9). Registered only in local mode with
+ *                 NODE_ENV=development and SC_DEV=1 (./app.ts); otherwise these paths answer 404.
+ * Depends on:     node:crypto, @sc/contracts, ./auth/accounts.js, ./http.js, ./session.js
  */
 import { randomUUID } from 'node:crypto';
 
-import type { ShowService } from '@sc/application';
-import {
-  CreateShowRequestSchema,
-  QuickTestRequestSchema,
-  SignInRequestSchema,
-  type Me,
-} from '@sc/contracts';
-import type { FastifyInstance } from 'fastify';
+import { QuickTestRequestSchema, SignInRequestSchema } from '@sc/contracts';
 
-import { accepted, moderator, parseBody, summary } from './http.js';
-import { clearSession, setSession } from './session.js';
+import type { Account, AccountRole } from './auth/accounts.js';
+import { accepted, organiser, parseBody, summary, type Ctx } from './http.js';
+import { signIn } from './session.js';
 
-interface IdParams {
-  readonly id: string;
-}
+// The development sign-in offers the client's roles; a viewer signs in as a player of rank 0.
+const ROLE_OF: Record<string, AccountRole> = {
+  viewer: 'player',
+  player: 'player',
+  organiser: 'organiser',
+  admin: 'admin',
+};
 
-export function devRoutes(app: FastifyInstance, shows: ShowService): void {
-  app.post('/api/dev/sign-in', (request, reply) => {
+export function devRoutes(ctx: Ctx): void {
+  const { app, auth, shows } = ctx;
+
+  app.post('/api/dev/sign-in', async (request, reply) => {
     const { name, role, rank } = parseBody(SignInRequestSchema, request.body);
-    // A fresh id per sign-in: a second tab with the same name is a second person.
-    const me: Me = { id: randomUUID(), name, role, rank };
-    setSession(reply, me);
-    return me;
+    const account: Account = {
+      id: randomUUID(),
+      kind: 'dev',
+      name,
+      role: ROLE_OF[role] ?? 'player',
+      rank: role === 'viewer' ? 0 : rank,
+      badges: [],
+      websiteOrigin: null,
+      websiteUserId: null,
+      deleted: false,
+    };
+    await auth.accounts.save(account);
+    return signIn(ctx, request, reply, account);
   });
 
-  app.post('/api/dev/sign-out', (_request, reply) => {
-    clearSession(reply);
-    return { ok: true };
-  });
-
-  app.post('/api/dev/shows', (request) => {
-    const me = moderator(app, request);
-    const setup = parseBody(CreateShowRequestSchema, request.body);
-    return summary(accepted(shows.createShow(me, setup)));
-  });
-
-  app.post('/api/dev/quick-test', (request) => {
-    const me = moderator(app, request);
+  app.post('/api/dev/quick-test', async (request) => {
+    const me = await organiser(ctx, request);
     const { seed, ...setup } = parseBody(QuickTestRequestSchema, request.body);
     return summary(accepted(shows.quickTest({ ...setup, seed }, me)));
   });
-
-  // The organiser's steps of one show; each answers with the show's summary.
-  const steps: Record<string, (id: string, me: Me) => ReturnType<ShowService['seal']>> = {
-    open: (id, me) => shows.openRegistration(id, me.id),
-    close: (id, me) => shows.closeRegistration(id, me.id),
-    bots: (id) => shows.fillWithBots(id),
-    seal: (id, me) => shows.seal(id, me.id),
-    start: (id, me) => shows.start(id, me),
-  };
-  for (const [path, step] of Object.entries(steps)) {
-    app.post<{ Params: IdParams }>(`/api/dev/shows/:id/${path}`, (request) => {
-      const me = moderator(app, request);
-      return summary(accepted(step(request.params.id, me)));
-    });
-  }
 }

@@ -101,8 +101,8 @@ test('screens: board, selected, owner on the main prize, result', async ({ page,
   await shoot(page, 'board');
   await players.close();
 
-  // The stage: a Quick Test show directed by the moderator, the main prize on the centre stage.
-  await signInApi(page.request, 'Mia', 'moderator');
+  // The stage: a Quick Test show directed by the organiser, the main prize on the centre stage.
+  await signInApi(page.request, 'Mia', 'organiser');
   const seed = 'sc-n1-01';
   const main = quickTestSealing(seed, 24, 3).get('prize-1');
   const created = await page.request.post('/api/dev/quick-test', {

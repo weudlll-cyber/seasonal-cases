@@ -11,6 +11,7 @@ import type { CaseView } from '@sc/contracts';
 import type { CSSProperties } from 'react';
 
 import { ArtifactEmblem } from './ArtifactEmblem.js';
+import { Badges } from './Badges.js';
 import type { Spot } from './arc.js';
 
 export interface CaseTokenProps {
@@ -35,6 +36,7 @@ export function CaseToken({ view, spot, away, onSelect }: CaseTokenProps) {
     <>
       <span className="case-number show-font">{view.number}</span>
       <span className="case-owner" title={owner}>
+        <Badges badges={view.ownerBadges} />
         {owner}
       </span>
       {view.artifact !== null && <ArtifactEmblem artifact={view.artifact} />}

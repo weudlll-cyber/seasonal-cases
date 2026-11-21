@@ -33,7 +33,7 @@ describe('the motion settings', () => {
       '--close-ms': '300ms',
     });
     const { container } = render(
-      <Stage show={liveView('idle')} moderator={null} me={ANA} direct={direct} />,
+      <Stage show={liveView('idle')} organiser={null} me={ANA} direct={direct} />,
     );
     const root = container.querySelector<HTMLElement>('.stage-screen');
     expect(root?.style.getPropertyValue('--open-ms')).toBe('1600ms');
@@ -73,7 +73,7 @@ describe('the way home', () => {
 describe('the front case', () => {
   it('draws no artifact while the view has none, and the artifact once it has', () => {
     const selected = render(
-      <Stage show={liveView('selected')} moderator={null} me={ANA} direct={direct} />,
+      <Stage show={liveView('selected')} organiser={null} me={ANA} direct={direct} />,
     );
     expect(selected.container.querySelector('.centre .artifact')).toBeNull();
     expect(selected.container.querySelector('.case-token[data-case="7"]')?.className).toContain(
@@ -81,7 +81,7 @@ describe('the front case', () => {
     );
     cleanup();
     const open = render(
-      <Stage show={liveView('open')} moderator={null} me={ANA} direct={direct} />,
+      <Stage show={liveView('open')} organiser={null} me={ANA} direct={direct} />,
     );
     expect(open.container.querySelector('.centre-case.is-open .artifact')).not.toBeNull();
   });

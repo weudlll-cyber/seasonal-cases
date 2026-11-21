@@ -20,6 +20,7 @@ import { RegistrationBoard } from '../board/RegistrationBoard.js';
 import { postJson } from '../lib/api.js';
 import { apiPath } from '../lib/base.js';
 import type { ShowFeed } from '../lib/feed.js';
+import type { ServerMode } from '../lib/mode.js';
 import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
 import { SignIn } from './SignIn.js';
@@ -34,6 +35,7 @@ const STATE_TEXT = {
 
 export interface StartPageProps {
   readonly me: Me | null;
+  readonly mode: ServerMode;
   readonly feed: ShowFeed;
   readonly showId: string | null | undefined;
   readonly onSignIn: (request: SignInRequest) => Promise<void>;
@@ -71,10 +73,9 @@ function ShowCard({ show }: { show: PublicShowView }) {
   );
 }
 
-export function StartPage({ me, feed, showId, onSignIn }: StartPageProps) {
+/** A signed-in player's pick while registration is open; the server checks both again. */
+function useClaim(me: Me | null, show: PublicShowView | null) {
   const action = useAction();
-  const { show } = feed;
-  // A signed-in player may pick while registration is open; the server checks both again.
   const claimable = me?.role === 'player' && show?.registrationOpen === true ? show.id : null;
   const onClaim =
     claimable === null
@@ -82,13 +83,22 @@ export function StartPage({ me, feed, showId, onSignIn }: StartPageProps) {
       : (caseNumber: number) => {
           action.run(() => postJson(apiPath(`/shows/${claimable}/claim`), { caseNumber }));
         };
+  return { onClaim, error: action.error };
+}
+
+export function StartPage({ me, mode, feed, showId, onSignIn }: StartPageProps) {
+  const { show } = feed;
+  const { onClaim, error } = useClaim(me, show);
+  const devSignIn = me === null && mode.mode === 'local' && mode.dev;
   return (
     <main className="page start-page" data-sk-game="cases">
       <header className="start-brand">
         <img src={logo} alt="" className="start-logo" />
         <h1>Seasonal Cases</h1>
       </header>
-      {me === null && <SignIn onSignIn={onSignIn} />}
+      {/* Website mode signs in through the website (the header's link); local mode has the
+          development sign-in in development (DECISIONS D24). */}
+      {devSignIn && <SignIn onSignIn={onSignIn} />}
       {showId === null && <p className="card">There is no show yet.</p>}
       {show !== null && (
         <>
@@ -97,7 +107,7 @@ export function StartPage({ me, feed, showId, onSignIn }: StartPageProps) {
             <RegistrationBoard
               show={show}
               personal={feed.personal}
-              error={action.error}
+              error={error}
               {...(onClaim === undefined ? {} : { onClaim })}
             />
           )}

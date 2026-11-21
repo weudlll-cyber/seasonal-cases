@@ -15,6 +15,7 @@
     "@sc/application": "workspace:*",
     "@sc/contracts": "workspace:*",
     "@sc/domain": "workspace:*",
+    "@seasonal/kit": "github:weudlll-cyber/seasonal-kit#v0.8.0",
     "fastify": "5.12.7",
     "socket.io": "4.8.4",
     "tsx": "4.23.15",

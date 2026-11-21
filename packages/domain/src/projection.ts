@@ -1,22 +1,26 @@
 /**
  * @file   packages/domain/src/projection.ts
- * @brief  The views of a show: public, moderator, personal, and the result.
+ * @brief  The views of a show: public, organiser, personal, and the result.
  *
  * Responsibility: the only way a show's state leaves the server. The public view holds a
  *                 case's artifact only once that case is open, and never the assignment or the
- *                 secret before the show has ended (CONCEPT §8). The moderator view adds the
- *                 direction and the moderators to hand over to, never the contents
- *                 (CONCEPT §3.3).
+ *                 secret before the show has ended (CONCEPT §8). The organiser view adds the
+ *                 direction and the organisers to hand over to, never the contents
+ *                 (CONCEPT §3.3). Names and badges come from the `people` lookup where it knows
+ *                 the player (the server's accounts: a renamed or deleted account shows its
+ *                 current name), else from the name recorded with the claim.
  * Depends on:     @sc/contracts (types), ./model.js, ./registration.js, ./sealing.js, ./setup.js
  */
 import {
   prizeLabel,
   SEASONS,
   type Artifact,
+  type BoardCase,
   type CaseView,
+  type Claimant,
   type FoundPrize,
-  type ModeratorRef,
-  type ModeratorView,
+  type OrganiserRef,
+  type OrganiserView,
   type PersonalView,
   type PublicShowView,
   type Rank,
@@ -41,13 +45,27 @@ function sealedArtifact(model: ShowModel, caseNumber: number): Artifact {
 const ownerOf = (model: ShowModel, caseNumber: number): Claim | null =>
   model.owners?.[caseNumber - 1] ?? null;
 
-function caseView(model: ShowModel, caseNumber: number): CaseView {
+/** A player as the screens name them: the current name and the website badges. */
+export interface Person {
+  readonly name: string;
+  readonly badges: readonly string[];
+}
+export type People = (playerId: string) => Person | undefined;
+const nobody: People = () => undefined;
+
+const nameOf = (people: People, claim: Claim | null): string | null =>
+  claim === null ? null : (people(claim.player.id)?.name ?? claim.player.name);
+const badgesOf = (people: People, id: string | undefined): string[] =>
+  id === undefined ? [] : [...(people(id)?.badges ?? [])];
+
+function caseView(model: ShowModel, caseNumber: number, people: People): CaseView {
   const owner = ownerOf(model, caseNumber);
   const opened = model.opened.includes(caseNumber);
   return {
     number: caseNumber,
     ownerId: owner?.player.id ?? null,
-    ownerName: owner?.player.name ?? null,
+    ownerName: nameOf(people, owner),
+    ownerBadges: badgesOf(people, owner?.player.id),
     ownerRank: owner?.rank ?? null,
     opened,
     // The redaction: an unopened case's content never leaves the server.
@@ -55,7 +73,12 @@ function caseView(model: ShowModel, caseNumber: number): CaseView {
   };
 }
 
-function foundPrize(model: ShowModel, caseNumber: number, artifact: Artifact): FoundPrize | null {
+function foundPrize(
+  model: ShowModel,
+  caseNumber: number,
+  artifact: Artifact,
+  people: People,
+): FoundPrize | null {
   const slot = model.prizeSlots.find((s) => s.slot === artifact.prizeSlot);
   if (slot === undefined) return null;
   return {
@@ -63,7 +86,7 @@ function foundPrize(model: ShowModel, caseNumber: number, artifact: Artifact): F
     label: prizeLabel(slot),
     artifact,
     caseNumber,
-    ownerName: ownerOf(model, caseNumber)?.player.name ?? null,
+    ownerName: nameOf(people, ownerOf(model, caseNumber)),
   };
 }
 
@@ -74,16 +97,16 @@ function allPrizesFound(model: ShowModel): boolean {
 }
 
 /** The whole show after it has ended, with the secret revealed and checked. */
-export function showResult(model: ShowModel): ShowResult | null {
+export function showResult(model: ShowModel, people: People = nobody): ShowResult | null {
   const { sealing, endedAt } = model;
   if (model.state !== 'ended' || sealing === null || endedAt === null) return null;
   const cases = Array.from({ length: model.caseCount }, (_, i) => ({
     number: i + 1,
-    ownerName: ownerOf(model, i + 1)?.player.name ?? null,
+    ownerName: nameOf(people, ownerOf(model, i + 1)),
     artifact: sealedArtifact(model, i + 1),
   }));
   const winners = cases
-    .map((c) => foundPrize(model, c.number, c.artifact))
+    .map((c) => foundPrize(model, c.number, c.artifact, people))
     .filter((f): f is FoundPrize => f !== null)
     .sort((a, b) => a.slot - b.slot);
   return {
@@ -98,8 +121,22 @@ export function showResult(model: ShowModel): ShowResult | null {
   };
 }
 
+/** The conflict view with the current names and badges. */
+function namedBoard(model: ShowModel, people: People): BoardCase[] {
+  const named = (c: Claimant): Claimant => ({
+    ...c,
+    name: people(c.playerId)?.name ?? c.name,
+    badges: badgesOf(people, c.playerId),
+  });
+  return board(model.claims, model.caseCount).map((b) => ({
+    ...b,
+    holder: b.holder === null ? null : named(b.holder),
+    others: b.others.map(named),
+  }));
+}
+
 /** What everybody may see. */
-export function publicView(model: ShowModel): PublicShowView {
+export function publicView(model: ShowModel, people: People = nobody): PublicShowView {
   return {
     id: model.id,
     state: model.state,
@@ -109,23 +146,28 @@ export function publicView(model: ShowModel): PublicShowView {
     winnerCount: model.prizes.length,
     prizeSlots: [...model.prizeSlots],
     artifactTable: [...model.prizes, model.blank],
-    cases: Array.from({ length: model.caseCount }, (_, i) => caseView(model, i + 1)),
-    board: model.registrationOpen ? board(model.claims, model.caseCount) : null,
+    cases: Array.from({ length: model.caseCount }, (_, i) => caseView(model, i + 1, people)),
+    board: model.registrationOpen ? namedBoard(model, people) : null,
     commitment: model.sealing?.commitment ?? null,
     sealedAt: model.sealing?.at ?? null,
     live: { begun: model.begun, selected: model.selected, step: model.step },
     season: SEASONS.find((s) => s === model.blank.season) ?? null,
     allPrizesFound: allPrizesFound(model),
-    result: showResult(model),
+    result: showResult(model, people),
   };
 }
 
 /** The public view plus the direction: who holds it and whom it can go to. */
-export function moderatorView(
+export function organiserView(
   model: ShowModel,
-  moderators: readonly ModeratorRef[],
-): ModeratorView {
-  return { show: publicView(model), holder: model.holder, moderators: [...moderators] };
+  organisers: readonly OrganiserRef[],
+  people: People = nobody,
+): OrganiserView {
+  const holder =
+    model.holder === null
+      ? null
+      : { id: model.holder.id, name: people(model.holder.id)?.name ?? model.holder.name };
+  return { show: publicView(model, people), holder, organisers: [...organisers] };
 }
 
 /** Where one player stands: their claim, whether it holds, and their standing per case. */

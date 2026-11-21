@@ -64,7 +64,7 @@ export interface ShowService {
   step(showId: string, by: string, step: Step): Outcome;
   handOver(showId: string, by: string, to: Actor): Outcome;
   endShow(showId: string, by: string): Outcome;
-  quickTest(setup: ShowSetup & { readonly seed: string }, moderator: Actor): Outcome;
+  quickTest(setup: ShowSetup & { readonly seed: string }, organiser: Actor): Outcome;
 }
 
 const missing = (showId: string): Outcome => ({
@@ -128,8 +128,8 @@ export function createShowService(deps: ShowDeps): ShowService {
     step: (id, by, step) => run(id, (at) => ({ type: 'step', at, by, step })),
     handOver: (id, by, to) => run(id, (at) => ({ type: 'handOver', at, by, to })),
     endShow: (id, by) => run(id, (at) => ({ type: 'end', at, by })),
-    quickTest: ({ seed, ...setup }, moderator) =>
-      quickTest(service, setup, moderator, random.seeded(seed)),
+    quickTest: ({ seed, ...setup }, organiser) =>
+      quickTest(service, setup, organiser, random.seeded(seed)),
   };
   return service;
 }
@@ -142,18 +142,18 @@ export function createShowService(deps: ShowDeps): ShowService {
 function quickTest(
   shows: ShowService,
   setup: ShowSetup,
-  moderator: Actor,
+  organiser: Actor,
   port: RandomPort,
 ): Outcome {
-  const created = shows.createShow(moderator, setup);
+  const created = shows.createShow(organiser, setup);
   if (!created.ok) return created;
   const id = created.model.id;
   const steps: (() => Outcome)[] = [
-    () => shows.openRegistration(id, moderator.id),
+    () => shows.openRegistration(id, organiser.id),
     () => shows.fillWithBots(id, port),
-    () => shows.closeRegistration(id, moderator.id),
-    () => shows.seal(id, moderator.id, port),
-    () => shows.start(id, moderator),
+    () => shows.closeRegistration(id, organiser.id),
+    () => shows.seal(id, organiser.id, port),
+    () => shows.start(id, organiser),
   ];
   let outcome: Outcome = created;
   for (const next of steps) {

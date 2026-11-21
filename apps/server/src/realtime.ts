@@ -2,17 +2,19 @@
  * @file   apps/server/src/realtime.ts
  * @brief  The socket side: watching a show, the pushed projections, the direction's actions.
  *
- * Responsibility: a socket watches one show. Moderators and admins receive the moderator view,
+ * Responsibility: a socket watches one show. Organisers and admins receive the organiser view,
  *                 everyone else the public view, players also their personal view; a client
  *                 never receives more than its projection (CONCEPT §8). Every direction message
  *                 is checked against the session and, in the domain, against the direction
- *                 holder, and acknowledged at once. A change of a show is pushed to its watchers.
+ *                 holder, and acknowledged at once. A change of a show is pushed to its watchers,
+ *                 with the players' current names and badges. A socket whose session ends (sign-out,
+ *                 a new sign-in, the website's account feed) is disconnected at once.
  * Depends on:     socket.io, fastify, @sc/application (types), @sc/contracts, @sc/domain,
  *                 ./session.js
  */
 import type { Outcome, ShowService } from '@sc/application';
 import {
-  canModerate,
+  canDirect,
   HandOverRequestSchema,
   SelectRequestSchema,
   ShowRequestSchema,
@@ -21,14 +23,14 @@ import {
   type Ack,
   type ClientToServerEvents,
   type Me,
-  type ModeratorRef,
+  type OrganiserRef,
   type ServerToClientEvents,
 } from '@sc/contracts';
-import { moderatorView, personalView, publicView, type ShowModel } from '@sc/domain';
+import { organiserView, personalView, publicView, type People, type ShowModel } from '@sc/domain';
 import type { FastifyInstance } from 'fastify';
 import type { Server, Socket } from 'socket.io';
 
-import { sessionFromHeader } from './session.js';
+import { sessionFromHeader, type Auth } from './session.js';
 
 type IoServer = Server<ClientToServerEvents, ServerToClientEvents>;
 type IoSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
@@ -47,32 +49,32 @@ const refused = (error: string): Ack => ({ ok: false, error });
 const ackOf = (outcome: Outcome): Ack => (outcome.ok ? { ok: true } : refused(outcome.error));
 
 interface Watching {
-  readonly moderatorsOf: (showId: string) => ModeratorRef[];
+  readonly organisersOf: (showId: string) => OrganiserRef[];
   readonly push: (model: ShowModel) => void;
   readonly join: (socket: IoSocket, me: Me | null, model: ShowModel) => void;
   readonly leave: (socket: IoSocket) => void;
 }
 
 /** Who watches which show, and how each of them gets the show's state. */
-function watchingOf(shows: () => ShowService): Watching {
+function watchingOf(shows: () => ShowService, people: People): Watching {
   // showId → socket id → watcher.
   const watching = new Map<string, Map<string, Watcher>>();
 
-  const moderatorsOf = (showId: string): ModeratorRef[] => {
-    const refs = new Map<string, ModeratorRef>();
+  const organisersOf = (showId: string): OrganiserRef[] => {
+    const refs = new Map<string, OrganiserRef>();
     for (const { me } of watching.get(showId)?.values() ?? []) {
-      if (me !== null && canModerate(me.role)) refs.set(me.id, { id: me.id, name: me.name });
+      if (me !== null && canDirect(me.role)) refs.set(me.id, { id: me.id, name: me.name });
     }
     return [...refs.values()];
   };
 
   // One watcher's projection: never more than its role may see.
   const send = ({ socket, me }: Watcher, model: ShowModel): void => {
-    if (me !== null && canModerate(me.role)) {
-      socket.emit('show:moderator', moderatorView(model, moderatorsOf(model.id)));
+    if (me !== null && canDirect(me.role)) {
+      socket.emit('show:organiser', organiserView(model, organisersOf(model.id), people));
       return;
     }
-    socket.emit('show:public', publicView(model));
+    socket.emit('show:public', publicView(model, people));
     if (me?.role === 'player') socket.emit('show:personal', personalView(model, me));
   };
 
@@ -84,7 +86,7 @@ function watchingOf(shows: () => ShowService): Watching {
     for (const [showId, watchers] of watching) {
       if (!watchers.delete(socket.id)) continue;
       const model = shows().get(showId);
-      // The moderators' hand-over list changes when a moderator leaves.
+      // The organisers' hand-over list changes when an organiser leaves.
       if (model !== undefined) push(model);
     }
   };
@@ -98,24 +100,47 @@ function watchingOf(shows: () => ShowService): Watching {
     push(model);
   };
 
-  return { moderatorsOf, push, join, leave };
+  return { organisersOf, push, join, leave };
 }
 
-export function attachRealtime(
-  app: FastifyInstance,
-  io: IoServer,
-  shows: () => ShowService,
-): Realtime {
-  const watching = watchingOf(shows);
+export interface RealtimeDeps {
+  readonly app: FastifyInstance;
+  readonly auth: Auth;
+  readonly io: IoServer;
+  readonly shows: () => ShowService;
+}
+
+interface SocketData {
+  me: Me | null;
+  sessionId: string | null;
+}
+
+export function attachRealtime({ app, auth, io, shows }: RealtimeDeps): Realtime {
+  const watching = watchingOf(shows, auth.directory.lookup);
 
   // Guests connect too (they may watch, CONCEPT §2); `me` is null for them.
   io.use((socket, next) => {
-    (socket.data as { me: Me | null }).me = sessionFromHeader(app, socket.handshake.headers.cookie);
-    next();
+    sessionFromHeader(app, auth, socket.handshake.headers.cookie)
+      .then((current) => {
+        const data = socket.data as SocketData;
+        data.me = current?.me ?? null;
+        data.sessionId = current?.session.id ?? null;
+        next();
+      })
+      .catch(next);
+  });
+
+  // A session that ends takes its live connections with it.
+  auth.ends.onEnd((ended) => {
+    const gone = new Set(ended);
+    for (const socket of io.sockets.sockets.values()) {
+      const { sessionId } = socket.data as SocketData;
+      if (sessionId !== null && gone.has(sessionId)) socket.disconnect(true);
+    }
   });
 
   io.on('connection', (socket) => {
-    const me = (socket.data as { me: Me | null }).me;
+    const { me } = socket.data as SocketData;
     socket.on('show:watch', (request, ack) => {
       const parsed = WatchRequestSchema.safeParse(request);
       const model = parsed.success ? shows().get(parsed.data.showId) : undefined;
@@ -126,7 +151,7 @@ export function attachRealtime(
       ack({ ok: true });
       watching.join(socket, me, model);
     });
-    directionHandlers(socket, me, shows, watching.moderatorsOf);
+    directionHandlers(socket, me, shows, watching.organisersOf);
     socket.on('disconnect', () => {
       watching.leave(socket);
     });
@@ -140,11 +165,11 @@ function directionHandlers(
   socket: IoSocket,
   me: Me | null,
   shows: () => ShowService,
-  moderatorsOf: (showId: string) => ModeratorRef[],
+  organisersOf: (showId: string) => OrganiserRef[],
 ): void {
-  // Only a signed-in moderator or admin gets past this; the holder check is the domain's.
+  // Only a signed-in organiser or admin gets past this; the holder check is the domain's.
   const guard = (ack: (a: Ack) => void, act: (me: Me) => Ack): void => {
-    ack(me === null || !canModerate(me.role) ? refused('only a moderator can direct') : act(me));
+    ack(me === null || !canDirect(me.role) ? refused('only an organiser can direct') : act(me));
   };
   socket.on('direction:select', (request, ack) => {
     guard(ack, (m) => {
@@ -166,8 +191,8 @@ function directionHandlers(
     guard(ack, (m) => {
       const p = HandOverRequestSchema.safeParse(request);
       if (!p.success) return refused('to whom?');
-      const to = moderatorsOf(p.data.showId).find((r) => r.id === p.data.toModeratorId);
-      if (to === undefined) return refused('that moderator is not watching this show');
+      const to = organisersOf(p.data.showId).find((r) => r.id === p.data.toOrganiserId);
+      if (to === undefined) return refused('that organiser is not watching this show');
       return ackOf(shows().handOver(p.data.showId, m.id, to));
     });
   });

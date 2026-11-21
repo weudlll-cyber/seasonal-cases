@@ -14,6 +14,7 @@ import type { BoardCase, PersonalView, PublicShowView, Standing } from '@sc/cont
 import { formatTime, useDockReserve } from '@sc/ui';
 import type { CSSProperties } from 'react';
 
+import { Badges } from '../stage/Badges.js';
 import { ArtifactTable } from './ArtifactTable.js';
 
 const HINTS: Record<Standing, string> = {
@@ -50,6 +51,7 @@ function Claimants({ entry }: { entry: BoardCase }) {
   return (
     <>
       <span className="board-holder" title={`Picked ${formatTime(entry.holder.at)}`}>
+        <Badges badges={entry.holder.badges} />
         {entry.holder.name} <span className="board-rank">rank {entry.holder.rank}</span>
       </span>
       {entry.others.length > 0 && (
@@ -109,7 +111,13 @@ function owners(show: PublicShowView): BoardCase[] {
     holder:
       c.ownerId === null || c.ownerName === null
         ? null
-        : { playerId: c.ownerId, name: c.ownerName, rank: c.ownerRank ?? 0, at: show.createdAt },
+        : {
+            playerId: c.ownerId,
+            name: c.ownerName,
+            badges: c.ownerBadges,
+            rank: c.ownerRank ?? 0,
+            at: show.createdAt,
+          },
     others: [],
   }));
 }

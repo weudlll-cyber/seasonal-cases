@@ -1,0 +1,106 @@
+/**
+ * @file   apps/server/src/auth/accountFeed.ts
+ * @brief  The website's account-changes feed in website mode: sessions end, deletions anonymise
+ *         (GAME-INTEGRATION §4, AUTH.md "Embedded games").
+ *
+ * Responsibility: every 15 seconds (as Mini Games) ask
+ *                 `<local origin>/api/games/cases/account-changes?since=<cursor>` with the games'
+ *                 sync token, page by page until caught up. `locked` and `rights`: the account's
+ *                 game sessions end and their live connections close; the next sign-in
+ *                 recomputes rights. `deleted`: the same, and the account shows as "deleted
+ *                 player" plus its short id from then on, its past cases kept. `unlocked`: nothing
+ *                 (Mini Games' choice). Processing is safe to repeat; the cursor moves only after
+ *                 a page is processed. A failing feed is logged and the game plays on. The cursor
+ *                 lives in memory until the database keeps it (piece 5).
+ * Depends on:     @seasonal/kit/server (SessionEnds, types), ./accounts.js, ./sessions.js
+ */
+import type { SessionEnds } from '@seasonal/kit/server';
+
+import type { AccountStore, Directory } from './accounts.js';
+import type { SessionStore } from './sessions.js';
+
+export const FEED_EVERY_MS = 15_000;
+const KINDS = new Set(['deleted', 'locked', 'unlocked', 'rights']);
+
+export interface AccountChange {
+  readonly id: number;
+  readonly kind: 'deleted' | 'locked' | 'unlocked' | 'rights';
+}
+
+export interface FeedDeps {
+  readonly accounts: AccountStore;
+  readonly sessions: SessionStore;
+  readonly directory: Directory;
+  readonly ends: SessionEnds;
+  readonly websiteOrigin: string;
+}
+
+/** One change applied; safe to apply twice. */
+export async function applyChange(deps: FeedDeps, change: AccountChange): Promise<void> {
+  if (change.kind === 'unlocked') return;
+  const account = await deps.accounts.byWebsite(deps.websiteOrigin, String(change.id));
+  if (account === undefined) return;
+  if (change.kind === 'deleted' && !account.deleted) {
+    const gone = { ...account, deleted: true };
+    await deps.accounts.save(gone);
+    deps.directory.update(gone);
+  }
+  const ended = await deps.sessions.removeForAccount(account.id);
+  if (ended.length > 0) void deps.ends.end(ended);
+}
+
+/** The changes of one answer, checked field by field; anything else is dropped. */
+export function parsePage(body: unknown): { changes: AccountChange[]; next: string } | null {
+  if (typeof body !== 'object' || body === null) return null;
+  const { changes, next } = body as { changes?: unknown; next?: unknown };
+  if (!Array.isArray(changes) || typeof next !== 'string') return null;
+  const valid = changes.filter(
+    (c): c is AccountChange =>
+      typeof c === 'object' &&
+      c !== null &&
+      Number.isSafeInteger((c as { id?: unknown }).id) &&
+      KINDS.has(String((c as { kind?: unknown }).kind)),
+  );
+  return { changes: valid, next };
+}
+
+export interface FeedSource {
+  readonly localOrigin: string;
+  readonly syncToken: string;
+}
+
+/** Asks the feed until caught up; answers the new cursor. */
+export async function pollOnce(deps: FeedDeps, source: FeedSource, since: string): Promise<string> {
+  let cursor = since;
+  for (;;) {
+    const url = `${source.localOrigin}/api/games/cases/account-changes?since=${encodeURIComponent(cursor)}`;
+    const response = await fetch(url, { headers: { 'x-games-sync-token': source.syncToken } });
+    if (!response.ok) throw new Error(`account feed answered ${String(response.status)}`);
+    const page = parsePage(await response.json());
+    if (page === null) throw new Error('account feed answered an unknown shape');
+    for (const change of page.changes) await applyChange(deps, change);
+    if (page.next === cursor || page.changes.length === 0) return page.next;
+    cursor = page.next;
+  }
+}
+
+/** Polls every 15 s until stopped; answers the stop. */
+export function startFeed(deps: FeedDeps, source: FeedSource, log: (e: unknown) => void) {
+  let cursor = '0';
+  let running = false;
+  const timer = setInterval(() => {
+    if (running) return;
+    running = true;
+    pollOnce(deps, source, cursor)
+      .then((next) => {
+        cursor = next;
+      })
+      .catch(log)
+      .finally(() => {
+        running = false;
+      });
+  }, FEED_EVERY_MS);
+  return () => {
+    clearInterval(timer);
+  };
+}

@@ -6,6 +6,7 @@
 | 1.1 | 2026-11-21 | Night chain SC-N2, from the owner's decisions of 2026-11-21: three moderator steps after the click on a case (§3.4); the scoreboard and the meaning shown at Open (§7). |
 | 1.2 | 2026-11-21 | Night chain SC-N2: the moving case (§7). |
 | 1.3 | 2026-11-21 | Night chain SC-N2: the opening and the ceremony (§3.4, §3.5), the result frame (§3.5), the start page and focus mode (§7). |
+| 1.4 | 2026-11-21 | Night chain SC-N2: website mode as built, the organiser role, the rank and badges in website mode (§10). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -230,8 +231,20 @@ Both are required (ecosystem principle, confirmed for this game 2026-11-21).
   link, no chat and no call.
 - **Installer:** one call on a VPS for both modes, asking what it needs; general instructions.
 
-The **prototype** runs standalone on the development machine with a development sign-in (name and
-role, no password), so the owner can play as a player in one tab and hold the direction in another.
+**What exists (night chain SC-N2):** website mode under `/games/cases/` with the website's
+sign-in route and its login hop, accounts keyed by (website origin, website user id), a website
+admin as game admin, a host of this game as organiser, everyone else as player, guests who watch
+and cannot register, the account-changes feed (a lock or a rights change ends the game sessions; a
+deletion shows "deleted player" plus the short id), 7-day game sessions, the website's chat
+docked under every screen (room `cases`), the call slot reserved and hidden, and the
+"← Seasonal Entertainment" link. The rank in website mode is the number of the member's valid
+Discord steps, at most 5, and the steps' icons are the badges beside the name; both rules are
+proposals. The role formerly called "moderator" is the **organiser**: they create shows, hold
+the direction and hand it to any signed-in organiser or admin.
+
+The **development sign-in** (name, role and rank, no password) stays in local mode with
+`NODE_ENV=development` and `SC_DEV=1`, so the owner can run the Quick Test and play as a player in
+one tab and hold the direction in another (decided 2026-11-21).
 
 ## 11. Technology
 

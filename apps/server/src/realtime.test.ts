@@ -3,7 +3,7 @@
  * @brief  Tests the socket side: every direction action authorised against the direction
  *         holder, the projections each socket receives, and the same-origin handshake.
  */
-import type { ModeratorView, PersonalView, PublicShowView } from '@sc/contracts';
+import type { OrganiserView, PersonalView, PublicShowView } from '@sc/contracts';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { send, startHarness, type Client, type Harness } from './testing/harness.js';
@@ -14,9 +14,9 @@ afterEach(async () => {
   harness = undefined;
 });
 
-/** A live Quick Test show of 6 cases and 2 winners, directed by the moderator "Mia". */
+/** A live Quick Test show of 6 cases and 2 winners, directed by the organiser "Mia". */
 async function liveShow(h: Harness) {
-  const mia = await h.signIn('Mia', 'moderator');
+  const mia = await h.signIn('Mia', 'organiser');
   const { me } = mia;
   const outcome = h.server.shows.quickTest({ cases: 6, winners: 2, labels: [], seed: 'rt' }, me);
   if (!outcome.ok) throw new Error(outcome.error);
@@ -29,11 +29,11 @@ async function liveShow(h: Harness) {
 function record(socket: Client) {
   const seen = {
     public: [] as PublicShowView[],
-    moderator: [] as ModeratorView[],
+    organiser: [] as OrganiserView[],
     personal: [] as PersonalView[],
   };
   socket.on('show:public', (v) => seen.public.push(v));
-  socket.on('show:moderator', (v) => seen.moderator.push(v));
+  socket.on('show:organiser', (v) => seen.organiser.push(v));
   socket.on('show:personal', (v) => seen.personal.push(v));
   return seen;
 }
@@ -51,15 +51,15 @@ function expectNoLeak(views: readonly PublicShowView[], secret: string): void {
 }
 
 describe('direction actions', () => {
-  it('are refused for guests, players and moderators without the direction', async () => {
+  it('are refused for guests, players and organisers without the direction', async () => {
     harness = await startHarness();
     const { id, mia } = await liveShow(harness);
-    const noah = await harness.signIn('Noah', 'moderator');
+    const noah = await harness.signIn('Noah', 'organiser');
     const ana = await harness.signIn('Ana', 'player', 5);
     const actions = [
       ['direction:select', { showId: id, caseNumber: 1 }],
       ['direction:step', { showId: id, step: 'open' }],
-      ['direction:handOver', { showId: id, toModeratorId: noah.me.id }],
+      ['direction:handOver', { showId: id, toOrganiserId: noah.me.id }],
       ['direction:end', { showId: id }],
     ] as const;
     for (const cookie of [undefined, ana.cookie, noah.cookie]) {
@@ -74,10 +74,10 @@ describe('direction actions', () => {
     expect(harness.server.shows.get(id)?.holder?.id).toBe(mia.me.id);
   });
 
-  it('are acknowledged for the holder, including the hand-over to a watching moderator', async () => {
+  it('are acknowledged for the holder, including the hand-over to a watching organiser', async () => {
     harness = await startHarness();
     const { id, mia } = await liveShow(harness);
-    const noah = await harness.signIn('Noah', 'moderator');
+    const noah = await harness.signIn('Noah', 'organiser');
     const miaSocket = await harness.socket(mia.cookie);
     await send(miaSocket, 'show:watch', { showId: id });
     expect(await send(miaSocket, 'direction:select', { showId: id, caseNumber: 2 })).toEqual({
@@ -89,7 +89,7 @@ describe('direction actions', () => {
     // Noah is not watching yet, so he is not a hand-over choice.
     const away = await send(miaSocket, 'direction:handOver', {
       showId: id,
-      toModeratorId: noah.me.id,
+      toOrganiserId: noah.me.id,
     });
     expect(away).toMatchObject({
       ok: false,
@@ -98,7 +98,7 @@ describe('direction actions', () => {
     const noahSocket = await harness.socket(noah.cookie);
     await send(noahSocket, 'show:watch', { showId: id });
     expect(
-      await send(miaSocket, 'direction:handOver', { showId: id, toModeratorId: noah.me.id }),
+      await send(miaSocket, 'direction:handOver', { showId: id, toOrganiserId: noah.me.id }),
     ).toEqual({ ok: true });
     expect((await send(miaSocket, 'direction:end', { showId: id })).ok).toBe(false);
     expect(await send(noahSocket, 'direction:end', { showId: id })).toEqual({ ok: true });
@@ -108,7 +108,7 @@ describe('direction actions', () => {
 });
 
 describe('projections over the socket', () => {
-  it('never send a player unopened content, and never the moderator view', async () => {
+  it('never send a player unopened content, and never the organiser view', async () => {
     harness = await startHarness();
     const { id, mia } = await liveShow(harness);
     const ana = await harness.signIn('Ana', 'player', 3);
@@ -132,10 +132,10 @@ describe('projections over the socket', () => {
         ?.cases.filter((c) => c.opened)
         .map((c) => c.number),
     ).toEqual([1, 2, 3]);
-    expect(seen.moderator).toEqual([]);
+    expect(seen.organiser).toEqual([]);
     expect(seen.personal.length).toBeGreaterThan(0);
-    // The moderator sees the direction, and no contents either.
-    const last = modSeen.moderator.at(-1);
+    // The organiser sees the direction, and no contents either.
+    const last = modSeen.organiser.at(-1);
     expect(last?.holder?.id).toBe(mia.me.id);
     expect(last?.show.cases.filter((c) => c.artifact !== null).map((c) => c.number)).toEqual([
       1, 2, 3,

@@ -5,7 +5,7 @@
  * Responsibility: an admin signs in and runs Quick Test (N = 12, W = 3, seed `sc-n1-01`); the
  *                 same user holds the direction and opens four cases through the click and the
  *                 three steps (a blank and the main prize among them), the scoreboard striking
- *                 each prize through once its case is back; hands over to a second moderator in a
+ *                 each prize through once its case is back; hands over to a second organiser in a
  *                 second browser context, who ends the show; the result verifies. Each step is
  *                 asserted as visible; the lower third shows the owner.
  */
@@ -90,14 +90,14 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
   await expect(page.locator('.score-row.is-taken')).toHaveCount(3);
   await expect(page.getByRole('button', { name: 'End show' })).toHaveClass(/is-ready/);
 
-  // A second moderator watches the stage in a second context; the direction goes to him.
+  // A second organiser watches the stage in a second context; the direction goes to him.
   const other = await browser.newContext();
   const noah = await other.newPage();
-  await signInUi(noah, 'Noah', 'moderator');
+  await signInUi(noah, 'Noah', 'organiser');
   await noah.goto('/show');
   await expect(noah.locator('.stage-screen')).toBeVisible();
   await expect(noah.getByRole('navigation', { name: 'Direction' })).toHaveCount(0);
-  await page.getByLabel('Moderator to hand over to').selectOption({ label: 'Noah' });
+  await page.getByLabel('Organiser to hand over to').selectOption({ label: 'Noah' });
   await page.getByRole('button', { name: 'Hand over' }).click();
   await expect(page.getByRole('navigation', { name: 'Direction' })).toHaveCount(0);
   const noahBar = noah.getByRole('navigation', { name: 'Direction' });

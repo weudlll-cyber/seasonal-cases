@@ -43,7 +43,7 @@ export function SignIn({ onSignIn }: { onSignIn: (request: SignInRequest) => Pro
       />
       <ChoiceField
         label="Role"
-        tip="Player: picks a case. Moderator: leads the show. Admin: also the dev admin."
+        tip="Player: picks a case. Organiser: leads the show. Admin: also the dev admin."
         value={role}
         choices={ROLE_CHOICES}
         onChange={setRole}

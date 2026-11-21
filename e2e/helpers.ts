@@ -13,7 +13,7 @@ import { expect, type APIRequestContext, type Page } from '@playwright/test';
 import { createShowService, memoryStore } from '@sc/application';
 import { seededRandom } from '@sc/domain';
 
-export type Role = 'player' | 'moderator' | 'admin';
+export type Role = 'player' | 'organiser' | 'admin';
 
 /** Signs in through the lobby's development sign-in form. */
 export async function signInUi(page: Page, name: string, role: Role, rank = 0): Promise<void> {
@@ -34,10 +34,10 @@ export async function signInApi(request: APIRequestContext, name: string, role: 
 
 /** Creates a show and opens its registration; returns its id. */
 export async function openShow(request: APIRequestContext, cases: number, winners: number) {
-  const created = await request.post('/api/dev/shows', { data: { cases, winners, labels: [] } });
+  const created = await request.post('/api/shows', { data: { cases, winners, labels: [] } });
   expect(created.ok()).toBe(true);
   const { id } = (await created.json()) as { id: string };
-  expect((await request.post(`/api/dev/shows/${id}/open`)).ok()).toBe(true);
+  expect((await request.post(`/api/shows/${id}/open`)).ok()).toBe(true);
   return id;
 }
 

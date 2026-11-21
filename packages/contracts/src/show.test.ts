@@ -1,11 +1,11 @@
 /**
  * @file   packages/contracts/src/show.test.ts
- * @brief  Tests the shared vocabulary: the show states, the moderating roles, the prize label.
+ * @brief  Tests the shared vocabulary: the show states, the directing roles, the prize label.
  */
 import { describe, expect, it } from 'vitest';
 
 import { prizeLabel, prizeTitle } from './artifact.js';
-import { canModerate, RankSchema, SHOW_STATES, ShowStateSchema } from './show.js';
+import { canDirect, RankSchema, SHOW_STATES, ShowStateSchema } from './show.js';
 
 describe('ShowStateSchema', () => {
   it('lists the five states of a show in their order', () => {
@@ -19,8 +19,8 @@ describe('ShowStateSchema', () => {
 });
 
 describe('roles and ranks', () => {
-  it('lets moderators and admins lead, nobody else', () => {
-    expect((['viewer', 'player', 'moderator', 'admin'] as const).map(canModerate)).toEqual([
+  it('lets organisers and admins lead, nobody else', () => {
+    expect((['viewer', 'player', 'organiser', 'admin'] as const).map(canDirect)).toEqual([
       false,
       false,
       true,

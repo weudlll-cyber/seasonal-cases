@@ -1,21 +1,27 @@
 /**
  * @file   apps/server/src/app.ts
- * @brief  Builds the server: Fastify with cookies and helmet, the routes, socket.io and the
- *         show service over the event log.
+ * @brief  Builds the server: Fastify with cookies and helmet, the routes under the base path,
+ *         socket.io, the sign-in parts and the show service over the event log.
  *
  * Responsibility: wire the ports (clock, ids, the secure and the seeded random source, the
- *                 JSON-lines store) into the show service, the routes and the socket side. The
- *                 development routes exist only in development mode (./config.ts). The socket
- *                 accepts only same-origin handshakes. ./main.ts listens on 127.0.0.1.
- * Depends on:     node:crypto, fastify, @fastify/cookie, @fastify/helmet, socket.io,
- *                 @sc/application, @sc/domain, ./config.js, ./devRoutes.js, ./showRoutes.js,
- *                 ./realtime.js, ./http.js
+ *                 JSON-lines store, the account and session stores) into the show service, the
+ *                 routes and the socket side. Every route and the socket live under the base path
+ *                 (`/` locally, `/games/cases/` in website mode, GAME-INTEGRATION §1). The
+ *                 development routes exist only in local development mode, the website's sign-in
+ *                 and its account feed only in website mode. A session that ends closes its live
+ *                 connections (the kit's SessionEnds). The socket accepts only same-origin
+ *                 handshakes. ./main.ts listens on 127.0.0.1.
+ * Depends on:     node:crypto, node:http (types), fastify, @fastify/cookie, @fastify/helmet,
+ *                 socket.io, @seasonal/kit/server, @sc/application, @sc/domain, ./auth/*,
+ *                 ./config.js, ./devRoutes.js, ./http.js, ./organiserRoutes.js, ./realtime.js,
+ *                 ./session.js, ./showRoutes.js, ./websiteRoutes.js
  */
 import { randomBytes, randomInt, randomUUID } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 
 import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
+import { SessionEnds } from '@seasonal/kit/server';
 import {
   createShowService,
   jsonlStore,
@@ -28,11 +34,17 @@ import { seededRandom } from '@sc/domain';
 import Fastify, { type FastifyInstance } from 'fastify';
 import { Server } from 'socket.io';
 
+import { startFeed } from './auth/accountFeed.js';
+import { Directory, memoryAccounts, type AccountStore } from './auth/accounts.js';
+import { memorySessions, type SessionStore } from './auth/sessions.js';
 import type { ServerConfig } from './config.js';
 import { devRoutes } from './devRoutes.js';
-import { handleRefusals } from './http.js';
+import { handleRefusals, type Ctx } from './http.js';
+import { organiserRoutes } from './organiserRoutes.js';
 import { attachRealtime } from './realtime.js';
+import type { Auth } from './session.js';
 import { showRoutes } from './showRoutes.js';
+import { websiteRoutes } from './websiteRoutes.js';
 
 // Production randomness: node:crypto, never Math.random (CONCEPT §8).
 const RANDOM: RandomSource = {
@@ -43,14 +55,21 @@ const RANDOM: RandomSource = {
   seeded: seededRandom,
 };
 
+export interface Stores {
+  readonly events?: EventStore;
+  readonly accounts?: AccountStore;
+  readonly sessions?: SessionStore;
+}
+
 export interface BuiltServer {
   readonly app: FastifyInstance;
   readonly shows: ShowService;
+  readonly auth: Auth;
   readonly io: Server<ClientToServerEvents, ServerToClientEvents>;
 }
 
-// Through the client's proxy the Origin's host equals the Host header; anything else is a
-// cross-site page trying to open a socket with the visitor's cookie.
+// Through the proxy the Origin's host equals the Host header; anything else is a cross-site page
+// trying to open a socket with the visitor's cookie.
 function sameOrigin(request: IncomingMessage): boolean {
   const origin = request.headers.origin;
   if (origin === undefined) return true;
@@ -61,34 +80,67 @@ function sameOrigin(request: IncomingMessage): boolean {
   }
 }
 
-export async function buildServer(config: ServerConfig, store?: EventStore): Promise<BuiltServer> {
+async function authOf(app: FastifyInstance, config: ServerConfig, stores: Stores): Promise<Auth> {
+  const accounts = stores.accounts ?? memoryAccounts();
+  return {
+    accounts,
+    sessions: stores.sessions ?? memorySessions(),
+    directory: await Directory.load(accounts),
+    ends: new SessionEnds((error) => {
+      app.log.error(error);
+    }),
+    cookiePath: config.basePath,
+    secure: config.mode === 'website',
+    now: () => Date.now(),
+  };
+}
+
+export async function buildServer(config: ServerConfig, stores: Stores = {}): Promise<BuiltServer> {
   const app = Fastify({ logger: false });
   await app.register(helmet);
   await app.register(cookie, { secret: config.cookieSecret });
   handleRefusals(app);
-
+  const auth = await authOf(app, config, stores);
   const io = new Server<ClientToServerEvents, ServerToClientEvents>(app.server, {
+    path: `${config.basePath}socket.io`,
     allowRequest: (request, callback) => {
       callback(null, sameOrigin(request));
     },
   });
   // The service tells the socket side of every change; the socket side reads the service
   // (only once a socket connects, after both exist).
-  const realtime = attachRealtime(app, io, () => shows);
+  const realtime = attachRealtime({ app, auth, io, shows: () => shows });
   const shows: ShowService = createShowService({
     clock: { now: () => new Date().toISOString() },
     ids: { showId: () => `show-${randomUUID().slice(0, 8)}` },
     random: RANDOM,
-    store: store ?? jsonlStore(config.dataDir),
+    store: stores.events ?? jsonlStore(config.dataDir),
     onChange: (model) => {
       realtime.push(model);
     },
   });
-
-  showRoutes(app, shows);
-  if (config.dev) devRoutes(app, shows);
+  const prefix = config.basePath.replace(/\/$/, '');
+  await app.register(
+    (scope, _options, done) => {
+      const ctx: Ctx = { app: scope, auth, shows, config };
+      showRoutes(ctx);
+      organiserRoutes(ctx);
+      if (config.dev) devRoutes(ctx);
+      if (config.website !== null) websiteRoutes(ctx, config.website);
+      done();
+    },
+    { prefix },
+  );
+  const feed = config.website?.feed;
+  const stopFeed =
+    feed === null || feed === undefined
+      ? () => undefined
+      : startFeed({ ...auth, websiteOrigin: config.website?.origin ?? '' }, feed, (e) => {
+          app.log.error(e);
+        });
   app.addHook('onClose', async () => {
+    stopFeed();
     await io.close();
   });
-  return { app, shows, io };
+  return { app, shows, auth, io };
 }

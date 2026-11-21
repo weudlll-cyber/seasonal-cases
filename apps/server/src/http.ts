@@ -4,17 +4,18 @@
  *
  * Responsibility: one way to answer a bad body (400), a missing sign-in (401), a missing
  *                 right (403), an unknown show (404) and a refused command (409), each with
- *                 `{ error }`; and the summary a show is listed with.
+ *                 `{ error }`; the context every route gets; the summary a show is listed with.
  * Depends on:     fastify, zod, @sc/application (types), @sc/contracts, @sc/domain (types),
- *                 ./session.js
+ *                 ./config.js (types), ./session.js
  */
-import type { Outcome } from '@sc/application';
-import { canModerate, type Me, type ShowSummary } from '@sc/contracts';
+import type { Outcome, ShowService } from '@sc/application';
+import { canDirect, type Me, type ShowSummary } from '@sc/contracts';
 import type { ShowModel } from '@sc/domain';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import type { z } from 'zod';
 
-import { sessionOf } from './session.js';
+import type { ServerConfig } from './config.js';
+import { sessionOf, type Auth } from './session.js';
 
 export class Refusal extends Error {
   constructor(
@@ -35,17 +36,25 @@ export function parseBody<T>(schema: z.ZodType<T>, body: unknown): T {
   return parsed.data;
 }
 
-/** The signed-in user, or a 401 refusal. */
-export function signedIn(app: FastifyInstance, request: FastifyRequest): Me {
-  const me = sessionOf(app, request);
-  if (me === null) throw new Refusal(401, 'sign in first');
-  return me;
+/** What every route needs: the app (cookies), the sign-in, the shows and the settings. */
+export interface Ctx {
+  readonly app: FastifyInstance;
+  readonly auth: Auth;
+  readonly shows: ShowService;
+  readonly config: ServerConfig;
 }
 
-/** The signed-in moderator or admin, or a 401/403 refusal. */
-export function moderator(app: FastifyInstance, request: FastifyRequest): Me {
-  const me = signedIn(app, request);
-  if (!canModerate(me.role)) throw new Refusal(403, 'only a moderator or admin can do this');
+/** The signed-in user, or a 401 refusal. */
+export async function signedIn(ctx: Ctx, request: FastifyRequest): Promise<Me> {
+  const current = await sessionOf(ctx.app, ctx.auth, request);
+  if (current === null) throw new Refusal(401, 'sign in first');
+  return current.me;
+}
+
+/** The signed-in organiser or admin, or a 401/403 refusal. */
+export async function organiser(ctx: Ctx, request: FastifyRequest): Promise<Me> {
+  const me = await signedIn(ctx, request);
+  if (!canDirect(me.role)) throw new Refusal(403, 'only an organiser or admin can do this');
   return me;
 }
 

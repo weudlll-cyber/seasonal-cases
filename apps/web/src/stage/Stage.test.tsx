@@ -6,7 +6,7 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ANA, KEY, LEAF, liveView, MIA, moderatorOf, NOAH } from '../testing/views.js';
+import { ANA, KEY, LEAF, liveView, MIA, organiserOf, NOAH } from '../testing/views.js';
 import { Stage } from './Stage.js';
 
 afterEach(cleanup);
@@ -18,7 +18,7 @@ function renderStage(
   artifact = liveView('idle').artifactTable[0],
 ) {
   const show = liveView(step, artifact);
-  return render(<Stage show={show} moderator={null} me={ANA} direct={direct} />);
+  return render(<Stage show={show} organiser={null} me={ANA} direct={direct} />);
 }
 
 describe('the step states', () => {
@@ -74,7 +74,7 @@ describe('the step states', () => {
 describe('the direction bar', () => {
   it('appears for the direction holder, with the next step enabled', () => {
     const show = liveView('selected');
-    render(<Stage show={show} moderator={moderatorOf(show, MIA)} me={MIA} direct={direct} />);
+    render(<Stage show={show} organiser={organiserOf(show, MIA)} me={MIA} direct={direct} />);
     const bar = screen.getByRole('navigation', { name: 'Direction' });
     expect(within(bar).getByRole('button', { name: 'Open' }).hasAttribute('disabled')).toBe(false);
     expect(within(bar).getByRole('button', { name: 'Owner' }).hasAttribute('disabled')).toBe(true);
@@ -84,19 +84,19 @@ describe('the direction bar', () => {
 
   it('lets the holder select a case by clicking it', () => {
     const show = liveView('idle');
-    render(<Stage show={show} moderator={moderatorOf(show, MIA)} me={MIA} direct={direct} />);
+    render(<Stage show={show} organiser={organiserOf(show, MIA)} me={MIA} direct={direct} />);
     fireEvent.click(screen.getByRole('button', { name: 'Select Case 3, bot-3' }));
     expect(direct).toHaveBeenCalledWith('direction:select', { showId: 'show-1', caseNumber: 3 });
   });
 
-  it('does not appear for another moderator, a player or a guest', () => {
+  it('does not appear for another organiser, a player or a guest', () => {
     const show = liveView('selected');
-    for (const [me, moderator] of [
-      [NOAH, moderatorOf(show, MIA)],
+    for (const [me, organiser] of [
+      [NOAH, organiserOf(show, MIA)],
       [ANA, null],
       [null, null],
     ] as const) {
-      render(<Stage show={show} moderator={moderator} me={me} direct={direct} />);
+      render(<Stage show={show} organiser={organiser} me={me} direct={direct} />);
       expect(screen.queryByRole('navigation', { name: 'Direction' })).toBeNull();
       expect(screen.queryByRole('button', { name: /^Select Case/ })).toBeNull();
       cleanup();

@@ -19,7 +19,7 @@ import {
   usePanels,
   type BarAction,
 } from '@seasonal/kit/react';
-import type { Me, ModeratorView, PublicShowView } from '@sc/contracts';
+import type { Me, OrganiserView, PublicShowView } from '@sc/contracts';
 import type { ReactNode, RefObject } from 'react';
 
 import { DirectionBar } from '../stage/DirectionBar.js';
@@ -29,7 +29,7 @@ export type PanelId = 'players' | 'direction' | 'chat';
 
 export interface FocusBarProps {
   readonly show: PublicShowView;
-  readonly moderator: ModeratorView | null;
+  readonly organiser: OrganiserView | null;
   readonly me: Me | null;
   readonly direct: Direct;
   readonly target: RefObject<HTMLElement | null>;
@@ -56,12 +56,12 @@ function Players({ show }: { show: PublicShowView }) {
   );
 }
 
-export function FocusBar({ show, moderator, me, direct, target, chat }: FocusBarProps) {
+export function FocusBar({ show, organiser, me, direct, target, chat }: FocusBarProps) {
   useFocusMode(true);
   const panels = usePanels<PanelId>();
   const fullscreen = useFullscreen(target);
   const view = useDockView();
-  const holder = holderView(show, moderator, me);
+  const holder = holderView(show, organiser, me);
   const { casesLeft, prizesLeft } = focusFacts(show);
   const actions: BarAction<PanelId>[] = [
     ...(chat === undefined

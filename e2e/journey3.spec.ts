@@ -3,7 +3,7 @@
  * @brief  Journey 3: a player's socket never receives unopened content, and the commitment
  *         shown before the show equals the one on the result screen (CONCEPT §8).
  *
- * Responsibility: record every socket frame a player's page receives while a moderator opens
+ * Responsibility: record every socket frame a player's page receives while an organiser opens
  *                 two cases and ends the show; no public view in it holds the content of an
  *                 unopened case, the assignment or the secret. Read the commitment on the
  *                 registration board after sealing and compare it with the result's.
@@ -49,7 +49,7 @@ test('journey 3: no unopened content reaches a player; the commitment holds', as
   const modContext = await browser.newContext();
   const mod = await modContext.newPage();
   await mod.goto('/');
-  await signInApi(mod.request, 'Mia', 'moderator');
+  await signInApi(mod.request, 'Mia', 'organiser');
   const created = await mod.request.post('/api/dev/quick-test', {
     data: { cases: 8, winners: 2, labels: [], seed: SEED },
   });
@@ -87,7 +87,7 @@ test('journey 3: no unopened content reaches a player; the commitment holds', as
 
   // Every public view before the end: no secret, no assignment, no unopened content.
   expect(beforeEnd.length).toBeGreaterThan(10);
-  expect(frames.some(([event]) => event === 'show:moderator')).toBe(false);
+  expect(frames.some(([event]) => event === 'show:organiser')).toBe(false);
   for (const [, view] of beforeEnd) {
     const text = JSON.stringify(view);
     expect(text).not.toContain(secret ?? 'no secret on the result');

@@ -1,22 +1,30 @@
 /**
  * @file   packages/contracts/src/view.ts
- * @brief  The views the server sends: public, moderator, personal, and the result.
+ * @brief  The views the server sends: public, organiser, personal, and the result.
  *
  * Responsibility: the shapes a client renders. The public view never holds the content of an
- *                 unopened case, the assignment or the secret (CONCEPT §8); the moderator view
- *                 adds only the direction (the moderator does not know the contents either,
+ *                 unopened case, the assignment or the secret (CONCEPT §8); the organiser view
+ *                 adds only the direction (the organiser does not know the contents either,
  *                 CONCEPT §3.3); the personal view tells a player where they stand.
  * Depends on:     zod, ./show.js, ./artifact.js
  */
 import { z } from 'zod';
 
 import { ArtifactSchema, PrizeSlotSchema } from './artifact.js';
-import { RankSchema, RevealStepSchema, SeasonSchema, ShowStateSchema } from './show.js';
+import {
+  BadgeSchema,
+  RankSchema,
+  RevealStepSchema,
+  SeasonSchema,
+  ShowStateSchema,
+} from './show.js';
 
 export const CaseViewSchema = z.object({
   number: z.number().int().min(1),
   ownerId: z.string().nullable(),
   ownerName: z.string().nullable(),
+  // The owner's website step icons (website mode); empty otherwise.
+  ownerBadges: z.array(BadgeSchema),
   ownerRank: RankSchema.nullable(),
   // From the "Open" step on the content is public and stays public (CONCEPT §3.4).
   opened: z.boolean(),
@@ -27,6 +35,7 @@ export type CaseView = z.infer<typeof CaseViewSchema>;
 export const ClaimantSchema = z.object({
   playerId: z.string(),
   name: z.string(),
+  badges: z.array(BadgeSchema),
   rank: RankSchema,
   // ISO time of the claim; with equal rank the earlier claim holds (CONCEPT §3.2).
   at: z.string(),
@@ -105,16 +114,16 @@ export const PublicShowViewSchema = z.object({
 });
 export type PublicShowView = z.infer<typeof PublicShowViewSchema>;
 
-export const ModeratorRefSchema = z.object({ id: z.string(), name: z.string() });
-export type ModeratorRef = z.infer<typeof ModeratorRefSchema>;
+export const OrganiserRefSchema = z.object({ id: z.string(), name: z.string() });
+export type OrganiserRef = z.infer<typeof OrganiserRefSchema>;
 
-export const ModeratorViewSchema = z.object({
+export const OrganiserViewSchema = z.object({
   show: PublicShowViewSchema,
-  holder: ModeratorRefSchema.nullable(),
-  // The signed-in moderators watching this show: the hand-over's choices.
-  moderators: z.array(ModeratorRefSchema),
+  holder: OrganiserRefSchema.nullable(),
+  // The signed-in organisers watching this show: the hand-over's choices.
+  organisers: z.array(OrganiserRefSchema),
 });
-export type ModeratorView = z.infer<typeof ModeratorViewSchema>;
+export type OrganiserView = z.infer<typeof OrganiserViewSchema>;
 
 // A player's standing on one case if they picked it now (CONCEPT §3.2): 'yours' they hold it,
 // 'free' nobody holds it, 'higher' their rank beats the holder's, 'equal' or 'lower' the holder

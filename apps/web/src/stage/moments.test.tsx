@@ -6,7 +6,7 @@
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ANA, liveView, MIA, moderatorOf, resultOf } from '../testing/views.js';
+import { ANA, liveView, MIA, organiserOf, resultOf } from '../testing/views.js';
 import { Ceremony, CEREMONY_STEP_MS, ceremonyOrder } from './Ceremony.js';
 import { Stage } from './Stage.js';
 
@@ -24,7 +24,7 @@ describe('the opening', () => {
   };
 
   it('shows title, facts and table to everyone, and Begin only to the holder', () => {
-    render(<Stage show={opening} moderator={null} me={ANA} direct={direct} />);
+    render(<Stage show={opening} organiser={null} me={ANA} direct={direct} />);
     const region = screen.getByRole('region', { name: 'Opening' });
     expect(region.textContent).toContain('12 cases · 2 prizes');
     expect(within(region).getByText('Prize 1: Gold')).toBeDefined();
@@ -32,7 +32,7 @@ describe('the opening', () => {
   });
 
   it('lets the holder begin, and offers no case to click before that', () => {
-    render(<Stage show={opening} moderator={moderatorOf(opening, MIA)} me={MIA} direct={direct} />);
+    render(<Stage show={opening} organiser={organiserOf(opening, MIA)} me={MIA} direct={direct} />);
     expect(screen.queryByRole('button', { name: /^Select Case/ })).toBeNull();
     expect(screen.queryByRole('navigation', { name: 'Direction' })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Begin' }));
@@ -65,7 +65,7 @@ describe('the ceremony', () => {
 
   it('takes the stage after the end, without the direction bar', () => {
     const ended = { ...liveView('idle'), state: 'ended' as const, result: resultOf(true) };
-    render(<Stage show={ended} moderator={moderatorOf(ended, MIA)} me={MIA} direct={direct} />);
+    render(<Stage show={ended} organiser={organiserOf(ended, MIA)} me={MIA} direct={direct} />);
     expect(screen.getByRole('region', { name: 'The winners' })).toBeDefined();
     expect(screen.queryByRole('navigation', { name: 'Direction' })).toBeNull();
   });

@@ -7,10 +7,12 @@ front, then Open, Owner and Back to stage, while a scoreboard shows which prizes
 and which are taken, until the prizes and their owners are found. There is no banker, no
 deal and no decision a player makes during the show; nothing of monetary value is won in the game.
 
-**Two modes.** Embedded, the show runs inside the Seasonal Entertainment website with its sign-in,
-chat and call; standalone, it runs on its own domain with its own accounts and manually assigned
-ranks. The current prototype runs standalone on the development machine with a development
-sign-in (name and role, no password).
+**Two modes.** Embedded (`SC_MODE=website`), the show runs inside the Seasonal Entertainment
+website under `/games/cases/`, with the website's sign-in and its chat docked under the stage;
+standalone (`SC_MODE=local`, the default), it runs on its own domain with its own accounts and
+manually assigned ranks. In development the local mode also has a development sign-in (name, role
+and rank, no password) for the Quick Test; it exists only with `NODE_ENV=development` and
+`SC_DEV=1` (`apps/server/dev.env`).
 
 **Status:** prototype (phase P1 of [docs/CONCEPT.md](docs/CONCEPT.md) §12).
 
@@ -32,6 +34,33 @@ on every interface, so a phone on the same network reaches it at `http://<PC's I
 | 5470 | client (Vite), the game and `/admin`             |
 | 3980 | the browser tests' own server                    |
 | 5480 | the browser tests' own client                    |
+| 3990 | the browser tests' server in website mode        |
+| 5485 | the browser tests' stand-in website              |
+
+## Website mode
+
+The server reads its trust settings from the environment and refuses to start without them:
+
+| Variable                                         | What                                                                               |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `SC_MODE=website`                                | the base path becomes `/games/cases/`                                              |
+| `SC_TRUSTED_PROXIES`                             | the website proxy's addresses or CIDRs, comma-separated                            |
+| `SC_PROXY_SECRET`                                | the secret the proxy adds as `X-Sc-Proxy-Secret` on the sign-in route only         |
+| `SC_WEBSITE_ORIGIN`                              | the website's origin; accounts are keyed by it and the website's user id           |
+| `SC_WEBSITE_LOCAL_ORIGIN`, `SC_GAMES_SYNC_TOKEN` | the website's local address and the games' sync token for the account-changes feed |
+
+The website side (its docs/GAME-INTEGRATION.md §6) still has to know the slug `cases`: the slug
+list, the installer's question, the feed's denial in its proxy, and the catalogue card.
+
+## The website's chat while developing
+
+`apps/server/dev.env` sets `SC_CHAT_ORIGIN=http://localhost:5380`. With the website's development
+server running on this PC, the website's chat appears docked under the stage, in the room
+`cases`. The website frames its chat only for sites it approves. Approve the game's origin once:
+on the website, as an admin, open **Admin → Embedding** (`/admin/embedding`) and add
+`http://localhost:5470`. In development the website accepts `http://` on `localhost`
+(its docs/EMBED.md, "Approving a site"). Without the website running, the docked frame stays
+empty.
 
 ## Docs
 

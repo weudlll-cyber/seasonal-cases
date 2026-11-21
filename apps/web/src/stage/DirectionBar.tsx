@@ -3,12 +3,12 @@
  * @brief  The direction holder's narrow bar: the next steps, hand-over and end (CONCEPT §3.4).
  *
  * Responsibility: one button per step after the click on a case (Open, Owner, Back to stage),
- *                 each enabled when it is the next one; "Hand over" to a moderator watching the show;
+ *                 each enabled when it is the next one; "Hand over" to an organiser watching the show;
  *                 "End show", highlighted once every prize is found. Every click goes to the
  *                 server, whose ack or refusal is shown; the server decides.
  * Depends on:     react, @sc/contracts (types), ../lib/useAction.js
  */
-import type { Ack, DirectionStep, Me, ModeratorView, RevealStep } from '@sc/contracts';
+import type { Ack, DirectionStep, Me, OrganiserView, RevealStep } from '@sc/contracts';
 import { useState } from 'react';
 
 import { useAction, type Action } from '../lib/useAction.js';
@@ -31,29 +31,29 @@ const BUTTONS: readonly { step: DirectionStep; after: RevealStep; label: string;
 ];
 
 interface PartProps {
-  readonly view: ModeratorView;
+  readonly view: OrganiserView;
   readonly me: Me;
   readonly direct: Direct;
   readonly action: Action;
 }
 
-/** The moderators watching this show, but me, and the button that hands over to one. */
+/** The organisers watching this show, but me, and the button that hands over to one. */
 function HandOver({ view, me, direct, action }: PartProps) {
-  const others = view.moderators.filter((m) => m.id !== me.id);
+  const others = view.organisers.filter((m) => m.id !== me.id);
   const [to, setTo] = useState('');
   const target = others.find((m) => m.id === to) ?? others[0];
   return (
     <span className="direction-handover">
       <select
-        aria-label="Moderator to hand over to"
-        title="A moderator watching this show"
+        aria-label="Organiser to hand over to"
+        title="An organiser watching this show"
         value={target?.id ?? ''}
         disabled={others.length === 0}
         onChange={(e) => {
           setTo(e.target.value);
         }}
       >
-        {others.length === 0 && <option value="">no other moderator here</option>}
+        {others.length === 0 && <option value="">no other organiser here</option>}
         {others.map((m) => (
           <option key={m.id} value={m.id}>
             {m.name}
@@ -63,12 +63,12 @@ function HandOver({ view, me, direct, action }: PartProps) {
       <button
         type="button"
         className="button"
-        title="Give the direction to the chosen moderator"
+        title="Give the direction to the chosen organiser"
         disabled={target === undefined || action.busy}
         onClick={() => {
           if (target === undefined) return;
           action.run(() =>
-            direct('direction:handOver', { showId: view.show.id, toModeratorId: target.id }),
+            direct('direction:handOver', { showId: view.show.id, toOrganiserId: target.id }),
           );
         }}
       >

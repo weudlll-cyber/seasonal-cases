@@ -2,14 +2,14 @@
  * @file   packages/contracts/src/socket.ts
  * @brief  The socket event names and payloads, both directions.
  *
- * Responsibility: the client watches one show and receives its projection (public, moderator,
+ * Responsibility: the client watches one show and receives its projection (public, organiser,
  *                 personal); the direction holder sends the reveal steps, each acknowledged at
  *                 once (CONCEPT §8: within 5 seconds).
  * Depends on:     zod, ./view.js
  */
 import { z } from 'zod';
 
-import type { ModeratorView, PersonalView, PublicShowView } from './view.js';
+import type { OrganiserView, PersonalView, PublicShowView } from './view.js';
 
 export const WatchRequestSchema = z.object({ showId: z.string().min(1) });
 export const SelectRequestSchema = z.object({
@@ -17,7 +17,7 @@ export const SelectRequestSchema = z.object({
   caseNumber: z.number().int().min(1),
 });
 
-// The moderator's steps after the click on a case, in order, then back to the stage
+// The organiser's steps after the click on a case, in order, then back to the stage
 // (CONCEPT §3.4, v1.1).
 export const DIRECTION_STEPS = ['open', 'owner', 'return'] as const;
 export const DirectionStepSchema = z.enum(DIRECTION_STEPS);
@@ -26,7 +26,7 @@ export const StepRequestSchema = z.object({ showId: z.string().min(1), step: Dir
 
 export const HandOverRequestSchema = z.object({
   showId: z.string().min(1),
-  toModeratorId: z.string().min(1),
+  toOrganiserId: z.string().min(1),
 });
 // Begin and End name only the show.
 export const ShowRequestSchema = z.object({ showId: z.string().min(1) });
@@ -45,6 +45,6 @@ export interface ClientToServerEvents {
 
 export interface ServerToClientEvents {
   'show:public': (view: PublicShowView) => void;
-  'show:moderator': (view: ModeratorView) => void;
+  'show:organiser': (view: OrganiserView) => void;
   'show:personal': (view: PersonalView) => void;
 }

@@ -6,7 +6,8 @@
  *                 glows (`--page-background`, night blue in dark, warm white in light, never flat
  *                 black or white), Luxora Grotesk, 44 px targets, 14 px text at least.
  *                 `--shell-height` is the bar's height the stage screens subtract.
- * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/fonts.css, @seasonal/kit/shell.css
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/fonts.css, @seasonal/kit/shell.css,
+ *                 @seasonal/kit/dock.css
  */
 
 :root {
@@ -205,4 +206,41 @@ select {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+}
+
+/* The docked chat (website mode, or a local chat origin): the shell is one screen high, the
+   kit's DockedScreen takes what the header leaves, the screens fill its upper part and keep no
+   reserve of their own (the dock is there). On a phone the kit publishes the visible height. */
+.shell[data-docked='true'] {
+  display: flex;
+  flex-direction: column;
+  height: var(--sk-visible-height, 100dvh);
+}
+
+.shell[data-docked='true'] > .sk-docked {
+  flex: 1;
+  min-height: 0;
+}
+
+.shell[data-docked='true'] .sk-docked-main {
+  overflow-y: auto;
+}
+
+.shell[data-docked='true'] .stage-screen,
+.shell[data-docked='true'] .board-screen {
+  --dock-reserve: 0px !important;
+  height: 100%;
+}
+
+/* A player's website step icons beside the name. */
+.badges {
+  display: inline-flex;
+  gap: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.badge-icon {
+  width: 16px;
+  height: 16px;
 }

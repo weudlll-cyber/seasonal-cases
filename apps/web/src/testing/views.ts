@@ -2,7 +2,7 @@
  * @file   apps/web/src/testing/views.ts
  * @brief  Test fixtures: views as the server sends them, written out by hand.
  *
- * Responsibility: give the component tests a public view, a moderator view and a personal view
+ * Responsibility: give the component tests a public view, an organiser view and a personal view
  *                 without the server, so each test says exactly which view the client renders.
  *                 Used by tests only.
  * Depends on:     @sc/contracts (types)
@@ -11,7 +11,7 @@ import type {
   Artifact,
   CaseView,
   Me,
-  ModeratorView,
+  OrganiserView,
   PublicShowView,
   RevealStep,
   ShowResult,
@@ -31,9 +31,9 @@ export const LEAF: Artifact = {
   prizeSlot: null,
 };
 
-export const MIA: Me = { id: 'mod-1', name: 'Mia', role: 'moderator', rank: 0 };
-export const NOAH: Me = { id: 'mod-2', name: 'Noah', role: 'moderator', rank: 0 };
-export const ANA: Me = { id: 'ana', name: 'Ana', role: 'player', rank: 3 };
+export const MIA: Me = { id: 'mod-1', name: 'Mia', role: 'organiser', rank: 0, badges: [] };
+export const NOAH: Me = { id: 'mod-2', name: 'Noah', role: 'organiser', rank: 0, badges: [] };
+export const ANA: Me = { id: 'ana', name: 'Ana', role: 'player', rank: 3, badges: [] };
 
 function cases(count: number, opened: Record<number, Artifact>): CaseView[] {
   return Array.from({ length: count }, (_, i) => {
@@ -42,6 +42,7 @@ function cases(count: number, opened: Record<number, Artifact>): CaseView[] {
       number: i + 1,
       ownerId: `p${String(i + 1)}`,
       ownerName: i + 1 === 7 ? 'Ana' : `bot-${String(i + 1)}`,
+      ownerBadges: [],
       ownerRank: i + 1 === 7 ? 3 : 1,
       opened: artifact !== null,
       artifact,
@@ -82,11 +83,11 @@ export function liveView(
   };
 }
 
-export function moderatorOf(show: PublicShowView, holder: Me): ModeratorView {
+export function organiserOf(show: PublicShowView, holder: Me): OrganiserView {
   return {
     show,
     holder: { id: holder.id, name: holder.name },
-    moderators: [
+    organisers: [
       { id: MIA.id, name: MIA.name },
       { id: NOAH.id, name: NOAH.name },
     ],
@@ -107,13 +108,13 @@ export function registrationView(): PublicShowView {
       number: c.number,
       holder:
         c.number === 7
-          ? { playerId: 'bo', name: 'Bo', rank: 4, at: '2026-11-21T20:00:05.000Z' }
+          ? { playerId: 'bo', name: 'Bo', badges: [], rank: 4, at: '2026-11-21T20:00:05.000Z' }
           : c.number === 8
-            ? { playerId: 'cy', name: 'Cy', rank: 2, at: '2026-11-21T20:00:06.000Z' }
+            ? { playerId: 'cy', name: 'Cy', badges: [], rank: 2, at: '2026-11-21T20:00:06.000Z' }
             : null,
       others:
         c.number === 7
-          ? [{ playerId: 'ana', name: 'Ana', rank: 3, at: '2026-11-21T20:00:09.000Z' }]
+          ? [{ playerId: 'ana', name: 'Ana', badges: [], rank: 3, at: '2026-11-21T20:00:09.000Z' }]
           : [],
     })),
   };

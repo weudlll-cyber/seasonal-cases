@@ -26,7 +26,7 @@ describe('development mode', () => {
   it('answers 404 on every development route outside development mode', async () => {
     harness = await startHarness(false);
     const { app } = harness.server;
-    for (const url of ['/api/dev/sign-in', '/api/dev/quick-test', '/api/dev/shows']) {
+    for (const url of ['/api/dev/sign-in', '/api/dev/quick-test']) {
       const response = await app.inject({ method: 'POST', url, payload: {} });
       expect(response.statusCode).toBe(404);
     }
@@ -81,16 +81,16 @@ describe('the session and the roles', () => {
     expect(bad.statusCode).toBe(400);
   });
 
-  it('lets only moderators and admins use the dev admin, and only players claim', async () => {
+  it('lets only organisers and admins use the dev admin, and only players claim', async () => {
     harness = await startHarness();
     const { app } = harness.server;
     const setup = { cases: 4, winners: 1, labels: [] };
-    const anonymous = await app.inject({ method: 'POST', url: '/api/dev/shows', payload: setup });
+    const anonymous = await app.inject({ method: 'POST', url: '/api/shows', payload: setup });
     expect(anonymous.statusCode).toBe(401);
     const player = await harness.signIn('Ana', 'player', 2);
     const asPlayer = await app.inject({
       method: 'POST',
-      url: '/api/dev/shows',
+      url: '/api/shows',
       payload: setup,
       headers: { cookie: player.cookie },
     });
@@ -98,9 +98,9 @@ describe('the session and the roles', () => {
     const admin = await harness.signIn('Ada', 'admin');
     const post = (url: string, cookie: string, payload: unknown = {}) =>
       app.inject({ method: 'POST', url, payload: payload as object, headers: { cookie } });
-    const created = await post('/api/dev/shows', admin.cookie, setup);
+    const created = await post('/api/shows', admin.cookie, setup);
     const { id } = created.json<{ id: string }>();
-    expect((await post(`/api/dev/shows/${id}/open`, admin.cookie)).statusCode).toBe(200);
+    expect((await post(`/api/shows/${id}/open`, admin.cookie)).statusCode).toBe(200);
     expect((await post(`/api/shows/${id}/claim`, admin.cookie, { caseNumber: 1 })).statusCode).toBe(
       403,
     );
@@ -110,9 +110,9 @@ describe('the session and the roles', () => {
     expect(
       (await post(`/api/shows/${id}/claim`, player.cookie, { caseNumber: 2 })).statusCode,
     ).toBe(200);
-    expect((await post('/api/dev/shows/nope/open', admin.cookie)).statusCode).toBe(404);
+    expect((await post('/api/shows/nope/open', admin.cookie)).statusCode).toBe(404);
     for (const step of ['bots', 'close', 'seal', 'start']) {
-      expect((await post(`/api/dev/shows/${id}/${step}`, admin.cookie)).statusCode).toBe(200);
+      expect((await post(`/api/shows/${id}/${step}`, admin.cookie)).statusCode).toBe(200);
     }
     const view = (await app.inject({ method: 'GET', url: `/api/shows/${id}` })).json<{
       state: string;

@@ -14,18 +14,18 @@ Written when the chain ends.
 
 ### Pieces
 
-| Piece                                                     | Done | Running | Open | Needs the owner's word         | Commits                     | CI run ids                                                                       |
-| --------------------------------------------------------- | ---- | ------- | ---- | ------------------------------ | --------------------------- | -------------------------------------------------------------------------------- |
-| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —       | —    | —                              | `c36b3e1`                   | CI 44885929803 green                                                             |
-| 2 The moving case                                         | all  | —       | —    | the durations (HANDOVER)       | `aaa6022`, report `a31fd7b` | `aaa6022` cancelled by the next push; `a31fd7b` (same code) CI 44886487846 green |
-| 3 Start page, opening, focus mode, ceremony, result frame | all  | —       | —    | the ceremony's pace (HANDOVER) | see piece 3 report          | see piece 4 row                                                                  |
-| 4 Website mode                                            | —    | —       | all  | —                              | —                           | —                                                                                |
-| 5 PostgreSQL and the accounts store                       | —    | —       | all  | —                              | —                           | —                                                                                |
-| 6 Standalone accounts                                     | —    | —       | all  | —                              | —                           | —                                                                                |
-| 7 2FA and the independent review                          | —    | —       | all  | —                              | —                           | —                                                                                |
-| 8 Settings, season tint, polish                           | —    | —       | all  | —                              | —                           | —                                                                                |
-| 9 Chronicle                                               | —    | —       | all  | —                              | —                           | —                                                                                |
-| 10 Play-through, pictures, hand-over                      | —    | —       | all  | —                              | —                           | —                                                                                |
+| Piece                                                     | Done | Running | Open          | Needs the owner's word                                   | Commits                     | CI run ids                                                                       |
+| --------------------------------------------------------- | ---- | ------- | ------------- | -------------------------------------------------------- | --------------------------- | -------------------------------------------------------------------------------- |
+| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —       | —             | —                                                        | `c36b3e1`                   | CI 44885929803 green                                                             |
+| 2 The moving case                                         | all  | —       | —             | the durations (HANDOVER)                                 | `aaa6022`, report `a31fd7b` | `aaa6022` cancelled by the next push; `a31fd7b` (same code) CI 44886487846 green |
+| 3 Start page, opening, focus mode, ceremony, result frame | all  | —       | —             | the ceremony's pace (HANDOVER)                           | `ad20ab0`                   | CI 44887472450 green                                                             |
+| 4 Website mode                                            | all  | —       | BACKLOG 24–28 | the rank and badge rules; the website's side for `cases` | see piece 4 report          | see piece 5 row                                                                  |
+| 5 PostgreSQL and the accounts store                       | —    | —       | all           | —                                                        | —                           | —                                                                                |
+| 6 Standalone accounts                                     | —    | —       | all           | —                                                        | —                           | —                                                                                |
+| 7 2FA and the independent review                          | —    | —       | all           | —                                                        | —                           | —                                                                                |
+| 8 Settings, season tint, polish                           | —    | —       | all           | —                                                        | —                           | —                                                                                |
+| 9 Chronicle                                               | —    | —       | all           | —                                                        | —                           | —                                                                                |
+| 10 Play-through, pictures, hand-over                      | —    | —       | all           | —                                                        | —                           | —                                                                                |
 
 ### Piece 1 report
 
@@ -148,6 +148,65 @@ verify` green (19 files, 95 tests); journey 1 passed.
 
   `pnpm verify` green (20 files, 100 tests); journeys 1–3 passed in Chromium.
 
+### Piece 4 report
+
+- **Modes** (`apps/server/src/config.ts`): `SC_MODE` `local` or `website`.
+  - Website mode puts every route, the socket (`path`), the cookie and the client's paths
+    (`apps/web/src/lib/base.ts`, Vite's `base`) under `/games/cases/`.
+  - Website mode refuses to start without `SC_PROXY_SECRET`, `SC_WEBSITE_ORIGIN` and
+    `SC_TRUSTED_PROXIES`.
+  - The development features exist only in local mode.
+- **Sign-in** (`websiteRoutes.ts`): `/auth/website` on the kit's `websiteSignInCheck` (steps
+  'each', header `X-Sc-Proxy-Secret`); the hop `/auth/website/login` on `websiteLoginLocation`.
+  - An untrusted peer gets 403, a guest the login hop, an invalid identity 403
+    `NO_WEBSITE_USER`.
+  - A member gets the account by (origin, user id), name, role, rank and badges brought up to
+    date, a rotated 7-day session, and a redirect to `safeNext`.
+  - The kit's `RateLimiter` allows 30 a minute per address.
+- **Accounts and sessions** (`auth/accounts.ts`, `auth/sessions.ts`): async store ports with
+  in-memory stores (PostgreSQL in piece 5).
+  - The cookie holds a random token; the store keeps its sha256.
+  - Sign-out and every sign-in rotate it, and an ended session closes its sockets (the kit's
+    `SessionEnds`).
+  - The development sign-in now makes a `dev` account and a session the same way.
+  - The projections take a `people` lookup (`Directory`), so a rename shows from the next
+    sign-in and a deleted account as "deleted player" plus its short id everywhere.
+- **Feed** (`auth/accountFeed.ts`): every 15 s with the sync token; `locked` and `rights` end the
+  sessions, `deleted` anonymises, `unlocked` does nothing; page by page, safe to repeat.
+- **Rights:** the kit's `mappedRoles` gives admin → admin, may host → organiser, else player.
+  The rank is the number of valid steps, at most 5; the badges are the step icons, checked
+  against the contract's form on the server (kit) and again on the client (`BadgeSchema`).
+- **Organiser:** the dev role `moderator` is `organiser` throughout code and tests. The
+  organiser's routes moved from `/api/dev/shows…` to `/api/shows…` and work in every mode; the
+  Quick Test and the development sign-in stay development routes.
+- **The chat:** the kit's `DockedScreen` with `WebsiteChatFrame` room `cases`, sandboxed,
+  around every screen, mounted once.
+  - The call slot is reserved and hidden (`callId` null). On a phone the kit's chat bar and
+    sheet are used.
+  - In local mode with `SC_CHAT_ORIGIN` (dev.env: http://localhost:5380) the dock frames that
+    origin through the pending `OriginChatFrame` (BACKLOG 23).
+  - `BackLink` shows in website mode only. The client's CSP is `frame-src 'self'` (plus the dev
+    chat origin locally).
+  - The README says how to approve the game's origin in the website's Admin → Embedding.
+- **Tests:**
+  - `websiteRoutes.test.ts` covers untrusted, wrong secret, guest, invalid, member (base path,
+    cookie path and Secure, rank, badges, rename), the role mapping, no dev routes and no root
+    paths in website mode, the feed's parsing, the lock and the deletion.
+  - Journey 4 runs against the stand-in website (`e2e/websiteStub.ts` on 5485, the game in
+    website mode on 3990), with Vite in middleware mode under `/games/cases/`. It covers:
+    - the organiser and the member signing in through the website;
+    - the back link, the badge and the docked chat frame;
+    - the member's pick;
+    - a guest without a pick or a sign-in form;
+    - the organiser beginning and ending the show.
+  - `pnpm verify` green (21 files, 107 tests); journeys 1–4 passed.
+- **A flaky journey fixed at its cause:** journey 4 failed about every second run at "the guest's
+  stage". The guest's second socket never got socket.io's open packet. The stand-in's upgrade
+  proxy dropped the bytes the game sent together with its 101 answer (the third argument of
+  Node's `upgrade` event). It forwards them now, and journey 4 passed 4 of 4 in a row.
+- **Dependencies:** `@seasonal/kit` (v0.8.0) for the server too; Vite 8.3.4 at the root for the
+  stand-in's middleware.
+
 ### Choices made without the owner (SC-N2)
 
 - **"Opens in N s"** of the kit's start card is hidden: shows have no start time yet, and the
@@ -155,6 +214,14 @@ verify` green (19 files, 95 tests); journey 1 passed.
 - **During the opening** the direction holder has only "Begin"; the hand-over and "End show"
   come with the direction bar once begun.
 - **The start card's title** is "The next show"; the page's own header carries the name and logo.
+- **The game bar's chat button and its unread count** are not shown. The kit's arrivals reach
+  only the chat inside the dock, and the dock's own bar shows the count on a phone (BACKLOG 24).
+- **Revocation:** AUTH.md has the website make no call to the games. They poll its
+  account-changes feed, so the game polls; there is no inbound revocation route.
+- **A viewer in the development sign-in** signs in as a player of rank 0; the dev role list stays
+  as it was.
+- **The organiser's show routes** (`/api/shows…`) exist in every mode: website organisers need
+  them, and the standalone lobby will too.
 
 - **The budget rule's piece numbers** do not all match the piece headings. It names "piece 5
   (website mode)", "piece 7 the forgotten-password mail" and "piece 4 the ceremony's animation";

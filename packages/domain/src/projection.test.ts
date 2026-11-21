@@ -1,13 +1,13 @@
 /**
  * @file   packages/domain/src/projection.test.ts
  * @brief  Tests the views: nothing unopened ever leaks, found prizes and the top bar, the
- *         moderator view without contents, the personal standing, and the verified result.
+ *         organiser view without contents, the personal standing, and the verified result.
  */
 import { describe, expect, it } from 'vitest';
 
 import type { ShowEvent } from './events.js';
 import { applyEvent, foldShow, type ShowModel } from './model.js';
-import { moderatorView, personalView, publicView, showResult } from './projection.js';
+import { organiserView, personalView, publicView, showResult } from './projection.js';
 import { seededRandom } from './random.js';
 import { clock, MOD, MOD2, newShow, type Driver } from './testing/fixtures.js';
 
@@ -41,7 +41,7 @@ function playedShow(): Driver {
   return show;
 }
 
-describe('the public and moderator views never leak (CONCEPT §8)', () => {
+describe('the public and organiser views never leak (CONCEPT §8)', () => {
   it('hold no unopened content, assignment or secret at any point before the end', () => {
     const { events } = playedShow();
     const [first, ...rest] = events;
@@ -51,7 +51,7 @@ describe('the public and moderator views never leak (CONCEPT §8)', () => {
     for (const e of rest) states.push((model = applyEvent(model, e)));
     const secret = model.sealing?.secret ?? 'missing';
     for (const m of states.filter((s) => s.state !== 'ended')) {
-      for (const view of [publicView(m), moderatorView(m, [MOD, MOD2]).show]) {
+      for (const view of [publicView(m), organiserView(m, [MOD, MOD2]).show]) {
         const text = JSON.stringify(view);
         expect(text).not.toContain(secret);
         expect(text).not.toContain('assignment');
@@ -59,7 +59,7 @@ describe('the public and moderator views never leak (CONCEPT §8)', () => {
           if (!m.opened.includes(c.number)) expect(c.artifact).toBeNull();
         }
       }
-      expect(JSON.stringify(moderatorView(m, [MOD]))).not.toContain(secret);
+      expect(JSON.stringify(organiserView(m, [MOD]))).not.toContain(secret);
     }
   });
 });
@@ -92,12 +92,12 @@ describe('found prizes', () => {
   });
 });
 
-describe('moderator and personal views', () => {
-  it('adds the holder and the moderators to hand over to', () => {
+describe('organiser and personal views', () => {
+  it('adds the holder and the organisers to hand over to', () => {
     const show = sealedShow();
-    const view = moderatorView(show.model(), [MOD, MOD2]);
+    const view = organiserView(show.model(), [MOD, MOD2]);
     expect(view.holder).toEqual(MOD);
-    expect(view.moderators).toEqual([MOD, MOD2]);
+    expect(view.organisers).toEqual([MOD, MOD2]);
   });
 
   it('tells a player their claim, whether it holds and their standing per case', () => {

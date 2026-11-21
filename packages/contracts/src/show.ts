@@ -14,7 +14,7 @@ export const ShowStateSchema = z.enum(SHOW_STATES);
 export type ShowState = z.infer<typeof ShowStateSchema>;
 
 // The organiser's rights belong to admin in the prototype (CONCEPT §2, §9).
-export const ROLES = ['viewer', 'player', 'moderator', 'admin'] as const;
+export const ROLES = ['viewer', 'player', 'organiser', 'admin'] as const;
 export const RoleSchema = z.enum(ROLES);
 export type Role = z.infer<typeof RoleSchema>;
 
@@ -28,12 +28,15 @@ export const SeasonSchema = z.enum(SEASONS);
 export type Season = z.infer<typeof SeasonSchema>;
 
 // idle: no case at the front; selected (the click on a case, lights down), then the
-// moderator's steps open and owner (CONCEPT §3.4, v1.1).
+// organiser's steps open and owner (CONCEPT §3.4, v1.1).
 export const REVEAL_STEPS = ['idle', 'selected', 'open', 'owner'] as const;
 export const RevealStepSchema = z.enum(REVEAL_STEPS);
 export type RevealStep = z.infer<typeof RevealStepSchema>;
 
+// A website step's icon, the only badge form (AUTH.md, kit v0.8.0): never an arbitrary URL.
+export const BadgeSchema = z.string().regex(/^\/media\/step-icons\/[0-9a-f]{32}\.webp$/);
+
 /** Whether a role may lead a show (direction, dev admin). */
-export function canModerate(role: Role): boolean {
-  return role === 'moderator' || role === 'admin';
+export function canDirect(role: Role): boolean {
+  return role === 'organiser' || role === 'admin';
 }

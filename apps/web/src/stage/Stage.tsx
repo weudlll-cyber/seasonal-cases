@@ -15,7 +15,7 @@
  *                 ./LowerThird.js, ./motion.js, ./Opening.js, ./Scoreboard.js, ./travel.js
  */
 import { useFitScale } from '@seasonal/kit/react';
-import type { Ack, ClientToServerEvents, Me, ModeratorView, PublicShowView } from '@sc/contracts';
+import type { Ack, ClientToServerEvents, Me, OrganiserView, PublicShowView } from '@sc/contracts';
 import { useDockReserve } from '@sc/ui';
 import type { CSSProperties } from 'react';
 
@@ -34,7 +34,7 @@ export type Direct = (event: keyof ClientToServerEvents, payload: object) => Pro
 
 export interface StageProps {
   readonly show: PublicShowView;
-  readonly moderator: ModeratorView | null;
+  readonly organiser: OrganiserView | null;
   readonly me: Me | null;
   readonly direct: Direct;
   // False on a phone, where the bar sits in the game bar's direction panel.
@@ -45,8 +45,8 @@ export interface StageProps {
 const SELECTABLE = new Set(['idle', 'selected']);
 
 /** The direction holder's view while the show is live; null for everyone else. */
-export function holderView(show: PublicShowView, moderator: ModeratorView | null, me: Me | null) {
-  return show.state === 'live' && me !== null && moderator?.holder?.id === me.id ? moderator : null;
+export function holderView(show: PublicShowView, organiser: OrganiserView | null, me: Me | null) {
+  return show.state === 'live' && me !== null && organiser?.holder?.id === me.id ? organiser : null;
 }
 
 function StateNote({ show }: { show: PublicShowView }) {
@@ -95,12 +95,12 @@ function holderActions(show: PublicShowView, isHolder: boolean, direct: Direct) 
   return { onSelect, begin };
 }
 
-export function Stage({ show, moderator, me, direct, barInline = true }: StageProps) {
+export function Stage({ show, organiser, me, direct, barInline = true }: StageProps) {
   const reserve = useDockReserve();
   const { selected, step, begun } = show.live;
   const fitRef = useFitScale<HTMLElement>('mini-games', `${String(show.caseCount)}:${step}`, true);
   // The bar exists only while the show is live: after the end only "See the result" stays.
-  const holder = holderView(show, moderator, me);
+  const holder = holderView(show, organiser, me);
   const spots = arcSpots(show.caseCount);
   const { onSelect, begin } = holderActions(show, holder !== null, direct);
   const returning = useReturn(selected);

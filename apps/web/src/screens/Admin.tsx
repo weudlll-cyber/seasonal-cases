@@ -52,7 +52,7 @@ function ShowList({ shows, busy, act }: { shows: ShowSummary[]; busy: boolean; a
                   title={tip}
                   disabled={busy}
                   onClick={() => {
-                    act(() => postJson(apiPath(`/dev/shows/${s.id}/${path}`)));
+                    act(() => postJson(apiPath(`/shows/${s.id}/${path}`)));
                   }}
                 >
                   {label}
@@ -70,9 +70,11 @@ export interface AdminProps {
   readonly me: Me | null;
   // Asks the server for the show to follow at once (fix A of SC-N2), before any navigation.
   readonly onShowChanged: () => Promise<void>;
+  // The Quick Test exists only in development.
+  readonly dev: boolean;
 }
 
-export function Admin({ me, onShowChanged }: AdminProps) {
+export function Admin({ me, onShowChanged, dev }: AdminProps) {
   const [shows, setShows] = useState<ShowSummary[]>([]);
   const action = useAction();
   const refresh = useCallback(() => {
@@ -89,9 +91,9 @@ export function Admin({ me, onShowChanged }: AdminProps) {
       await then?.();
     });
   };
-  if (me === null || (me.role !== 'admin' && me.role !== 'moderator')) {
+  if (me === null || (me.role !== 'admin' && me.role !== 'organiser')) {
     return (
-      <p className="page card">Sign in as a moderator or admin to use the development admin.</p>
+      <p className="page card">Sign in as an organiser or admin to use the development admin.</p>
     );
   }
   const quickTest = (setup: Setup) => {
@@ -103,12 +105,16 @@ export function Admin({ me, onShowChanged }: AdminProps) {
     );
   };
   const create = (setup: Omit<Setup, 'seed'>) => {
-    act(() => postJson(apiPath('/dev/shows'), setup));
+    act(() => postJson(apiPath('/shows'), setup));
   };
   return (
     <main className="page admin">
       <h1>Development admin</h1>
-      <SetupForm busy={action.busy} onQuickTest={quickTest} onCreate={create} />
+      <SetupForm
+        busy={action.busy}
+        {...(dev ? { onQuickTest: quickTest } : {})}
+        onCreate={create}
+      />
       {action.error !== null && (
         <p className="admin-error" role="alert">
           {action.error}

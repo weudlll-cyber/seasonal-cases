@@ -1,17 +1,20 @@
 /**
  * @file   apps/server/src/testing/harness.ts
- * @brief  Test harness: a listening server in development mode, signed-in users, sockets.
+ * @brief  Test harness: a listening server, signed-in users, sockets.
  *
- * Responsibility: start the real server on 127.0.0.1 with a free port and an in-memory event
- *                 store (no files, nothing to clean up), sign users in through the dev route,
- *                 and connect socket.io clients with their cookie. Used by tests only.
- * Depends on:     socket.io-client, @sc/application, @sc/contracts (types), ../app.js
+ * Responsibility: start the real server on 127.0.0.1 with a free port and in-memory stores (no
+ *                 files, nothing to clean up), in local development mode by default or with the
+ *                 environment a test gives (website mode, say); sign users in through the dev
+ *                 route, and connect socket.io clients with their cookie. Used by tests only.
+ * Depends on:     socket.io-client, @sc/application, @sc/contracts (types), ../app.js,
+ *                 ../config.js
  */
 import { memoryStore } from '@sc/application';
 import type { Ack, ClientToServerEvents, Me, Role, ServerToClientEvents } from '@sc/contracts';
 import { io as connect, type Socket } from 'socket.io-client';
 
 import { buildServer, type BuiltServer } from '../app.js';
+import { configFrom } from '../config.js';
 
 export type Client = Socket<ServerToClientEvents, ClientToServerEvents>;
 
@@ -23,11 +26,17 @@ export interface Harness {
   close(): Promise<void>;
 }
 
-export async function startHarness(dev = true): Promise<Harness> {
-  const server = await buildServer(
-    { port: 0, dev, dataDir: 'unused', cookieSecret: 'test-secret-'.repeat(4) },
-    memoryStore(),
-  );
+const DEV_ENV = { NODE_ENV: 'development', SC_DEV: '1' };
+
+/** A server with the given environment; `dev` false: no development features. */
+export async function startHarness(dev = true, env: NodeJS.ProcessEnv = {}): Promise<Harness> {
+  const config = configFrom({
+    ...(dev ? DEV_ENV : {}),
+    SC_COOKIE_SECRET: 'test-secret-'.repeat(4),
+    SC_PORT: '0',
+    ...env,
+  });
+  const server = await buildServer(config, { events: memoryStore() });
   const address = await server.app.listen({ host: '127.0.0.1', port: 0 });
   const sockets: Client[] = [];
   return {
@@ -46,6 +55,7 @@ export async function startHarness(dev = true): Promise<Harness> {
     },
     socket(cookie, origin = address) {
       const socket: Client = connect(address, {
+        path: `${config.basePath}socket.io`,
         transports: ['websocket'],
         extraHeaders: { ...(cookie === undefined ? {} : { cookie }), origin },
         forceNew: true,

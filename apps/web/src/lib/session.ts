@@ -33,7 +33,7 @@ export function useSession(): Session {
     setMe(await postJson<Me>(apiPath('/dev/sign-in'), request));
   }, []);
   const signOut = useCallback(async () => {
-    await postJson(apiPath('/dev/sign-out'));
+    await postJson(apiPath('/sign-out'));
     setMe(null);
   }, []);
   return { me, signIn, signOut };

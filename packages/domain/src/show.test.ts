@@ -129,7 +129,7 @@ describe('live: the direction holder and the three steps', () => {
     expect(show.refused({ type: 'step', at: at(), by: MOD.id, step: 'owner' })).toMatch(
       /after "open"/,
     );
-    // Before "Open" the moderator may still change the case.
+    // Before "Open" the organiser may still change the case.
     show.run({ type: 'select', at: at(), by: MOD.id, caseNumber: 2 });
     expect(show.model()).toMatchObject({ selected: 2, step: 'selected', opened: [] });
     show.run({ type: 'step', at: at(), by: MOD.id, step: 'open' });
