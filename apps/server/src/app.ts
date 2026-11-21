@@ -1,22 +1,26 @@
 /**
  * @file   apps/server/src/app.ts
  * @brief  Builds the server: Fastify with cookies and helmet, the routes under the base path,
- *         socket.io, the sign-in parts and the show service over the event log.
+ *         socket.io, the sign-in parts, the show service over the event log, and in production
+ *         the built client.
  *
- * Responsibility: wire the ports (clock, ids, the secure and the seeded random source, the
- *                 JSON-lines store, the account, session and credential stores, the mailer, the
- *                 settings) into the show service, the routes and the socket side. Every route and the socket live under the base path
- *                 (`/` locally, `/games/cases/` in website mode, GAME-INTEGRATION §1). The
- *                 development routes exist only in local development mode, the website's sign-in
- *                 and its account feed only in website mode, the standalone accounts only in local
- *                 mode. A session that ends closes its live
- *                 connections (the kit's SessionEnds). The socket accepts only same-origin
- *                 handshakes, and every write only same-origin requests with a JSON body. ./main.ts listens on 127.0.0.1.
+ * Responsibility: wire the ports (clock, ids, the secure and the seeded random source, the event
+ *                 store, the account, session, credential and two-factor stores, the mailer, the
+ *                 settings, the database probe) into the show service, the routes and the socket
+ *                 side. Every route and the socket live under the base path (`/` locally,
+ *                 `/games/cases/` in website mode, GAME-INTEGRATION §1). The development routes
+ *                 exist only in local development mode; the website's sign-in, its account feed
+ *                 and the profile card only in website mode; the standalone accounts only in
+ *                 local mode. A session that ends closes its live connections (the kit's
+ *                 SessionEnds). The socket accepts only same-origin handshakes, and every write
+ *                 only same-origin requests with a JSON body. ./main.ts listens on 127.0.0.1.
  * Depends on:     node:crypto, node:http (types), fastify, @fastify/cookie, @fastify/helmet,
  *                 socket.io, @seasonal/kit/server, @sc/application, @sc/domain, ./auth/*,
- *                 ./accountRoutes.js, ./config.js, ./devRoutes.js, ./http.js, ./localRoutes.js,
- *                 ./mail.js, ./openRoundsRoutes.js, ./organiserRoutes.js, ./realtime.js, ./session.js, ./settings.js,
- *                 ./settingsRoutes.js, ./showRoutes.js, ./twoFactorRoutes.js, ./websiteRoutes.js
+ *                 ./accountRoutes.js, ./config.js, ./devRoutes.js, ./healthRoutes.js,
+ *                 ./http.js, ./localRoutes.js, ./mail.js, ./memberSummaryRoutes.js,
+ *                 ./openRoundsRoutes.js, ./organiserRoutes.js, ./realtime.js, ./session.js,
+ *                 ./settings.js, ./settingsRoutes.js, ./showRoutes.js, ./twoFactorRoutes.js,
+ *                 ./web.js, ./websiteRoutes.js
  */
 import { randomBytes, randomInt, randomUUID } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
@@ -47,6 +51,7 @@ import { devRoutes } from './devRoutes.js';
 import { healthRoutes, type Probe } from './healthRoutes.js';
 import { handleRefusals, type Ctx } from './http.js';
 import { localRoutes } from './localRoutes.js';
+import { memberSummaryRoutes } from './memberSummaryRoutes.js';
 import { smtpMailer, type Mailer } from './mail.js';
 import { openRoundsRoutes } from './openRoundsRoutes.js';
 import { organiserRoutes } from './organiserRoutes.js';
@@ -163,7 +168,12 @@ async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Pro
       if (config.website === null) {
         localRoutes(ctx, local);
         twoFactorRoutes(ctx);
-      } else websiteRoutes(ctx, config.website);
+      } else {
+        websiteRoutes(ctx, config.website);
+        // The profile card needs the games' sync token, the same as the feed (§7).
+        const feed = config.website.feed;
+        if (feed !== null) memberSummaryRoutes(ctx, config.website.origin, feed.syncToken);
+      }
       done();
     },
     { prefix: config.basePath.replace(/\/$/, '') },

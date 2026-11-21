@@ -62,6 +62,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
   look-alike names refused, the common-password dictionary, `pnpm sc admin reset-2fa`.
   Piece 2: `pnpm build` and `pnpm start` (one process, the built client, health and ready,
   JSON logs, graceful stop), every variable in [CONFIG.md](CONFIG.md).
+  Piece 3: the member summary for the website's profile (`/api/website/member-summary`).
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.

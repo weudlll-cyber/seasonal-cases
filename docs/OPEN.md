@@ -11,7 +11,8 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   (BACKLOG 4); viewer participation (BACKLOG 10); the security review's questions (BACKLOG
   29–31).
 - **Show polish:** sound, viewer participation (BACKLOG 7, 10).
-- **Release:** the installer with the website route file (BACKLOG 11); the optional member
-  summary (BACKLOG 26). The open-rounds listing is built (BACKLOG 25, closed).
+- **Release:** the installer with the website route file (BACKLOG 11). The open-rounds listing
+  and the member summary are built (BACKLOG 25, 26, closed); the website wires the card's origin
+  (BACKLOG 33).
 - **Always open:** Firefox/WebKit findings (BACKLOG 12), kit adoption items (BACKLOG 13, 19, 20,
   23, 24, 32).

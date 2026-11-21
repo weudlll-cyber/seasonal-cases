@@ -13,16 +13,16 @@ Written when the chain ends.
 
 ### Pieces
 
-| Piece                                      | Done | Running | Open | Needs the owner's word | Commits         | CI run ids           |
-| ------------------------------------------ | ---- | ------- | ---- | ---------------------- | --------------- | -------------------- |
-| 1 Small fixes, remaining security findings | all  | —       | —    | BACKLOG 29, 30         | `06eafb6`       | CI 44953788972 green |
-| 2 Production run                           | all  | —       | —    | —                      | see piece 3 row | see piece 3 row      |
-| 3 Member summary                           | —    | —       | all  | —                      | —               | —                    |
-| 4 Installer                                | —    | —       | all  | —                      | —               | —                    |
-| 5 Sound                                    | —    | —       | all  | —                      | —               | —                    |
-| 6 Phone polish, Firefox and WebKit         | —    | —       | all  | —                      | —               | —                    |
-| 7 Security review, release readiness       | —    | —       | all  | —                      | —               | —                    |
-| 8 Play-through, pictures, hand-over        | —    | —       | all  | —                      | —               | —                    |
+| Piece                                      | Done | Running | Open                 | Needs the owner's word | Commits         | CI run ids           |
+| ------------------------------------------ | ---- | ------- | -------------------- | ---------------------- | --------------- | -------------------- |
+| 1 Small fixes, remaining security findings | all  | —       | —                    | BACKLOG 29, 30         | `06eafb6`       | CI 44953788972 green |
+| 2 Production run                           | all  | —       | —                    | —                      | `eeab324`       | CI 44956967985 green |
+| 3 Member summary                           | all  | —       | BACKLOG 33 (website) | —                      | see piece 4 row | see piece 4 row      |
+| 4 Installer                                | —    | —       | all                  | —                      | —               | —                    |
+| 5 Sound                                    | —    | —       | all                  | —                      | —               | —                    |
+| 6 Phone polish, Firefox and WebKit         | —    | —       | all                  | —                      | —               | —                    |
+| 7 Security review, release readiness       | —    | —       | all                  | —                      | —               | —                    |
+| 8 Play-through, pictures, hand-over        | —    | —       | all                  | —                      | —               | —                    |
 
 ### Piece 1 report
 
@@ -87,6 +87,28 @@ Written when the chain ends.
   path and for the dev sign-in, JSON log lines without queries.
 - `pnpm verify` green (30 files, 151 tests); journeys 1–6 passed.
 - **Dependencies:** `@fastify/static` 10.1.12 (the built client).
+
+### Piece 3 report
+
+- **`GET /api/website/member-summary?user=<website user id>`** (`memberSummaryRoutes.ts`),
+  GAME-INTEGRATION §7 and the website's `server/test/helpers/fakeGame.js`: under the base path
+  (`/games/cases/api/website/member-summary`), `X-Games-Sync-Token` compared in constant time
+  (the kit's `secretMatches`), 401 without it; 404 for a request that carries `X-Forwarded-For`
+  (it came through a proxy, never the website's own call; the installer's route file also denies
+  the path, piece 4); 404 for an unknown member; `{ "noData": true }` for a member without a
+  show; otherwise `{ values: [Played, Prizes, Main prizes], lastPlayedAt }`, counted from ended
+  shows only, whose content is public; `Cache-Control: no-store`. Registered only in website
+  mode with the feed's token (the same token, §7).
+- **Tests** (`memberSummaryRoutes.test.ts`): the token and the proxy guard, unknown and no data,
+  a real card checked against the public result and the contract's limits (1–4 values, labels of
+  at most 24 characters, at most 4096 bytes, an ISO time), no route without the token or in local
+  mode.
+- **The website's side:** `GAMES_LOCAL_ORIGINS` needs `cases=<origin>` once the game runs on the
+  server; the website's installer does not wire it yet (§7). BACKLOG 33.
+- **Noticed, left alone:** the kit repository got a commit tonight (`21e82eb`, "the second
+  independent review's findings"); no new tag, so the pin stays (the standing rule checks at the
+  chain's start). The website's GAME-INTEGRATION §6 now lists `cases` among the embedded slugs.
+- `pnpm verify` green (31 files, 155 tests).
 
 ## Night chain SC-N2 (2026-11-21)
 
