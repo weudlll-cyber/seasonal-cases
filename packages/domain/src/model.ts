@@ -4,10 +4,18 @@
  *
  * Responsibility: `applyEvent` turns one event into the next state; `foldShow` replays a whole
  *                 event list. No event is checked here: ./commands.ts decides which events may
- *                 happen, so a replayed log always folds to the state it had.
- * Depends on:     @sc/contracts (types), ./events.js, ./registration.js
+ *                 happen, so a replayed log always folds to the state it had. A logged reveal
+ *                 step the show no longer knows (logs older than concept v1.1) folds as a no-op.
+ * Depends on:     @sc/contracts, ./events.js, ./registration.js
  */
-import type { Artifact, AssignmentEntry, PrizeSlot, RevealStep, ShowState } from '@sc/contracts';
+import {
+  DIRECTION_STEPS,
+  type Artifact,
+  type AssignmentEntry,
+  type PrizeSlot,
+  type RevealStep,
+  type ShowState,
+} from '@sc/contracts';
 
 import type { Actor, ShowEvent } from './events.js';
 import { ownersAtClose, type Claim } from './registration.js';
@@ -67,8 +75,11 @@ function created(event: Created): ShowModel {
   };
 }
 
-// The reveal steps: how the stage changes with each one (CONCEPT §3.4).
+// The reveal steps: how the stage changes with each one (CONCEPT §3.4). An event log written
+// before concept v1.1 may hold steps the show no longer has; they fold as no-ops, so every
+// logged show still replays.
 function stepped(model: ShowModel, step: Extract<ShowEvent, { type: 'stepped' }>['step']) {
+  if (!(DIRECTION_STEPS as readonly string[]).includes(step)) return model;
   if (step === 'return') return { ...model, selected: null, step: 'idle' as const };
   if (step === 'open' && model.selected !== null) {
     return { ...model, step, opened: [...model.opened, model.selected] };

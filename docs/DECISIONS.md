@@ -46,12 +46,37 @@ owner confirms them.
 - **D14 — Five steps, moved by the moderator.** A case opens in the five steps select, tension,
   open, prize, owner, each triggered only by the direction holder; no timer moves the show. Built
   for the owner's judgement in play; confirm or change in concept v1.1 (CONCEPT §3.4, §14).
+  Replaced by D19.
 - **D15 — The kit tag.** `@seasonal/kit` is pinned to `v0.5.0` (commit `929c997`), the newest tag
   at bootstrap on 2026-11-21. The concept named v0.4.1; v0.5.0 was cut the same day and adds only
   `StartCard`, `ResultFrame` and `frames.css` (kit CHANGELOG). React and react-dom 19.3.1 as the
-  kit's peer pin, Vite 8.3.4 as its optional peer.
+  kit's peer pin, Vite 8.3.4 as its optional peer. Replaced by D18.
 - **D16 — Ports.** Server 3970 (127.0.0.1), client 5470 (0.0.0.0, for the phone over the LAN) for
   the game and `/admin`; the browser tests' own server 3980 and client 5480 (CONCEPT §11).
 - **D17 — Storage of the prototype.** Shows live in memory; every event is appended as one JSON
   line to `.local/data/<showId>.jsonl` (git-ignored), and the server rebuilds each show from its
   lines on start. PostgreSQL comes with the full build (CONCEPT §11).
+
+## 2026-11-21, the owner's decisions for night chain SC-N2
+
+- **D18 — The kit follows its newest tag.** `@seasonal/kit` is pinned to its newest tag; on
+  2026-11-21 that is `v0.8.0` (commit `30ce80a`).
+- **D19 — A click and three steps.** The reveal has three moderator steps after the click on a
+  case: Open, Owner, Back to stage. The click brings the case to the front and the lights go
+  down; the prize's meaning shows with the artifact when the case opens (CONCEPT §3.4, v1.1).
+- **D20 — The scoreboard.** A scoreboard on the stage shows every artifact with its prize,
+  visible to everyone from sealing on. A prize lights up when its case is open; when the next
+  case is selected it is struck through, so everyone sees which prizes are taken and which are
+  still open (CONCEPT §7).
+- **D21 — The stage moves.** The selected case travels from its place to the front and opens
+  slowly; after "Back to stage" it travels back, marked opened.
+- **D22 — Start, opening, ceremony.** The game has a start page with the kit's start card, an
+  opening moment on the stage before the first case, a winners' ceremony on the stage at the
+  end, then the result page.
+- **D23 — The website's chat, website mode now.** The chat is the website's chat only,
+  embedded; website mode is built now.
+- **D24 — The standalone foundation now.** Own accounts, forgotten password by e-mail, roles,
+  2FA for admins, ranks assigned by admins, a lobby and "My matches" are built now. The
+  development sign-in stays for the Quick Test, in development only.
+- **D25 — Settings in the admin area.** Settings live in the admin area, not in code; a change
+  applies to new shows.

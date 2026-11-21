@@ -9,7 +9,7 @@
  *                 either before the show has ended.
  * Depends on:     @sc/contracts (types)
  */
-import type { Artifact, AssignmentEntry, PrizeSlot, Rank } from '@sc/contracts';
+import type { Artifact, AssignmentEntry, DirectionStep, PrizeSlot, Rank } from '@sc/contracts';
 
 export interface Actor {
   readonly id: string;
@@ -55,7 +55,7 @@ export type ShowEvent =
       readonly type: 'stepped';
       readonly at: string;
       readonly by: string;
-      readonly step: 'tension' | 'open' | 'prize' | 'owner' | 'return';
+      readonly step: DirectionStep;
     }
   | { readonly type: 'handedOver'; readonly at: string; readonly by: string; readonly to: Actor }
   | { readonly type: 'ended'; readonly at: string; readonly by: string };

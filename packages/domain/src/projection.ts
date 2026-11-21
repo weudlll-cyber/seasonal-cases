@@ -66,13 +66,10 @@ function foundPrize(model: ShowModel, caseNumber: number, artifact: Artifact): F
   };
 }
 
-/** Prizes whose meaning has been shown: opened, and past the "Open" step if on stage now. */
-function found(model: ShowModel): FoundPrize[] {
-  return model.opened
-    .filter((n) => !(n === model.selected && model.step === 'open'))
-    .map((n) => foundPrize(model, n, sealedArtifact(model, n)))
-    .filter((f): f is FoundPrize => f !== null)
-    .sort((a, b) => a.slot - b.slot);
+/** Whether every prize's case is open: each counts from its "Open" step (CONCEPT §3.4). */
+function allPrizesFound(model: ShowModel): boolean {
+  const open = model.opened.filter((n) => sealedArtifact(model, n).prizeSlot !== null);
+  return open.length === model.prizes.length;
 }
 
 /** The whole show after it has ended, with the secret revealed and checked. */
@@ -102,8 +99,6 @@ export function showResult(model: ShowModel): ShowResult | null {
 
 /** What everybody may see. */
 export function publicView(model: ShowModel): PublicShowView {
-  const shown = found(model);
-  const foundIds = new Set(shown.map((f) => f.artifact.id));
   return {
     id: model.id,
     state: model.state,
@@ -118,9 +113,7 @@ export function publicView(model: ShowModel): PublicShowView {
     commitment: model.sealing?.commitment ?? null,
     sealedAt: model.sealing?.at ?? null,
     live: { selected: model.selected, step: model.step },
-    found: shown,
-    stillHidden: model.prizes.filter((p) => !foundIds.has(p.id)),
-    allPrizesFound: shown.length === model.prizes.length,
+    allPrizesFound: allPrizesFound(model),
     result: showResult(model),
   };
 }

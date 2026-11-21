@@ -15,6 +15,7 @@ import { formatTime } from '@sc/ui';
 import { useCallback, useEffect, useState } from 'react';
 
 import { getJson, postJson } from '../lib/api.js';
+import { apiPath } from '../lib/base.js';
 import { navigate } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
 import { SetupForm, type Setup } from './SetupForm.js';
@@ -28,7 +29,7 @@ const STEPS = [
   ['start', 'Start show', 'Go live; you hold the direction'],
 ] as const;
 
-type Act = (call: () => Promise<unknown>, then?: () => void) => void;
+type Act = (call: () => Promise<unknown>, then?: () => Promise<void> | void) => void;
 
 function ShowList({ shows, busy, act }: { shows: ShowSummary[]; busy: boolean; act: Act }) {
   return (
@@ -51,7 +52,7 @@ function ShowList({ shows, busy, act }: { shows: ShowSummary[]; busy: boolean; a
                   title={tip}
                   disabled={busy}
                   onClick={() => {
-                    act(() => postJson(`/api/dev/shows/${s.id}/${path}`));
+                    act(() => postJson(apiPath(`/dev/shows/${s.id}/${path}`)));
                   }}
                 >
                   {label}
@@ -65,11 +66,17 @@ function ShowList({ shows, busy, act }: { shows: ShowSummary[]; busy: boolean; a
   );
 }
 
-export function Admin({ me }: { me: Me | null }) {
+export interface AdminProps {
+  readonly me: Me | null;
+  // Asks the server for the show to follow at once (fix A of SC-N2), before any navigation.
+  readonly onShowChanged: () => Promise<void>;
+}
+
+export function Admin({ me, onShowChanged }: AdminProps) {
   const [shows, setShows] = useState<ShowSummary[]>([]);
   const action = useAction();
   const refresh = useCallback(() => {
-    getJson<ShowSummary[]>('/api/shows')
+    getJson<ShowSummary[]>(apiPath('/shows'))
       .then(setShows)
       .catch(() => undefined);
   }, []);
@@ -78,7 +85,8 @@ export function Admin({ me }: { me: Me | null }) {
     action.run(async () => {
       await call();
       refresh();
-      then?.();
+      await onShowChanged();
+      await then?.();
     });
   };
   if (me === null || (me.role !== 'admin' && me.role !== 'moderator')) {
@@ -88,14 +96,14 @@ export function Admin({ me }: { me: Me | null }) {
   }
   const quickTest = (setup: Setup) => {
     act(
-      () => postJson('/api/dev/quick-test', setup),
+      () => postJson(apiPath('/dev/quick-test'), setup),
       () => {
         navigate('/show');
       },
     );
   };
   const create = (setup: Omit<Setup, 'seed'>) => {
-    act(() => postJson('/api/dev/shows', setup));
+    act(() => postJson(apiPath('/dev/shows'), setup));
   };
   return (
     <main className="page admin">

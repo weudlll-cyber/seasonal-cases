@@ -3,6 +3,7 @@
 | Version | Date | Change |
 |---|---|---|
 | 1.0 | 2026-11-21 | First concept, from the owner's project vision and his answers of 2026-11-21. |
+| 1.1 | 2026-11-21 | Night chain SC-N2, from the owner's decisions of 2026-11-21: three moderator steps after the click on a case (§3.4); the scoreboard and the meaning shown at Open (§7). Later rows of this chain add the motion, the opening and ceremony, the start page, focus mode, website mode, the accounts and the settings. |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -77,19 +78,19 @@ SETUP → REGISTRATION → SEALED → LIVE → ENDED
   table, and the "still hidden / already found" bar.
 
 ### 3.4 Live (moderator)
-The moderator opens cases one at a time, in any order, in five steps that **only the moderator
-triggers** — no timer moves the show forward (proposal of 2026-11-21, accepted by the owner's
-"start" of the night chain; confirm or change in v1.1):
+The moderator opens cases one at a time, in any order. Only the moderator moves the show; no
+timer does (decided 2026-11-21). A case takes a click and three steps:
 
-1. **Select** — the chosen case moves to the centre, the other cases dim.
-2. **Tension** — lights down, drum-roll motion (sound comes last, §7), the moderator talks.
-3. **Open** — the case opens, the artifact appears in its season colour.
-4. **Prize** — the artifact's meaning is shown: a prize slot and its label, or "no prize".
-5. **Owner** — the lower-third shows the owner's name and Discord badge; confetti on the main
-   prize; the case returns to the stage as "opened".
+- **The click on a case** — the case comes to the front and the lights go down; the other cases
+  dim. The moderator talks as long as they want.
+- **Open** — the case opens; the artifact appears in its season colour, and its meaning with it:
+  "Prize 1 · <label>", "Prize 1" when the slot has no label, or "No prize".
+- **Owner** — the lower third shows the owner's name and Discord badge; confetti on the main
+  prize.
+- **Back to stage** — the case returns to the stage as "opened".
 
-Between any two steps the moderator can talk as long as they want. A step can be undone only before
-"Open" (select another case); after "Open" the content is public and stays public.
+Between any two steps the moderator can talk as long as they want. A choice can be changed only
+before "Open" (click another case); after "Open" the content is public and stays public.
 
 The direction bar also offers **hand over direction** to another signed-in moderator and **end the
 show**.
@@ -143,7 +144,11 @@ Target: a TV-studio feel with small means — SVG, icons, gradients, glow, CSS a
   and a soft season glow. The selected case moves large into the centre; the rest dims.
 - **Light:** a spotlight cone and glow on the selected case; the background keeps the website's
   night blue (dark) or cream white (light) with the four season shimmers, never flat black or white.
-- **Top bar:** "still hidden: Halving Stone, Season Key …" and the found prizes with their owners.
+- **Scoreboard** (decided 2026-11-21): above the stage, every artifact with its prize, visible to
+  everyone from sealing on. A prize lights up when its case opens; once the next case is selected
+  it is struck through with its owner's name, so everyone sees which prizes are taken and which
+  are still open. The commitment stays visible beside it.
+- **Open:** the artifact appears with its meaning under it (§3.4).
 - **Lower third:** owner's name and Discord badge at the "Owner" step.
 - **Confetti** only on the main prize.
 - **Fonts:** Luxora Grotesk from the kit for the frame (Book for text, Bold for headings). The stage
@@ -233,7 +238,7 @@ injected ports) ← `application` ← `apps/server`; the client renders, the ser
 | Phase | Content | Gate |
 |---|---|---|
 | **P0 Bootstrap** | Repository, standards, CI, protection, kit pinned, docs skeleton. | CI green on master. |
-| **P1 Prototype** | Development sign-in, dev admin, registration board with case conflicts, sealing with commitment, the live stage with the five reveal steps, direction bar with hand-over, result screen, bots, Quick Test seed, light/dark, fit to the check sizes. Silent. | The owner plays it and says it is fun. |
+| **P1 Prototype** | Development sign-in, dev admin, registration board with case conflicts, sealing with commitment, the live stage with the reveal steps, direction bar with hand-over, result screen, bots, Quick Test seed, light/dark, fit to the check sizes. Silent. | The owner plays it and says it is fun. |
 | **P2 Foundation** | Accounts, 2FA, roles, lobby, website mode, chat dock, call slot, ranks (website / manual), PostgreSQL, admin area with the settings catalogue. | Owner's acceptance. |
 | **P3 Show polish** | Sound, chronicle, "My matches", viewer participation (applause button, tips on the main-prize owner, next-case suggestions), seasonal theming of the stage. | Owner's acceptance per item. |
 | **P4 Release** | Installer, security review, first show on the VPS. | Security pass green. |
@@ -245,8 +250,6 @@ sound before P3, no viewer polls before P3, no rankings, no payout of anything.
 
 ## 14. Needs the owner's word (v1.1)
 
-- The five reveal steps and that only the moderator moves the show (§3.4): proposed, built in P1 so
-  the owner can judge it in play.
 - Artifact names and order (§6): the owner's examples, in the proposed order.
 - Fredoka as the stage font (§7).
 - Defaults N = 24, W = 3 (§3.1).

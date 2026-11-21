@@ -11,7 +11,7 @@
  */
 import { ThemeToggle, useTheme } from '@seasonal/kit/react';
 
-import { useCurrentShowId, useShowFeed } from './lib/feed.js';
+import { useCurrentShow, useShowFeed } from './lib/feed.js';
 import { Link, routeOf, usePath } from './lib/router.js';
 import { useSession } from './lib/session.js';
 import { Admin } from './screens/Admin.js';
@@ -25,7 +25,8 @@ export function App() {
   const path = usePath();
   const route = routeOf(path);
   const session = useSession();
-  const showId = useCurrentShowId();
+  const current = useCurrentShow();
+  const showId = current.id;
   const feed = useShowFeed(showId, session.me);
   const me = session.me ?? null;
   return (
@@ -72,7 +73,7 @@ export function App() {
           <Stage show={feed.show} moderator={feed.moderator} me={me} direct={feed.direct} />
         ))}
       {route.name === 'results' && <Result showId={route.showId} />}
-      {route.name === 'admin' && <Admin me={me} />}
+      {route.name === 'admin' && <Admin me={me} onShowChanged={current.refresh} />}
     </div>
   );
 }

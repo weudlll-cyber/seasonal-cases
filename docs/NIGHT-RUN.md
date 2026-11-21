@@ -2,6 +2,83 @@
 
 The morning sheets of the unattended night chains, newest first.
 
+## Night chain SC-N2 (2026-11-21)
+
+Kit v0.8.0, three steps, scoreboard, the moving case, start and finale, website mode with the
+chat, standalone accounts with 2FA, settings, chronicle. Branch `proto/cases-v1`, continued;
+nothing merged.
+
+### Final report
+
+Written when the chain ends.
+
+### Pieces
+
+| Piece                                                     | Done | Running | Open | Needs the owner's word | Commits            | CI run ids      |
+| --------------------------------------------------------- | ---- | ------- | ---- | ---------------------- | ------------------ | --------------- |
+| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —       | —    | —                      | see piece 1 report | see piece 2 row |
+| 2 The moving case                                         | —    | —       | all  | —                      | —                  | —               |
+| 3 Start page, opening, focus mode, ceremony, result frame | —    | —       | all  | —                      | —                  | —               |
+| 4 Website mode                                            | —    | —       | all  | —                      | —                  | —               |
+| 5 PostgreSQL and the accounts store                       | —    | —       | all  | —                      | —                  | —               |
+| 6 Standalone accounts                                     | —    | —       | all  | —                      | —                  | —               |
+| 7 2FA and the independent review                          | —    | —       | all  | —                      | —                  | —               |
+| 8 Settings, season tint, polish                           | —    | —       | all  | —                      | —                  | —               |
+| 9 Chronicle                                               | —    | —       | all  | —                      | —                  | —               |
+| 10 Play-through, pictures, hand-over                      | —    | —       | all  | —                      | —                  | —               |
+
+### Piece 1 report
+
+- **Kit:** `v0.8.0` (commit `30ce80a`) pinned in `packages/ui` and `apps/web` (DECISIONS D18).
+  Migration notes 0.5.0 → 0.8.0 that concern a game like this one: `.sk-visually-hidden` now in
+  `shell.css` (imported already); the phone root height `var(--sk-visible-height)` applies once
+  the screens sit in `DockedScreen` (piece 4). The kit still has no `cases` fit floors and still
+  reserves the dock only with a chat, so `pending/fit-cases.css` and `pending/useDockReserve.ts`
+  stay (BACKLOG 19, 20). The kit test proves `@seasonal/kit`, `@seasonal/kit/react`,
+  `@seasonal/kit/server` and the CSS entries, `bar.css`, `dock.css` and `frames.css` included.
+- **Fix A:** `currentShow` follows live → sealed → registration → setup → ended, newest
+  first within each (`apps/server/src/showRoutes.ts`). Shows made in the same millisecond keep
+  their creation order (`packages/application/src/shows.ts`). The client's `useCurrentShow`
+  has a `refresh`. The admin asks for the current show after Quick Test and Create, before it
+  navigates. The feed empties its views when the show id changes (`apps/web/src/lib/feed.ts`).
+  Tests: `routes.test.ts` "the current show" and `lib/feed.test.tsx`.
+- **Fix B:** the direction bar exists only while the show is live; after the end only "See the
+  result" stays (`Stage.tsx`, test "is gone once the show has ended").
+- **Three steps:**
+  - `RevealStep` is `idle | selected | open | owner`; the direction's steps are `open`,
+    `owner` and `return`;
+  - removed from contracts, domain, server tests, stage, component tests and the journeys;
+  - a logged step the show no longer knows folds as a no-op (`model.ts`, its header says so;
+    test "folds a logged step the show no longer knows");
+  - the found prizes count from Open;
+  - the public view's `found` and `stillHidden` are gone with the top bar that read them;
+    `allPrizesFound` stays.
+- **The centre case at Open:** the artifact and under it "Prize 1 · Gold", "Prize 2" without a
+  label, or "No prize" (`CentreStage.tsx`).
+- **Scoreboard** (`stage/Scoreboard.tsx`, `stage/scoreboard.css`):
+  - it replaces the top bar (`TopBar.tsx` deleted), with one row per prize, then the blank;
+  - states open, lit and taken, computed only from the public view;
+  - one line per row on a phone;
+  - the commitment beside it;
+  - test `Scoreboard.test.tsx`.
+- **Base path ready:** every client API call, page link and the socket path go through
+  `lib/base.ts` (Vite's base), the groundwork for website mode (piece 4).
+- **Docs:** CONCEPT v1.1 (§3.4 the click and three steps, §7 the scoreboard and the meaning at
+  Open, §14 without the decided steps), DECISIONS D18–D25, README.
+- **Tests:** `pnpm verify` green (17 files, 89 tests before the feed test; 18 files, 91 with
+  it); journeys 1–3 passed in Chromium.
+- **Left alone:** the SC-N1 section below keeps the five steps as that night's record.
+
+### Choices made without the owner (SC-N2)
+
+- **The budget rule's piece numbers** do not all match the piece headings. It names "piece 5
+  (website mode)", "piece 7 the forgotten-password mail" and "piece 4 the ceremony's animation";
+  in the headings these are pieces 4, 6 and 3. The chain follows the rule by content.
+- **The blank row of the scoreboard** lights while a blank is open at the front and is never
+  struck through: there are many blanks, and one taken blank says nothing.
+- **The scoreboard's wording:** "Prize 1: Gold" or "Prize 2" (the existing `prizeTitle`); the
+  centre case uses "Prize 1 · Gold" as the task writes it.
+
 ## Night chain SC-N1 (2026-11-21)
 
 Repository, standards and the playable prototype. Branch of the prototype: `proto/cases-v1`

@@ -11,6 +11,7 @@ import type { Me, PublicShowView, SignInRequest } from '@sc/contracts';
 
 import { RegistrationBoard } from '../board/RegistrationBoard.js';
 import { postJson } from '../lib/api.js';
+import { apiPath } from '../lib/base.js';
 import type { ShowFeed } from '../lib/feed.js';
 import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
@@ -53,7 +54,7 @@ export function Lobby({ me, feed, showId, onSignIn }: LobbyProps) {
     claimable === null
       ? undefined
       : (caseNumber: number) => {
-          action.run(() => postJson(`/api/shows/${claimable}/claim`, { caseNumber }));
+          action.run(() => postJson(apiPath(`/shows/${claimable}/claim`), { caseNumber }));
         };
   return (
     <main className="page lobby">

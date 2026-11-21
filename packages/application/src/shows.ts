@@ -22,6 +22,8 @@ import {
   type ShowSettings,
 } from '@sc/domain';
 
+import type { DirectionStep } from '@sc/contracts';
+
 import type { Clock, EventStore, IdSource, RandomSource } from './ports.js';
 import { seasonOf } from './season.js';
 
@@ -45,7 +47,7 @@ export interface ShowDeps {
   readonly onChange?: (model: ShowModel) => void;
 }
 
-type Step = 'tension' | 'open' | 'prize' | 'owner' | 'return';
+type Step = DirectionStep;
 
 export interface ShowService {
   list(): ShowModel[];
@@ -98,7 +100,9 @@ export function createShowService(deps: ShowDeps): ShowService {
   };
 
   const service: ShowService = {
-    list: () => [...models.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    // Newest first; shows created in the same millisecond keep their creation order, reversed.
+    list: () =>
+      [...models.values()].reverse().sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     get: (showId) => models.get(showId),
     createShow(by, setup) {
       const at = clock.now();

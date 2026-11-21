@@ -7,7 +7,7 @@
  *                 watches one show over socket.io and keeps the last public, moderator and
  *                 personal view it received; `direct` sends a direction message and resolves
  *                 with its ack. The client only renders what it receives (CONCEPT §8).
- * Depends on:     react, socket.io-client, @sc/contracts (types), ./api.js
+ * Depends on:     react, socket.io-client, @sc/contracts (types), ./api.js, ./base.js
  */
 import type {
   Ack,
@@ -22,29 +22,35 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, type Socket } from 'socket.io-client';
 
 import { getJson } from './api.js';
+import { apiPath, SOCKET_PATH } from './base.js';
 
 const POLL_MS = 3000;
 
-/** The id of the show the lobby shows, or null when there is none yet. */
-export function useCurrentShowId(): string | null | undefined {
+export interface CurrentShow {
+  // undefined while the first answer is pending; null when there is no show at all.
+  readonly id: string | null | undefined;
+  /** Asks the server at once; resolves once the answer is in the state. */
+  readonly refresh: () => Promise<void>;
+}
+
+/** The id of the show the lobby and the stage follow (the server's rule, fix A of SC-N2). */
+export function useCurrentShow(): CurrentShow {
   const [id, setId] = useState<string | null | undefined>(undefined);
+  const refresh = useCallback(async () => {
+    const answer = await getJson<{ show: PublicShowView | null }>(apiPath('/shows/current'));
+    setId(answer.show?.id ?? null);
+  }, []);
   useEffect(() => {
-    let alive = true;
     const ask = () => {
-      getJson<{ show: PublicShowView | null }>('/api/shows/current')
-        .then((answer) => {
-          if (alive) setId(answer.show?.id ?? null);
-        })
-        .catch(() => undefined);
+      refresh().catch(() => undefined);
     };
     ask();
     const timer = window.setInterval(ask, POLL_MS);
     return () => {
-      alive = false;
       window.clearInterval(timer);
     };
-  }, []);
-  return id;
+  }, [refresh]);
+  return { id, refresh };
 }
 
 export interface ShowFeed {
@@ -70,7 +76,7 @@ export function useShowFeed(
   const ready = me !== undefined;
   useEffect(() => {
     if (showId === null || showId === undefined || !ready) return undefined;
-    const socket: Client = io({ transports: ['websocket'] });
+    const socket: Client = io({ path: SOCKET_PATH, transports: ['websocket'] });
     socketRef.current = socket;
     socket.on('show:public', setShow);
     socket.on('show:moderator', (view) => {
@@ -85,6 +91,9 @@ export function useShowFeed(
     return () => {
       socket.disconnect();
       socketRef.current = null;
+      // A new show id starts empty: the previous show's screen (its end, say) never shows for
+      // the new one.
+      setShow(null);
       setModerator(null);
       setPersonal(null);
     };

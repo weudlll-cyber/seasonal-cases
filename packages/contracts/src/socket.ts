@@ -17,8 +17,9 @@ export const SelectRequestSchema = z.object({
   caseNumber: z.number().int().min(1),
 });
 
-// The steps after "select", in order, then back to the stage (CONCEPT §3.4).
-export const DIRECTION_STEPS = ['tension', 'open', 'prize', 'owner', 'return'] as const;
+// The moderator's steps after the click on a case, in order, then back to the stage
+// (CONCEPT §3.4, v1.1).
+export const DIRECTION_STEPS = ['open', 'owner', 'return'] as const;
 export const DirectionStepSchema = z.enum(DIRECTION_STEPS);
 export type DirectionStep = z.infer<typeof DirectionStepSchema>;
 export const StepRequestSchema = z.object({ showId: z.string().min(1), step: DirectionStepSchema });

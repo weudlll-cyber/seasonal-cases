@@ -1,10 +1,10 @@
 /**
  * @file   packages/domain/src/live.ts
- * @brief  The live show's rules: the direction holder, the five steps, hand-over and the end.
+ * @brief  The live show's rules: the direction holder, the steps, hand-over and the end.
  *
  * Responsibility: decide the live commands (CONCEPT §3.4, §3.5). Only the direction holder
- *                 acts. Select works before "Open" and may change to another unopened case;
- *                 each later step follows the one before it; "return" puts the case back on
+ *                 acts. Select (the click on a case) works before "Open" and may change to
+ *                 another unopened case; open, owner and return follow each other in order; "return" puts the case back on
  *                 the stage as opened. End is allowed at any moment of the live show.
  * Depends on:     @sc/contracts (types), ./events.js, ./model.js
  */
@@ -22,15 +22,13 @@ export const accept = (...events: ShowEvent[]): Decision => ({ ok: true, events 
 
 // The step each step must follow.
 const AFTER: Record<DirectionStep, RevealStep> = {
-  tension: 'selected',
-  open: 'tension',
-  prize: 'open',
-  owner: 'prize',
+  open: 'selected',
+  owner: 'open',
   return: 'owner',
 };
 
 // Select may still change the case until it is open.
-const BEFORE_OPEN: readonly RevealStep[] = ['idle', 'selected', 'tension'];
+const BEFORE_OPEN: readonly RevealStep[] = ['idle', 'selected'];
 
 /** Null when `by` may direct the live show now, else the reason. */
 export function directionProblem(model: ShowModel, by: string): string | null {

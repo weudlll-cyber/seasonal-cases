@@ -48,10 +48,16 @@ function cases(count: number, opened: Record<number, Artifact>): CaseView[] {
   });
 }
 
-/** A live show of 12 cases; case 7 (Ana's) is on the centre stage at `step`. */
-export function liveView(step: RevealStep, artifact: Artifact = STONE): PublicShowView {
-  const open = step === 'open' || step === 'prize' || step === 'owner';
-  const found = step === 'prize' || step === 'owner';
+/**
+ * A live show of 12 cases; case 7 (Ana's) is at the front at `step`. `taken` cases were opened
+ * before and are back on the stage with their artifacts.
+ */
+export function liveView(
+  step: RevealStep,
+  artifact: Artifact = STONE,
+  taken: Record<number, Artifact> = {},
+): PublicShowView {
+  const open = step === 'open' || step === 'owner';
   return {
     id: 'show-1',
     state: 'live',
@@ -64,16 +70,11 @@ export function liveView(step: RevealStep, artifact: Artifact = STONE): PublicSh
       { slot: 2, label: '' },
     ],
     artifactTable: [STONE, KEY, LEAF],
-    cases: cases(12, open ? { 7: artifact } : {}),
+    cases: cases(12, open ? { ...taken, 7: artifact } : taken),
     board: null,
     commitment: 'c0ffee'.repeat(10) + 'beef',
     sealedAt: '2026-11-21T20:01:00.000Z',
     live: { selected: step === 'idle' ? null : 7, step },
-    found:
-      found && artifact.prizeSlot !== null
-        ? [{ slot: 1, label: 'Gold', artifact, caseNumber: 7, ownerName: 'Ana' }]
-        : [],
-    stillHidden: found && artifact.prizeSlot === 1 ? [KEY] : [STONE, KEY],
     allPrizesFound: false,
     result: null,
   };

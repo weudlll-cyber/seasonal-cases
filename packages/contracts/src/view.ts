@@ -93,8 +93,6 @@ export const PublicShowViewSchema = z.object({
   commitment: z.string().nullable(),
   sealedAt: z.string().nullable(),
   live: z.object({ selected: z.number().int().nullable(), step: RevealStepSchema }),
-  found: z.array(FoundPrizeSchema),
-  stillHidden: z.array(ArtifactSchema),
   allPrizesFound: z.boolean(),
   result: ShowResultSchema.nullable(),
 });

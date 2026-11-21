@@ -27,8 +27,9 @@ export const SEASONS = ['winter', 'spring', 'summer', 'autumn'] as const;
 export const SeasonSchema = z.enum(SEASONS);
 export type Season = z.infer<typeof SeasonSchema>;
 
-// idle: no case on the centre stage; then the five steps of CONCEPT §3.4.
-export const REVEAL_STEPS = ['idle', 'selected', 'tension', 'open', 'prize', 'owner'] as const;
+// idle: no case at the front; selected (the click on a case, lights down), then the
+// moderator's steps open and owner (CONCEPT §3.4, v1.1).
+export const REVEAL_STEPS = ['idle', 'selected', 'open', 'owner'] as const;
 export const RevealStepSchema = z.enum(REVEAL_STEPS);
 export type RevealStep = z.infer<typeof RevealStepSchema>;
 

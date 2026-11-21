@@ -6,6 +6,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { configFrom } from './config.js';
+import { currentShow } from './showRoutes.js';
 import { startHarness, type Harness } from './testing/harness.js';
 
 let harness: Harness | undefined;
@@ -30,6 +31,29 @@ describe('development mode', () => {
       expect(response.statusCode).toBe(404);
     }
     expect((await app.inject({ method: 'GET', url: '/api/health' })).json()).toEqual({ ok: true });
+  });
+});
+
+describe('the current show', () => {
+  it('is the newest live show, then sealed, registration, setup, and only then ended', async () => {
+    harness = await startHarness();
+    const { shows } = harness.server;
+    const ada = { id: 'ada', name: 'Ada' };
+    const id = (o: ReturnType<typeof shows.createShow>) => (o.ok ? o.model.id : 'refused');
+    const setup = { cases: 4, winners: 1, labels: [] };
+    const older = id(shows.createShow(ada, setup));
+    const live = id(shows.quickTest({ ...setup, seed: 'a' }, ada));
+    const newer = id(shows.createShow(ada, setup));
+    expect(currentShow(shows)?.id).toBe(live);
+    shows.endShow(live, ada.id);
+    expect(currentShow(shows)?.id).toBe(newer);
+    shows.openRegistration(older, ada.id);
+    expect(currentShow(shows)?.id).toBe(older);
+    shows.closeRegistration(older, ada.id);
+    shows.seal(older, ada.id);
+    expect(currentShow(shows)?.id).toBe(older);
+    const answer = await harness.server.app.inject({ method: 'GET', url: '/api/shows/current' });
+    expect(answer.json<{ show: { id: string } }>().show.id).toBe(older);
   });
 });
 

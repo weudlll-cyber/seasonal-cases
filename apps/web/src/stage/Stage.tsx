@@ -9,7 +9,7 @@
  *                 `data-sk-game="cases"`) and keeps the dock's height free (DECISIONS D7);
  *                 the cases sit in a named scroll area that takes what does not fit.
  * Depends on:     react, @seasonal/kit/react, @sc/contracts (types), @sc/ui, ../lib/router.js,
- *                 ./arc.js, ./CaseToken.js, ./CentreStage.js, ./TopBar.js, ./LowerThird.js,
+ *                 ./arc.js, ./CaseToken.js, ./CentreStage.js, ./Scoreboard.js, ./LowerThird.js,
  *                 ./DirectionBar.js
  */
 import { useFitScale } from '@seasonal/kit/react';
@@ -23,7 +23,7 @@ import { CaseToken } from './CaseToken.js';
 import { CentreStage } from './CentreStage.js';
 import { DirectionBar } from './DirectionBar.js';
 import { Confetti, LowerThird } from './LowerThird.js';
-import { TopBar } from './TopBar.js';
+import { Scoreboard } from './Scoreboard.js';
 
 export interface StageProps {
   readonly show: PublicShowView;
@@ -33,7 +33,7 @@ export interface StageProps {
 }
 
 // Selecting another case is possible until the case is open (CONCEPT §3.4).
-const SELECTABLE = new Set(['idle', 'selected', 'tension']);
+const SELECTABLE = new Set(['idle', 'selected']);
 
 function StateNote({ show }: { show: PublicShowView }) {
   if (show.state === 'live') return null;
@@ -59,7 +59,9 @@ export function Stage({ show, moderator, me, direct }: StageProps) {
   const reserve = useDockReserve();
   const { selected, step } = show.live;
   const fitRef = useFitScale<HTMLElement>('mini-games', `${String(show.caseCount)}:${step}`, true);
-  const holder = me !== null && moderator?.holder?.id === me.id ? moderator : null;
+  // The bar exists only while the show is live: after the end only "See the result" stays.
+  const holder =
+    show.state === 'live' && me !== null && moderator?.holder?.id === me.id ? moderator : null;
   const spots = arcSpots(show.caseCount);
   const onSelect =
     holder !== null && SELECTABLE.has(step)
@@ -79,7 +81,7 @@ export function Stage({ show, moderator, me, direct }: StageProps) {
       style={style}
       aria-label="Stage"
     >
-      <TopBar show={show} />
+      <Scoreboard show={show} />
       <StateNote show={show} />
       <div className="stage" data-fit-fixed>
         <div className="spotlight" aria-hidden="true" />

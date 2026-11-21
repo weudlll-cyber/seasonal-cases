@@ -12,7 +12,7 @@ import { seededRandom } from './random.js';
 import { clock, MOD, MOD2, newShow, type Driver } from './testing/fixtures.js';
 
 const at = clock();
-const STEPS = ['tension', 'open', 'prize', 'owner', 'return'] as const;
+const STEPS = ['open', 'owner', 'return'] as const;
 
 function sealedShow(): Driver {
   const show = newShow(12, 3, ['Gold', '', 'Bronze']);
@@ -57,29 +57,23 @@ describe('the public and moderator views never leak (CONCEPT §8)', () => {
         for (const c of view.cases) {
           if (!m.opened.includes(c.number)) expect(c.artifact).toBeNull();
         }
-        for (const f of view.found) expect(m.opened).toContain(f.caseNumber);
       }
       expect(JSON.stringify(moderatorView(m, [MOD]))).not.toContain(secret);
     }
   });
 });
 
-describe('found prizes and the top bar', () => {
-  it('names a prize as found from the "Prize" step on, with its label and owner', () => {
+describe('found prizes', () => {
+  it('shows a prize from its "Open" step on, its case keeping its owner', () => {
     const show = sealedShow();
     const main = caseOf(show.model(), 'prize-1');
     show.run({ type: 'select', at: at(), by: MOD.id, caseNumber: main });
-    show.run({ type: 'step', at: at(), by: MOD.id, step: 'tension' });
-    show.run({ type: 'step', at: at(), by: MOD.id, step: 'open' });
     let view = publicView(show.model());
-    expect(view.cases[main - 1]?.artifact?.name).toBe('Halving Stone');
-    expect(view.found).toEqual([]);
-    expect(view.stillHidden.map((a) => a.name)).toContain('Halving Stone');
-    show.run({ type: 'step', at: at(), by: MOD.id, step: 'prize' });
+    expect(view.cases[main - 1]?.artifact).toBeNull();
+    show.run({ type: 'step', at: at(), by: MOD.id, step: 'open' });
     view = publicView(show.model());
-    expect(view.found).toMatchObject([{ slot: 1, label: 'Gold', caseNumber: main }]);
-    expect(view.found[0]?.ownerName).toBe(view.cases[main - 1]?.ownerName);
-    expect(view.stillHidden.map((a) => a.name)).toEqual(['Season Key', 'Winter Crystal']);
+    expect(view.cases[main - 1]?.artifact?.name).toBe('Halving Stone');
+    expect(view.cases[main - 1]?.ownerName).not.toBeNull();
     expect(view.allPrizesFound).toBe(false);
   });
 
@@ -91,7 +85,6 @@ describe('found prizes and the top bar', () => {
     }
     const view = publicView(show.model());
     expect(view.allPrizesFound).toBe(true);
-    expect(view.found.map((f) => f.label)).toEqual(['Gold', 'Prize 2', 'Bronze']);
     expect(view.cases[6]).toMatchObject({ ownerName: 'Ana', ownerRank: 3 });
     expect(view.board).toBeNull();
     expect(view.commitment).toMatch(/^[0-9a-f]{64}$/);

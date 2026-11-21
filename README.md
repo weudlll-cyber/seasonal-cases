@@ -2,8 +2,9 @@
 
 A moderated community live show for the Seasonal Entertainment community. Players register for a
 show and each picks a numbered case; the server seals an artifact into every case and publishes a
-commitment, and a moderator then opens the cases one at a time in five reveal steps (select,
-tension, open, prize, owner) until the prizes and their owners are found. There is no banker, no
+commitment, and a moderator then opens the cases one at a time: a click brings a case to the
+front, then Open, Owner and Back to stage, while a scoreboard shows which prizes are still hidden
+and which are taken, until the prizes and their owners are found. There is no banker, no
 deal and no decision a player makes during the show; nothing of monetary value is won in the game.
 
 **Two modes.** Embedded, the show runs inside the Seasonal Entertainment website with its sign-in,

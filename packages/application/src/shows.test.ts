@@ -49,7 +49,7 @@ describe('the show use cases', () => {
     expect(shows.seal(id, MOD.id).ok).toBe(true);
     expect(shows.start(id, MOD).ok).toBe(true);
     expect(shows.select(id, MOD.id, 7).ok).toBe(true);
-    for (const step of ['tension', 'open', 'prize', 'owner', 'return'] as const) {
+    for (const step of ['open', 'owner', 'return'] as const) {
       expect(shows.step(id, MOD.id, step).ok).toBe(true);
     }
     expect(shows.handOver(id, MOD.id, MOD2).ok).toBe(true);

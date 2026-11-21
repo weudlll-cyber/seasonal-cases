@@ -1,11 +1,12 @@
 /**
  * @file   packages/domain/src/show.test.ts
  * @brief  Tests a show's life through `decide` and the fold: setup, registration, sealing, the
- *         five steps under one direction holder, hand-over, the end and replay.
+ *         three steps under one direction holder, hand-over, the end and replay.
  */
 import { describe, expect, it } from 'vitest';
 
 import { decideCreate } from './commands.js';
+import type { ShowEvent } from './events.js';
 import { foldShow } from './model.js';
 import { seededRandom } from './random.js';
 import { DEFAULT_SETTINGS } from './settings.js';
@@ -34,7 +35,7 @@ function caseWith(show: Driver, prefix: string): number {
 
 function reveal(show: Driver, caseNumber: number, by = MOD.id): void {
   show.run({ type: 'select', at: at(), by, caseNumber });
-  for (const step of ['tension', 'open', 'prize', 'owner', 'return'] as const) {
+  for (const step of ['open', 'owner', 'return'] as const) {
     show.run({ type: 'step', at: at(), by, step });
   }
 }
@@ -88,7 +89,7 @@ describe('setup and registration', () => {
   });
 });
 
-describe('live: the direction holder and the five steps', () => {
+describe('live: the direction holder and the three steps', () => {
   it('lets only the holder act, and only while live', () => {
     const show = liveShow();
     expect(show.model().holder).toEqual(MOD);
@@ -97,27 +98,25 @@ describe('live: the direction holder and the five steps', () => {
     );
     expect(show.refused({ type: 'end', at: at(), by: 'ana' })).toMatch(/holder/);
     const sealed = newShow(2, 1);
-    expect(sealed.refused({ type: 'step', at: at(), by: MOD.id, step: 'tension' })).toMatch(
+    expect(sealed.refused({ type: 'step', at: at(), by: MOD.id, step: 'open' })).toMatch(
       /not live/,
     );
   });
 
-  it('walks select → tension → open → prize → owner → return in order only', () => {
+  it('walks select → open → owner → return in order only', () => {
     const show = liveShow();
-    expect(show.refused({ type: 'step', at: at(), by: MOD.id, step: 'tension' })).toMatch(/after/);
+    expect(show.refused({ type: 'step', at: at(), by: MOD.id, step: 'open' })).toMatch(/after/);
     show.run({ type: 'select', at: at(), by: MOD.id, caseNumber: 1 });
-    expect(show.refused({ type: 'step', at: at(), by: MOD.id, step: 'open' })).toMatch(
-      /after "tension"/,
+    expect(show.refused({ type: 'step', at: at(), by: MOD.id, step: 'owner' })).toMatch(
+      /after "open"/,
     );
-    show.run({ type: 'step', at: at(), by: MOD.id, step: 'tension' });
     // Before "Open" the moderator may still change the case.
     show.run({ type: 'select', at: at(), by: MOD.id, caseNumber: 2 });
     expect(show.model()).toMatchObject({ selected: 2, step: 'selected', opened: [] });
-    show.run({ type: 'step', at: at(), by: MOD.id, step: 'tension' });
     show.run({ type: 'step', at: at(), by: MOD.id, step: 'open' });
     expect(show.model().opened).toEqual([2]);
     expect(show.refused({ type: 'select', at: at(), by: MOD.id, caseNumber: 3 })).toMatch(/return/);
-    for (const step of ['prize', 'owner', 'return'] as const) {
+    for (const step of ['owner', 'return'] as const) {
       show.run({ type: 'step', at: at(), by: MOD.id, step });
     }
     expect(show.model()).toMatchObject({ selected: null, step: 'idle', opened: [2] });
@@ -129,6 +128,18 @@ describe('live: the direction holder and the five steps', () => {
     );
   });
 
+  it('folds a logged step the show no longer knows as a no-op', () => {
+    const show = liveShow();
+    show.run({ type: 'select', at: at(), by: MOD.id, caseNumber: 1 });
+    const unknown = {
+      type: 'stepped',
+      at: at(),
+      by: MOD.id,
+      step: 'drumroll',
+    } as unknown as ShowEvent;
+    expect(foldShow([...show.events, unknown])).toEqual(show.model());
+  });
+
   it('hands the direction over, and the new holder ends the show at any moment', () => {
     const show = liveShow();
     expect(show.refused({ type: 'handOver', at: at(), by: MOD.id, to: MOD })).toMatch(/already/);
@@ -137,7 +148,7 @@ describe('live: the direction holder and the five steps', () => {
     show.run({ type: 'select', at: at(), by: MOD2.id, caseNumber: 1 });
     show.run({ type: 'end', at: at(), by: MOD2.id });
     expect(show.model().state).toBe('ended');
-    expect(show.refused({ type: 'step', at: at(), by: MOD2.id, step: 'tension' })).toMatch(/ended/);
+    expect(show.refused({ type: 'step', at: at(), by: MOD2.id, step: 'open' })).toMatch(/ended/);
   });
 
   it('rebuilds the same state from the event log', () => {

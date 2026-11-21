@@ -27,6 +27,9 @@ the cases in five reveal steps. [CONCEPT.md](CONCEPT.md) v1.0 governs it; the de
   - the server with dev sign-in, dev admin API, claim and the socket side;
   - the client: lobby, registration board, stage, direction bar, result, dev admin, on the kit;
   - three browser journeys (CI job `e2e`) and 80 pictures in `.local/screens/proto-v1/`.
+- **Night chain SC-N2 (running):** kit v0.8.0 (D18), the click and three steps (D19), the
+  scoreboard (D20), fix A (the stage follows live → sealed → registration → setup → ended) and
+  fix B (no direction bar after the end) are on `proto/cases-v1` (piece 1). Concept v1.1.
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
 

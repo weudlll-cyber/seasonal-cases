@@ -14,6 +14,7 @@ import { formatTime, shortCommitment, useDockReserve } from '@sc/ui';
 import { useEffect, useState, type CSSProperties } from 'react';
 
 import { getJson } from '../lib/api.js';
+import { apiPath } from '../lib/base.js';
 import { ArtifactEmblem } from '../stage/ArtifactEmblem.js';
 
 export function ResultView({ result }: { result: ShowResult }) {
@@ -79,7 +80,7 @@ export function Result({ showId }: { showId: string }) {
   const [show, setShow] = useState<PublicShowView | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    getJson<PublicShowView>(`/api/shows/${showId}`)
+    getJson<PublicShowView>(apiPath(`/shows/${showId}`))
       .then(setShow)
       .catch((e: unknown) => {
         setError(e instanceof Error ? e.message : String(e));

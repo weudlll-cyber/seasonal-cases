@@ -9,7 +9,7 @@
  *                 ./session.js
  */
 import type { ShowService } from '@sc/application';
-import { ClaimRequestSchema } from '@sc/contracts';
+import { ClaimRequestSchema, type ShowState } from '@sc/contracts';
 import { publicView, type ShowModel } from '@sc/domain';
 import type { FastifyInstance } from 'fastify';
 
@@ -20,10 +20,18 @@ interface IdParams {
   readonly id: string;
 }
 
-/** The show the lobby shows: the newest one not ended, else the newest. */
+// Which show the lobby and the stage follow: the newest live one, else the newest sealed, in
+// registration, in setup, and only then the newest ended (night chain SC-N2, fix A).
+const FOLLOW_ORDER: readonly ShowState[] = ['live', 'sealed', 'registration', 'setup', 'ended'];
+
+/** The show the lobby and the stage follow; `shows.list()` is newest first. */
 export function currentShow(shows: ShowService): ShowModel | null {
   const all = shows.list();
-  return all.find((m) => m.state !== 'ended') ?? all[0] ?? null;
+  for (const state of FOLLOW_ORDER) {
+    const found = all.find((m) => m.state === state);
+    if (found !== undefined) return found;
+  }
+  return null;
 }
 
 export function showRoutes(app: FastifyInstance, shows: ShowService): void {

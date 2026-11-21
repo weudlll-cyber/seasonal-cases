@@ -14,9 +14,7 @@ import { quickTestSealing, signInApi, signInUi } from './helpers.js';
 
 // The direction bar's buttons and the step the player's stage shows after each.
 const STEPS = [
-  ['Tension', 'tension'],
   ['Open', 'open'],
-  ['Prize', 'prize'],
   ['Owner', 'owner'],
   ['Back to stage', 'idle'],
 ] as const;

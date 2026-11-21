@@ -1,27 +1,31 @@
 /**
  * @file   apps/web/src/lib/router.tsx
- * @brief  The client's four routes on the History API: `/`, `/show`, `/results/<id>`, `/admin`.
+ * @brief  The client's routes on the History API, under the base path (./base.ts).
  *
- * Responsibility: the current path as React state, `navigate` for in-app moves, and `Link` for
- *                 anchors that move without a reload. No router library: four routes do not
- *                 need one.
- * Depends on:     react
+ * Responsibility: the current app path (without the base path) as React state, `navigate` for
+ *                 in-app moves, and `Link` for anchors that move without a reload. Routes are
+ *                 written as app paths (`/show`); the base path is added here. No router
+ *                 library: a handful of routes does not need one.
+ * Depends on:     react, ./base.js
  */
 import { useEffect, useState, type MouseEvent, type ReactNode } from 'react';
 
+import { appPathOf, pagePath } from './base.js';
+
 const MOVED = 'sc:navigate';
 
+/** Moves to an app path ("/show") without a reload. */
 export function navigate(path: string): void {
-  window.history.pushState(null, '', path);
+  window.history.pushState(null, '', pagePath(path));
   window.dispatchEvent(new Event(MOVED));
 }
 
-/** The path of the page, following back/forward and `navigate`. */
+/** The app path of the page, following back/forward and `navigate`. */
 export function usePath(): string {
-  const [path, setPath] = useState(() => window.location.pathname);
+  const [path, setPath] = useState(() => appPathOf(window.location.pathname));
   useEffect(() => {
     const update = () => {
-      setPath(window.location.pathname);
+      setPath(appPathOf(window.location.pathname));
     };
     window.addEventListener('popstate', update);
     window.addEventListener(MOVED, update);
@@ -62,7 +66,7 @@ export function Link({
     navigate(to);
   };
   return (
-    <a href={to} onClick={onClick} className={className}>
+    <a href={pagePath(to)} onClick={onClick} className={className}>
       {children}
     </a>
   );

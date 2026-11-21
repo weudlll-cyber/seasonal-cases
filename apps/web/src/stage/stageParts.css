@@ -1,6 +1,6 @@
 /**
  * @file   apps/web/src/stage/stageParts.css
- * @brief  The stage's bars and overlays: top bar, note, lower third, confetti, direction bar,
+ * @brief  The stage's bars and overlays: commitment, note, lower third, confetti, direction bar,
  *         and the phone layout.
  *
  * Responsibility: the parts around the half circle (./stage.css). Colours only from the kit's
@@ -9,46 +9,6 @@
  *                 area and the centre stage follows below them.
  * Depends on:     @seasonal/kit/tokens.css, @sc/ui pending/fit-cases.css, ./stage.css
  */
-
-.stage-top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1) var(--space-2);
-  padding: 6px var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  background: var(--sidebar-background);
-  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
-}
-
-.stage-hidden,
-.stage-found {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.stage-top-label {
-  font-weight: var(--font-weight-strong);
-}
-
-.stage-found li {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 2px 10px;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
-}
-
-.stage-found-owner {
-  font-weight: var(--font-weight-strong);
-}
 
 .stage-commitment {
   margin-left: auto;

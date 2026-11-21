@@ -1,7 +1,7 @@
 /**
  * @file   apps/web/src/stage/stage.css
  * @brief  The stage: the studio panel, the half circle of cases, the spotlight, the centre stage
- *         through the five steps, the lower third and the confetti.
+ *         through the steps, the lower third and the confetti.
  *
  * Responsibility: every step is a visible state change (`data-step` on the screen) with short
  *                 transitions; colours only from the kit's tokens; sizes follow `--fit` with the
@@ -36,7 +36,7 @@
   overflow: hidden;
 }
 
-/* Lights down at "tension": the overlay darkens, the spotlight stays. */
+/* Lights down while a case is at the front: the overlay darkens, the spotlight stays. */
 .stage::after {
   content: '';
   position: absolute;
@@ -47,7 +47,7 @@
   transition: background var(--duration-slow) var(--ease-out);
 }
 
-.stage-screen[data-step='tension'] .stage::after {
+.stage-screen[data-dimmed='true'] .stage::after {
   background: rgb(5 8 30 / 38%);
 }
 
@@ -226,8 +226,8 @@ button.case-body:focus-visible {
   color: var(--color-text-muted);
 }
 
-/* Tension: the drum-roll motion. */
-.stage-screen[data-step='tension'] .centre-case {
+/* Selected, before it opens: the drum-roll motion. */
+.stage-screen[data-step='selected'] .centre-case {
   animation: sc-drumroll 0.32s ease-in-out infinite;
 }
 

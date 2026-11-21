@@ -3,8 +3,9 @@
  * @brief  Journey 1: a Quick Test show from the admin to the verified result, with a hand-over.
  *
  * Responsibility: an admin signs in and runs Quick Test (N = 12, W = 3, seed `sc-n1-01`); the
- *                 same user holds the direction and opens four cases through all five steps
- *                 (a blank and the main prize among them), hands over to a second moderator in a
+ *                 same user holds the direction and opens four cases through the click and the
+ *                 three steps (a blank and the main prize among them), the scoreboard striking
+ *                 each prize through once its case is back; hands over to a second moderator in a
  *                 second browser context, who ends the show; the result verifies. Each step is
  *                 asserted as visible; the lower third shows the owner.
  */
@@ -13,7 +14,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { quickTestSealing, signInUi } from './helpers.js';
 
 const SEED = 'sc-n1-01';
-const STEPS = ['Tension', 'Open', 'Prize', 'Owner', 'Back to stage'] as const;
+const STEPS = ['Open', 'Owner', 'Back to stage'] as const;
 
 async function revealCase(page: Page, caseNumber: number): Promise<void> {
   const stage = page.locator('.stage-screen');
@@ -26,9 +27,10 @@ async function revealCase(page: Page, caseNumber: number): Promise<void> {
     .innerText();
   for (const label of STEPS) {
     await bar.getByRole('button', { name: label }).click();
-    if (label === 'Tension') await expect(stage).toHaveAttribute('data-step', 'tension');
-    if (label === 'Open') await expect(page.locator('.centre .artifact')).toBeVisible();
-    if (label === 'Prize') await expect(page.locator('.centre-meaning')).toBeVisible();
+    if (label === 'Open') {
+      await expect(page.locator('.centre .artifact')).toBeVisible();
+      await expect(page.locator('.centre-meaning')).toBeVisible();
+    }
     if (label === 'Owner') {
       await expect(page.locator('.lower-third')).toBeVisible();
       await expect(page.locator('.lower-third-name')).toHaveText(owner);
@@ -40,7 +42,7 @@ async function revealCase(page: Page, caseNumber: number): Promise<void> {
   );
 }
 
-test('journey 1: Quick Test, four cases through five steps, hand-over, verified result', async ({
+test('journey 1: Quick Test, four cases through the three steps, hand-over, verified result', async ({
   page,
   browser,
 }) => {
@@ -65,11 +67,11 @@ test('journey 1: Quick Test, four cases through five steps, hand-over, verified 
   const commitment = await page.locator('.stage-commitment').getAttribute('title');
 
   await revealCase(page, blank);
-  await expect(page.locator('.stage-found')).toHaveCount(0);
+  await expect(page.locator('.score-row.is-taken')).toHaveCount(0);
   await revealCase(page, main);
   await revealCase(page, second);
   await revealCase(page, third);
-  await expect(page.locator('.stage-found li')).toHaveCount(3);
+  await expect(page.locator('.score-row.is-taken')).toHaveCount(3);
   await expect(page.getByRole('button', { name: 'End show' })).toHaveClass(/is-ready/);
 
   // A second moderator watches the stage in a second context; the direction goes to him.

@@ -19,6 +19,7 @@ import './shell/shell.css';
 import './stage/artifact.css';
 import './stage/stage.css';
 import './stage/stageParts.css';
+import './stage/scoreboard.css';
 import './board/board.css';
 import './screens/screens.css';
 

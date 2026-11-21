@@ -4,7 +4,7 @@
  *         sizes, light and dark, into .local/screens/proto-v1/ (never into git).
  *
  * Responsibility: delete the topic's previous pictures, then shoot the registration board, the
- *                 stage at "tension", the stage at "owner" on the main prize, and the result, at
+ *                 stage at "selected", the stage at "owner" on the main prize, and the result, at
  *                 every PC and phone size in both themes. Beside each picture it measures the
  *                 smallest visible text and whether the page overflows sideways, and writes all
  *                 findings to `checks.json`. Runs only as the project `screens`.
@@ -71,7 +71,7 @@ async function shoot(page: Page, name: string): Promise<void> {
   }
 }
 
-test('screens: board, tension, owner on the main prize, result', async ({ page, browser }) => {
+test('screens: board, selected, owner on the main prize, result', async ({ page, browser }) => {
   test.setTimeout(600_000);
   rmSync(DIR, { recursive: true, force: true });
   mkdirSync(DIR, { recursive: true });
@@ -112,11 +112,9 @@ test('screens: board, tension, owner on the main prize, result', async ({ page, 
   await page.goto('/show');
   const bar = page.getByRole('navigation', { name: 'Direction' });
   await page.locator(`.case-token[data-case="${String(main)}"] button`).click();
-  await bar.getByRole('button', { name: 'Tension' }).click();
-  await expect(page.locator('.stage-screen')).toHaveAttribute('data-step', 'tension');
-  await shoot(page, 'stage-tension');
-  for (const label of ['Open', 'Prize', 'Owner'])
-    await bar.getByRole('button', { name: label }).click();
+  await expect(page.locator('.stage-screen')).toHaveAttribute('data-step', 'selected');
+  await shoot(page, 'stage-selected');
+  for (const label of ['Open', 'Owner']) await bar.getByRole('button', { name: label }).click();
   await expect(page.locator('.lower-third')).toBeVisible();
   await shoot(page, 'stage-owner');
 

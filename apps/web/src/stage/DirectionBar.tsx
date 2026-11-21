@@ -2,8 +2,8 @@
  * @file   apps/web/src/stage/DirectionBar.tsx
  * @brief  The direction holder's narrow bar: the next steps, hand-over and end (CONCEPT §3.4).
  *
- * Responsibility: one button per step after "select" (selecting is a click on a case), each
- *                 enabled when it is the next one; "Hand over" to a moderator watching the show;
+ * Responsibility: one button per step after the click on a case (Open, Owner, Back to stage),
+ *                 each enabled when it is the next one; "Hand over" to a moderator watching the show;
  *                 "End show", highlighted once every prize is found. Every click goes to the
  *                 server, whose ack or refusal is shown; the server decides.
  * Depends on:     react, @sc/contracts (types), ../lib/useAction.js
@@ -20,10 +20,13 @@ type Direct = (
 
 // Each button, the step it follows, and its tooltip.
 const BUTTONS: readonly { step: DirectionStep; after: RevealStep; label: string; tip: string }[] = [
-  { step: 'tension', after: 'selected', label: 'Tension', tip: 'Lights down, drum-roll' },
-  { step: 'open', after: 'tension', label: 'Open', tip: 'Open the case: its artifact appears' },
-  { step: 'prize', after: 'open', label: 'Prize', tip: 'Show what the artifact means' },
-  { step: 'owner', after: 'prize', label: 'Owner', tip: 'Show whose case it is' },
+  {
+    step: 'open',
+    after: 'selected',
+    label: 'Open',
+    tip: 'Open the case: its artifact and meaning appear',
+  },
+  { step: 'owner', after: 'open', label: 'Owner', tip: 'Show whose case it is' },
   { step: 'return', after: 'owner', label: 'Back to stage', tip: 'Return the case as opened' },
 ];
 

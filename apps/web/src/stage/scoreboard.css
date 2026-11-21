@@ -1,0 +1,93 @@
+/**
+ * @file   apps/web/src/stage/scoreboard.css
+ * @brief  The scoreboard above the stage: one row per artifact, open, lit or taken.
+ *
+ * Responsibility: the rows side by side on a desktop, one line per row on a phone (under 700 px
+ *                 of width). "Lit" glows in Autumn's colour; "taken" is struck through and muted
+ *                 but keeps its owner readable. Colours only from the kit's tokens; text never
+ *                 under the cases' 14 px floor.
+ * Depends on:     @seasonal/kit/tokens.css, @sc/ui pending/fit-cases.css, ./artifact.css
+ */
+
+.scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px var(--space-2);
+  padding: 6px var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--sidebar-background);
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
+}
+
+.scoreboard-rows {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.score-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--sk-floor-row);
+  padding: 3px 12px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  transition:
+    background var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out),
+    opacity var(--duration-base) var(--ease-out);
+}
+
+.score-meaning {
+  color: var(--color-text-muted);
+}
+
+.score-owner {
+  font-weight: var(--font-weight-strong);
+}
+
+/* Lit: its case is open at the front now. */
+.score-row.is-lit {
+  border-color: var(--color-autumn);
+  box-shadow: 0 0 18px rgb(249 168 37 / 45%);
+}
+
+.score-row.is-lit .score-meaning {
+  color: var(--color-text);
+  font-weight: var(--font-weight-strong);
+}
+
+/* Taken: its case has left the front. Struck through, the owner kept. */
+.score-row.is-taken {
+  background: var(--color-surface-2);
+}
+
+.score-row.is-taken .artifact-name,
+.score-row.is-taken .score-meaning {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+@media (max-width: 699px) {
+  .scoreboard-rows {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .score-row {
+    display: flex;
+    width: 100%;
+    border-radius: var(--radius);
+  }
+
+  .score-owner {
+    margin-left: auto;
+  }
+}

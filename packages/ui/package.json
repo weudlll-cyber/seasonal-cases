@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@sc/contracts": "workspace:*",
-    "@seasonal/kit": "github:weudlll-cyber/seasonal-kit#v0.5.0",
+    "@seasonal/kit": "github:weudlll-cyber/seasonal-kit#v0.8.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },

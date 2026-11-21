@@ -36,7 +36,7 @@ function record(socket: Client) {
   return seen;
 }
 
-const STEPS = ['tension', 'open', 'prize', 'owner', 'return'] as const;
+const STEPS = ['open', 'owner', 'return'] as const;
 
 /** No payload holds the secret, the assignment or the content of an unopened case. */
 function expectNoLeak(views: readonly PublicShowView[], secret: string): void {
@@ -56,7 +56,7 @@ describe('direction actions', () => {
     const ana = await harness.signIn('Ana', 'player', 5);
     const actions = [
       ['direction:select', { showId: id, caseNumber: 1 }],
-      ['direction:step', { showId: id, step: 'tension' }],
+      ['direction:step', { showId: id, step: 'open' }],
       ['direction:handOver', { showId: id, toModeratorId: noah.me.id }],
       ['direction:end', { showId: id }],
     ] as const;
@@ -122,7 +122,7 @@ describe('projections over the socket', () => {
     }
     // One round trip more, so every push has arrived.
     await send(player, 'show:watch', { showId: id });
-    expect(seen.public.length).toBeGreaterThan(15);
+    expect(seen.public.length).toBeGreaterThan(10);
     expectNoLeak(seen.public, harness.server.shows.get(id)?.sealing?.secret ?? 'missing');
     expect(
       seen.public
