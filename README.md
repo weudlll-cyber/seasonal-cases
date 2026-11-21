@@ -14,7 +14,10 @@ manually assigned ranks. In development the local mode also has a development si
 and rank, no password) for the Quick Test; it exists only with `NODE_ENV=development` and
 `SC_DEV=1` (`apps/server/dev.env`).
 
-**Status:** prototype (phase P1 of [docs/CONCEPT.md](docs/CONCEPT.md) §12).
+**Status:** release candidate 1.0.0-rc.1 on the branch `proto/cases-v1`, not merged yet:
+phases P0 to P3 built, P4 (installer, security reviews) built, the first show on a server
+waits for the merge ([docs/CONCEPT.md](docs/CONCEPT.md) §12, [CHANGELOG.md](CHANGELOG.md),
+[docs/RELEASING.md](docs/RELEASING.md)).
 
 ## Run it locally
 
@@ -25,7 +28,7 @@ pnpm install
 pnpm dev       # server on 127.0.0.1:3970, client on 0.0.0.0:5470
 ```
 
-Open http://localhost:5470 (the game, and `/admin` for the development admin). The client listens
+Open http://localhost:5470 (the game, and `/admin` for the admin area). The client listens
 on every interface, so a phone on the same network reaches it at `http://<PC's IPv4>:5470`.
 
 | Port | What                                             |
@@ -106,6 +109,9 @@ empty.
 - [docs/DECISIONS.md](docs/DECISIONS.md): the decisions, as dated facts.
 - [docs/BACKLOG.md](docs/BACKLOG.md) and [docs/OPEN.md](docs/OPEN.md): what is open and closed.
 - [docs/HANDOVER.md](docs/HANDOVER.md): where things stand.
+- [docs/CONFIG.md](docs/CONFIG.md), [docs/INSTALL.md](docs/INSTALL.md) and
+  [docs/RELEASING.md](docs/RELEASING.md): settings, installing, releasing.
+- [docs/security-pass.md](docs/security-pass.md): the independent security reviews.
 - [CONTRIBUTING.md](CONTRIBUTING.md) and [CLAUDE.md](CLAUDE.md): how work is done here.
 
 ## License

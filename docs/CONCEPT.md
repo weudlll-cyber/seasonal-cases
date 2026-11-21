@@ -7,6 +7,7 @@
 | 1.2 | 2026-11-21 | Night chain SC-N2: the moving case (§7). |
 | 1.3 | 2026-11-21 | Night chain SC-N2: the opening and the ceremony (§3.4, §3.5), the result frame (§3.5), the start page and focus mode (§7). |
 | 1.4 | 2026-11-21 | Night chain SC-N2: website mode as built, the organiser role, the rank and badges in website mode (§10). |
+| 1.5 | 2026-11-22 | Night chain SC-N3: the phases' status (§12); nothing else changes. |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -272,13 +273,13 @@ injected ports) ← `application` ← `apps/server`; the client renders, the ser
 
 ## 12. Phases
 
-| Phase | Content | Gate |
-|---|---|---|
-| **P0 Bootstrap** | Repository, standards, CI, protection, kit pinned, docs skeleton. | CI green on master. |
-| **P1 Prototype** | Development sign-in, dev admin, registration board with case conflicts, sealing with commitment, the live stage with the reveal steps, direction bar with hand-over, result screen, bots, Quick Test seed, light/dark, fit to the check sizes. Silent. | The owner plays it and says it is fun. |
-| **P2 Foundation** | Accounts, 2FA, roles, lobby, website mode, chat dock, call slot, ranks (website / manual), PostgreSQL, admin area with the settings catalogue. | Owner's acceptance. |
-| **P3 Show polish** | Sound, chronicle, "My matches", viewer participation (applause button, tips on the main-prize owner, next-case suggestions), seasonal theming of the stage. | Owner's acceptance per item. |
-| **P4 Release** | Installer, security review, first show on the VPS. | Security pass green. |
+| Phase | Content | Gate | Status (2026-11-22) |
+|---|---|---|---|
+| **P0 Bootstrap** | Repository, standards, CI, protection, kit pinned, docs skeleton. | CI green on master. | Done (on master). |
+| **P1 Prototype** | Development sign-in, dev admin, registration board with case conflicts, sealing with commitment, the live stage with the reveal steps, direction bar with hand-over, result screen, bots, Quick Test seed, light/dark, fit to the check sizes. Silent. | The owner plays it and says it is fun. | Built on `proto/cases-v1`; the gate waits for the owner. |
+| **P2 Foundation** | Accounts, 2FA, roles, lobby, website mode, chat dock, call slot, ranks (website / manual), PostgreSQL, admin area with the settings catalogue. | Owner's acceptance. | Built on `proto/cases-v1`; the call slot stays hidden (no call yet). |
+| **P3 Show polish** | Sound, chronicle, "My matches", viewer participation (applause button, tips on the main-prize owner, next-case suggestions), seasonal theming of the stage. | Owner's acceptance per item. | Built except viewer participation (BACKLOG 10, the owner's word). |
+| **P4 Release** | Installer, security review, first show on the VPS. | Security pass green. | Installer and two security reviews built; release candidate 1.0.0-rc.1; the first show on the VPS waits for the merge. |
 
 ## 13. Deliberately not built
 
