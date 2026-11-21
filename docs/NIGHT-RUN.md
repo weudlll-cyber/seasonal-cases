@@ -17,8 +17,8 @@ Written when the chain ends.
 | ------------------------------------------ | ---- | ------- | -------------------- | ---------------------- | --------------- | -------------------- |
 | 1 Small fixes, remaining security findings | all  | —       | —                    | BACKLOG 29, 30         | `06eafb6`       | CI 44953788972 green |
 | 2 Production run                           | all  | —       | —                    | —                      | `eeab324`       | CI 44956967985 green |
-| 3 Member summary                           | all  | —       | BACKLOG 33 (website) | —                      | see piece 4 row | see piece 4 row      |
-| 4 Installer                                | —    | —       | all                  | —                      | —               | —                    |
+| 3 Member summary                           | all  | —       | BACKLOG 33 (website) | —                      | `40d6bb3`       | CI 44957568796 green |
+| 4 Installer                                | all  | —       | BACKLOG 34, 35       | —                      | see piece 5 row | see piece 5 row      |
 | 5 Sound                                    | —    | —       | all                  | —                      | —               | —                    |
 | 6 Phone polish, Firefox and WebKit         | —    | —       | all                  | —                      | —               | —                    |
 | 7 Security review, release readiness       | —    | —       | all                  | —                      | —               | —                    |
@@ -108,6 +108,49 @@ Written when the chain ends.
 - **Noticed, left alone:** the kit repository got a commit tonight (`21e82eb`, "the second
   independent review's findings"); no new tag, so the pin stays (the standing rule checks at the
   chain's start). The website's GAME-INTEGRATION §6 now lists `cases` among the embedded slugs.
+- `pnpm verify` green (31 files, 155 tests).
+
+### Piece 4 report
+
+- **Pattern:** Mini Games' installer (`ops/install.sh`) runs Docker; the questions, the remembered
+  answers, the secrets kept once, `put_file`, the route files and their check-and-restore follow
+  it. Node, pnpm, the system user and systemd have no game precedent; Node comes from NodeSource's
+  signed apt repository, the way the website's installer adds Docker.
+- **`deploy/install.sh`** (one call from a clone): asks the mode, port, code (repository and
+  ref), database (`create`: a local PostgreSQL role and database, the password generated and kept
+  in the environment file only; or a URL), and per mode the public origin, proxies and SMTP
+  (local) or the website's origin, its proxy (`nginx` found by itself when its routes folder
+  exists), the routes folder, the site port file and the bridge address (website). Remembered in
+  `/etc/seasonal-cases/install.conf` (0600, no secrets); settings and secrets in `cases.env`
+  (0600, read by systemd); `--answers FILE`, `--yes`, `--update` (new `--ref`, the rest
+  remembered), `--check` (says each file it would write, changes nothing). A re-run with the same
+  answers changes nothing.
+- **`deploy/lib/`:** `common.sh` (questions, files, secrets; every path under `SC_ROOT` for the
+  tests), `host.sh` (Debian/Ubuntu check, packages, Node 22, corepack, PostgreSQL), `app.sh`
+  (user, code, build, settings, the hardened systemd unit `seasonal-cases`, readiness through
+  `/api/ready`), `route.sh` (the route file).
+- **Website mode route file** (`cases.conf` for nginx in `/etc/seasonal/routes`, `cases.caddy`
+  for the site's Caddy; 0600): `/games/cases` → `/games/cases/`; `/games/cases/api/website/`
+  answers 404 publicly (the profile card is the website's alone, §7); every request has the
+  identity headers and the secret cleared and the website's session cookie removed; only the sign-in
+  route asks `/api/games/cases/authorize`, passes the identity on and then adds
+  `X-Sc-Proxy-Secret`; `nginx -t` or `caddy validate` before the reload, the previous file back
+  when the check fails. The feed stays denied by the website's own files. With the site's Caddy in
+  its container the game listens on the Docker bridge (`SC_HOST`, new) and the feed is off
+  (BACKLOG 35).
+- **`deploy/admin.sh`:** `pnpm sc` on an installed game, the settings loaded into the process,
+  never onto a command line.
+- **Tests:** `deploy/test/installer.test.sh`, 41 checks in four cases (local with database and
+  mail, re-run, `--check`, `--update`; nginx with a refused check restoring the route; Caddy;
+  refusals and an answers file), stub commands on PATH under a temporary root; shellcheck 0.10.0
+  through the entry points (it follows the libraries). CI job `deploy` runs both. Locally both
+  ran in Docker (`ubuntu:24.04`, `koalaman/shellcheck:v0.10.0`).
+- **Server:** `SC_HOST` (IPv4, default 127.0.0.1) in `config.ts`, `main.ts`, docs/CONFIG.md; the
+  config test names a malformed one.
+- **Docs:** docs/INSTALL.md (step by step, for a terminal such as Termius), README "Install on a
+  server", `deploy/answers.example`.
+- **Found on the way:** Python's text mode on Windows had written two scripts with CRLF; they are
+  LF now (`.gitattributes` normalises on commit anyway).
 - `pnpm verify` green (31 files, 155 tests).
 
 ## Night chain SC-N2 (2026-11-21)

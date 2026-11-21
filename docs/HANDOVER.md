@@ -63,6 +63,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
   Piece 2: `pnpm build` and `pnpm start` (one process, the built client, health and ready,
   JSON logs, graceful stop), every variable in [CONFIG.md](CONFIG.md).
   Piece 3: the member summary for the website's profile (`/api/website/member-summary`).
+  Piece 4: the installer, `sudo ./deploy/install.sh` ([INSTALL.md](INSTALL.md)), both modes,
+  `--update` and `--check`, tested by `deploy/test/installer.test.sh` and shellcheck in CI.
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.

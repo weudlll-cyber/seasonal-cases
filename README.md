@@ -37,9 +37,19 @@ on every interface, so a phone on the same network reaches it at `http://<PC's I
 | 3990 | the browser tests' server in website mode        |
 | 5485 | the browser tests' stand-in website              |
 
-## Run it in production
+## Install on a server
 
-Node 22+, pnpm and PostgreSQL; the installer (`deploy/install.sh`) does all of this on a VPS.
+On a Debian or Ubuntu server, from a clone of this repository:
+
+```sh
+sudo ./deploy/install.sh            # asks once, remembers; --update --ref <tag> later
+```
+
+Step by step, standalone or under the website: [docs/INSTALL.md](docs/INSTALL.md).
+
+## Run it in production by hand
+
+Node 22+, pnpm and PostgreSQL; the installer does all of this for you.
 
 ```sh
 pnpm install --frozen-lockfile

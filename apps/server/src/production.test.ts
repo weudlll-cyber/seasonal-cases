@@ -61,8 +61,9 @@ describe('the settings check', () => {
       SC_COOKIE_SECRET: 'too short',
       SC_PUBLIC_ORIGIN: 'not an address',
       SC_MODE: 'cloud',
+      SC_HOST: 'localhost',
     });
-    expect(problems).toHaveLength(6);
+    expect(problems).toHaveLength(7);
   });
 
   it('asks website mode for its trust settings and the feed for both values', () => {

@@ -5,7 +5,7 @@
  *
  * Responsibility: read and check every variable through ./configRead.ts and refuse to start with
  *                 one message naming every missing or malformed value and the mode that needs it.
- *                 - Always: SC_PORT, SC_MODE (`local` or `website`, GAME-INTEGRATION §1, base
+ *                 - Always: SC_PORT, SC_HOST, SC_MODE (`local` or `website`, GAME-INTEGRATION §1, base
  *                   path `/` or `/games/cases/`), SC_LOG_LEVEL, SC_DATA_DIR, SC_CLIENT_DIR.
  *                 - Development features only with NODE_ENV=development and SC_DEV=1, local mode.
  *                 - Production (NODE_ENV=production): DATABASE_URL, SC_DATA_KEY and
@@ -43,6 +43,8 @@ export interface WebsiteConfig {
 
 export interface ServerConfig {
   readonly port: number;
+  // The address it listens on: 127.0.0.1, or the Docker bridge for a website proxy in a container.
+  readonly host: string;
   readonly mode: Mode;
   readonly basePath: string;
   readonly dev: boolean;
@@ -143,6 +145,15 @@ function localFrom(read: EnvReader, dev: boolean, production: boolean): Local {
   };
 }
 
+// An IPv4 address of this machine; never a name, so the bind is what the operator wrote.
+function hostFrom(read: EnvReader): string {
+  const host = read.text('SC_HOST');
+  if (host === '') return '127.0.0.1';
+  if (/^(\d{1,3}\.){3}\d{1,3}$/.test(host)) return host;
+  read.note('SC_HOST must be an IPv4 address of this machine, such as 127.0.0.1');
+  return '127.0.0.1';
+}
+
 interface Basics {
   readonly mode: Mode;
   readonly production: boolean;
@@ -183,6 +194,7 @@ export function configFrom(env: NodeJS.ProcessEnv): ServerConfig {
   const config: ServerConfig = {
     ...basics,
     port: read.int('SC_PORT', 3970, { min: 0, max: 65_535 }),
+    host: hostFrom(read),
     basePath: basics.mode === 'website' ? `/games/${GAME_SLUG}/` : '/',
     version: version(),
     ...runtimeFrom(read, basics),

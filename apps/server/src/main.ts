@@ -1,6 +1,6 @@
 /**
  * @file   apps/server/src/main.ts
- * @brief  Starts the server on 127.0.0.1 at its port (CONCEPT §11: 3970), in development and
+ * @brief  Starts the server on its address (127.0.0.1 unless SC_HOST says otherwise) and port (CONCEPT §11: 3970), in development and
  *         production alike (`pnpm dev`, `pnpm start`).
  *
  * Responsibility: read the settings (./config.ts refuses a wrong environment with one message
@@ -45,7 +45,7 @@ const database =
         },
       });
 const { app } = await buildServer(config, database?.stores);
-await app.listen({ host: '127.0.0.1', port: config.port });
+await app.listen({ host: config.host, port: config.port });
 app.log.info(
   {
     mode: config.mode,
@@ -53,7 +53,7 @@ app.log.info(
     dev: config.dev,
     store: database === null ? 'files and memory' : 'postgresql',
   },
-  `Seasonal Cases server on http://127.0.0.1:${String(config.port)}${config.basePath}`,
+  `Seasonal Cases server on http://${config.host}:${String(config.port)}${config.basePath}`,
 );
 
 let stopping = false;

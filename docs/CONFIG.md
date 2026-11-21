@@ -12,15 +12,16 @@ service's environment file), **website** (the website's operator gives it), **de
 
 ## Always
 
-| Variable        | Default                                | Required in | From      | What                                                                                                           |
-| --------------- | -------------------------------------- | ----------- | --------- | -------------------------------------------------------------------------------------------------------------- |
-| `NODE_ENV`      | (unset)                                | —           | installer | `production` for a real server (`pnpm start` sets it when unset); `development` with `SC_DEV=1` for `pnpm dev` |
-| `SC_MODE`       | `local`                                | —           | installer | `local` (own domain, own accounts) or `website` (embedded under `/games/cases/`)                               |
-| `SC_PORT`       | `3970`                                 | —           | installer | the port on 127.0.0.1; a reverse proxy faces the internet                                                      |
-| `SC_LOG_LEVEL`  | `info` (production, dev), else `error` | —           | you       | `fatal`, `error`, `warn`, `info` or `debug`; one JSON line per event on stdout                                 |
-| `SC_CLIENT_DIR` | `apps/web/dist` in production          | —           | you       | the built client this process serves under the base path                                                       |
-| `SC_DATA_DIR`   | `.local/data`                          | —           | you       | the shows' event log without a database (development only)                                                     |
-| `SC_DEV`        | (unset)                                | —           | dev       | `1` with `NODE_ENV=development` turns the development sign-in and Quick Test on (local mode only)              |
+| Variable        | Default                                | Required in | From      | What                                                                                                             |
+| --------------- | -------------------------------------- | ----------- | --------- | ---------------------------------------------------------------------------------------------------------------- |
+| `NODE_ENV`      | (unset)                                | —           | installer | `production` for a real server (`pnpm start` sets it when unset); `development` with `SC_DEV=1` for `pnpm dev`   |
+| `SC_MODE`       | `local`                                | —           | installer | `local` (own domain, own accounts) or `website` (embedded under `/games/cases/`)                                 |
+| `SC_PORT`       | `3970`                                 | —           | installer | the port on 127.0.0.1; a reverse proxy faces the internet                                                        |
+| `SC_HOST`       | `127.0.0.1`                            | —           | installer | the address it listens on; the Docker bridge (such as `172.17.0.1`) when the website's Caddy runs in a container |
+| `SC_LOG_LEVEL`  | `info` (production, dev), else `error` | —           | you       | `fatal`, `error`, `warn`, `info` or `debug`; one JSON line per event on stdout                                   |
+| `SC_CLIENT_DIR` | `apps/web/dist` in production          | —           | you       | the built client this process serves under the base path                                                         |
+| `SC_DATA_DIR`   | `.local/data`                          | —           | you       | the shows' event log without a database (development only)                                                       |
+| `SC_DEV`        | (unset)                                | —           | dev       | `1` with `NODE_ENV=development` turns the development sign-in and Quick Test on (local mode only)                |
 
 ## Database and secrets
 
