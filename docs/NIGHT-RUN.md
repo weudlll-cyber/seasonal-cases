@@ -71,32 +71,33 @@ Written when the chain ends.
 
 ### Piece 2 report
 
-- **The travel** ():
+- **The travel** (`stage/travel.ts`):
   - after the click the front case is drawn at the front, then placed onto its place on the
     half circle with an inverse transform (start and end rectangles measured), and a CSS
     transition takes it to the front, 0.8 s ease-in-out;
-  - the case's place keeps its room but hides the case (), so it never shows twice
+  - the case's place keeps its room but hides the case (`is-away`), so it never shows twice
     and never fades out and in;
-  - after Back to stage, keeps the case at the front while it closes (0.3 s), then
+  - after Back to stage, `useReturn` keeps the case at the front while it closes (0.3 s), then
     it travels home;
   - a new selection ends any travel at once, and a click during a motion is sent at once.
-- **The slow opening** (, 1.6 s): the lid rises in the first 45 %, the glow
+- **The slow opening** (`stage/front.css`, 1.6 s): the lid rises in the first 45 %, the glow
   grows under it, the artifact emerges from 40 %, the meaning fades in from 80 %. The artifact is
   drawn only when the view carries it.
-- **One settings object** (): every duration, as the CSS variables
-  , , , on the stage. Under reduced motion
-  the kit's motion.css turns every transition and animation off, and answers 0, so
+- **One settings object** (`stage/motion.ts`): every duration, as the CSS variables
+  `--travel-ms`, `--travel-ease`, `--open-ms`, `--close-ms` on the stage. Under reduced motion
+  the kit's motion.css turns every transition and animation off, and `motionMs` answers 0, so
   the stage shows end states at once.
 - **Removed:** the drum-roll shake at the click and the centre's fade-in (the travel replaces
-  them); the front case's rules moved from to .
-- **Tests:** covers:
+  them); the front case's rules moved from `stage.css` to `front.css`.
+- **Tests:** `stage/motion.test.tsx` covers:
   - the settings and their CSS variables;
   - the inverse transform;
   - the way home, with a new selection ending it;
   - no artifact while the view has none.
 
   Journey 1 checks that the case's box at the front differs from its box at its place (moved
-  more than 20 px, wider), and that neither artifact nor meaning shows before Open. green (19 files, 95 tests); journey 1 passed.
+  more than 20 px, wider), and that neither artifact nor meaning shows before Open. `pnpm
+verify` green (19 files, 95 tests); journey 1 passed.
 
 ### Choices made without the owner (SC-N2)
 
