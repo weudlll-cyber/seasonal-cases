@@ -182,9 +182,15 @@ select {
     align-self: center;
   }
 
+  /* Five links and the user do not fit a phone's width: the links scroll in their row, so the
+     page never scrolls sideways (SC-N2 piece 8). */
   .shell-nav {
     grid-area: nav;
     gap: var(--space-1);
+    min-width: 0;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
   }
 
   .shell-me {

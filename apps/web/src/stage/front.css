@@ -147,3 +147,16 @@
     transform: translateY(-70%) rotateX(65deg);
   }
 }
+
+/* A wide but short stage (1280 × 720): the front case sits lower and a little smaller, so it no
+   longer covers the inner row of the half circle (SC-N2 piece 8). */
+@media (min-width: 900px) and (max-height: 800px) {
+  .centre {
+    bottom: 2%;
+  }
+
+  .centre-case {
+    min-height: max(100px, calc(var(--fit, 1) * 136px));
+    padding: var(--space-1) var(--space-2);
+  }
+}

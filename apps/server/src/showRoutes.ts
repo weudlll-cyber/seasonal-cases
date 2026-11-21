@@ -1,7 +1,7 @@
 /**
  * @file   apps/server/src/showRoutes.ts
  * @brief  The routes for everyone: the mode, who am I, sign-out, the shows, one show's public
- *         view, and the player's claim.
+ *         view, the chronicle, and the player's claim.
  *
  * Responsibility: what the start page, the registration board and the result page read, and the
  *                 player's one action, the claim (CONCEPT §3.2). Every show leaves the server only
@@ -11,8 +11,13 @@
  *                 ./session.js
  */
 import type { ShowService } from '@sc/application';
-import { ClaimRequestSchema, type ShowState } from '@sc/contracts';
-import { publicView, type ShowModel } from '@sc/domain';
+import {
+  CHRONICLE_LENGTH,
+  ClaimRequestSchema,
+  type ChronicleEntry,
+  type ShowState,
+} from '@sc/contracts';
+import { publicView, showResult, type People, type ShowModel } from '@sc/domain';
 
 import { accepted, parseBody, Refusal, signedIn, summary, type Ctx } from './http.js';
 import { sessionOf, signOut } from './session.js';
@@ -33,6 +38,25 @@ export function currentShow(shows: ShowService): ShowModel | null {
     if (found !== undefined) return found;
   }
   return null;
+}
+
+/** The chronicle: ended shows, newest first, each with its winners and its proof. */
+export function chronicle(shows: ShowService, people: People): ChronicleEntry[] {
+  const entries: ChronicleEntry[] = [];
+  for (const model of shows.list()) {
+    const result = showResult(model, people);
+    if (result === null) continue;
+    const { endedAt, winners, commitment, verified } = result;
+    entries.push({
+      id: model.id,
+      endedAt,
+      caseCount: model.caseCount,
+      winners,
+      commitment,
+      verified,
+    });
+  }
+  return entries.sort((a, b) => b.endedAt.localeCompare(a.endedAt)).slice(0, CHRONICLE_LENGTH);
 }
 
 export function showRoutes(ctx: Ctx): void {
@@ -58,6 +82,8 @@ export function showRoutes(ctx: Ctx): void {
   });
 
   app.get('/api/shows', () => shows.list().map(summary));
+
+  app.get('/api/chronicle', () => chronicle(shows, people));
 
   app.get('/api/shows/current', () => {
     const model = currentShow(shows);

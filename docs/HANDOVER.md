@@ -49,7 +49,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
 
   Two-factor sign-in for standalone admins (D24, piece 7), then the independent review
   ([security-pass.md](security-pass.md)): 13 findings, all fixed but one. The settings catalogue
-  in the admin area (D25, piece 8): new shows copy its values.
+  in the admin area (D25, piece 8): new shows copy its values; the season tint, the polish from
+  the pictures. The chronicle at `/chronicle` (piece 9).
 
   The dev role "moderator" is now "organiser". Concept v1.4.
 

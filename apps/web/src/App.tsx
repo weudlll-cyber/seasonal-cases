@@ -4,7 +4,8 @@
  *
  * Responsibility: hold the session, the server's mode and the current show's feed once for the
  *                 whole page, and render the route: the start page (`/`), the stage (`/show`),
- *                 the result (`/results/<id>`), the admin (`/admin`), "My matches" (`/matches`)
+ *                 the result (`/results/<id>`), the admin (`/admin`), "My matches" (`/matches`),
+ *                 the chronicle (`/chronicle`)
  *                 and the forgotten password's page (`/reset`). While a live show is on the
  *                 stage the kit's game bar replaces the header (focus mode); on a phone the
  *                 direction bar then lives in the bar's panel. In website mode, or locally with a
@@ -24,6 +25,7 @@ import { docked, useServerMode, type ServerMode } from './lib/mode.js';
 import { routeOf, usePath, type Route } from './lib/router.js';
 import { useSession } from './lib/session.js';
 import { Admin } from './screens/Admin.js';
+import { Chronicle } from './screens/Chronicle.js';
 import { Result } from './screens/Result.js';
 import { StartPage } from './screens/StartPage.js';
 import { FocusBar } from './shell/FocusBar.js';
@@ -119,6 +121,7 @@ function Routes({ route, me, mode, feed, current, session, phone }: RoutesProps)
   }
   if (route.name === 'results') return <Result showId={route.showId} />;
   if (route.name === 'matches') return <Matches me={signedIn} />;
+  if (route.name === 'chronicle') return <Chronicle />;
   if (route.name === 'reset') return <ResetPage />;
   if (route.name === 'admin') {
     return <Admin me={signedIn} onShowChanged={current.refresh} dev={mode.dev} />;

@@ -116,6 +116,7 @@ export function Stage({ show, organiser, me, direct, barInline = true }: StagePr
       className="stage-screen"
       data-sk-game="cases"
       data-step={step}
+      data-season={show.season ?? undefined}
       data-dimmed={selected !== null || opening || show.state === 'ended'}
       data-opening={opening}
       ref={fitRef}

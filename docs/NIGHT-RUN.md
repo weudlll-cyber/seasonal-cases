@@ -14,18 +14,18 @@ Written when the chain ends.
 
 ### Pieces
 
-| Piece                                                     | Done | Running | Open             | Needs the owner's word                                   | Commits                                                      | CI run ids                                                                       |
-| --------------------------------------------------------- | ---- | ------- | ---------------- | -------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —       | —                | —                                                        | `c36b3e1`                                                    | CI 44885929803 green                                                             |
-| 2 The moving case                                         | all  | —       | —                | the durations (HANDOVER)                                 | `aaa6022`, report `a31fd7b`                                  | `aaa6022` cancelled by the next push; `a31fd7b` (same code) CI 44886487846 green |
-| 3 Start page, opening, focus mode, ceremony, result frame | all  | —       | —                | the ceremony's pace (HANDOVER)                           | `ad20ab0`                                                    | CI 44887472450 green                                                             |
-| 4 Website mode                                            | all  | —       | BACKLOG 24–27    | the rank and badge rules; the website's side for `cases` | `3d2d783`                                                    | CI 44890310077 green                                                             |
-| 5 PostgreSQL and the accounts store                       | all  | —       | —                | —                                                        | `2b326a2`                                                    | CI 44891199382 green                                                             |
-| 6 Standalone accounts                                     | all  | —       | —                | the reset link's rules (choices list)                    | `2edcd6a`                                                    | CI 44892910589 green                                                             |
-| 7 2FA and the independent review                          | all  | —       | security pass 11 | the security pass's owner list (HANDOVER)                | `f482024` (2FA, CI 44893758086 green), fixes see piece 8 row | see piece 8 row                                                                  |
-| 8 Settings, season tint, polish                           | —    | —       | all              | —                                                        | —                                                            | —                                                                                |
-| 9 Chronicle                                               | —    | —       | all              | —                                                        | —                                                            | —                                                                                |
-| 10 Play-through, pictures, hand-over                      | —    | —       | all              | —                                                        | —                                                            | —                                                                                |
+| Piece                                                     | Done | Running | Open             | Needs the owner's word                                   | Commits                                  | CI run ids                                                                       |
+| --------------------------------------------------------- | ---- | ------- | ---------------- | -------------------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------- |
+| 1 Kit v0.8.0, fixes A and B, three steps, scoreboard      | all  | —       | —                | —                                                        | `c36b3e1`                                | CI 44885929803 green                                                             |
+| 2 The moving case                                         | all  | —       | —                | the durations (HANDOVER)                                 | `aaa6022`, report `a31fd7b`              | `aaa6022` cancelled by the next push; `a31fd7b` (same code) CI 44886487846 green |
+| 3 Start page, opening, focus mode, ceremony, result frame | all  | —       | —                | the ceremony's pace (HANDOVER)                           | `ad20ab0`                                | CI 44887472450 green                                                             |
+| 4 Website mode                                            | all  | —       | BACKLOG 24–27    | the rank and badge rules; the website's side for `cases` | `3d2d783`                                | CI 44890310077 green                                                             |
+| 5 PostgreSQL and the accounts store                       | all  | —       | —                | —                                                        | `2b326a2`                                | CI 44891199382 green                                                             |
+| 6 Standalone accounts                                     | all  | —       | —                | the reset link's rules (choices list)                    | `2edcd6a`                                | CI 44892910589 green                                                             |
+| 7 2FA and the independent review                          | all  | —       | security pass 11 | the security pass's owner list (HANDOVER)                | `f482024` (2FA), `49433d9` (fixes)       | CI 44893758086 and 44895315472 green                                             |
+| 8 Settings, season tint, polish                           | all  | —       | BACKLOG 32 (kit) | rank source, chronicle length                            | `3d81756` (settings), polish see piece 9 | see piece 9 row                                                                  |
+| 9 Chronicle                                               | all  | —       | —                | the chronicle's length (50)                              | see piece 10 row                         | see piece 10 row                                                                 |
+| 10 Play-through, pictures, hand-over                      | —    | —       | all              | —                                                        | —                                        | —                                                                                |
 
 ### Piece 1 report
 
@@ -331,6 +331,48 @@ verify` green (19 files, 95 tests); journey 1 passed.
 - **Dependencies:** `@seasonal/kit` (the same tag v0.8.0) as a root dev dependency, for journey
   6's TOTP codes.
 
+### Piece 8 report
+
+- **The settings catalogue** (D25, CONCEPT §9): `packages/contracts/src/settings.ts` with
+  `SETTINGS_CATALOGUE` (label, description, min/max, warning per value), `SettingsSchema` and
+  `DEFAULT_SETTINGS`: default N and W, the prize artifacts with their seasons, the further-prize
+  and no-prize names, travel and opening durations, confetti.
+  - Server: `settings.ts` (`CurrentSettings`, stored over the defaults and checked on load; one
+    row of `server_state`, `db/state.ts`), `settingsRoutes.ts` (`GET /api/settings` for
+    organisers, `POST /api/admin/settings` for admins with 2FA where required).
+  - Copy at creation: the show service reads the settings at every creation; the `created` event
+    carries the artifacts (as before) and now the `presentation`; a show from before folds to the
+    defaults. The public view carries the presentation; the stage plays its travel, opening and
+    confetti (`motionOf`, `useReturn`, `Confetti`, `Ceremony`).
+  - Client: `screens/SettingsAdmin.tsx` in the admin area (descriptions and warnings under each
+    value, the catalogue's own check before sending); the setup form starts from the defaults.
+  - The domain's `ShowSettings` is now the part of the catalogue a show copies (one source).
+- **Season tint:** the show's season tints the studio's floor glow (`data-season`, the kit's
+  season tokens).
+- **Polish** (from the pictures):
+  - 1280 × 720: the front case sits lower and smaller on wide, short screens, so the inner row
+    stays visible (BACKLOG 21);
+  - light theme: lights down as a warm multiply, so the stage darkens instead of greying;
+  - phones: the header's links scroll in their row (five links and the user overflowed every
+    signed-in page up to 390 px); the game bar's lead gives way up to 480 px (the kit's bar does
+    not shrink, BACKLOG 32); the direction panel as a grid (case, steps in pairs, hand-over and
+    "End show" on their own rows); the settings' descriptions at the 14 px floor.
+- **Pictures:** `e2e/screens.spec.ts` now shoots eight screens (start, board, opening, selected,
+  owner, ceremony, result, admin) at the ten check sizes in both themes, plus the phone's
+  direction panel, into `.local/screens/proto-v2/`; `proto-v1` was deleted. Each shoot returns to
+  1280 × 720, so the next step finds the desktop direction bar (the first run stopped there on a
+  phone size). Final run: 160 pictures, no text under 14 px, no sideways overflow.
+- **Tests:** `settingsRoutes.test.ts` (who reads and changes, the catalogue's refusals, new shows
+  only, stored values over defaults).
+
+### Piece 9 report
+
+- **The chronicle** (CONCEPT §3.5): `GET /api/chronicle` (`showRoutes.ts` `chronicle`): ended
+  shows only, newest first, at most `CHRONICLE_LENGTH` = 50, each with its winners, commitment and
+  verification from the same `showResult` as the result page. `screens/Chronicle.tsx` at
+  `/chronicle`, linked in the header. Test in `routes.test.ts` (ended only, verified, winners).
+- `pnpm verify` green (26 files, 139 tests); journeys 1–6 passed.
+
 ### Choices made without the owner (SC-N2)
 
 - **"Opens in N s"** of the kit's start card is hidden: shows have no start time yet, and the
@@ -369,6 +411,10 @@ verify` green (19 files, 95 tests); journey 1 passed.
   with seasons, the further-prize and no-prize names, travel and opening durations, confetti.
   "Registration shows the current claimants" stays always on (its default); rank source and
   chronicle length wait for the owner.
+- **The chronicle** lists the 50 newest ended shows; the length becomes a setting once the
+  owner names one.
+- **On a narrow phone** the game bar shows no "Seasonal Cases" lead (the kit's bar would
+  overflow otherwise).
 
 ## Night chain SC-N1 (2026-11-21)
 

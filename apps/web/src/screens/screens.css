@@ -1,6 +1,7 @@
 /**
  * @file   apps/web/src/screens/screens.css
- * @brief  The sign-ins, the admin area, the start page with its lobby, and "My matches".
+ * @brief  The sign-ins, the admin area, the start page with its lobby, "My matches" and the
+ *         chronicle.
  *
  * Responsibility: normal pages that scroll (CONCEPT §7). The start page holds the logo, the
  *                 kit's start card (`@seasonal/kit/frames.css`) and the board; the card's
@@ -203,4 +204,69 @@
   gap: var(--space-1);
   padding: 0;
   list-style: none;
+}
+
+/* The chronicle (./Chronicle.tsx): one card per ended show. */
+.chronicle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.chronicle-entry h2 {
+  margin: 0;
+}
+
+.chronicle-winners {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0;
+  list-style: none;
+}
+
+.chronicle-winners li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+}
+
+.chronicle-proof {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+/* The settings (./SettingsAdmin.tsx): each value with its description and warning under it, at
+   the text floor. */
+.settings-admin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.setting {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setting small {
+  font-size: max(var(--sk-floor-text), 14px);
+  color: var(--color-text-muted);
+}
+
+.setting .setting-warning {
+  color: var(--color-danger);
+}
+
+.setting-artifact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.setting-check {
+  flex-direction: row;
+  align-items: center;
 }

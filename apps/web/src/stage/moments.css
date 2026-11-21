@@ -160,3 +160,35 @@ html[data-sk-focus] {
   align-items: center;
   text-decoration: none;
 }
+
+/* The game bar's lead on a narrow phone: the kit's facts and buttons do not shrink, so the
+   lead gives way and the bar fits the width (SC-N2 piece 8; BACKLOG 32). */
+@media (max-width: 480px) {
+  .focus-lead {
+    display: none;
+  }
+}
+
+/* The direction in the phone's panel: the case over the full width, the steps in pairs, the
+   hand-over and "End show" each on a row of their own (SC-N2 piece 8). */
+.focus-panel .direction-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.focus-panel .direction-hint,
+.focus-panel .direction-handover,
+.focus-panel .button-end,
+.focus-panel .direction-error {
+  grid-column: 1 / -1;
+}
+
+.focus-panel .direction-handover {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-1);
+}
+
+.focus-panel .direction-bar .button {
+  width: 100%;
+}

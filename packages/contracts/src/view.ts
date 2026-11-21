@@ -85,6 +85,20 @@ export const ShowResultSchema = z.object({
 });
 export type ShowResult = z.infer<typeof ShowResultSchema>;
 
+// How many ended shows the chronicle lists; a setting once the owner names one (CONCEPT §9).
+export const CHRONICLE_LENGTH = 50;
+
+/** One ended show in the chronicle (CONCEPT §3.5): its winners and its proof. */
+export const ChronicleEntrySchema = z.object({
+  id: z.string(),
+  endedAt: z.string(),
+  caseCount: z.number().int(),
+  winners: z.array(FoundPrizeSchema),
+  commitment: z.string(),
+  verified: z.boolean(),
+});
+export type ChronicleEntry = z.infer<typeof ChronicleEntrySchema>;
+
 export const PublicShowViewSchema = z.object({
   id: z.string(),
   state: ShowStateSchema,

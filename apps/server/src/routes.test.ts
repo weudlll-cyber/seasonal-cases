@@ -128,3 +128,22 @@ describe('the session and the roles', () => {
     expect((await app.inject({ method: 'GET', url: '/api/shows/nope' })).statusCode).toBe(404);
   });
 });
+
+describe('the chronicle', () => {
+  it('lists ended shows only, newest first, each with its winners and a verified proof', async () => {
+    harness = await startHarness();
+    const { shows } = harness.server;
+    const ada = { id: 'ada', name: 'Ada' };
+    const setup = { cases: 4, winners: 2, labels: ['Gold'] };
+    const id = (o: ReturnType<typeof shows.createShow>) => (o.ok ? o.model.id : 'refused');
+    const first = id(shows.quickTest({ ...setup, seed: 'c1' }, ada));
+    const running = id(shows.quickTest({ ...setup, seed: 'c2' }, ada));
+    shows.endShow(first, ada.id);
+    const answer = await harness.server.app.inject({ method: 'GET', url: '/api/chronicle' });
+    const entries = answer.json<{ id: string; winners: unknown[]; verified: boolean }[]>();
+    expect(entries.map((e) => e.id)).toEqual([first]);
+    expect(entries.map((e) => e.id)).not.toContain(running);
+    expect(entries[0]).toMatchObject({ verified: true });
+    expect(entries[0]?.winners).toHaveLength(2);
+  });
+});

@@ -1,10 +1,12 @@
 /**
  * @file   e2e/screens.spec.ts
- * @brief  The pictures for the owner and the planning chat: four screens at CONCEPT §7's check
- *         sizes, light and dark, into .local/screens/proto-v1/ (never into git).
+ * @brief  The pictures for the owner and the planning chat: eight screens at CONCEPT §7's check
+ *         sizes, light and dark, into .local/screens/proto-v2/ (never into git).
  *
- * Responsibility: delete the topic's previous pictures, then shoot the registration board, the
- *                 stage at "selected", the stage at "owner" on the main prize, and the result, at
+ * Responsibility: delete the topic's previous pictures, then shoot the start page, the
+ *                 registration board, the opening, the stage at "selected", the stage at "owner"
+ *                 on the main prize (and the phone's direction panel), the ceremony, the result and
+ *                 the admin area, at
  *                 every PC and phone size in both themes. Beside each picture it measures the
  *                 smallest visible text and whether the page overflows sideways, and writes all
  *                 findings to `checks.json`. Runs only as the project `screens`.
@@ -17,7 +19,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 import { boardCase, openShow, quickTestSealing, signInApi } from './helpers.js';
 
-const DIR = fileURLToPath(new URL('../.local/screens/proto-v1/', import.meta.url));
+const DIR = fileURLToPath(new URL('../.local/screens/proto-v2/', import.meta.url));
 const SIZES = [
   [1280, 720],
   [1366, 768],
@@ -69,12 +71,23 @@ async function shoot(page: Page, name: string): Promise<void> {
       checks.push({ file, smallestText: smallest, sideways });
     }
   }
+  // Back to a desktop in light, so the next steps find the direction bar under the stage.
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.setViewportSize({ width: 1280, height: 720 });
 }
 
-test('screens: board, selected, owner on the main prize, result', async ({ page, browser }) => {
-  test.setTimeout(600_000);
+test('screens: start, board, opening, selected, owner, ceremony, result, admin', async ({
+  page,
+  browser,
+}) => {
+  test.setTimeout(1_500_000);
   rmSync(DIR, { recursive: true, force: true });
   mkdirSync(DIR, { recursive: true });
+
+  // The start page for a guest: the account forms (local mode) beside the development sign-in.
+  await page.goto('/');
+  await expect(page.getByRole('form', { name: 'Sign in' })).toBeVisible();
+  await shoot(page, 'start');
 
   // The registration board: a show with claims and one conflict, seen by a player.
   await page.goto('/');
@@ -110,6 +123,8 @@ test('screens: board, selected, owner on the main prize, result', async ({ page,
   });
   const { id } = (await created.json()) as { id: string };
   await page.goto('/show');
+  await expect(page.getByRole('button', { name: 'Begin' })).toBeVisible();
+  await shoot(page, 'opening');
   await page.getByRole('button', { name: 'Begin' }).click();
   const bar = page.getByRole('navigation', { name: 'Direction' });
   await page.locator(`.case-token[data-case="${String(main)}"] button`).click();
@@ -119,10 +134,31 @@ test('screens: board, selected, owner on the main prize, result', async ({ page,
   await expect(page.locator('.lower-third')).toBeVisible();
   await shoot(page, 'stage-owner');
 
+  // The direction on a phone: the game bar's Direction panel, open (one size, both themes).
+  for (const theme of THEMES) {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.getByRole('button', { name: 'Direction' }).click();
+    await expect(page.getByRole('complementary', { name: 'direction' })).toBeVisible();
+    await page.waitForTimeout(350);
+    await page.screenshot({ path: `${DIR}direction-panel-390x844-${theme}.png` });
+    await page.getByRole('button', { name: 'Direction' }).click();
+  }
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.setViewportSize({ width: 1280, height: 720 });
+
   await bar.getByRole('button', { name: 'End show' }).click();
+  await expect(page.getByRole('region', { name: 'The winners' })).toBeVisible();
+  await shoot(page, 'ceremony');
   await page.goto(`/results/${id}`);
   await expect(page.locator('.result-seal')).toContainText('verified');
   await shoot(page, 'result');
+
+  // The admin area with the settings (a development admin needs no second factor).
+  await signInApi(page.request, 'Ada', 'admin');
+  await page.goto('/admin');
+  await expect(page.getByRole('form', { name: 'Settings' })).toBeVisible();
+  await shoot(page, 'admin');
 
   writeFileSync(`${DIR}checks.json`, JSON.stringify(checks, null, 2));
   const problems = checks.filter((c) => c.smallestText < FLOOR || c.sideways);

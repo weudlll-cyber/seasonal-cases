@@ -3,7 +3,7 @@
  * @brief  The stage: the studio panel, the half circle of cases, the spotlight and the dimming.
  *
  * Responsibility: every step is a visible state change (`data-step` on the screen) with short
- *                 transitions; colours only from the kit's tokens; sizes follow `--fit` with the
+ *                 transitions; the show's season (`data-season`) tints the floor glow; colours only from the kit's tokens; sizes follow `--fit` with the
  *                 cases' floors. The screen leaves `--dock-reserve` free at the bottom
  *                 (DECISIONS D7). Phone widths: the cases in two rows in a named scroll area.
  *                 Reduced motion: the kit's motion.css stops every animation.
@@ -21,6 +21,23 @@
   overflow: hidden;
 }
 
+/* The show's season tints the studio's floor glow (SC-N2 piece 8); autumn without a season. */
+.stage-screen {
+  --season-tint: var(--color-autumn);
+}
+
+.stage-screen[data-season='winter'] {
+  --season-tint: var(--color-winter);
+}
+
+.stage-screen[data-season='spring'] {
+  --season-tint: var(--color-spring);
+}
+
+.stage-screen[data-season='summer'] {
+  --season-tint: var(--color-summer);
+}
+
 /* The studio: a card over the page's season glows, never flat black or white (CONCEPT §7). */
 .stage {
   position: relative;
@@ -29,7 +46,11 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
   background:
-    radial-gradient(ellipse at 50% 105%, rgb(249 168 37 / 22%), transparent 55%),
+    radial-gradient(
+      ellipse at 50% 105%,
+      color-mix(in srgb, var(--season-tint) 30%, transparent),
+      transparent 55%
+    ),
     radial-gradient(ellipse at 10% 0%, rgb(4 170 247 / 16%), transparent 45%),
     radial-gradient(ellipse at 90% 0%, rgb(224 110 34 / 14%), transparent 45%), var(--color-card);
   overflow: hidden;
@@ -48,6 +69,12 @@
 
 .stage-screen[data-dimmed='true'] .stage::after {
   background: rgb(5 8 30 / 38%);
+}
+
+/* On cream a dark overlay only greys; a warm multiply darkens it like a studio (piece 8). */
+:root:not([data-theme='dark']) .stage-screen[data-dimmed='true'] .stage::after {
+  background: rgb(92 58 24 / 42%);
+  mix-blend-mode: multiply;
 }
 
 .spotlight {
