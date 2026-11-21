@@ -4,7 +4,9 @@
  *
  * Responsibility: delete `.local/e2e/` (the previous run's event logs), then start the server
  *                 in development mode on 127.0.0.1:3980 with its logs under `.local/e2e/data`.
- *                 A running `pnpm dev` (3970, `.local/data`) is neither used nor touched.
+ *                 A running `pnpm dev` (3970, `.local/data`) is neither used nor touched. Mail goes
+ *                 to Mailpit (SMTP 127.0.0.1:1170, ops/compose.dev.yml; CI's service), whose
+ *                 links open the e2e client (5480); journey 5 reads it there.
  * Depends on:     node:fs, node:url, ../apps/server/src/index.ts
  */
 import { rmSync } from 'node:fs';
@@ -22,6 +24,9 @@ const config = configFrom({
   SC_DEV: '1',
   SC_PORT: String(SERVER_PORT),
   SC_DATA_DIR: `${E2E_DIR}data`,
+  SC_SMTP_HOST: '127.0.0.1',
+  SC_SMTP_PORT: '1170',
+  SC_PUBLIC_ORIGIN: 'http://127.0.0.1:5480',
 });
 const { app } = await buildServer(config);
 await app.listen({ host: '127.0.0.1', port: config.port });

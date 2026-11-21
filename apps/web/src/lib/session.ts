@@ -3,7 +3,8 @@
  * @brief  The signed-in user as React state: read from api/me, changed by sign-in and out.
  *
  * Responsibility: one hook for the whole page; `undefined` while loading, `null` when nobody
- *                 is signed in (a guest watches, CONCEPT §2).
+ *                 is signed in (a guest watches, CONCEPT §2). `enter` takes the user a
+ *                 standalone sign-in or registration answered with (../account/AccountEntry.tsx).
  * Depends on:     react, @sc/contracts (types), ./api.js, ./base.js
  */
 import type { Me, SignInRequest } from '@sc/contracts';
@@ -15,6 +16,7 @@ import { apiPath } from './base.js';
 export interface Session {
   readonly me: Me | null | undefined;
   readonly signIn: (request: SignInRequest) => Promise<void>;
+  readonly enter: (me: Me) => void;
   readonly signOut: () => Promise<void>;
 }
 
@@ -36,5 +38,5 @@ export function useSession(): Session {
     await postJson(apiPath('/sign-out'));
     setMe(null);
   }, []);
-  return { me, signIn, signOut };
+  return { me, signIn, enter: setMe, signOut };
 }

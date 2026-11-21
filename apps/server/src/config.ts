@@ -13,12 +13,16 @@
  *                 (SC_PROXY_SECRET, header `X-Sc-Proxy-Secret`), the website's origin
  *                 (SC_WEBSITE_ORIGIN) and, for the account-changes feed, its local origin and the
  *                 games' sync token (SC_WEBSITE_LOCAL_ORIGIN, SC_GAMES_SYNC_TOKEN); in local
- *                 mode an optional chat origin to frame (SC_CHAT_ORIGIN, development). Website
+ *                 mode an optional chat origin to frame (SC_CHAT_ORIGIN, development), the SMTP
+ *                 relay for the forgotten-password mail (SC_SMTP_HOST, SC_SMTP_PORT, SC_MAIL_FROM)
+ *                 and the address its link opens (SC_PUBLIC_ORIGIN, default the dev client). Website
  *                 mode without its trust settings refuses to start.
- * Depends on:     node:crypto, node:url
+ * Depends on:     node:crypto, node:url, ./mail.js (types)
  */
 import { randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+
+import type { SmtpConfig } from './mail.js';
 
 export type Mode = 'local' | 'website';
 
@@ -42,6 +46,8 @@ export interface ServerConfig {
   readonly cookieSecret: string;
   readonly website: WebsiteConfig | null;
   readonly chatOrigin: string | null;
+  readonly smtp: SmtpConfig | null;
+  readonly publicOrigin: string;
 }
 
 // apps/server/src → the repository root.
@@ -82,9 +88,23 @@ function databaseFrom(env: NodeJS.ProcessEnv): ServerConfig['database'] {
   return { url, keyHex };
 }
 
+function chatOriginFrom(env: NodeJS.ProcessEnv): string | null {
+  const origin = env['SC_CHAT_ORIGIN'] ?? '';
+  return origin === '' ? null : new URL(origin).origin;
+}
+
+function smtpFrom(env: NodeJS.ProcessEnv): SmtpConfig | null {
+  const host = env['SC_SMTP_HOST'] ?? '';
+  if (host === '') return null;
+  return {
+    host,
+    port: Number(env['SC_SMTP_PORT'] ?? 25),
+    from: env['SC_MAIL_FROM'] ?? 'Seasonal Cases <cases@localhost>',
+  };
+}
+
 export function configFrom(env: NodeJS.ProcessEnv): ServerConfig {
   const mode: Mode = env['SC_MODE'] === 'website' ? 'website' : 'local';
-  const chatOrigin = env['SC_CHAT_ORIGIN'] ?? '';
   return {
     port: Number(env['SC_PORT'] ?? 3970),
     mode,
@@ -94,6 +114,8 @@ export function configFrom(env: NodeJS.ProcessEnv): ServerConfig {
     database: databaseFrom(env),
     cookieSecret: env['SC_COOKIE_SECRET'] ?? randomBytes(32).toString('hex'),
     website: mode === 'website' ? websiteFrom(env) : null,
-    chatOrigin: mode === 'local' && chatOrigin !== '' ? new URL(chatOrigin).origin : null,
+    chatOrigin: mode === 'local' ? chatOriginFrom(env) : null,
+    smtp: mode === 'local' ? smtpFrom(env) : null,
+    publicOrigin: new URL(env['SC_PUBLIC_ORIGIN'] ?? 'http://localhost:5470').origin,
   };
 }

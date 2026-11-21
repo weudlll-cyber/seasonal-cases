@@ -4,17 +4,19 @@
  *         socket.io, the sign-in parts and the show service over the event log.
  *
  * Responsibility: wire the ports (clock, ids, the secure and the seeded random source, the
- *                 JSON-lines store, the account and session stores) into the show service, the
- *                 routes and the socket side. Every route and the socket live under the base path
+ *                 JSON-lines store, the account, session and credential stores, the mailer) into
+ *                 the show service, the routes and the socket side. Every route and the socket live under the base path
  *                 (`/` locally, `/games/cases/` in website mode, GAME-INTEGRATION §1). The
  *                 development routes exist only in local development mode, the website's sign-in
- *                 and its account feed only in website mode. A session that ends closes its live
+ *                 and its account feed only in website mode, the standalone accounts only in local
+ *                 mode. A session that ends closes its live
  *                 connections (the kit's SessionEnds). The socket accepts only same-origin
  *                 handshakes. ./main.ts listens on 127.0.0.1.
  * Depends on:     node:crypto, node:http (types), fastify, @fastify/cookie, @fastify/helmet,
  *                 socket.io, @seasonal/kit/server, @sc/application, @sc/domain, ./auth/*,
- *                 ./config.js, ./devRoutes.js, ./http.js, ./organiserRoutes.js, ./realtime.js,
- *                 ./session.js, ./showRoutes.js, ./websiteRoutes.js
+ *                 ./accountRoutes.js, ./config.js, ./devRoutes.js, ./http.js, ./localRoutes.js,
+ *                 ./mail.js, ./organiserRoutes.js, ./realtime.js, ./session.js, ./showRoutes.js,
+ *                 ./websiteRoutes.js
  */
 import { randomBytes, randomInt, randomUUID } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
@@ -34,12 +36,16 @@ import { seededRandom } from '@sc/domain';
 import Fastify, { type FastifyInstance } from 'fastify';
 import { Server } from 'socket.io';
 
+import { accountRoutes } from './accountRoutes.js';
 import { memoryCursor, startFeed, type CursorStore } from './auth/accountFeed.js';
 import { Directory, memoryAccounts, type AccountStore } from './auth/accounts.js';
+import { memoryCredentials, type CredentialStore } from './auth/credentials.js';
 import { memorySessions, type SessionStore } from './auth/sessions.js';
 import type { ServerConfig } from './config.js';
 import { devRoutes } from './devRoutes.js';
 import { handleRefusals, type Ctx } from './http.js';
+import { localRoutes } from './localRoutes.js';
+import { smtpMailer, type Mailer } from './mail.js';
 import { organiserRoutes } from './organiserRoutes.js';
 import { attachRealtime } from './realtime.js';
 import type { Auth } from './session.js';
@@ -60,6 +66,9 @@ export interface Stores {
   readonly accounts?: AccountStore;
   readonly sessions?: SessionStore;
   readonly cursor?: CursorStore;
+  readonly credentials?: CredentialStore;
+  // The outgoing mail; by default SMTP from the settings, or none.
+  readonly mailer?: Mailer | null;
 }
 
 export interface BuiltServer {
@@ -96,6 +105,33 @@ async function authOf(app: FastifyInstance, config: ServerConfig, stores: Stores
   };
 }
 
+// Every route under the base path, each group only in the mode it belongs to.
+async function routes(root: Ctx, stores: Stores): Promise<void> {
+  const { config } = root;
+  const mailer = stores.mailer ?? (config.smtp === null ? null : smtpMailer(config.smtp));
+  const local = {
+    credentials: stores.credentials ?? memoryCredentials(),
+    mailer,
+    publicOrigin: config.publicOrigin,
+    log: (error: unknown) => {
+      root.app.log.error(error);
+    },
+  };
+  await root.app.register(
+    (scope, _options, done) => {
+      const ctx: Ctx = { ...root, app: scope };
+      showRoutes(ctx);
+      organiserRoutes(ctx);
+      accountRoutes(ctx);
+      if (config.dev) devRoutes(ctx);
+      if (config.website === null) localRoutes(ctx, local);
+      else websiteRoutes(ctx, config.website);
+      done();
+    },
+    { prefix: config.basePath.replace(/\/$/, '') },
+  );
+}
+
 export async function buildServer(config: ServerConfig, stores: Stores = {}): Promise<BuiltServer> {
   const app = Fastify({ logger: false });
   await app.register(helmet);
@@ -120,18 +156,7 @@ export async function buildServer(config: ServerConfig, stores: Stores = {}): Pr
       realtime.push(model);
     },
   });
-  const prefix = config.basePath.replace(/\/$/, '');
-  await app.register(
-    (scope, _options, done) => {
-      const ctx: Ctx = { app: scope, auth, shows, config };
-      showRoutes(ctx);
-      organiserRoutes(ctx);
-      if (config.dev) devRoutes(ctx);
-      if (config.website !== null) websiteRoutes(ctx, config.website);
-      done();
-    },
-    { prefix },
-  );
+  await routes({ app, auth, shows, config }, stores);
   const feed = config.website?.feed;
   const stopFeed =
     feed === null || feed === undefined

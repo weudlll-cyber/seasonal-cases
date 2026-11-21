@@ -140,3 +140,42 @@ describe('the box', () => {
     expect(() => dataKey('short')).toThrow();
   });
 });
+
+describe('the credentials', () => {
+  it('refuse a taken name or e-mail, and take a reset token once and only in time', async () => {
+    const { accounts, credentials } = db.stores;
+    await accounts.save({
+      ...ANA,
+      id: 'acc-c',
+      kind: 'local',
+      websiteOrigin: null,
+      websiteUserId: null,
+    });
+    await accounts.save({
+      ...ANA,
+      id: 'acc-d',
+      kind: 'local',
+      websiteOrigin: null,
+      websiteUserId: null,
+    });
+    const ana = {
+      accountId: 'acc-c',
+      nameKey: 'ana',
+      email: 'ana@example.org',
+      passwordHash: 'h1',
+    };
+    expect(await credentials.create(ana)).toBe(true);
+    expect(await credentials.create({ ...ana, accountId: 'acc-d', email: 'd@example.org' })).toBe(
+      false,
+    );
+    expect(await credentials.create({ ...ana, accountId: 'acc-d', nameKey: 'dora' })).toBe(false);
+    await credentials.setPassword('acc-c', 'h2');
+    expect(await credentials.byEmail('ana@example.org')).toEqual({ ...ana, passwordHash: 'h2' });
+    const now = Date.parse('2026-11-21T20:00:00Z');
+    await credentials.addReset('r1', 'acc-c', now + 1000);
+    await credentials.addReset('r2', 'acc-c', now - 1);
+    expect(await credentials.takeReset('r2', now)).toBeUndefined();
+    expect(await credentials.takeReset('r1', now)).toBe('acc-c');
+    expect(await credentials.takeReset('r1', now)).toBeUndefined();
+  });
+});

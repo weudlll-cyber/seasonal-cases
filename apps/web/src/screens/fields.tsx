@@ -1,6 +1,6 @@
 /**
  * @file   apps/web/src/screens/fields.tsx
- * @brief  The form fields of the sign-in and the dev admin: a labelled text, number or choice,
+ * @brief  The form fields of the sign-ins and the admin: a labelled text, number or choice,
  *         each with its tooltip (CONCEPT §7: tooltips on every input).
  *
  * Responsibility: one look and one way of wiring for every field; the value stays the
@@ -23,11 +23,21 @@ export function TextField({
   maxLength,
   placeholder,
   required = false,
-}: FieldProps<string> & { maxLength: number; placeholder?: string; required?: boolean }) {
+  type = 'text',
+  autoComplete = 'off',
+}: FieldProps<string> & {
+  maxLength: number;
+  placeholder?: string;
+  required?: boolean;
+  type?: 'text' | 'email' | 'password';
+  autoComplete?: string;
+}) {
   return (
     <label>
       {label}
       <input
+        type={type}
+        autoComplete={autoComplete}
         value={value}
         maxLength={maxLength}
         required={required}

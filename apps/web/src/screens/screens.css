@@ -1,6 +1,6 @@
 /**
  * @file   apps/web/src/screens/screens.css
- * @brief  The sign-in, the dev admin and the start page.
+ * @brief  The sign-ins, the admin area, the start page with its lobby, and "My matches".
  *
  * Responsibility: normal pages that scroll (CONCEPT §7). The start page holds the logo, the
  *                 kit's start card (`@seasonal/kit/frames.css`) and the board; the card's
@@ -112,4 +112,67 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+/* The standalone sign-in (../account/AccountEntry.tsx): the card holds one of three forms. */
+.account-entry {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.account-entry form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.account-entry label {
+  flex: 1 1 14rem;
+}
+
+.account-entry [role='status'],
+.account-entry [role='alert'] {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.account-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* The lobby, "My matches" and the admin's accounts: one line per entry, wrapping on a phone. */
+.lobby-list,
+.match-list,
+.admin-accounts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lobby-list li,
+.match-list li,
+.admin-accounts li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--color-border);
 }

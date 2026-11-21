@@ -36,6 +36,7 @@ export function ShellBar({ me, website, onSignOut }: ShellBarProps) {
       <nav className="shell-nav" aria-label="Main">
         <Link to="/">Start</Link>
         <Link to="/show">Stage</Link>
+        {me !== null && <Link to="/matches">My matches</Link>}
         <Link to="/admin">Admin</Link>
       </nav>
       {me === null && website && (

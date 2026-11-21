@@ -41,11 +41,15 @@ export type Route =
   | { readonly name: 'start' }
   | { readonly name: 'stage' }
   | { readonly name: 'results'; readonly showId: string }
-  | { readonly name: 'admin' };
+  | { readonly name: 'admin' }
+  | { readonly name: 'matches' }
+  | { readonly name: 'reset' };
 
 export function routeOf(path: string): Route {
   if (path === '/show') return { name: 'stage' };
   if (path === '/admin') return { name: 'admin' };
+  if (path === '/matches') return { name: 'matches' };
+  if (path === '/reset') return { name: 'reset' };
   const results = /^\/results\/([A-Za-z0-9_-]+)$/.exec(path);
   if (results?.[1] !== undefined) return { name: 'results', showId: results[1] };
   return { name: 'start' };

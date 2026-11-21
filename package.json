@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "pnpm --parallel --filter @sc/server --filter @sc/web run dev",
     "dev:reset-db": "pnpm --filter @sc/server run dev:reset-db",
+    "sc": "pnpm --filter @sc/server run sc",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier . --write",
     "format:check": "prettier . --check",

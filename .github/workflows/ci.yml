@@ -101,9 +101,17 @@ jobs:
             --exclude-path node_modules '**/*.md'
 
   e2e:
-    # The three journeys in Chromium on every push and pull request; Firefox and WebKit run
+    # The journeys in Chromium on every push and pull request; Firefox and WebKit run
     # nightly in ./browsers.yml (CLAUDE.md "Tests and checks").
     runs-on: ubuntu-latest
+    # Journey 5 reads the forgotten-password mail from Mailpit's API, as on the dev machine
+    # (ops/compose.dev.yml: SMTP 1170, API 8570).
+    services:
+      mailpit:
+        image: axllent/mailpit:v1.34.0@sha256:23a2ef85bc50853ab3093645d1d64679afd8887e89da5e48a88940c172591a4e
+        ports:
+          - 1170:1025
+          - 8570:8025
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup

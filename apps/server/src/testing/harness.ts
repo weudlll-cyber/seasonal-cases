@@ -3,8 +3,8 @@
  * @brief  Test harness: a listening server, signed-in users, sockets.
  *
  * Responsibility: start the real server on 127.0.0.1 with a free port and in-memory stores (no
- *                 files, nothing to clean up), in local development mode by default or with the
- *                 environment a test gives (website mode, say); sign users in through the dev
+ *                 files, no mail, nothing to clean up), in local development mode by default or
+ *                 with the environment and stores a test gives (website mode, a mailbox, say); sign users in through the dev
  *                 route, and connect socket.io clients with their cookie. Used by tests only.
  * Depends on:     socket.io-client, @sc/application, @sc/contracts (types), ../app.js,
  *                 ../config.js
@@ -13,7 +13,7 @@ import { memoryStore } from '@sc/application';
 import type { Ack, ClientToServerEvents, Me, Role, ServerToClientEvents } from '@sc/contracts';
 import { io as connect, type Socket } from 'socket.io-client';
 
-import { buildServer, type BuiltServer } from '../app.js';
+import { buildServer, type BuiltServer, type Stores } from '../app.js';
 import { configFrom } from '../config.js';
 
 export type Client = Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -28,15 +28,19 @@ export interface Harness {
 
 const DEV_ENV = { NODE_ENV: 'development', SC_DEV: '1' };
 
-/** A server with the given environment; `dev` false: no development features. */
-export async function startHarness(dev = true, env: NodeJS.ProcessEnv = {}): Promise<Harness> {
+/** A server with the given environment and stores; `dev` false: no development features. */
+export async function startHarness(
+  dev = true,
+  env: NodeJS.ProcessEnv = {},
+  stores: Stores = {},
+): Promise<Harness> {
   const config = configFrom({
     ...(dev ? DEV_ENV : {}),
     SC_COOKIE_SECRET: 'test-secret-'.repeat(4),
     SC_PORT: '0',
     ...env,
   });
-  const server = await buildServer(config, { events: memoryStore() });
+  const server = await buildServer(config, { events: memoryStore(), mailer: null, ...stores });
   const address = await server.app.listen({ host: '127.0.0.1', port: 0 });
   const sockets: Client[] = [];
   return {

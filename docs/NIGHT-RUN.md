@@ -20,8 +20,8 @@ Written when the chain ends.
 | 2 The moving case                                         | all  | —       | —             | the durations (HANDOVER)                                 | `aaa6022`, report `a31fd7b` | `aaa6022` cancelled by the next push; `a31fd7b` (same code) CI 44886487846 green |
 | 3 Start page, opening, focus mode, ceremony, result frame | all  | —       | —             | the ceremony's pace (HANDOVER)                           | `ad20ab0`                   | CI 44887472450 green                                                             |
 | 4 Website mode                                            | all  | —       | BACKLOG 24–27 | the rank and badge rules; the website's side for `cases` | `3d2d783`                   | CI 44890310077 green                                                             |
-| 5 PostgreSQL and the accounts store                       | all  | —       | —             | —                                                        | see piece 6 row             | see piece 6 row                                                                  |
-| 6 Standalone accounts                                     | —    | —       | all           | —                                                        | —                           | —                                                                                |
+| 5 PostgreSQL and the accounts store                       | all  | —       | —             | —                                                        | `2b326a2`                   | CI 44891199382 green                                                             |
+| 6 Standalone accounts                                     | all  | —       | —             | the reset link's rules (choices list)                    | see piece 7 row             | see piece 7 row                                                                  |
 | 7 2FA and the independent review                          | —    | —       | all           | —                                                        | —                           | —                                                                                |
 | 8 Settings, season tint, polish                           | —    | —       | all           | —                                                        | —                           | —                                                                                |
 | 9 Chronicle                                               | —    | —       | all           | —                                                        | —                           | —                                                                                |
@@ -248,6 +248,56 @@ verify` green (19 files, 95 tests); journey 1 passed.
   Changed: `main.ts` 16 → 35, `config.ts` 86 → 99, `app.ts` 146 → 152, `auth/accountFeed.ts`
   101 → 127. Nothing removed; the JSON-lines and memory stores stay for runs without a database.
 
+### Piece 6 report
+
+- **Accounts in local mode** (DECISIONS D24), on Mini Games' rules (its `auth/password.ts` and
+  `http/routes/auth.ts`):
+  - a name of 3 to 24 letters or digits (also `_ . -`), unique without regard to case; an
+    e-mail, required, unique; a password of 12 to 128 characters, not one of the ten common
+    ones; Argon2id at 64 MiB, 3 passes, 1 lane; a dummy hash for unknown names;
+  - `apps/server/src/localRoutes.ts`: `POST /api/auth/register`, `sign-in` (name or e-mail),
+    `forgot`, `reset`; the kit's `RateLimiter` at 20 per 15 minutes per address, 5 per login
+    and address, 5 registrations an hour per address; one answer for a wrong name and a wrong
+    password; one answer for every e-mail on `forgot`;
+  - `auth/passwords.ts`, `auth/credentials.ts` (port and memory), `db/credentialStore.ts` and
+    migration `0002_local_accounts.sql`;
+  - website mode answers 404 on all four (not registered there).
+- **Forgotten password:** a link with 32 random bytes, stored as its sha256, valid one hour,
+  used once (`UPDATE … WHERE used_at IS NULL AND expires_at > now`); the reset ends every
+  session of the account. Mail through nodemailer to `SC_SMTP_HOST`/`SC_SMTP_PORT` (dev:
+  Mailpit 1170); the link opens `SC_PUBLIC_ORIGIN` (default the dev client 5470). Without SMTP
+  the route answers 503.
+- **Roles and ranks:** `pnpm sc admin promote <name>` (`src/tools/sc.ts`) makes the first admin
+  on the server's database. The admin area (`/admin`, now titled "Admin") lists the accounts for
+  an admin and sets role and rank (`accountRoutes.ts`, `screens/AccountsAdmin.tsx`). A website
+  account is read-only, an admin cannot drop their own admin role, a role change ends the
+  account's sessions.
+- **Lobby and "My matches":** every show on the start page (`screens/Lobby.tsx`) with its way to
+  the stage or the result; `/matches` lists the user's case per show from the public view, so a
+  prize shows only once its case is open.
+- **Client:** `account/AccountEntry.tsx` (sign in, create an account, forgotten password) on the
+  start page for a guest in local mode, the development sign-in beside it in development;
+  `account/ResetPage.tsx` (`/reset`); "My matches" in the header when signed in.
+- **Tests:** `localRoutes.test.ts` (registration and its rules, sign-in by name and e-mail, the
+  same answer for wrong name and password, the limits, the reset link once and its ended
+  sessions, 503 without mail, 404 in website mode, the admin's roles and ranks, "My matches"
+  before and after the open); the credential store against PostgreSQL; journey 5 (register, a
+  refused short password, sign out, forgotten password, the mail from Mailpit's API, reset, the
+  old password refused, sign-in by e-mail, "My matches"). Mailpit runs as a service of CI's
+  `e2e` job.
+- **A flaky run found and fixed at its cause:** journey 5 repeated three times failed the third
+  time with 429. A refused weak password also counted as a registration. Registrations are now
+  counted once the form passes the rules (a refused form costs no hash and no row), with a
+  server test; journey 5 then passed 4 of 4.
+- **Checked by hand on PostgreSQL:** registration, `pnpm sc admin promote olga`, the reset mail
+  in Mailpit; the database and the mail were removed afterwards.
+- **Processes:** stopping a background `pnpm --filter @sc/server dev` leaves its node child
+  listening. The check servers of pieces 5 and 6 (3975, 3976) were stopped by their process ids;
+  the SC-N1 server on 3970 was left as it was.
+- `pnpm verify` green; journeys 1–5 passed.
+- **Dependencies:** `@node-rs/argon2` 2.2.2 (as Mini Games), `nodemailer` 10.6.1 (SMTP; Mini
+  Games has no mailer yet), `@types/nodemailer` 8.0.2.
+
 ### Choices made without the owner (SC-N2)
 
 - **"Opens in N s"** of the kit's start card is hidden: shows have no start time yet, and the
@@ -271,6 +321,15 @@ verify` green (19 files, 95 tests); journey 1 passed.
   struck through: there are many blanks, and one taken blank says nothing.
 - **The scoreboard's wording:** "Prize 1: Gold" or "Prize 2" (the existing `prizeTitle`); the
   centre case uses "Prize 1 · Gold" as the task writes it.
+- **The reset link:** 32 random bytes, valid one hour, used once; the reset ends every session
+  and does not sign in (the user signs in with the new password). Mini Games has no reset yet,
+  so there was no rule to follow.
+- **Sign-in's refusal** reads "Wrong name, e-mail or password." (Mini Games: e-mail only).
+- **Without SMTP** the forgotten-password route answers 503 "mail is not set up on this server".
+- **Roles:** a role change ends the account's sessions; a rank change does not (the next request
+  carries it). An admin cannot take away their own admin role.
+- **The lobby** is the list of every show on the start page, newest first.
+- **The development sign-in** stays beside the account forms in development (D24).
 
 ## Night chain SC-N1 (2026-11-21)
 

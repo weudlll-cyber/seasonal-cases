@@ -5,11 +5,12 @@
  * Responsibility: one call that ./main.ts (and the store tests) make: create the pool in its
  *                 schema, apply the pending migrations, load the event log, and answer the stores
  *                 for buildServer plus a close that waits for pending writes first.
- * Depends on:     ../app.js (types), ./accountStore.js, ./box.js, ./eventStore.js,
- *                 ./migrator.js, ./pool.js, ./state.js
+ * Depends on:     ../app.js (types), ./accountStore.js, ./box.js, ./credentialStore.js,
+ *                 ./eventStore.js, ./migrator.js, ./pool.js, ./state.js
  */
 import type { Stores } from '../app.js';
 import { pgAccounts, pgSessions } from './accountStore.js';
+import { pgCredentials } from './credentialStore.js';
 import { dataKey } from './box.js';
 import { pgEventStore, type PgEventStore } from './eventStore.js';
 import { migrate } from './migrator.js';
@@ -18,7 +19,7 @@ import { pgCursor } from './state.js';
 
 export interface Database {
   readonly pool: DbPool;
-  readonly stores: Required<Stores> & { readonly events: PgEventStore };
+  readonly stores: Required<Omit<Stores, 'mailer'>> & { readonly events: PgEventStore };
   /** Waits for pending event writes, then ends the pool. */
   close(): Promise<void>;
 }
@@ -44,6 +45,7 @@ export async function openDatabase(options: DatabaseOptions): Promise<Database> 
       accounts: pgAccounts(pool),
       sessions: pgSessions(pool),
       cursor: pgCursor(pool),
+      credentials: pgCredentials(pool),
     },
     async close() {
       await events.flush();

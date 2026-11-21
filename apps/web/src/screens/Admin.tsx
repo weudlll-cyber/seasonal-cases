@@ -1,14 +1,14 @@
 /**
  * @file   apps/web/src/screens/Admin.tsx
- * @brief  The development admin: N, W, prize labels, the Quick Test seed, and the organiser's
- *         steps per show (CONCEPT §9 prototype).
+ * @brief  The admin area: N, W, prize labels, the Quick Test seed, the organiser's steps per
+ *         show (CONCEPT §9), and for an admin the accounts' roles and ranks (D24).
  *
- * Responsibility: Quick Test (a live show with bots in one click, the caller holding the
- *                 direction), create, and per show: open registration, fill with bots, close,
- *                 seal, start; the list of shows. Every button calls the dev admin API; the
- *                 server checks the role and the rules.
+ * Responsibility: Quick Test (development only: a live show with bots in one click, the caller
+ *                 holding the direction), create, and per show: open registration, fill with
+ *                 bots, close, seal, start; the list of shows; the accounts (./AccountsAdmin.tsx).
+ *                 Every button calls the server, which checks the role and the rules.
  * Depends on:     react, @sc/contracts, @sc/ui, ../lib/api.js, ../lib/router.js,
- *                 ../lib/useAction.js, ./SetupForm.js
+ *                 ../lib/useAction.js, ./AccountsAdmin.js, ./SetupForm.js
  */
 import type { Me, ShowSummary } from '@sc/contracts';
 import { formatTime } from '@sc/ui';
@@ -18,6 +18,7 @@ import { getJson, postJson } from '../lib/api.js';
 import { apiPath } from '../lib/base.js';
 import { navigate } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
+import { AccountsAdmin } from './AccountsAdmin.js';
 import { SetupForm, type Setup } from './SetupForm.js';
 
 // The organiser's steps per show: path, label, tooltip.
@@ -92,9 +93,7 @@ export function Admin({ me, onShowChanged, dev }: AdminProps) {
     });
   };
   if (me === null || (me.role !== 'admin' && me.role !== 'organiser')) {
-    return (
-      <p className="page card">Sign in as an organiser or admin to use the development admin.</p>
-    );
+    return <p className="page card">Sign in as an organiser or admin to use the admin area.</p>;
   }
   const quickTest = (setup: Setup) => {
     act(
@@ -109,7 +108,7 @@ export function Admin({ me, onShowChanged, dev }: AdminProps) {
   };
   return (
     <main className="page admin">
-      <h1>Development admin</h1>
+      <h1>Admin</h1>
       <SetupForm
         busy={action.busy}
         {...(dev ? { onQuickTest: quickTest } : {})}
@@ -121,6 +120,7 @@ export function Admin({ me, onShowChanged, dev }: AdminProps) {
         </p>
       )}
       <ShowList shows={shows} busy={action.busy} act={act} />
+      {me.role === 'admin' && <AccountsAdmin me={me} />}
     </main>
   );
 }

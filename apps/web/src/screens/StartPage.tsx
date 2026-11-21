@@ -1,7 +1,8 @@
 /**
  * @file   apps/web/src/screens/StartPage.tsx
  * @brief  The start page (`/`): the logo and name, the current or next show on the kit's start
- *         card, its registration board, and the sign-in for a guest (DECISIONS D22).
+ *         card, its registration board, the sign-in for a guest and the lobby (DECISIONS D22,
+ *         D24).
  *
  * Responsibility: in the shape of Mini Games' start screen: the card in the show's season colour
  *                 with its state, cases and prizes; the registration board below it while
@@ -9,13 +10,15 @@
  *                 show is sealed, to the result once it has ended. A player's pick goes to the
  *                 server's claim. The card's "Opens in N s" stays hidden: shows have no start
  *                 time yet (`.start-page` in ./screens.css). Everything shown comes from the feed.
- * Depends on:     @seasonal/kit/react, @sc/contracts (types), ../lib/*, ../board/*, ./SignIn.js,
+ * Depends on:     @seasonal/kit/react, @sc/contracts (types), ../account/AccountEntry.js, ../lib/*,
+ *                 ../board/*, ./Lobby.js, ./SignIn.js,
  *                 assets/brand/logo.webp
  */
 import { StartCard } from '@seasonal/kit/react';
 import type { Me, PublicShowView, SignInRequest } from '@sc/contracts';
 
 import logo from '../../../../assets/brand/logo.webp';
+import { AccountEntry } from '../account/AccountEntry.js';
 import { RegistrationBoard } from '../board/RegistrationBoard.js';
 import { postJson } from '../lib/api.js';
 import { apiPath } from '../lib/base.js';
@@ -23,6 +26,7 @@ import type { ShowFeed } from '../lib/feed.js';
 import type { ServerMode } from '../lib/mode.js';
 import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
+import { Lobby } from './Lobby.js';
 import { SignIn } from './SignIn.js';
 
 const STATE_TEXT = {
@@ -39,6 +43,7 @@ export interface StartPageProps {
   readonly feed: ShowFeed;
   readonly showId: string | null | undefined;
   readonly onSignIn: (request: SignInRequest) => Promise<void>;
+  readonly onEnter: (me: Me) => void;
 }
 
 /** The state in words; a closed registration stays in the state 'registration' until sealing. */
@@ -86,19 +91,20 @@ function useClaim(me: Me | null, show: PublicShowView | null) {
   return { onClaim, error: action.error };
 }
 
-export function StartPage({ me, mode, feed, showId, onSignIn }: StartPageProps) {
+export function StartPage({ me, mode, feed, showId, onSignIn, onEnter }: StartPageProps) {
   const { show } = feed;
   const { onClaim, error } = useClaim(me, show);
-  const devSignIn = me === null && mode.mode === 'local' && mode.dev;
+  const localGuest = me === null && mode.mode === 'local';
   return (
     <main className="page start-page" data-sk-game="cases">
       <header className="start-brand">
         <img src={logo} alt="" className="start-logo" />
         <h1>Seasonal Cases</h1>
       </header>
-      {/* Website mode signs in through the website (the header's link); local mode has the
-          development sign-in in development (DECISIONS D24). */}
-      {devSignIn && <SignIn onSignIn={onSignIn} />}
+      {/* Website mode signs in through the website (the header's link); local mode has its own
+          accounts, and the development sign-in too in development (DECISIONS D24). */}
+      {localGuest && <AccountEntry onEnter={onEnter} />}
+      {localGuest && mode.dev && <SignIn onSignIn={onSignIn} />}
       {showId === null && <p className="card">There is no show yet.</p>}
       {show !== null && (
         <>
@@ -113,6 +119,7 @@ export function StartPage({ me, mode, feed, showId, onSignIn }: StartPageProps) 
           )}
         </>
       )}
+      <Lobby signature={show === null ? '' : `${show.id}:${show.state}`} />
     </main>
   );
 }

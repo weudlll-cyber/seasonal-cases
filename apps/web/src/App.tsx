@@ -4,18 +4,21 @@
  *
  * Responsibility: hold the session, the server's mode and the current show's feed once for the
  *                 whole page, and render the route: the start page (`/`), the stage (`/show`),
- *                 the result (`/results/<id>`), the admin (`/admin`). While a live show is on the
+ *                 the result (`/results/<id>`), the admin (`/admin`), "My matches" (`/matches`)
+ *                 and the forgotten password's page (`/reset`). While a live show is on the
  *                 stage the kit's game bar replaces the header (focus mode); on a phone the
  *                 direction bar then lives in the bar's panel. In website mode, or locally with a
  *                 chat origin, every screen sits in the kit's `DockedScreen` with the website's
  *                 chat, mounted once (GAME-INTEGRATION §5); the call slot stays hidden.
- * Depends on:     react, @seasonal/kit/react, @sc/ui, ./lib/*, ./screens/*, ./shell/*,
+ * Depends on:     react, @seasonal/kit/react, @sc/ui, ./account/*, ./lib/*, ./screens/*, ./shell/*,
  *                 ./stage/Stage.js
  */
 import { DockedScreen, useDockView, useTheme, WebsiteChatFrame } from '@seasonal/kit/react';
 import { OriginChatFrame } from '@sc/ui';
 import { useRef, type ReactNode } from 'react';
 
+import { Matches } from './account/Matches.js';
+import { ResetPage } from './account/ResetPage.js';
 import { useCurrentShow, useShowFeed } from './lib/feed.js';
 import { docked, useServerMode, type ServerMode } from './lib/mode.js';
 import { routeOf, usePath, type Route } from './lib/router.js';
@@ -115,6 +118,8 @@ function Routes({ route, me, mode, feed, current, session, phone }: RoutesProps)
     );
   }
   if (route.name === 'results') return <Result showId={route.showId} />;
+  if (route.name === 'matches') return <Matches me={signedIn} />;
+  if (route.name === 'reset') return <ResetPage />;
   if (route.name === 'admin') {
     return <Admin me={signedIn} onShowChanged={current.refresh} dev={mode.dev} />;
   }
@@ -125,6 +130,7 @@ function Routes({ route, me, mode, feed, current, session, phone }: RoutesProps)
       feed={feed}
       showId={current.id}
       onSignIn={session.signIn}
+      onEnter={session.enter}
     />
   );
 }

@@ -42,6 +42,10 @@ the cases in five reveal steps. [CONCEPT.md](CONCEPT.md) v1.0 governs it; the de
   PostgreSQL (D26, piece 5): accounts, sessions, the feed's cursor and the shows' event log in
   the database, the sealed secret encrypted with `SC_DATA_KEY`; tables for 2FA are ready.
 
+  Standalone accounts (D24, piece 6): registration, sign-in by name or e-mail, the forgotten
+  password by mail (Mailpit in development), roles and ranks in the admin area, the first admin
+  by `pnpm sc admin promote <name>`, the lobby on the start page and "My matches".
+
   The dev role "moderator" is now "organiser". Concept v1.4.
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
@@ -62,6 +66,10 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   website mode), without a database.
 - `pnpm e2e --project=screens`: the pictures at the check sizes, light and dark.
 - The store tests need PostgreSQL: the development database, or `SC_TEST_DATABASE_URL` (CI).
+- Journey 5 needs Mailpit (the development services above; a service in CI).
+- `pnpm sc admin promote <name>` makes a standalone account an admin on the dev database.
+- Stopping a background `pnpm --filter @sc/server dev` leaves its node child running: end the
+  process that listens on the port as well.
 
 ## What is open
 
