@@ -18,6 +18,7 @@
  *                   SC_SMTP_PORT, SC_MAIL_FROM), SC_PUBLIC_ORIGIN (required in production and by
  *                   a server that mails outside development), SC_TRUSTED_PROXIES (default this
  *                   machine).
+ *                 - Tests only: SC_TEST_PLAIN_COOKIE=1 with NODE_ENV=test, refused otherwise.
  * Depends on:     node:crypto, node:fs, node:url, ./configRead.js, ./mail.js (types)
  */
 import { randomBytes } from 'node:crypto';
@@ -62,6 +63,9 @@ export interface ServerConfig {
   readonly proxies: readonly string[];
   // The built client this process serves under the base path; null: Vite serves it.
   readonly clientDir: string | null;
+  // Tests only: the session cookie without Secure, for the browser tests' plain-http stand-in
+  // website (WebKit drops a Secure cookie there). Refused outside NODE_ENV=test.
+  readonly plainCookie: boolean;
 }
 
 // apps/server/src → the repository root.
@@ -154,6 +158,15 @@ function hostFrom(read: EnvReader): string {
   return '127.0.0.1';
 }
 
+// SC_TEST_PLAIN_COOKIE=1 exists for the browser tests only; anywhere else it stops the start,
+// so no deployment can turn the Secure flag off (docs/CONFIG.md).
+function plainCookieFrom(read: EnvReader): boolean {
+  if (read.text('SC_TEST_PLAIN_COOKIE') !== '1') return false;
+  if (read.text('NODE_ENV') === 'test') return true;
+  read.note('SC_TEST_PLAIN_COOKIE is for the browser tests only and needs NODE_ENV=test');
+  return false;
+}
+
 interface Basics {
   readonly mode: Mode;
   readonly production: boolean;
@@ -200,6 +213,7 @@ export function configFrom(env: NodeJS.ProcessEnv): ServerConfig {
     ...runtimeFrom(read, basics),
     database: databaseFrom(read, basics.production),
     cookieSecret: cookieSecretFrom(read, basics.production),
+    plainCookie: plainCookieFrom(read),
     ...addressesFrom(read, basics),
   };
   read.finish();

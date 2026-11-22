@@ -73,6 +73,18 @@ describe('the settings check', () => {
     expect(half).toEqual([expect.stringMatching(/go together/)]);
     expect(problemsOf(WEBSITE)).toEqual([]);
   });
+
+  it('allows the test-only plain cookie under NODE_ENV=test and nowhere else', () => {
+    const plain = { ...WEBSITE, SC_TEST_PLAIN_COOKIE: '1' };
+    const refused = /SC_TEST_PLAIN_COOKIE is for the browser tests only/;
+    expect(problemsOf({ ...PRODUCTION, ...plain })).toEqual([expect.stringMatching(refused)]);
+    expect(problemsOf({ ...plain, NODE_ENV: 'development' })).toEqual([
+      expect.stringMatching(refused),
+    ]);
+    expect(problemsOf(plain)).toEqual([expect.stringMatching(refused)]);
+    expect(configFrom({ ...plain, NODE_ENV: 'test' }).plainCookie).toBe(true);
+    expect(configFrom({ ...WEBSITE, NODE_ENV: 'test' }).plainCookie).toBe(false);
+  });
 });
 
 describe('health and readiness', () => {

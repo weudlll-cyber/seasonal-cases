@@ -8,6 +8,7 @@
 | 1.3 | 2026-11-21 | Night chain SC-N2: the opening and the ceremony (§3.4, §3.5), the result frame (§3.5), the start page and focus mode (§7). |
 | 1.4 | 2026-11-21 | Night chain SC-N2: website mode as built, the organiser role, the rank and badges in website mode (§10). |
 | 1.5 | 2026-11-22 | Night chain SC-N3: the phases' status (§12); nothing else changes. |
+| 1.6 | 2026-11-22 | Night chain SC-N4, from the owner's decisions of 2026-11-22: the website-mode rank rule decided (§4, §10); the logo per theme, the phone menu, the still gem outside the centre and the ceremony (§7). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -118,8 +119,9 @@ show**.
 
 ## 4. The Seasonal rank
 
-- **Website mode:** the rank is the account's Discord tier from the website, as the website reports
-  it (decided 2026-11-21). The badges appear in the game as on the website.
+- **Website mode:** the rank is the number of the member's valid Discord steps as the website
+  reports them, at most 5, and the steps' icons are the badges beside the name (decided
+  2026-11-22).
 - **Standalone mode:** admins assign each account's rank by hand in the admin area (decided
   2026-11-21). Unassigned accounts have the lowest rank.
 - The rank decides only case conflicts (§3.2). It has no other effect.
@@ -153,10 +155,14 @@ point, so the main prize is the Halving Stone.
 
 Target: a TV-studio feel with small means — SVG, icons, gradients, glow, CSS animation, no 3D.
 
-- **Start page** (decided 2026-11-21): the game's name and the Seasonal Entertainment logo, the
+- **Start page** (decided 2026-11-21): the game's name and the Seasonal Entertainment logo (the
+  full logo in light theme, its emblem without lettering in dark, as the website's forms show it;
+  decided 2026-11-22), the
   current or next show on the kit's start card (state, cases, prizes; "Opens in N s" once shows
   have a start time), its registration board below while registration is open, and the sign-in
   where it belongs.
+- **Header on a phone** (decided 2026-11-22): the menu's links wrap to a row of their own;
+  nothing scrolls sideways and nothing is hidden.
 - **Focus mode:** during a live show the kit's game bar replaces the app header: "Seasonal
   Cases", the cases left and the prizes left, full screen where offered, and panels for the
   players (the owners), the chat (website mode) and, for the direction holder on a phone, the
@@ -177,6 +183,8 @@ Target: a TV-studio feel with small means — SVG, icons, gradients, glow, CSS a
   closes, travels home and stays there marked opened (durations: settings, §9).
 - **Lower third:** owner's name and Discord badge at the "Owner" step.
 - **Confetti** only on the main prize.
+- **The main prize's gem** (the four seasons) turns only in the centre case and in the ceremony;
+  in the scoreboard and everywhere else it is still (decided 2026-11-22).
 - **Fonts:** Luxora Grotesk from the kit for the frame (Book for text, Bold for headings). The stage
   may use a playful show font for case numbers and artifact names (decided 2026-11-21); proposal:
   Fredoka, as Seasonal Party uses it.
@@ -239,8 +247,8 @@ and cannot register, the account-changes feed (a lock or a rights change ends th
 deletion shows "deleted player" plus the short id), 7-day game sessions, the website's chat
 docked under every screen (room `cases`), the call slot reserved and hidden, and the
 "← Seasonal Entertainment" link. The rank in website mode is the number of the member's valid
-Discord steps, at most 5, and the steps' icons are the badges beside the name; both rules are
-proposals. The role formerly called "moderator" is the **organiser**: they create shows, hold
+Discord steps, at most 5, and the steps' icons are the badges beside the name (§4, decided
+2026-11-22). The role formerly called "moderator" is the **organiser**: they create shows, hold
 the direction and hand it to any signed-in organiser or admin.
 
 The **development sign-in** (name, role and rank, no password) stays in local mode with

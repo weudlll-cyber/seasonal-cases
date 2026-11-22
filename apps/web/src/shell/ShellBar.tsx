@@ -3,22 +3,26 @@
  * @brief  The app header outside focus mode: the way back to the website, the name, the
  *         navigation, the user, the theme.
  *
- * Responsibility: one row on a desktop, two on a phone (./shell.css); the kit's `BackLink`
+ * Responsibility: one row on a desktop; on a phone the title row and the menu row, whose
+ *                 links wrap below 480 px (DECISIONS D29), its height published for the
+ *                 screens that subtract it (./useShellHeight.ts); the kit's `BackLink`
  *                 ("← Seasonal Entertainment", website mode only, GAME-INTEGRATION §8) at the
  *                 top left and the kit's `ThemeToggle`. In website mode a guest's "Sign in" goes
  *                 through the website (the kit's `websiteLoginHref` to the game's login hop) and
  *                 back to this page. Hidden while a live show is on the stage: the game bar takes
  *                 its place (./FocusBar.tsx).
- * Depends on:     @seasonal/kit, @seasonal/kit/react, @sc/contracts (types), ../lib/base.js,
- *                 ../lib/router.js, ../stage/Badges.js
+ * Depends on:     react, @seasonal/kit, @seasonal/kit/react, @sc/contracts (types),
+ *                 ../lib/base.js, ../lib/router.js, ../stage/Badges.js, ./useShellHeight.js
  */
 import { websiteLoginHref } from '@seasonal/kit';
 import { BackLink, ThemeToggle } from '@seasonal/kit/react';
 import type { Me } from '@sc/contracts';
+import { useRef } from 'react';
 
 import { BASE } from '../lib/base.js';
 import { Link } from '../lib/router.js';
 import { Badges } from '../stage/Badges.js';
+import { useShellHeight } from './useShellHeight.js';
 
 export interface ShellBarProps {
   readonly me: Me | null;
@@ -27,8 +31,10 @@ export interface ShellBarProps {
 }
 
 export function ShellBar({ me, website, onSignOut }: ShellBarProps) {
+  const header = useRef<HTMLElement>(null);
+  useShellHeight(header);
   return (
-    <header className="shell-bar">
+    <header className="shell-bar" ref={header}>
       <BackLink websiteMode={website} />
       <Link to="/" className="shell-title">
         Seasonal Cases

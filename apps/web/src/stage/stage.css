@@ -77,6 +77,10 @@
   mix-blend-mode: multiply;
 }
 
+/* The spotlight is painted once into a layer of its own (`will-change`), so a turning gem or a
+   travelling case never repaints its large clipped gradient; with the lights up it is not
+   drawn at all (`visibility`, flipped after the fade). Playwright's WebKit drew the stage at
+   under one frame a second without this (BACKLOG 12, closed). */
 .spotlight {
   position: absolute;
   inset: 0 20%;
@@ -84,12 +88,20 @@
   background: linear-gradient(rgb(255 248 220 / 42%), rgb(255 248 220 / 4%) 85%);
   clip-path: polygon(44% 0, 56% 0, 86% 100%, 14% 100%);
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transition: opacity var(--duration-slow) var(--ease-out);
+  will-change: opacity;
+  transition:
+    opacity var(--duration-slow) var(--ease-out),
+    visibility 0s linear var(--duration-slow);
 }
 
 .stage-screen[data-dimmed='true'] .spotlight {
   opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--duration-slow) var(--ease-out),
+    visibility 0s;
 }
 
 .arena-scroll {

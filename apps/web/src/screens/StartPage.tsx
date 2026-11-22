@@ -12,13 +12,11 @@
  *                 server's claim. The card's "Opens in N s" stays hidden: shows have no start
  *                 time yet (`.start-page` in ./screens.css). Everything shown comes from the feed.
  * Depends on:     @seasonal/kit/react, @sc/contracts (types), ../account/AccountEntry.js, ../lib/*,
- *                 ../board/*, ./Lobby.js, ./SignIn.js,
- *                 assets/brand/logo.webp
+ *                 ../board/*, ./BrandLogo.js, ./Lobby.js, ./SignIn.js
  */
 import { StartCard } from '@seasonal/kit/react';
 import type { Me, PublicShowView, SignInRequest } from '@sc/contracts';
 
-import logo from '../../../../assets/brand/logo.webp';
 import { AccountEntry } from '../account/AccountEntry.js';
 import { RegistrationBoard } from '../board/RegistrationBoard.js';
 import { postJson } from '../lib/api.js';
@@ -27,6 +25,7 @@ import type { ShowFeed } from '../lib/feed.js';
 import type { ServerMode } from '../lib/mode.js';
 import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
+import { BrandLogo } from './BrandLogo.js';
 import { Lobby } from './Lobby.js';
 import { SignIn } from './SignIn.js';
 
@@ -68,7 +67,7 @@ function ShowCard({ show }: { show: PublicShowView }) {
       game="mini-games"
       season={show.season}
       title="The next show"
-      icon={<img src={logo} alt="" />}
+      icon={<BrandLogo />}
       badge={<span className="start-badge">{stateText(show)}</span>}
       special={
         <p className="start-links">
@@ -107,7 +106,7 @@ export function StartPage({ me, mode, feed, showId, onSignIn, onEnter }: StartPa
   return (
     <main className="page start-page" data-sk-game="cases">
       <header className="start-brand">
-        <img src={logo} alt="" className="start-logo" />
+        <BrandLogo className="start-logo" />
         <h1>Seasonal Cases</h1>
       </header>
       {/* Website mode signs in through the website (the header's link); local mode has its own

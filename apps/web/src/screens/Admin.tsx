@@ -5,7 +5,7 @@
  *
  * Responsibility: Quick Test (development only: a live show with bots in one click, the caller
  *                 holding the direction), create, and per show: open registration, fill with
- *                 bots, close, seal, start; the list of shows, the setup starting from the
+ *                 bots (development only), close, seal, start; the list of shows, the setup starting from the
  *                 settings' defaults; the settings and the accounts (./AccountsAdmin.tsx).
  *                 Every button calls the server, which checks the role and the rules.
  * Depends on:     react, @sc/contracts, @sc/ui, ../lib/api.js, ../lib/router.js,
@@ -22,7 +22,8 @@ import { useAction } from '../lib/useAction.js';
 import { AdminAccounts } from './AccountsAdmin.js';
 import { SetupForm, type Setup } from './SetupForm.js';
 
-// The organiser's steps per show: path, label, tooltip.
+// The organiser's steps per show: path, label, tooltip. "Fill with bots" only in development
+// (DECISIONS D34): the server refuses it anywhere else.
 const STEPS = [
   ['open', 'Open registration', 'Players may pick cases from now on'],
   ['bots', 'Fill with bots', 'A bot claims every case nobody claimed'],
@@ -33,7 +34,15 @@ const STEPS = [
 
 type Act = (call: () => Promise<unknown>, then?: () => Promise<void> | void) => void;
 
-function ShowList({ shows, busy, act }: { shows: ShowSummary[]; busy: boolean; act: Act }) {
+interface ShowListProps {
+  readonly shows: ShowSummary[];
+  readonly busy: boolean;
+  readonly act: Act;
+  readonly dev: boolean;
+}
+
+function ShowList({ shows, busy, act, dev }: ShowListProps) {
+  const steps = dev ? STEPS : STEPS.filter(([path]) => path !== 'bots');
   return (
     <section className="card" aria-label="Shows">
       <h2>Shows</h2>
@@ -46,7 +55,7 @@ function ShowList({ shows, busy, act }: { shows: ShowSummary[]; busy: boolean; a
               {s.state} · {s.caseCount} cases · {s.winnerCount} winners · {formatTime(s.createdAt)}
             </span>
             <span className="admin-steps">
-              {STEPS.map(([path, label, tip]) => (
+              {steps.map(([path, label, tip]) => (
                 <button
                   key={path}
                   type="button"
@@ -68,9 +77,14 @@ function ShowList({ shows, busy, act }: { shows: ShowSummary[]; busy: boolean; a
   );
 }
 
-/** The settings' default N and W for an organiser or admin; undefined until known. */
-function useDefaults(me: Me | null) {
-  const [defaults, setDefaults] = useState<{ cases: number; winners: number }>();
+type Defaults = { cases: number; winners: number } | null;
+
+/**
+ * The settings' default N and W for an organiser or admin: undefined while asked, null when not
+ * to be had (the form then starts from the catalogue's).
+ */
+function useDefaults(me: Me | null): Defaults | undefined {
+  const [defaults, setDefaults] = useState<Defaults>();
   const may = me !== null && canDirect(me.role);
   useEffect(() => {
     if (!may) return;
@@ -78,9 +92,11 @@ function useDefaults(me: Me | null) {
       .then((s) => {
         setDefaults({ cases: s.defaultCases, winners: s.defaultWinners });
       })
-      .catch(() => undefined);
+      .catch(() => {
+        setDefaults(null);
+      });
   }, [may]);
-  return defaults;
+  return may ? defaults : null;
 }
 
 export interface AdminProps {
@@ -126,19 +142,23 @@ export function Admin({ me, onShowChanged, dev }: AdminProps) {
   return (
     <main className="page admin">
       <h1>Admin</h1>
-      <SetupForm
-        key={defaults === undefined ? 'catalogue' : 'settings'}
-        {...(defaults === undefined ? {} : { defaults })}
-        busy={action.busy}
-        {...(dev ? { onQuickTest: quickTest } : {})}
-        onCreate={create}
-      />
+      {/* The form waits for the defaults: arriving later, they would replace what was typed. */}
+      {defaults === undefined ? (
+        <p className="card">Loading the settings…</p>
+      ) : (
+        <SetupForm
+          {...(defaults === null ? {} : { defaults })}
+          busy={action.busy}
+          {...(dev ? { onQuickTest: quickTest } : {})}
+          onCreate={create}
+        />
+      )}
       {action.error !== null && (
         <p className="admin-error" role="alert">
           {action.error}
         </p>
       )}
-      <ShowList shows={shows} busy={action.busy} act={act} />
+      <ShowList shows={shows} busy={action.busy} act={act} dev={dev} />
       {me.role === 'admin' && <AdminAccounts me={me} />}
     </main>
   );

@@ -2,6 +2,87 @@
 
 The morning sheets of the unattended night chains, newest first.
 
+## Night chain SC-N4 (2026-11-22)
+
+The owner's decisions of 2026-11-22: the three picture decisions and WebKit, the show rules
+(no bots in real shows, unclaimed cases, the early-end question), the security items, `e2e` as
+a required check, the applause button, a third review, the play-through. Branch
+`proto/cases-v1`, continued; nothing merged.
+
+### Final report
+
+(Written at the end of the chain.)
+
+### Pieces
+
+| Piece | What                                                                    | State   | Commit | CI run |
+| ----- | ----------------------------------------------------------------------- | ------- | ------ | ------ |
+| 1     | Gem, logo, phone menu, the WebKit causes, journey 4                     | done    | —      | —      |
+| 2     | No bots in real shows, unclaimed cases, early-end question              | running | —      | —      |
+| 3     | Security items (recovery codes, names, registration, limits, installer) | open    | —      | —      |
+| 4     | `e2e` as a required check                                               | open    | —      | —      |
+| 5     | The applause button                                                     | open    | —      | —      |
+| 6     | Third independent review, 1.0.0-rc.2                                    | open    | —      | —      |
+| 7     | Play-through, pictures, hand-over                                       | open    | —      | —      |
+
+### Needs the owner's word (SC-N4)
+
+- **The kit:** `v0.10.1` exists (tagged 2026-11-22 11:56); the pin stays `v0.8.0`, as CLAUDE.md
+  changes the kit only on the owner's word and this chain names the kit's items as not tonight.
+  `v0.10.1` renames every data attribute the kit uses to `data-sk-…` (its CHANGELOG).
+
+### Piece 1 report
+
+- **Gem (D27):** it turns only inside the centre case and the ceremony (`artifact.css`); the
+  scoreboard, the opening and the result hold it still; reduced motion stops it everywhere.
+- **Logo (D28):** `BrandLogo` (new, 37 lines) shows the full logo in light theme and the emblem
+  in dark, switched by CSS on the kit's `data-theme` as the website's FormLogo and forms.css do;
+  on the start page and the start card. The sign-in card sits on the start page under that logo
+  and has none of its own, so it shows the same switch; no logo was added inside the card (the
+  smallest reading). `assets/brand/emblem.webp` copied unchanged from the website (`c15b6de`,
+  sha256 in `assets/README.md`).
+- **Phone menu (D29):** the links wrap, nothing scrolls sideways. Measured: at 360 px the content
+  is 328 px wide, the links need 305 px, the account 184 px, the title 136 px, so links and
+  account cannot share a row; below 480 px the account stays at the right under the theme
+  toggle and the links take a row of their own (one line from 360 to 480 px). The header's
+  height is measured (`useShellHeight`, new, 36 lines) and published as `--shell-height`: 153 px
+  at 360–480, 149 px at 520 (two link lines beside the account), 105 at 640; at 800 px the
+  desktop header wraps to 113 px, which the fixed 64 px used to miss. No sideways overflow at
+  any width. In focus mode the header is unmounted and the property goes, so the game bar's 44
+  and 52 px apply.
+- **Spotlight:** promoted once (`will-change: opacity`) and not drawn with the lights up
+  (`visibility`, flipped after the fade). Measured before: the stage at 0.7 frames a second in
+  Playwright's WebKit with the spotlight, 49 without it. After the gem and the spotlight,
+  journeys 1–3 no longer stall: each click waits 0.5–7 s for still frames and finishes; the
+  WebKit projects get 240 s per journey (Chromium keeps 90).
+- **Journey 4 on plain http:** `SC_TEST_PLAIN_COOKIE=1` drops the cookie's Secure flag and is
+  accepted only with `NODE_ENV=test`; production, development and an unset NODE_ENV refuse to
+  start (`production.test.ts`); the cookie without Secure is proved in `websiteRoutes.test.ts`.
+  The production guard is untouched. The journey opens the phone's folded chat to see it and
+  folds it again; "End show" goes through `direct`.
+- **Found on the way:** the admin's setup form remounted when the settings' defaults arrived
+  and lost what was typed; Firefox under load lost journey 1's "12" to the default 24 that way.
+  The form now waits for the defaults ("Loading the settings…", `Admin.test.tsx`).
+- **Browsers:** three projects added (`chromium-mobile` Pixel 7, `firefox-mobile` 390 × 844,
+  `webkit` desktop); the nightly runs all five non-Chromium-desktop projects. WebKit at phone
+  size: journeys 1, 2, 3 and 4 passed. Chromium 1–6 passed. A first full run of all six
+  projects was stopped: the machine was loaded (other projects' servers and my own unit tests)
+  and edits reloaded into the running pages; Firefox stalled inside clicks for 90 s. The full
+  run follows at the end of piece 2 with nothing alongside.
+- **Lines** (before → after): `artifact.css` 102 → 109, `stage.css` 201 → 213, `shell.css`
+  284 → 298, `screens.css` 288 → 295, `StartPage.tsx` 134 → 133, `ShellBar.tsx` 70 → 76,
+  `Admin.tsx` 145 → 165, `config.ts` 207 → 221, `app.ts` 239 → 242, `playwright.config.ts` 82 →
+  105; new: `BrandLogo.tsx`, `useShellHeight.ts`, `Admin.test.tsx`.
+- **Reused:** the kit's `data-theme` and `ThemeToggle`, `usePanels` (Escape from the follow-up),
+  the website's FormLogo pattern, `EnvReader.note`. **Removed:** the phone nav's hidden scroll
+  row. **Noticed, left alone:** the desktop header wraps at tablet widths (now measured, not
+  redesigned).
+- **Test data:** two development accounts made by the menu measurement were deleted from the
+  development database; the throwaway measuring script is gone.
+- **Piece 2 landed early in this commit:** the admin page offers "Fill with bots" in
+  development only (it shares `Admin.tsx` with the setup-form fix).
+- `pnpm verify` green (39 files, 176 tests).
+
 ## Night chain SC-N3 (2026-11-21)
 
 Toward production: fixes, production run, member summary, installer, sound, browser polish, a

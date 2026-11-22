@@ -51,6 +51,17 @@ const cookieOf = (set: string | string[] | undefined) =>
   (Array.isArray(set) ? set[0] : set)?.split(';')[0] ?? '';
 
 describe('the website sign-in', () => {
+  it('sets the cookie without Secure only in the test-only plain-cookie mode', async () => {
+    harness = await startHarness(false, {
+      ...WEBSITE,
+      NODE_ENV: 'test',
+      SC_TEST_PLAIN_COOKIE: '1',
+    });
+    const signedIn = await signInAs(harness, member(7, 'Ana'));
+    expect(String(signedIn.headers['set-cookie'])).toMatch(/Path=\/games\/cases\//);
+    expect(String(signedIn.headers['set-cookie'])).not.toMatch(/Secure/);
+  });
+
   it('refuses an untrusted peer and a wrong proxy secret', async () => {
     harness = await startHarness(false, WEBSITE);
     expect((await signInAs(harness, member(7, 'Ana'), '10.9.9.9')).statusCode).toBe(403);

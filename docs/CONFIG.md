@@ -52,6 +52,12 @@ service's environment file), **website** (the website's operator gives it), **de
 | `SC_WEBSITE_LOCAL_ORIGIN` | (none)  | with the token  | website   | the website's local address for the account-changes feed                   |
 | `SC_GAMES_SYNC_TOKEN`     | (none)  | with the origin | website   | the games' sync token for that feed; both or neither                       |
 
+## Tests only
+
+| Variable               | Default | What                                                                                                                                                                                               |
+| ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SC_TEST_PLAIN_COOKIE` | (none)  | `1` drops the session cookie's Secure flag for the browser tests' plain-http stand-in website (`e2e/websiteServer.ts`); accepted only with `NODE_ENV=test`, any other environment refuses to start |
+
 ## Build time
 
 | Variable  | Default | What                                                                      |

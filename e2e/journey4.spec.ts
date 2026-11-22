@@ -6,10 +6,11 @@
  *                 a member signs in the same way, sees the back link, the docked chat frame and
  *                 their step badge, and may pick a case; a guest sees the same show with the
  *                 back link and a "Sign in" through the website, and no case to pick.
- * Depends on:     @playwright/test, ./stubShared.ts
+ * Depends on:     @playwright/test, ./helpers.ts, ./stubShared.ts
  */
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 
+import { direct } from './helpers.js';
 import { STEP_ICON, STUB_ORIGIN } from './stubShared.js';
 
 const GAME = `${STUB_ORIGIN}/games/cases/`;
@@ -48,9 +49,17 @@ test('journey 4: website sign-in, back link, docked chat, badges; a guest only w
   await expect(ana.locator('.shell-me .badge-icon')).toHaveAttribute('src', STEP_ICON);
   const chat = ana.getByTestId('chat-frame');
   await expect(chat).toHaveAttribute('src', /^\/embed\/chat\?room=cases&theme=/);
+  // On a phone the kit's dock is a folded bar: open it to see the chat, fold it to play on.
+  const chatBar = ana.getByTestId('chat-bar');
+  const phone = await chatBar.isVisible();
+  if (phone) await chatBar.click();
   await expect(
     ana.frameLocator('[data-testid="chat-frame"]').getByText('Chat (stand-in)'),
   ).toBeVisible();
+  if (phone) {
+    await chatBar.click();
+    await expect(chatBar).toHaveAttribute('aria-expanded', 'false');
+  }
   await ana.locator('.board-case[data-case="3"]').getByRole('button').click();
   await expect(ana.locator('.board-pick')).toContainText('Your pick: case 3, you hold it');
   await expect(ana.locator('.board-case[data-case="3"] .badge-icon')).toBeVisible();
@@ -75,10 +84,7 @@ test('journey 4: website sign-in, back link, docked chat, badges; a guest only w
   // behind for the next journey.
   await olga.goto(`${GAME}show`);
   await olga.getByRole('button', { name: 'Begin' }).click();
-  await olga
-    .getByRole('navigation', { name: 'Direction' })
-    .getByRole('button', { name: 'End show' })
-    .click();
+  await direct(olga, (bar) => bar.getByRole('button', { name: 'End show' }).click());
   await expect(watcher.getByRole('region', { name: 'The winners' })).toBeVisible();
   for (const c of [host, member, guest]) await c.close();
 });

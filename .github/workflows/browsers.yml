@@ -1,8 +1,9 @@
 # @file   .github/workflows/browsers.yml
-# @brief  The Playwright suite in Firefox and WebKit on master, every night and on demand.
+# @brief  The Playwright suite in every browser and size on master, nightly and on demand.
 #
 # Responsibility: every push runs the browser tests in Chromium only (./ci.yml, job e2e, once
-#                 the suite exists); Firefox and WebKit run here, on master, at 02:30 UTC every
+#                 the suite exists); Chromium at phone size, Firefox and WebKit at desktop and
+#                 phone sizes run here (e2e/playwright.config.ts), on master, at 02:30 UTC every
 #                 night and when started by hand (CLAUDE.md "Tests and checks"). Until master
 #                 holds e2e/playwright.config.ts the job only says so. A failure is listed in
 #                 docs/BACKLOG.md under the Firefox/WebKit findings; nothing waits for this run.
@@ -34,12 +35,12 @@ jobs:
         run: echo "::notice::master has no e2e/playwright.config.ts yet; nothing to run."
       - if: hashFiles('e2e/playwright.config.ts') != ''
         uses: ./.github/actions/setup
-      - name: Playwright browsers (Firefox, WebKit)
+      - name: Playwright browsers (Chromium, Firefox, WebKit)
         if: hashFiles('e2e/playwright.config.ts') != ''
-        run: pnpm exec playwright install --with-deps firefox webkit
-      - name: Firefox and WebKit
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - name: Every browser and size
         if: hashFiles('e2e/playwright.config.ts') != ''
-        run: pnpm e2e --project=firefox --project=webkit-mobile
+        run: pnpm e2e --project=chromium-mobile --project=firefox --project=firefox-mobile --project=webkit --project=webkit-mobile
       # On a failure: the traces and page snapshots of the failed tests, for a week.
       - if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

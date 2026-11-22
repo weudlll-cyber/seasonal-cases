@@ -6,7 +6,7 @@ The state of Seasonal Cases for a new planning chat. Updated at the end of every
 
 A moderated community live show for the Seasonal Entertainment community: players claim numbered
 cases, the server seals an artifact into each case with a public commitment, and a moderator opens
-the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 governs it; the decisions are in
+the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 governs it; the decisions are in
 [DECISIONS.md](DECISIONS.md).
 
 ## Where things stand
@@ -74,6 +74,11 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
   closes the panels, the bar keeps the stage's gutter, the result's rings whole, the start card
   counts picks; WebKit's phone journeys 1 and 3 still stall on slow drawing (BACKLOG 12).
 
+- **Night chain SC-N4 (running):** the owner's decisions of 2026-11-22 (D27–). Piece 1: the
+  gem turns only in the centre case and the ceremony (D27), the logo per theme (D28), the phone
+  menu wraps (D29), the spotlight painted once, WebKit's phone journeys pass, journey 4 on the
+  test-only plain cookie, the admin's setup form no longer loses what was typed. Concept 1.6.
+
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
 
@@ -123,15 +128,12 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
 - The choices of the night recorded in [NIGHT-RUN.md](NIGHT-RUN.md) "Choices made without the
   owner", among them the separate "Start show" step after sealing.
 - `e2e` as a required check of master (BACKLOG 22).
-- The stage's motion (piece 2 of SC-N2), proposals by the chain's decision rule: the travel to
+- The stage's motion (piece 2 of SC-N2), kept as built and as admin settings (D30): the travel to
   the front and back 0.8 s ease-in-out, the opening 1.6 s (lid in the first 45 %, the artifact
   from 40 %, the meaning from 80 %), the closing before the way home 0.3 s. Travel and opening
   are settings now (D25); the ease and the closing stay in `apps/web/src/stage/motion.ts`.
-- The ceremony's pace and order (piece 3 of SC-N2): one winner every 2.5 s, from the lowest
-  prize up to the main prize, then "See the result".
-- Website mode's two rules (piece 4 of SC-N2): the rank is the number of the member's valid
-  Discord steps, at most 5; the steps' icons are the badges beside the name on the stage, the
-  board and the header.
+- The ceremony's pace and order (piece 3 of SC-N2), kept as built (D30): one winner every
+  2.5 s, from the lowest prize up to the main prize, then "See the result".
 - The website's side for the slug `cases` (BACKLOG 27): it lives in the website repository.
 - The independent review's questions ([security-pass.md](security-pass.md), "Out of scope or for
   the owner"; BACKLOG 29–31):

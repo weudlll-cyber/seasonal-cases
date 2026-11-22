@@ -108,7 +108,7 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
   const ceremony = noah.getByRole('region', { name: 'The winners' });
   await expect(ceremony.getByRole('status')).toContainText(/Prize 3/);
   await expect(ceremony.getByRole('status')).toContainText(/Prize 1/, { timeout: 8000 });
-  await ceremony.getByRole('link', { name: 'See the result' }).click({ timeout: 8000 });
+  await ceremony.getByRole('link', { name: 'See the result' }).click();
 
   const seal = noah.locator('.result-seal');
   await expect(seal).toContainText('verified');

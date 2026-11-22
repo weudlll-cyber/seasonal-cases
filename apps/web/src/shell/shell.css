@@ -158,8 +158,10 @@ select {
   font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
-/* A phone: two rows of known height (title and toggle; navigation and the user), so the stage
-   screens can subtract it. The role is left out there; the name gives way. */
+/* A phone: the title and the toggle, then the menu and the user. The links wrap, nothing
+   scrolls sideways or hides (DECISIONS D29); the header's real height is published as
+   `--shell-height` (./useShellHeight.ts), 108 px only until it is measured. The role is left
+   out there; the name gives way. */
 @media (max-width: 640px) {
   :root {
     --shell-height: 108px;
@@ -171,7 +173,6 @@ select {
       'title toggle'
       'nav me';
     grid-template-columns: 1fr auto;
-    height: var(--shell-height);
     min-height: 0;
     padding: 6px var(--gutter);
     gap: 4px var(--space-1);
@@ -182,15 +183,12 @@ select {
     align-self: center;
   }
 
-  /* Five links and the user do not fit a phone's width: the links scroll in their row, so the
-     page never scrolls sideways (SC-N2 piece 8). */
   .shell-nav {
     grid-area: nav;
-    gap: var(--space-1);
+    flex-wrap: wrap;
+    gap: 0 var(--space-1);
     min-width: 0;
-    overflow-x: auto;
     white-space: nowrap;
-    scrollbar-width: none;
   }
 
   .shell-me {
@@ -211,6 +209,22 @@ select {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+}
+
+/* Below 480 px the links and the user no longer share a row (360 px leaves 328: the links need
+   305, the user 184): the user stays at the right under the toggle, and the links take a row of
+   their own below, wrapping there if they must (DECISIONS D29). */
+@media (max-width: 480px) {
+  .shell-bar {
+    grid-template-areas:
+      'title toggle'
+      'me me'
+      'nav nav';
+  }
+
+  .shell-me {
+    justify-self: end;
   }
 }
 

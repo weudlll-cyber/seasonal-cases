@@ -136,8 +136,11 @@ async function authOf(app: FastifyInstance, config: ServerConfig, stores: Stores
     }),
     cookiePath: config.basePath,
     // Secure whenever the public address is https (security pass, finding 4); only plain
-    // http://localhost development goes without.
-    secure: config.mode === 'website' || config.publicOrigin.startsWith('https:'),
+    // http://localhost development goes without, and the browser tests' plain-http stand-in
+    // website (`plainCookie`, NODE_ENV=test only, ./config.ts).
+    secure:
+      !config.plainCookie &&
+      (config.mode === 'website' || config.publicOrigin.startsWith('https:')),
     devAccounts: config.dev,
     now: () => Date.now(),
   };

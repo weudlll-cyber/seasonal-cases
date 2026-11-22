@@ -3,8 +3,8 @@
  * @brief  The artifact emblem: a glowing gem in its season colour beside its name.
  *
  * Responsibility: the season colours come only from the kit's tokens (CONCEPT §7); the main
- *                 prize's "all four" is a slowly turning ring of them (still under reduced
- *                 motion); the blank is muted. Sizes
+ *                 prize's "all four" is a ring of them, turning slowly in the centre case and
+ *                 the ceremony only (still under reduced motion); the blank is muted. Sizes
  *                 follow `--fit` and never go below the cases' floors (pending/fit-cases.css).
  * Depends on:     @seasonal/kit/tokens.css, @sc/ui pending/fit-cases.css
  */
@@ -48,7 +48,7 @@
   box-shadow: 0 0 0.6em color-mix(in srgb, var(--season) 70%, transparent);
 }
 
-/* The main prize: the four seasons, turning. */
+/* The main prize: the four seasons. */
 .season-all .artifact-gem {
   background:
     radial-gradient(circle at 35% 30%, rgb(255 255 255 / 85%) 0 12%, transparent 30%),
@@ -59,6 +59,12 @@
       var(--color-autumn),
       var(--color-winter)
     );
+}
+
+/* It turns only in the centre case and in the ceremony; everywhere else (the scoreboard, the
+   opening, the result) it is still, so nothing repaints the page every frame (DECISIONS D27). */
+.centre .season-all .artifact-gem,
+.ceremony .season-all .artifact-gem {
   animation: sc-turn 6s linear infinite;
 }
 
@@ -71,7 +77,8 @@
 /* An endless turn is motion the viewer asked to be spared: the gem holds still, as the confetti
    goes (./stageParts.css). */
 @media (prefers-reduced-motion: reduce) {
-  .season-all .artifact-gem {
+  .centre .season-all .artifact-gem,
+  .ceremony .season-all .artifact-gem {
     animation: none;
   }
 }

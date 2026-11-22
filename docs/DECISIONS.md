@@ -84,3 +84,18 @@ owner confirms them.
   shows' event log live in PostgreSQL (development: ops/compose.dev.yml, port 5570); the shows
   are still rebuilt from their events on start. A sealed show's commitment secret is stored
   encrypted at rest with a server key from the environment (`SC_DATA_KEY`).
+
+## 2026-11-22, the owner's decisions for night chain SC-N4
+
+- **D27 — The gem turns only on show.** The main prize's gem turns only in the centre case and
+  in the ceremony; in the prize list (the scoreboard) and everywhere else it is still (CONCEPT
+  §7, v1.6).
+- **D28 — The logo per theme.** Dark theme shows the logo's emblem without lettering, light
+  theme the full logo, as the website's FormLogo does; no new artwork, the pictures stay the
+  website project's (CONCEPT §7).
+- **D29 — The phone menu wraps.** The phone header's menu wraps to a row of its own; nothing
+  scrolls sideways, nothing is hidden (CONCEPT §7).
+- **D30 — Motion as built.** The motion timings and the ceremony's pace stay as built; they are
+  admin settings.
+- **D31 — The website-mode rank.** In website mode the rank is the number of the member's valid
+  Discord steps, at most 5; the steps' icons are the badges (CONCEPT §4, §10).

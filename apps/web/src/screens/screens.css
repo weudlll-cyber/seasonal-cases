@@ -30,6 +30,13 @@
   height: auto;
 }
 
+/* One logo per theme (./BrandLogo.tsx, DECISIONS D28): the emblem in dark, the full logo in
+   light, switched on the kit's theme attribute as the website's forms.css does. */
+:root[data-theme='dark'] .brand-logo-light,
+:root:not([data-theme='dark']) .brand-logo-dark {
+  display: none;
+}
+
 /* No show has a start time yet, so the card's countdown would always say 0. */
 .start-page .sk-start-count {
   display: none;
