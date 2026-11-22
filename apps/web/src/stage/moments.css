@@ -210,4 +210,11 @@ html[data-sk-focus] {
   .opening-table {
     display: none;
   }
+
+  /* The ceremony as well: in the column, not over a stage as tall as its rows (SC-N3 piece 8). */
+  .ceremony {
+    position: relative;
+    inset: auto;
+    padding: var(--space-1);
+  }
 }

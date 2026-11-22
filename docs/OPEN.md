@@ -2,7 +2,8 @@
 
 A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
 
-- **Now:** night chain SC-N2 is done on `proto/cases-v1` (not merged); the owner plays it.
+- **Now:** release candidate `1.0.0-rc.1` on `proto/cases-v1` (night chains SC-N1 to SC-N3, not
+  merged); the owner plays it and decides the merge (docs/RELEASING.md).
   Built: website mode, the docked chat, PostgreSQL, standalone accounts with 2FA, roles, ranks,
   lobby, "My matches", the settings catalogue, the chronicle (BACKLOG 1, 2, 3, 5, 6, 8, 9, 17, 18,
   21, 28, closed).

@@ -116,9 +116,18 @@
 }
 
 /* The standalone sign-in (../account/AccountEntry.tsx): the card holds one of three forms. */
+/* A column that does not wrap: a wrapping column sized the form at a width where its button
+   wraps and kept that height, an empty band under the heading (SC-N3 piece 8). */
 .account-entry {
   flex-direction: column;
+  flex-wrap: nowrap;
   align-items: stretch;
+}
+
+/* In the column the heading's basis would be a height (`.sign-in h2` is for the row). */
+.account-entry h2 {
+  flex-basis: auto;
+  margin: 0;
 }
 
 .account-entry form {
@@ -266,7 +275,14 @@
   gap: var(--space-1);
 }
 
-.setting-check {
+.setting label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+label.setting-check {
   flex-direction: row;
   align-items: center;
+  gap: var(--space-1);
 }

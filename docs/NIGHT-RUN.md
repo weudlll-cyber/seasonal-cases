@@ -9,20 +9,56 @@ full security review, release readiness. Branch `proto/cases-v1`, continued; not
 
 ### Final report
 
-Written when the chain ends.
+**Done:** pieces 1–5, 7 and 8 in full; piece 6 run and reported but not fixed, by the budget
+rule (the session's usage limit was near). Branch `proto/cases-v1`, nothing merged, every piece
+pushed; CI green on every code commit except one docs commit (`0336ab8`), whose red `deploy` job
+was a flaky installer check, fixed at its cause in piece 7.
+
+- **1** prize names through one helper; look-alike names refused; 49 233 common passwords;
+  `pnpm sc admin reset-2fa`.
+- **2** the production run: `pnpm build`, `pnpm start` (one process with the built client), every
+  setting checked in one place ([CONFIG.md](CONFIG.md)), `/api/health`, `/api/ready`, JSON logs,
+  a graceful stop.
+- **3** the member summary for the website's profile.
+- **4** the installer, `sudo ./deploy/install.sh`, both modes, `--update`, `--check`, an answers
+  file; nginx and Caddy route files checked before a reload ([INSTALL.md](INSTALL.md)).
+- **5** synthesised sound, off until a viewer turns it on.
+- **6** Firefox passes the journeys; WebKit's four failures (phone layout paths in the journeys, a
+  `Secure` cookie on the plain-http stand-in) are BACKLOG 12, not fixed.
+- **7** the second independent security review: eight findings, seven fixed; audit, osv-scanner
+  and gitleaks clean; release candidate `1.0.0-rc.1` (CHANGELOG, RELEASING, CONCEPT 1.5).
+- **8** the play-through (journeys, pictures, the production build, the standalone path) and
+  three layout fixes it showed.
+
+**Checks at the end:** `pnpm verify` green (34 files, 164 tests); journeys 1–6 in Chromium
+passed; the installer harness 45 of 45 and shellcheck clean; 54 pictures plus the phone's
+direction panel in `.local/screens/proto-v3/`, no text under 14 px, no sideways overflow.
+
+**What runs now** (hidden, in the background, this branch): PostgreSQL 127.0.0.1:5570 and Mailpit
+(http://localhost:8570); the server 127.0.0.1:3970 on PostgreSQL (`1.0.0-rc.1`); the client
+http://localhost:5470 (phone: http://192.168.0.66:5470). Quick Test seed: `sc-n1-01`. The
+development database holds three accounts this chain did not make ("Plan-Claude", "Walter",
+"walter"); they were left as they are.
+
+**Needs the owner's word** (HANDOVER): the merge and the tag (docs/RELEASING.md); the standing
+rules of this night (the ceremony reveals every prize; motion 0.8 s, 1.6 s, 2.5 s per winner;
+website rank and badges); BACKLOG 29, 30 (2FA enrolment, look-alike scripts), 35 (the feed behind
+the site's Caddy), 37 (the limits' numbers, bots in real shows, the Caddy profile's trusted range),
+22 (`e2e` as a required check), 27 and 33 (the website's side); every choice under "Choices made
+without the owner".
 
 ### Pieces
 
-| Piece                                      | Done                             | Running | Open                 | Needs the owner's word  | Commits                                                 | CI run ids                                                                     |
-| ------------------------------------------ | -------------------------------- | ------- | -------------------- | ----------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| 1 Small fixes, remaining security findings | all                              | —       | —                    | BACKLOG 29, 30          | `06eafb6`                                               | CI 44953788972 green                                                           |
-| 2 Production run                           | all                              | —       | —                    | —                       | `eeab324`                                               | CI 44956967985 green                                                           |
-| 3 Member summary                           | all                              | —       | BACKLOG 33 (website) | —                       | `40d6bb3`                                               | CI 44957568796 green                                                           |
-| 4 Installer                                | all                              | —       | BACKLOG 34, 35       | —                       | `8d6b838`, `be9764c` (executable bits)                  | CI 44959614661 green (`be9764c`; `8d6b838` cancelled by it)                    |
-| 5 Sound                                    | all                              | —       | BACKLOG 36 (kit)     | the cues' sound         | `dd90ada`                                               | CI 44961529446 green                                                           |
-| 6 Phone polish, Firefox and WebKit         | run and reported (budget rule 2) | —       | BACKLOG 12           | —                       | `0336ab8`                                               | CI 44962828625 red: the installer harness's flaky `--check` (fixed in piece 7) |
-| 7 Security review, release readiness       | all                              | —       | BACKLOG 35, 37       | the review's owner list | `7ec2336` (CI 44963424795 green), fixes see piece 8 row | see piece 8 row                                                                |
-| 8 Play-through, pictures, hand-over        | —                                | —       | all                  | —                       | —                                                       | —                                                                              |
+| Piece                                      | Done                             | Running                                           | Open                 | Needs the owner's word  | Commits                                | CI run ids                                                                     |
+| ------------------------------------------ | -------------------------------- | ------------------------------------------------- | -------------------- | ----------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
+| 1 Small fixes, remaining security findings | all                              | —                                                 | —                    | BACKLOG 29, 30          | `06eafb6`                              | CI 44953788972 green                                                           |
+| 2 Production run                           | all                              | —                                                 | —                    | —                       | `eeab324`                              | CI 44956967985 green                                                           |
+| 3 Member summary                           | all                              | —                                                 | BACKLOG 33 (website) | —                       | `40d6bb3`                              | CI 44957568796 green                                                           |
+| 4 Installer                                | all                              | —                                                 | BACKLOG 34, 35       | —                       | `8d6b838`, `be9764c` (executable bits) | CI 44959614661 green (`be9764c`; `8d6b838` cancelled by it)                    |
+| 5 Sound                                    | all                              | —                                                 | BACKLOG 36 (kit)     | the cues' sound         | `dd90ada`                              | CI 44961529446 green                                                           |
+| 6 Phone polish, Firefox and WebKit         | run and reported (budget rule 2) | —                                                 | BACKLOG 12           | —                       | `0336ab8`                              | CI 44962828625 red: the installer harness's flaky `--check` (fixed in piece 7) |
+| 7 Security review, release readiness       | all                              | —                                                 | BACKLOG 35, 37       | the review's owner list | `7ec2336`, `1fb69a4`                   | CI 44963424795 and 45001842032 green                                           |
+| 8 Play-through, pictures, hand-over        | all                              | server 3970 and client 5470 on PostgreSQL, hidden | —                    | see the final report    | the hand-over commit                   | `gh run list --branch proto/cases-v1`                                          |
 
 ### Piece 1 report
 
@@ -224,6 +260,34 @@ Written when the chain ends.
   annotated tag registered in TAGS.md, the server's update call); `1.0.0-rc.1` in every
   package.json, no tag; CONCEPT 1.5 with the phases' status (the task named "v1.2", but the concept
   was at 1.4 already, so this revision is 1.5); README current.
+- `pnpm verify` green (34 files, 164 tests); journeys 1–6 passed in Chromium.
+
+### Piece 8 report
+
+- **Play-through:** the six journeys (local mode with the Quick Test, the three steps, the
+  hand-over, the ceremony and the result; website mode; the standalone path: register, the
+  forgotten password through Mailpit, two-factor sign-in with a code and a recovery code); on the
+  dev stack by hand: registration, the reset mail in Mailpit, `pnpm dev:sc admin promote`; the
+  production build booted once on port 3961 (`/api/health` `1.0.0-rc.1` with `db: ok`, the page,
+  `/api/ready`).
+- **Pictures** in `.local/screens/proto-v3/` (proto-v2 deleted): sign-in, start, opening,
+  selected, open, owner, ceremony, result and the admin's settings at 1536 × 768, 1280 × 720 and
+  390 × 844, light and dark, and the phone's direction panel. Looked at: 18 of the 56 (each screen
+  at least once, every fixed one again); the other 38 passed the measurements (no text under
+  14 px, no sideways overflow), not looked at one by one.
+- **Fixed from the pictures:**
+  - the ceremony on a phone was cut off (absolute in a stage as tall as its rows): in the
+    phone's column now, as the opening;
+  - the settings' labels stood glued to their inputs and the confetti box above its word: the
+    settings' labels are columns, the checkboxes rows;
+  - the sign-in card had an empty band under its heading: the card is a column that does not
+    wrap (a wrapping column sized the form at a width where its button wraps and kept that
+    height; measured in the browser: 127 px, 67 after).
+- **Left:** the WebKit findings (BACKLOG 12); nothing seen in the pictures is left open.
+- **Test data:** the account and mail of the hand check were removed one by one; the development
+  database was not reset, as it holds three accounts this chain did not make.
+- **Servers:** the dev server and client of SC-N2 were stopped and `pnpm dev` started again on
+  this branch.
 - `pnpm verify` green (34 files, 164 tests); journeys 1–6 passed in Chromium.
 
 ## Night chain SC-N2 (2026-11-21)

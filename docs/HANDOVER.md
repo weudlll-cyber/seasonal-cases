@@ -58,7 +58,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
 
   The dev role "moderator" is now "organiser". Concept v1.4.
 
-- **Night chain SC-N3 (running):** toward production. Piece 1: prize names through one helper,
+- **Night chain SC-N3 (done):** toward production. Piece 1: prize names through one helper,
   look-alike names refused, the common-password dictionary, `pnpm sc admin reset-2fa`.
   Piece 2: `pnpm build` and `pnpm start` (one process, the built client, health and ready,
   JSON logs, graceful stop), every variable in [CONFIG.md](CONFIG.md).
@@ -69,6 +69,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
   Piece 6: Firefox passes the journeys; WebKit's findings are in BACKLOG 12 (not fixed: budget
   rule). Piece 7: the second independent security review, its fixes; release candidate
   `1.0.0-rc.1` ([CHANGELOG](../CHANGELOG.md), [RELEASING.md](RELEASING.md)).
+  Piece 8: the play-through, 54 pictures in `.local/screens/proto-v3/`, three layout fixes.
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
@@ -78,7 +79,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
 - `pnpm verify` (format, lint, typecheck, tests) and `pnpm test:coverage`.
 - `pnpm dev`: server 127.0.0.1:3970, client 0.0.0.0:5470 (http://localhost:5470; the phone at
   http://192.168.0.66:5470 on the home Wi-Fi). Left running hidden for the owner at the end of
-  SC-N2, on PostgreSQL, with an empty development database; the play-through steps are in
+  SC-N3, on PostgreSQL; the development database holds three accounts the chains did not make
+  ("Plan-Claude", "Walter", "walter"), left as they are; the play-through steps are in
   [NIGHT-RUN.md](NIGHT-RUN.md) "Final report" (Quick Test seed `sc-n1-01`).
 - The development services: `docker compose --env-file ops/compose.dev.env -f
 ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
@@ -103,6 +105,13 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
 [BACKLOG.md](BACKLOG.md) part one; summary in [OPEN.md](OPEN.md).
 
 ## Needs the owner's word
+
+- The merge of `proto/cases-v1` and the tag `v1.0.0` ([RELEASING.md](RELEASING.md)).
+- The standing rules of night chain SC-N3, which kept today's behaviour: the ceremony reveals
+  every prize, found or not; the motion 0.8 s travel, 1.6 s opening, 2.5 s per winner; website
+  mode's rank (the number of valid Discord steps) and badges (their icons).
+- The second security review's questions: the feed behind the site's Caddy (BACKLOG 35); the
+  limits' numbers, bots in real shows, the Caddy profile's trusted range (BACKLOG 37).
 
 - Whether the show is fun (the P1 gate), after playing it.
 - The proposals of CONCEPT §14 that remain: the artifact names and order, Fredoka as the stage
