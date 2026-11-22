@@ -51,7 +51,9 @@
   grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
   gap: 6px;
   margin: 0;
-  padding: 0;
+  /* Room for a prize's 2 px ring: the kit's reveal box scrolls, and so clips what lies outside
+     (its .sk-result-reveal). */
+  padding: 2px;
   list-style: none;
 }
 

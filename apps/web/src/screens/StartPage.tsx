@@ -5,7 +5,8 @@
  *         D24).
  *
  * Responsibility: in the shape of Mini Games' start screen: the card in the show's season colour
- *                 with its state, cases and prizes; the registration board below it while
+ *                 with its state, cases, prizes and how many are taken (picked while
+ *                 registration is open, owned after); the registration board below it while
  *                 registration is open, the owners after the close; a way to the stage once the
  *                 show is sealed, to the result once it has ended. A player's pick goes to the
  *                 server's claim. The card's "Opens in N s" stays hidden: shows have no start
@@ -52,6 +53,14 @@ function stateText(show: PublicShowView): string {
   return STATE_TEXT[show.state];
 }
 
+/** How many cases are taken: picked ones on the open board, owned ones after the close. */
+export function takenText(show: PublicShowView): string {
+  if (show.board !== null) {
+    return `${String(show.board.filter((c) => c.holder !== null).length)} picked`;
+  }
+  return `${String(show.cases.filter((c) => c.ownerName !== null).length)} owners`;
+}
+
 function ShowCard({ show }: { show: PublicShowView }) {
   const onStage = show.state === 'sealed' || show.state === 'live';
   return (
@@ -70,7 +79,7 @@ function ShowCard({ show }: { show: PublicShowView }) {
       facts={[
         `${String(show.caseCount)} cases`,
         `${String(show.winnerCount)} prizes`,
-        `${String(show.cases.filter((c) => c.ownerName !== null).length)} owners`,
+        takenText(show),
       ]}
       opensIn={0}
       signature={`${show.id}:${show.state}`}

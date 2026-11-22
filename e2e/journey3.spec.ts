@@ -10,7 +10,7 @@
  */
 import { expect, test, type WebSocket } from '@playwright/test';
 
-import { quickTestSealing, signInApi, signInUi } from './helpers.js';
+import { direct, quickTestSealing, signInApi, signInUi } from './helpers.js';
 
 // The direction bar's buttons and the step the player's stage shows after each.
 const STEPS = [
@@ -65,18 +65,17 @@ test('journey 3: no unopened content reaches a player; the commitment holds', as
 
   await mod.goto('/show');
   await mod.getByRole('button', { name: 'Begin' }).click();
-  const bar = mod.getByRole('navigation', { name: 'Direction' });
   for (const caseNumber of [sealing.get('prize-1'), sealing.get('blank-1')]) {
     await mod.locator(`.case-token[data-case="${String(caseNumber)}"] button`).click();
     for (const [label, step] of STEPS) {
-      await bar.getByRole('button', { name: label }).click();
+      await direct(mod, (bar) => bar.getByRole('button', { name: label }).click());
       await expect(page.locator('.stage-screen')).toHaveAttribute('data-step', step);
     }
   }
   await expect(page.locator('.case-token.is-opened')).toHaveCount(2);
   const beforeEnd = frames.filter(([event]) => event === 'show:public');
 
-  await bar.getByRole('button', { name: 'End show' }).click();
+  await direct(mod, (bar) => bar.getByRole('button', { name: 'End show' }).click());
   await page.goto(`/results/${id}`);
   const seal = page.locator('.result-seal');
   await expect(seal).toContainText('· verified');

@@ -8,7 +8,7 @@
  *                 the other (they share the start page's "current show") in Chromium (`chromium`, CI and merge), Firefox and a
  *                 phone WebKit (`firefox`, `webkit-mobile`, nightly in browsers.yml). The project
  *                 `screens` takes the pictures of CONCEPT §7's check sizes into
- *                 .local/screens/proto-v1/ and runs only when named.
+ *                 .local/screens/proto-v3/ and runs only when named.
  * Depends on:     @playwright/test, ./server.ts, ./websiteServer.ts, ./websiteStub.ts, apps/web
  */
 import { defineConfig, devices } from '@playwright/test';

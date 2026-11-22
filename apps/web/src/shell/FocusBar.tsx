@@ -7,7 +7,9 @@
  *                 (counted from the received view), full screen where the browser offers it, and
  *                 the panel buttons: players (the owners), and for the direction holder on a
  *                 phone the direction panel, so the bar's buttons are never below the fold. The
- *                 chat button joins in website mode (piece 4). One panel at a time (`usePanels`).
+ *                 chat button joins in website mode (piece 4). One panel at a time (`usePanels`);
+ *                 Escape closes the open one from anywhere on the page, as Mini Games' focus
+ *                 shell does from its bar (the kit's hook leaves the key to the game).
  * Depends on:     react, @seasonal/kit/react, @sc/contracts (types), ../stage/DirectionBar.js,
  *                 ../stage/Stage.js
  */
@@ -21,7 +23,7 @@ import {
 } from '@seasonal/kit/react';
 import type { Me, OrganiserView, PublicShowView } from '@sc/contracts';
 import { BarToggle } from '@sc/ui';
-import type { ReactNode, RefObject } from 'react';
+import { useEffect, type ReactNode, type RefObject } from 'react';
 
 import { DirectionBar } from '../stage/DirectionBar.js';
 import { holderView, type Direct } from '../stage/Stage.js';
@@ -62,6 +64,17 @@ function Players({ show }: { show: PublicShowView }) {
 export function FocusBar({ show, organiser, me, direct, target, chat, sound }: FocusBarProps) {
   useFocusMode(true);
   const panels = usePanels<PanelId>();
+  const { open, close } = panels;
+  useEffect(() => {
+    if (open === null) return undefined;
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') close();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open, close]);
   const fullscreen = useFullscreen(target);
   const view = useDockView();
   const holder = holderView(show, organiser, me);

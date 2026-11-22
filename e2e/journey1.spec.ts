@@ -11,14 +11,13 @@
  */
 import { expect, test, type Page } from '@playwright/test';
 
-import { quickTestSealing, signInUi } from './helpers.js';
+import { direct, quickTestSealing, signInUi } from './helpers.js';
 
 const SEED = 'sc-n1-01';
 const STEPS = ['Open', 'Owner', 'Back to stage'] as const;
 
 async function revealCase(page: Page, caseNumber: number): Promise<void> {
   const stage = page.locator('.stage-screen');
-  const bar = page.getByRole('navigation', { name: 'Direction' });
   const place = page.locator(`.case-token[data-case="${String(caseNumber)}"] .case-body`);
   const owner = await place.locator('.case-owner').innerText();
   const atPlace = await place.boundingBox();
@@ -39,7 +38,7 @@ async function revealCase(page: Page, caseNumber: number): Promise<void> {
   await expect(page.locator('.centre .artifact')).toHaveCount(0);
   await expect(page.locator('.centre-meaning')).toHaveCount(0);
   for (const label of STEPS) {
-    await bar.getByRole('button', { name: label }).click();
+    await direct(page, (bar) => bar.getByRole('button', { name: label }).click());
     if (label === 'Open') {
       await expect(page.locator('.centre .artifact')).toBeVisible();
       await expect(page.locator('.centre-meaning')).toBeVisible();
@@ -79,7 +78,7 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
   // The opening: everyone sees it, only the holder begins.
   await expect(page.getByRole('region', { name: 'Opening' })).toBeVisible();
   await page.getByRole('button', { name: 'Begin' }).click();
-  await expect(page.getByRole('navigation', { name: 'Direction' })).toBeVisible();
+  await direct(page, (bar) => expect(bar).toBeVisible());
   const commitment = await page.locator('.stage-commitment').getAttribute('title');
 
   await revealCase(page, blank);
@@ -88,7 +87,9 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
   await revealCase(page, second);
   await revealCase(page, third);
   await expect(page.locator('.score-row.is-taken')).toHaveCount(3);
-  await expect(page.getByRole('button', { name: 'End show' })).toHaveClass(/is-ready/);
+  await direct(page, (bar) =>
+    expect(bar.getByRole('button', { name: 'End show' })).toHaveClass(/is-ready/),
+  );
 
   // A second organiser watches the stage in a second context; the direction goes to him.
   const other = await browser.newContext();
@@ -97,11 +98,12 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
   await noah.goto('/show');
   await expect(noah.locator('.stage-screen')).toBeVisible();
   await expect(noah.getByRole('navigation', { name: 'Direction' })).toHaveCount(0);
-  await page.getByLabel('Organiser to hand over to').selectOption({ label: 'Noah' });
-  await page.getByRole('button', { name: 'Hand over' }).click();
+  await direct(page, async (bar) => {
+    await bar.getByLabel('Organiser to hand over to').selectOption({ label: 'Noah' });
+    await bar.getByRole('button', { name: 'Hand over' }).click();
+  });
   await expect(page.getByRole('navigation', { name: 'Direction' })).toHaveCount(0);
-  const noahBar = noah.getByRole('navigation', { name: 'Direction' });
-  await noahBar.getByRole('button', { name: 'End show' }).click();
+  await direct(noah, (bar) => bar.getByRole('button', { name: 'End show' }).click());
   // The ceremony: the winners one after another, the main prize last, then the way on.
   const ceremony = noah.getByRole('region', { name: 'The winners' });
   await expect(ceremony.getByRole('status')).toContainText(/Prize 3/);

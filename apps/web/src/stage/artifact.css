@@ -3,7 +3,8 @@
  * @brief  The artifact emblem: a glowing gem in its season colour beside its name.
  *
  * Responsibility: the season colours come only from the kit's tokens (CONCEPT §7); the main
- *                 prize's "all four" is a slowly turning ring of them; the blank is muted. Sizes
+ *                 prize's "all four" is a slowly turning ring of them (still under reduced
+ *                 motion); the blank is muted. Sizes
  *                 follow `--fit` and never go below the cases' floors (pending/fit-cases.css).
  * Depends on:     @seasonal/kit/tokens.css, @sc/ui pending/fit-cases.css
  */
@@ -64,6 +65,14 @@
 @keyframes sc-turn {
   to {
     rotate: 1turn;
+  }
+}
+
+/* An endless turn is motion the viewer asked to be spared: the gem holds still, as the confetti
+   goes (./stageParts.css). */
+@media (prefers-reduced-motion: reduce) {
+  .season-all .artifact-gem {
+    animation: none;
   }
 }
 

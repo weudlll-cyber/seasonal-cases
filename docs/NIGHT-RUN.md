@@ -262,6 +262,32 @@ without the owner".
   was at 1.4 already, so this revision is 1.5); README current.
 - `pnpm verify` green (34 files, 164 tests); journeys 1–6 passed in Chromium.
 
+### Follow-up (2026-11-22): the WebKit phone path and the rest of the pictures
+
+- **WebKit at phone size:** the journeys now direct a phone show through the game bar's panel
+  (`e2e/helpers.ts` `direct`: open the panel, act, close it with Escape). Escape did not close
+  the panels at all: the kit's `usePanels` leaves the key to the game, and the focus bar now
+  closes the open panel from anywhere on the page (`FocusBar.test.tsx`), as Mini Games does.
+  Journeys 1 and 3 still stall in WebKit, on Windows and in Playwright's Linux image alike:
+  Playwright waits for two still frames before each click, and its WebKit sometimes drew the
+  stage at under one frame a second. Measured: the scoreboard's main-prize gem turns endlessly
+  and repaints the page every frame; the spotlight (a full-stage gradient under a `clip-path`) is
+  costly to repaint; reduced motion alone did not cure it (tried, reverted). BACKLOG 12 holds the
+  measurements and the next step; whether the gem turns outside the centre and the ceremony
+  needs the owner's word.
+- **Pictures:** all 54 looked at after a fresh run. Fixed:
+  - the game bar touched both screen edges (the kit's bar has no inline padding): it keeps the
+    stage's gutter now, 0.5rem on a phone;
+  - the result's first row of prize cards lost the top of its ring (the kit's reveal box scrolls
+    and clips): 2 px of room;
+  - the start card read "0 owners" while cases were taken: during registration it counts the
+    picked cases ("4 picked"), after the close the owners (`startCard.test.ts`);
+  - the main prize's gem kept turning under reduced motion: it holds still there now.
+- **Left for the owner:** the logo's dark lettering vanishes in dark mode (BACKLOG 38); the
+  phone's menu row ends mid-word (BACKLOG 39).
+- **A test that timed out under load:** the PostgreSQL store test's setup ran every migration in
+  over 10 s during a full `pnpm verify` (about 5 s alone): its hook has 30 s now.
+
 ### Piece 8 report
 
 - **Play-through:** the six journeys (local mode with the Quick Test, the three steps, the

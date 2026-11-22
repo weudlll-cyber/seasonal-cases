@@ -70,6 +70,9 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
   rule). Piece 7: the second independent security review, its fixes; release candidate
   `1.0.0-rc.1` ([CHANGELOG](../CHANGELOG.md), [RELEASING.md](RELEASING.md)).
   Piece 8: the play-through, 54 pictures in `.local/screens/proto-v3/`, three layout fixes.
+  Follow-up (2026-11-22): a phone path through the game bar's panel for the journeys, Escape
+  closes the panels, the bar keeps the stage's gutter, the result's rings whole, the start card
+  counts picks; WebKit's phone journeys 1 and 3 still stall on slow drawing (BACKLOG 12).
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.

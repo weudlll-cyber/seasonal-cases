@@ -22,6 +22,18 @@ html[data-sk-focus] {
   }
 }
 
+/* The kit's bar has no inline padding of its own: it keeps the stage's gutter, 0.5rem on a
+   phone, as Mini Games' focus shell does (its round/focus.css). */
+.shell > .sk-game-bar {
+  padding-inline: var(--gutter);
+}
+
+@media (max-width: 640px) {
+  .shell > .sk-game-bar {
+    padding-inline: 0.5rem;
+  }
+}
+
 .focus-lead {
   font-weight: var(--font-weight-heading);
 }

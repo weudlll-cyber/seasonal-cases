@@ -31,9 +31,11 @@ const reopen = () =>
     },
   });
 
+// Opening runs every migration into a fresh schema: alone about 5 s, but over 10 s (vitest's
+// default) while `pnpm verify` runs all packages' tests at once (2026-11-22), so 30 s.
 beforeAll(async () => {
   db = await reopen();
-});
+}, 30_000);
 afterAll(async () => {
   await db.close();
   await dropSchema(schema);
