@@ -38,7 +38,8 @@ usage: sudo ./deploy/install.sh [options]
   --mode local|website     standalone with own accounts, or embedded under the website
   --origin URL             local mode: the address players open (https://cases.example.org)
   --port N                 the game's port on this machine (3970)
-  --db create|URL          create a local PostgreSQL role and database, or use postgres://…
+  --db create|url          create a local PostgreSQL role and database, or use an existing one
+                           (its address from --answers or a hidden prompt, never a flag)
   --smtp-host H --smtp-port N --mail-from TEXT   local mode: the forgotten-password mail
   --website-origin URL     website mode: the website's address
   --proxy nginx|caddy      website mode: the website's proxy (found by itself when possible)
@@ -58,7 +59,7 @@ parse_flags() {
       --mode) SC_INSTALL_MODE=$2; shift ;;
       --origin) SC_PUBLIC_ORIGIN=$2; shift ;;
       --port) SC_PORT=$2; shift ;;
-      --db) if [[ $2 == create ]]; then SC_DB=create; else SC_DB=url; DATABASE_URL=$2; fi; shift ;;
+      --db) SC_DB=$2; shift ;;
       --smtp-host) SC_SMTP_HOST=$2; shift ;;
       --smtp-port) SC_SMTP_PORT=$2; shift ;;
       --mail-from) SC_MAIL_FROM=$2; shift ;;
@@ -98,12 +99,13 @@ ask_common() {
   ask SC_PORT "the game's port on this machine" 3970
   must_match SC_PORT '^[0-9]{2,5}$' "a port number"
   ask SC_REPO "where to fetch the code from" "$(git -C "$HERE/.." remote get-url origin 2>/dev/null || true)"
+  must_match SC_REPO '^(https://|git@|/)[^[:space:]]+$' "an https://, git@ or /path address"
   ask SC_REF "the tag or branch to run" "$(git -C "$HERE/.." rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
   must_match SC_REF '^[A-Za-z0-9._/-]+$' "a tag or branch name"
   ask SC_DB "database: create (a local PostgreSQL) or url (an existing one)" create
   must_match SC_DB '^(create|url)$' "create or url"
   if [[ $SC_DB == url ]]; then
-    ask DATABASE_URL "the database address (postgres://user:password@host:port/name)"
+    ask_secret DATABASE_URL "the database address (postgres://user:password@host:port/name)"
     must_match DATABASE_URL '^postgres(ql)?://' "a postgres:// address"
   fi
 }
@@ -113,6 +115,7 @@ ask_local() {
   must_match SC_PUBLIC_ORIGIN '^https?://[^/]+$' "an origin such as https://cases.example.org"
   ask SC_HOST "the address the game listens on" 127.0.0.1
   ask SC_TRUSTED_PROXIES "your reverse proxy's addresses" 127.0.0.1,::1
+  check_addresses
   if ((YES)); then SC_SMTP_HOST=${SC_SMTP_HOST:-}; else ask SC_SMTP_HOST "SMTP relay for the forgotten-password mail (empty: none)" none; fi
   [[ ${SC_SMTP_HOST:-} == none ]] && SC_SMTP_HOST=''
   if [[ -n ${SC_SMTP_HOST:-} ]]; then
@@ -133,13 +136,21 @@ ask_website() {
     ask SC_SITE_PORT_FILE "the site's local port file" "$SC_ROOT/etc/seasonal/site-local-port"
     ask SC_HOST "the address the game listens on" 127.0.0.1
     ask SC_TRUSTED_PROXIES "the website proxy's addresses" 127.0.0.1
+    check_addresses
   else
     ask SC_ROUTES_DIR "the website checkout's deploy/site/routes folder"
     ask SC_HOST "the Docker bridge address the site's Caddy reaches this machine at" 172.17.0.1
     ask SC_TRUSTED_PROXIES "the site containers' network" 172.16.0.0/12
+    check_addresses
   fi
   keep_secret SC_PROXY_SECRET 32
   website_feed
+}
+
+# The listen address and the proxies end up in the settings and route files: their form only.
+check_addresses() {
+  must_match SC_HOST '^([0-9]{1,3}\.){3}[0-9]{1,3}$' "an IPv4 address such as 127.0.0.1"
+  must_match SC_TRUSTED_PROXIES '^[0-9A-Fa-f:./]+(,[0-9A-Fa-f:./]+)*$' "addresses or networks, comma-separated"
 }
 
 # The account-changes feed and the profile card need the site's local address and the token.

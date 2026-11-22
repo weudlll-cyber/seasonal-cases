@@ -28,6 +28,7 @@ import {
 import { RANK_MAX } from '@sc/contracts';
 import type { FastifyReply } from 'fastify';
 
+import { addressKey } from './addressKey.js';
 import type { Account, AccountRole, AccountStore } from './auth/accounts.js';
 import { PROXY_SECRET_HEADER, type WebsiteConfig } from './config.js';
 import type { Ctx } from './http.js';
@@ -92,13 +93,13 @@ export function websiteRoutes(ctx: Ctx, website: WebsiteConfig): void {
 
   app.get<NextQuery>('/auth/website/login', (request, reply) => {
     reply.header('cache-control', 'no-store');
-    if (!loginLimit.take(request.ip).allowed) return tooMany(reply);
+    if (!loginLimit.take(addressKey(request.ip)).allowed) return tooMany(reply);
     return reply.redirect(websiteLoginLocation(website.loginPath, base, request.query.next), 302);
   });
 
   app.get<NextQuery>('/auth/website', async (request, reply) => {
     reply.header('cache-control', 'no-store');
-    if (!signInLimit.take(request.ip).allowed) return tooMany(reply);
+    if (!signInLimit.take(addressKey(request.ip)).allowed) return tooMany(reply);
     // The TCP peer, never a forwarding header: only the website's proxy names a visitor.
     const decision = check(request.socket.remoteAddress, request.headers);
     if (decision.kind === 'untrusted') return reply.status(403).send({ error: 'UNTRUSTED_PROXY' });

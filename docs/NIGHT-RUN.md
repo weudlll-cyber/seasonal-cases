@@ -13,16 +13,16 @@ Written when the chain ends.
 
 ### Pieces
 
-| Piece                                      | Done                             | Running | Open                 | Needs the owner's word | Commits                                | CI run ids                                                  |
-| ------------------------------------------ | -------------------------------- | ------- | -------------------- | ---------------------- | -------------------------------------- | ----------------------------------------------------------- |
-| 1 Small fixes, remaining security findings | all                              | —       | —                    | BACKLOG 29, 30         | `06eafb6`                              | CI 44953788972 green                                        |
-| 2 Production run                           | all                              | —       | —                    | —                      | `eeab324`                              | CI 44956967985 green                                        |
-| 3 Member summary                           | all                              | —       | BACKLOG 33 (website) | —                      | `40d6bb3`                              | CI 44957568796 green                                        |
-| 4 Installer                                | all                              | —       | BACKLOG 34, 35       | —                      | `8d6b838`, `be9764c` (executable bits) | CI 44959614661 green (`be9764c`; `8d6b838` cancelled by it) |
-| 5 Sound                                    | all                              | —       | BACKLOG 36 (kit)     | the cues' sound        | `dd90ada`                              | see piece 7 row                                             |
-| 6 Phone polish, Firefox and WebKit         | run and reported (budget rule 2) | —       | BACKLOG 12           | —                      | see piece 7 row                        | see piece 7 row                                             |
-| 7 Security review, release readiness       | —                                | —       | all                  | —                      | —                                      | —                                                           |
-| 8 Play-through, pictures, hand-over        | —                                | —       | all                  | —                      | —                                      | —                                                           |
+| Piece                                      | Done                             | Running | Open                 | Needs the owner's word  | Commits                                                 | CI run ids                                                                     |
+| ------------------------------------------ | -------------------------------- | ------- | -------------------- | ----------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| 1 Small fixes, remaining security findings | all                              | —       | —                    | BACKLOG 29, 30          | `06eafb6`                                               | CI 44953788972 green                                                           |
+| 2 Production run                           | all                              | —       | —                    | —                       | `eeab324`                                               | CI 44956967985 green                                                           |
+| 3 Member summary                           | all                              | —       | BACKLOG 33 (website) | —                       | `40d6bb3`                                               | CI 44957568796 green                                                           |
+| 4 Installer                                | all                              | —       | BACKLOG 34, 35       | —                       | `8d6b838`, `be9764c` (executable bits)                  | CI 44959614661 green (`be9764c`; `8d6b838` cancelled by it)                    |
+| 5 Sound                                    | all                              | —       | BACKLOG 36 (kit)     | the cues' sound         | `dd90ada`                                               | CI 44961529446 green                                                           |
+| 6 Phone polish, Firefox and WebKit         | run and reported (budget rule 2) | —       | BACKLOG 12           | —                       | `0336ab8`                                               | CI 44962828625 red: the installer harness's flaky `--check` (fixed in piece 7) |
+| 7 Security review, release readiness       | all                              | —       | BACKLOG 35, 37       | the review's owner list | `7ec2336` (CI 44963424795 green), fixes see piece 8 row | see piece 8 row                                                                |
+| 8 Play-through, pictures, hand-over        | —                                | —       | all                  | —                       | —                                                       | —                                                                              |
 
 ### Piece 1 report
 
@@ -193,6 +193,38 @@ Written when the chain ends.
 - **Phone sizes:** 360 × 780 and 430 × 932 in light and dark are in the pictures of SC-N2 piece
   10 and of this chain's piece 8 (the game bar's panels, scoreboard, ceremony, result); the last
   run had no text under 14 px and no sideways overflow.
+
+### Piece 7 report
+
+- **The second independent review** (a fresh agent that had not seen the chain; the usage limit
+  stopped it once, and it went on from its saved state): the whole branch against CONCEPT §8 and
+  §10, CLAUDE.md, the website's AUTH.md and GAME-INTEGRATION.md; a new section in
+  [security-pass.md](security-pass.md) with eight findings, three medium, none high. Fixed:
+  1. the installer handed /opt/seasonal-cases to the service user, whose code root later runs:
+     the code stays root's and read-only for the service;
+  2. IPv6 visitors counted per address: every address limit counts by /64 (`addressKey.ts`);
+  3. watching and claiming without limits, and every watch sent the show to every watcher: a
+     guest's watch reaches that socket only, 10 watches in 10 s per socket, 20 claims a minute per
+     player;
+  4. a socket kept the role it connected with: every direction message reads the session again
+     and closes the socket once it ended elsewhere;
+  5. a failed event write left the show going on in memory: the server stops, systemd restarts
+     it from the database;
+  6. the nginx sign-in route passed the website's cookie on: stripped there too;
+  7. the installer's smaller points (no database URL as a flag, a hidden prompt; the repository,
+     site port, host and proxies checked).
+     Left: 4 (the feed behind the site's Caddy, the website's side, BACKLOG 35); the limits'
+     numbers, bots in real shows and the Caddy profile's trusted range are the owner's (BACKLOG 37).
+     Tests: `securityPass2.test.ts`, `addressKey.test.ts`, four new harness checks (45 now).
+- **Found on the way:** CI's `deploy` job failed once on `0336ab8`: under `--check` the database
+  step piped the role's password into a command that a dry run does not start, and the pipe
+  broke now and then. A check now pipes nothing there; the harness passed five runs in a row.
+- **`pnpm audit --prod`, osv-scanner, gitleaks** (full history, 29 commits): clean.
+- **Release readiness** (`7ec2336`): CHANGELOG.md by piece; docs/RELEASING.md (the merge, the
+  annotated tag registered in TAGS.md, the server's update call); `1.0.0-rc.1` in every
+  package.json, no tag; CONCEPT 1.5 with the phases' status (the task named "v1.2", but the concept
+  was at 1.4 already, so this revision is 1.5); README current.
+- `pnpm verify` green (34 files, 164 tests); journeys 1–6 passed in Chromium.
 
 ## Night chain SC-N2 (2026-11-21)
 

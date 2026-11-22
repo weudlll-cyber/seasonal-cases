@@ -308,3 +308,185 @@ Every finding of the first pass is fixed now (11 in SC-N3 piece 1). Of the owner
   tool). Letters of different scripts that only look alike, and registration's 409 telling that an
   e-mail is taken, stay with the owner (BACKLOG 30).
 - The other points of that list are unchanged.
+
+## Second pass: the release candidate (2026-11-22)
+
+An independent review of the whole branch `proto/cases-v1` (`git diff origin/master..HEAD`), done
+at `0336ab8` and rechecked at `7ec2336` (that commit changes only docs and versions, no code). It
+covered the full current files of `apps/server/src`, `packages/contracts/src`, the domain's
+projection, sealing, registration and live rules, `deploy/` (install.sh, admin.sh, lib/*.sh with
+the nginx and Caddy route templates), `.github/workflows/*.yml`, and the client's reset page and
+chat frame. The standards were CONCEPT §8 and §10, CLAUDE.md, the website's AUTH.md and
+GAME-INTEGRATION.md (§2 to §7), and the first pass above (its findings were not reported again;
+none regressed). Method: every route and socket handler traced from request to store; the kit
+pieces in use (`websiteSignInCheck`, `identityFrom`, `RateLimiter`) read in `node_modules`; the
+findings marked CONFIRMED were reproduced with throwaway Vitest probes under `apps/server/src`
+(in-memory stores) or in an `ubuntu:24.04` container, all deleted afterwards; `pnpm audit --prod`
+reported nothing. Line numbers refer to `7ec2336`.
+
+### Findings
+
+1. **medium: the installed service user owns the code that root later runs (CONFIRMED)**
+   - Where: `deploy/lib/app.sh:43` (`chown -R seasonal-cases /opt/seasonal-cases`), `:111`
+     (`ReadWritePaths=/opt/seasonal-cases`), `:29` and `:41-42` (root runs `git`, `pnpm install`
+     and `pnpm build` in that tree on `--update`), `deploy/admin.sh:22-23` (root runs
+     `node --import=tsx src/tools/sc.ts` from it).
+   - What is wrong: the game process can write its own code, `node_modules` and `.git` (with
+     PostgreSQL the service needs no write access there at all). Root then runs that tree.
+   - Failure scenario: a code-execution bug in the Node process (or a dependency compromised at
+     run time) writes into `node_modules/tsx` or `src/tools/sc.ts`; the next
+     `sudo ./deploy/admin.sh admin promote …` or `install.sh --update` runs it as root. Side
+     effect, reproduced in `ubuntu:24.04`: git 2.43 as root refuses the service-owned repository
+     ("detected dubious ownership", exit 128, also with `SUDO_UID` set), so `install.sh --update`
+     stops at `fetch_code` today; the obvious workaround, `safe.directory`, would also open the
+     `.git/config` hook path to root.
+   - Fix: keep the code owned by root (give the service only a data folder, if any); drop
+     `ReadWritePaths` or point it at that folder; run the admin tool as the service user
+     (`runuser -u seasonal-cases`) with the environment passed in.
+
+2. **medium: the rate limits count whole IPv6 addresses; one /64 locks every new visitor out (CONFIRMED)**
+   - Where: `apps/server/src/localRoutes.ts:135,140,142,163,173` and
+     `apps/server/src/websiteRoutes.ts:95,101` (keys `request.ip`). The kit's `RateLimiter` holds
+     at most 100 000 keys and refuses new keys while all are active; its header asks games to key
+     IPv6 by /64.
+   - What is wrong: a visitor with an IPv6 /64 has 2^64 addresses. The per-address and the
+     per-login-and-address limits do not bind them, and the key cap turns that into a lockout.
+   - Failure scenario, reproduced: 100 000 sign-in requests with an empty body from
+     `2001:db8::0` to `2001:db8::1869f` (through the trusted proxy), then a sign-in from
+     `198.51.100.7` answers 429 "too many tries" for the next 15 minutes; registration, forgot and
+     reset work the same way. Rotating addresses also gives unlimited password guesses against
+     one player or organiser (there is no per-account limit on passwords, and only admins have
+     2FA), each guess costing the server one 64 MiB Argon2 hash.
+   - Fix: key IPv6 by its /64 (IPv4 as is) in one helper that every limiter uses; add a
+     per-account limit on password tries (a soft delay); consider a small concurrency cap on
+     Argon2.
+
+3. **medium: one socket message makes the server re-project and re-send the show to every watcher; claims are unlimited too (CONFIRMED)**
+   - Where: `apps/server/src/realtime.ts:95-101` (`join` calls `leave`, which pushes, then pushes
+     again), `:144-153` (no limit on `show:watch`), `:81-83` (a fresh projection per watcher);
+     `apps/server/src/showRoutes.ts:97-102` (claim, no rate limit; every claim is an event kept
+     forever and folded into `claims`).
+   - What is wrong: any guest may send `show:watch` as fast as the socket carries it, and each one
+     costs two full projections and two emits per watcher. A signed-in player may claim without
+     limit; each claim is stored, pushed to every watcher, and makes every later projection slower
+     (`board` and `standings` walk all claims).
+   - Failure scenario, reproduced: 200 `show:watch` messages from one guest made a single other
+     watcher receive 399 public views. With a few hundred viewers in a live show, a script
+     multiplies that into a flood that stalls the event loop, and with it the direction
+     (CONCEPT §8: an ack within 5 s). 300 claims by one player were all accepted and kept; a model
+     with 20 000 claims costs about 29 ms per projection, which is seconds per change with 200
+     watchers.
+   - Fix: a `RateLimiter` per socket (and per address) for `show:watch`; ignore a watch of the
+     show already watched; on join push only to the joining socket; a per-player limit on claims
+     (and refuse a claim of the case already claimed); compute the public view once per push and
+     send it to all public watchers.
+
+4. **low: in the Caddy profile there is no account-changes feed, so a locked or deleted member keeps playing for up to 7 days (CONFIRMED by trace)**
+   - Where: `deploy/install.sh:146-154` (`website_feed` only for nginx), `apps/server/src/app.ts:222-233`.
+   - What is wrong: with `SC_PROXY=caddy` the installer never writes `SC_WEBSITE_LOCAL_ORIGIN`
+     and `SC_GAMES_SYNC_TOKEN`; it prints a warning and the install succeeds. Nothing then ends a
+     session when the website locks, demotes or deletes a member (GAME-INTEGRATION §4), and the
+     profile card (§7) is off.
+   - Failure scenario: a website admin is demoted or locked after abuse; their 7-day game session
+     keeps the game's admin area and the direction until it expires.
+   - Fix: in the Caddy profile ask for the site's address as this host reaches it and read the
+     token file, or refuse to finish without the feed unless the operator says so explicitly; or
+     shorten website-mode sessions while no feed is set up.
+
+5. **low: a socket keeps the role it connected with, past session expiry and past the admin tool (CONFIRMED by trace)**
+   - Where: `apps/server/src/realtime.ts:122-131,142-143` (`me` read once at the handshake);
+     `apps/server/src/tools/adminCommands.ts` (`reset-2fa` removes sessions from another process,
+     so the server's `SessionEnds` never fires).
+   - What is wrong: only sessions ended inside the server process close sockets. A session that
+     expires, or one removed by `admin.sh admin reset-2fa` (the recovery path for a compromised
+     admin), leaves its open socket able to direct shows as before.
+   - Fix: re-check the session on each direction message (one lookup) or on a timer, and
+     disconnect when it is gone.
+
+6. **low: a failed event write is only logged; memory and the log part ways (PLAUSIBLE)**
+   - Where: `apps/server/src/db/eventStore.ts:69-84`.
+   - What is wrong: the show goes on in memory although the database write failed, and the
+     sequence number is already taken. After a restart the show is rebuilt without the lost
+     events, for example without its `sealed` event, so it can be sealed again with a new
+     assignment and a new commitment after the first commitment was shown (CONCEPT §8).
+   - Fix: after a failed append, accept no further commands for that show (or the server) until
+     the write succeeds, and say so on `/api/ready`; at least treat a lost `sealed` event as fatal.
+
+7. **note: the nginx sign-in route still forwards the website's session cookie (CONFIRMED by trace)**
+   - Where: `deploy/lib/route.sh:60-69` (`location = /games/cases/auth/website` sets no `Cookie`);
+     the Caddy template strips it on every path.
+   - What is wrong: GAME-INTEGRATION §3 asks the games' route files to strip the website's
+     cookies; the nginx file does so everywhere except on the route a member hits at every
+     sign-in, so the game server still receives `se.sid` there. The game never logs or uses it.
+   - Fix: repeat the three `se.sid` rewrites and `proxy_set_header Cookie $sc_cookie;` in the
+     sign-in location (the authorize subrequest keeps the original cookie).
+
+8. **note: smaller installer points (CONFIRMED by trace)**
+   - `deploy/install.sh:61`: `--db postgres://user:password@…` puts the database password into
+     the process list and the shell history; prefer the answers file or the question.
+   - `deploy/lib/app.sh:32`: `SC_REPO` is not checked; a value starting with `-` is read by
+     `git clone` as an option (`--upload-pack=…`). Only root gives it, so no boundary is crossed,
+     but a `must_match '^(https://|git@|/)'` costs nothing.
+   - `deploy/lib/route.sh:145-146`: the site port file is checked only for `:digits` at the end
+     before it goes into `proxy_pass`; anchor the check (`^127\.0\.0\.1:[0-9]+$`).
+   - `deploy/install.sh:114-115,134-139`: `SC_HOST` and `SC_TRUSTED_PROXIES` are not checked by
+     the installer (the server refuses a bad `SC_HOST`, and the route is written only after the
+     readiness check, so a bad value cannot reach the route file today).
+
+### Checked and found sound
+
+- Identity headers: read only in `websiteRoutes.ts` on the sign-in route; the TCP peer (never a
+  forwarding header) and the proxy secret in constant time; the kit's header list equals the list
+  both route templates clear and copy (seven `X-Acting-*`); the secret is cleared on every path,
+  never sent to the authorize call, and added only on the exact sign-in path.
+- Profile card (§7): 404 on `/games/cases/api/website/` in both templates (nginx decodes and
+  merges slashes before it matches), 404 in the server when `X-Forwarded-For` is present (both
+  proxies always set it), the sync token in constant time, only ended shows counted.
+- Content before "Open": every HTTP answer and socket message goes through `publicView`,
+  `organiserView` or `personalView`; an unopened case's artifact, the assignment and the secret
+  appear only after "Open" or after the end; "My matches" and the chronicle use the same views; the
+  sealed box in PostgreSQL is AES-256-GCM bound to `show:<id>`. That `allPrizesFound` tells that
+  the remaining cases are blanks is the concept's "End show" offer (§3.5).
+- Sealing: Fisher–Yates over `node:crypto` `randomInt`, a 32-byte secret, sha256 over canonical
+  JSON; the seeded stream only in the development Quick Test; no `Math.random` outside tests.
+- Writes: the same-origin and `Sec-Fetch-Site` check on every non-GET, the `text/plain` parser
+  removed, the socket handshake same-origin; `trustProxy` limited to the configured proxies.
+- Config: production refuses to start without `DATABASE_URL`, `SC_DATA_KEY`, a 32-character cookie
+  secret and `SC_PUBLIC_ORIGIN`; development routes need local mode, `NODE_ENV=development` and
+  `SC_DEV=1`; the log never carries query strings, headers or cookies.
+- Installer files: answers parsed, never sourced; values with a quote or a line break refused;
+  `cases.env`, `install.conf` and the route file 0600; the database password reaches `psql` on
+  stdin; secrets made once with `openssl rand` and never printed; the route checked before the
+  reload, the old file restored on failure.
+- Workflows: `contents: read` everywhere, only CodeQL with `security-events: write`; actions pinned
+  to SHAs and images to digests; CI credentials marked CI-only; gitleaks over the full history.
+  `pnpm audit --prod`: no known vulnerabilities.
+- Client: the reset token goes only into the POST body; `Referrer-Policy: strict-origin`; the chat
+  frame checks origin and window through the kit's `connectChat`; no `innerHTML`.
+
+### For the owner
+
+- Whether website mode may run without the account-changes feed at all (finding 4), or the
+  installer should refuse to finish without it.
+- Limits for viewers and players (finding 3): how many claims a player may make per show and per
+  minute, and how many sockets one address may hold.
+- Any organiser may fill free cases with bots (`POST /api/shows/:id/bots`) in production; bots
+  then own cases and can hold prizes. Keep it for real shows, or make it development only?
+- In the Caddy profile the game binds to the Docker bridge and trusts `172.16.0.0/12`: every
+  container on the host counts as a proxy (it still needs the secret or the token). Narrow it to
+  the site network's subnet once the website's compose file fixes one.
+
+### Outcome (night chain SC-N3 piece 7, same day)
+
+| #   | Outcome                                                                                                                                                                                                                                                                                 |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Fixed: the code in /opt/seasonal-cases stays root's; the service only reads it (no `chown`, no `ReadWritePaths`), so the game process cannot change what root later runs, and git as root no longer refuses the repository. Harness check: no `chown`.                                  |
+| 2   | Fixed: every address limit counts an IPv6 visitor by its /64 (`apps/server/src/addressKey.ts`, tested), an IPv4 mapped address as IPv4.                                                                                                                                                 |
+| 3   | Fixed: a guest's or player's watch is answered to that socket only (an organiser's still reaches everyone: the hand-over list); at most 10 watches in 10 s per socket; at most 20 claims a minute per player (`securityPass2.test.ts`). The exact numbers are the owner's (BACKLOG 37). |
+| 4   | Left for the owner and the website: with the site's Caddy in its container the game cannot reach the site's address (BACKLOG 35).                                                                                                                                                       |
+| 5   | Fixed: every direction message reads the socket's session again; one that ended elsewhere is refused, then the socket closes (`securityPass2.test.ts`).                                                                                                                                 |
+| 6   | Fixed: an event that cannot be written stops the server at once; systemd restarts it from the database, so no show goes on in memory past its log.                                                                                                                                      |
+| 7   | Fixed: the nginx sign-in route strips the website's session cookie as the other route does (harness check: both routes).                                                                                                                                                                |
+| 8   | Fixed: `--db` takes only `create` or `url`, the address comes from the answers file or a hidden prompt; `SC_REPO` must be an https://, git@ or /path address; the site port must be `127.0.0.1:<port>`; `SC_HOST` and `SC_TRUSTED_PROXIES` are checked for their form (harness checks). |
+
+The section's points for the owner are in HANDOVER and BACKLOG 35, 37.

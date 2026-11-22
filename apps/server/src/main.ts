@@ -8,7 +8,8 @@
  *                 migrations, stores) or else use the JSON-lines log and memory, build and listen,
  *                 and say so in one JSON line. On SIGTERM or SIGINT: stop taking requests, close
  *                 the sockets (the app's onClose), let pending database writes finish, end the
- *                 pool, exit; after 10 s it exits anyway.
+ *                 pool, exit; after 10 s it exits anyway. An event that cannot be written stops
+ *                 the server at once (systemd restarts it from the database).
  * Depends on:     ./app.js, ./config.js, ./configRead.js, ./db/open.js
  */
 import { buildServer } from './app.js';
@@ -40,8 +41,12 @@ const database =
     ? null
     : await openDatabase({
         ...config.database,
+        // A lost event must not leave a show going on in memory that the database no longer
+        // matches (a sealing written twice, two commitments): stop; systemd restarts the
+        // server from the database's state (security pass 2, finding 6).
         onError: (e) => {
-          early('database write failed', e);
+          early('an event could not be written; stopping', e);
+          process.exit(1);
         },
       });
 const { app } = await buildServer(config, database?.stores);

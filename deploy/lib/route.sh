@@ -39,17 +39,18 @@ render_nginx() {
     set+="    proxy_set_header $h \$$v;"$'\n'
   done
   set=${set,,}
+  # The website's session cookie (__Host-se.sid, se.sid) never reaches the game: removed up to
+  # three times from the Cookie header the game gets (GAME-INTEGRATION §3).
+  local strip='    if ($sc_cookie ~ "^(.*?)(?:^|;\s*)(?:__Host-)?se\.sid=[^;]*(.*)$") { set $sc_cookie $1$2; }'
+  local nl=$'\n' cookie
+  cookie="    set \$sc_cookie \$http_cookie;$nl$strip$nl$strip$nl$strip$nl"
+  cookie+="    proxy_set_header Cookie \$sc_cookie;$nl"
   cat <<NGINX
 # Seasonal Cases: written by deploy/install.sh of the game; do not edit by hand.
 location = $BASE { return 308 $BASE/; }
 location ^~ $BASE/api/website/ { return 404; }
 location ^~ $BASE/ {
-${clear}    set \$sc_cookie \$http_cookie;
-    if (\$sc_cookie ~ "^(.*?)(?:^|;\\s*)(?:__Host-)?se\\.sid=[^;]*(.*)\$") { set \$sc_cookie \$1\$2; }
-    if (\$sc_cookie ~ "^(.*?)(?:^|;\\s*)(?:__Host-)?se\\.sid=[^;]*(.*)\$") { set \$sc_cookie \$1\$2; }
-    if (\$sc_cookie ~ "^(.*?)(?:^|;\\s*)(?:__Host-)?se\\.sid=[^;]*(.*)\$") { set \$sc_cookie \$1\$2; }
-    proxy_set_header Cookie \$sc_cookie;
-    proxy_set_header Host \$host;
+${clear}${cookie}    proxy_set_header Host \$host;
     proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto \$scheme;
     proxy_http_version 1.1;
@@ -58,7 +59,7 @@ ${clear}    set \$sc_cookie \$http_cookie;
     proxy_pass http://$game;
 }
 location = $SIGN_IN_ROUTE {
-    auth_request /_sc_cases_authorize;
+${cookie}    auth_request /_sc_cases_authorize;
 ${set}    # Added after the authorize call, which never carries it.
     proxy_set_header $SECRET_HEADER "$SC_PROXY_SECRET";
     error_page 401 403 = @sc_cases_login;
@@ -143,7 +144,7 @@ install_route() {
   game="$SC_HOST:$SC_PORT"
   if [[ $SC_PROXY == nginx ]]; then
     site="127.0.0.1:$(tr -d '[:space:]' <"$SC_SITE_PORT_FILE")"
-    [[ $site =~ :[0-9]+$ ]] || die "no port in $SC_SITE_PORT_FILE"
+    [[ $site =~ ^127\.0\.0\.1:[0-9]{2,5}$ ]] || die "no port in $SC_SITE_PORT_FILE"
   else
     [[ -n $(site_caddy) ]] || die "the website's Caddy container (seasonal-site, caddy) is not running"
     site=site:3800

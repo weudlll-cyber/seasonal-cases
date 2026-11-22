@@ -67,6 +67,12 @@ ensure_database() {
   [[ -n $password ]] || password=$(secret 24)
   SC_DB_PASSWORD=$password
   DATABASE_URL="postgres://seasonal_cases:$password@127.0.0.1:5432/seasonal_cases"
+  # --check asks psql nothing and pipes nothing (a pipe into a command that does not run broke
+  # with SIGPIPE): it only says what it would make sure of.
+  if ((DRY_RUN)); then
+    info "would make sure the role and the database seasonal_cases exist"
+    return 0
+  fi
   if run runuser -u postgres -- psql -tAc "SELECT 1 FROM pg_roles WHERE rolname = 'seasonal_cases'" | grep -qx 1; then
     info "role seasonal_cases exists"
   else

@@ -94,6 +94,7 @@ case_local() {
   check 'grep -q "^runuser .*createdb -O seasonal_cases seasonal_cases" "$ROOT/calls.log"' "no database created"
   check 'grep -q "^pnpm build" "$ROOT/calls.log"' "no build"
   check 'grep -q "^systemctl restart seasonal-cases" "$ROOT/calls.log"' "no restart"
+  check '! grep -q "^chown" "$ROOT/calls.log"' "the code was handed to the service user"
   check 'grep -q "^ExecStart=/usr/bin/node --import=tsx src/start.ts" "$ROOT/etc/systemd/system/seasonal-cases.service"' "no unit"
   # A re-run with the same answers changes nothing and keeps the secrets.
   installer "${LOCAL[@]}" --smtp-host 127.0.0.1 --smtp-port 1025
@@ -129,6 +130,7 @@ case_nginx() {
   check 'grep -q "proxy_set_header X-Sc-Proxy-Secret \"$secret\";" "$route"' "the secret is not in the sign-in route"
   check 'grep -q "location ^~ /games/cases/api/website/ { return 404; }" "$route"' "the card is not denied"
   check 'grep -q "proxy_set_header X-Acting-User-Id \"\";" "$route"' "forged identity headers are not cleared"
+  check '[[ $(grep -c "proxy_set_header Cookie \$sc_cookie;" "$route") == 2 ]]' "the website cookie is not stripped on both routes"
   check 'grep -q "proxy_pass http://127.0.0.1:3800/api/games/cases/authorize;" "$route"' "no authorize call"
   check 'grep -q "^SC_WEBSITE_LOCAL_ORIGIN='"'"'http://127.0.0.1:3800'"'"'" "$env"' "no feed origin"
   check '[[ $OUT != *"$secret"* ]]' "the proxy secret was printed"
@@ -166,6 +168,10 @@ case_refusals() {
   check '[[ $CODE != 0 && $OUT == *"SC_INSTALL_MODE must be local or website"* ]]' "a wrong mode went on: $OUT"
   installer --update
   check '[[ $CODE != 0 && $OUT == *"--update needs an installed game"* ]]' "an update without an install went on"
+  installer "${LOCAL[@]}" --db postgres://u:secret@db/c
+  check '[[ $CODE != 0 && $OUT == *"SC_DB must be create or url"* && $OUT != *secret* ]]' "a database URL as a flag went on: $OUT"
+  installer "${LOCAL[@]}" --repo -u
+  check '[[ $CODE != 0 && $OUT == *"SC_REPO must be"* ]]' "a repository option went on: $OUT"
   local answers="$ROOT/answers"
   printf 'SC_INSTALL_MODE=local\nSC_PORT=3980\nSC_DB=url\nDATABASE_URL=postgres://u:p@db:5432/c\nSC_PUBLIC_ORIGIN=https://c.example.org\nSC_REF=master\n' >"$answers"
   installer --answers "$answers" --yes

@@ -30,6 +30,7 @@ import {
 } from '@sc/contracts';
 import type { FastifyRequest } from 'fastify';
 
+import { addressKey } from './addressKey.js';
 import type { Account } from './auth/accounts.js';
 import { emailKey, type CredentialStore } from './auth/credentials.js';
 import { nameKey } from './auth/names.js';
@@ -132,14 +133,14 @@ function entryRoutes(ctx: Ctx, credentials: CredentialStore): void {
     const body = parseBody(RegisterRequestSchema, request.body);
     newPassword(body.password);
     // Counted after the rules: a refused form costs the server nothing (no hash, no row).
-    limited(registrations, request.ip);
+    limited(registrations, addressKey(request.ip));
     return signIn(ctx, request, reply, await registerAccount(ctx, credentials, body));
   });
 
   app.post('/api/auth/sign-in', async (request, reply) => {
-    limited(perAddress, request.ip);
+    limited(perAddress, addressKey(request.ip));
     const { login, password, code } = parseBody(LocalSignInRequestSchema, request.body);
-    limited(perLogin, `${login.toLowerCase()}|${request.ip}`);
+    limited(perLogin, `${login.toLowerCase()}|${addressKey(request.ip)}`);
     const found = login.includes('@')
       ? await credentials.byEmail(emailKey(login))
       : await credentials.byName(nameKey(login));
@@ -160,7 +161,7 @@ function passwordRoutes(ctx: Ctx, local: LocalAccounts): void {
   const resets = new RateLimiter({ limit: 10, windowMs: 15 * MINUTE });
 
   app.post('/api/auth/forgot', (request) => {
-    limited(forgotten, request.ip);
+    limited(forgotten, addressKey(request.ip));
     const { mailer } = local;
     if (mailer === null) throw new Refusal(503, 'mail is not set up on this server');
     const { email } = parseBody(ForgotRequestSchema, request.body);
@@ -170,7 +171,7 @@ function passwordRoutes(ctx: Ctx, local: LocalAccounts): void {
   });
 
   app.post('/api/auth/reset', async (request: FastifyRequest) => {
-    limited(resets, request.ip);
+    limited(resets, addressKey(request.ip));
     const { token, password } = parseBody(ResetRequestSchema, request.body);
     newPassword(password);
     const accountId = await local.credentials.takeReset(tokenHash(token), auth.now());

@@ -10,6 +10,7 @@
  * Depends on:     fastify, @sc/application (types), @sc/contracts, @sc/domain, ./http.js,
  *                 ./session.js
  */
+import { RateLimiter } from '@seasonal/kit/server';
 import type { ShowService } from '@sc/application';
 import {
   CHRONICLE_LENGTH,
@@ -94,9 +95,12 @@ export function showRoutes(ctx: Ctx): void {
     return publicView(model, people);
   });
 
+  // At most 20 claims a minute per player: a real pick needs a few (security pass 2, finding 3).
+  const claims = new RateLimiter({ limit: 20, windowMs: 60_000 });
   app.post<{ Params: IdParams }>('/api/shows/:id/claim', async (request) => {
     const me = await signedIn(ctx, request);
     if (me.role !== 'player') throw new Refusal(403, 'only a player can pick a case');
+    if (!claims.take(me.id).allowed) throw new Refusal(429, 'too many picks, wait a minute');
     const { caseNumber } = parseBody(ClaimRequestSchema, request.body);
     return summary(accepted(shows.claim(request.params.id, me, me.rank, caseNumber)));
   });

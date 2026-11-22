@@ -3,7 +3,10 @@
 # @brief  The game on the machine: its user, its code at the chosen ref, the build, the
 #         environment file, the systemd unit, the start and the readiness check.
 #
-# Responsibility: a system user without a shell or home login owns /opt/seasonal-cases; the code
+# Responsibility: a system user without a shell runs the game; the code in /opt/seasonal-cases
+#                 stays root's and read-only for it (root runs that code too, for updates and
+#                 deploy/admin.sh, so the service must not be able to change it: security pass
+#                 2, finding 1); the code
 #                 is a clone of SC_REPO at SC_REF (a tag or branch); `pnpm install --frozen-lockfile`
 #                 and `pnpm build` for the mode; the environment file (/etc/seasonal-cases/cases.env,
 #                 root 0600, read by systemd) holds every setting of docs/CONFIG.md and the
@@ -40,7 +43,6 @@ build_app() {
   step "build ($SC_INSTALL_MODE mode)"
   run env -C "$APP_DIR" pnpm install --frozen-lockfile
   run env -C "$APP_DIR" SC_MODE="$SC_INSTALL_MODE" pnpm build
-  run chown -R "$SERVICE_USER:$SERVICE_USER" "$OPT_DIR"
 }
 
 # Secrets made once: kept from the environment file on every later run.
@@ -108,7 +110,6 @@ NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
 PrivateTmp=true
-ReadWritePaths=/opt/seasonal-cases
 
 [Install]
 WantedBy=multi-user.target

@@ -66,6 +66,9 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.4 govern
   Piece 4: the installer, `sudo ./deploy/install.sh` ([INSTALL.md](INSTALL.md)), both modes,
   `--update` and `--check`, tested by `deploy/test/installer.test.sh` and shellcheck in CI.
   Piece 5: sound, synthesised (Web Audio), off until a viewer turns it on in the game bar.
+  Piece 6: Firefox passes the journeys; WebKit's findings are in BACKLOG 12 (not fixed: budget
+  rule). Piece 7: the second independent security review, its fixes; release candidate
+  `1.0.0-rc.1` ([CHANGELOG](../CHANGELOG.md), [RELEASING.md](RELEASING.md)).
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.

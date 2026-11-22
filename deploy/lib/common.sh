@@ -105,6 +105,17 @@ ask() {
   [[ -n ${!var} ]] || die "no answer for: $question"
 }
 
+# Like ask, without echo: for a value that holds a password; never a default.
+ask_secret() {
+  local var=$1 question=$2 answer
+  [[ -n ${!var:-} ]] && return 0
+  ((YES)) && die "missing answer for: $var ($question); give it in --answers, never as a flag"
+  read -r -s -p "  $question: " answer
+  echo
+  printf -v "$var" '%s' "$answer"
+  [[ -n ${!var} ]] || die "no answer for: $question"
+}
+
 # put_file PATH MODE: the content comes on stdin; written atomically and only when it changed.
 put_file() {
   local path=$1 mode=$2 tmp
