@@ -10,8 +10,9 @@
  *                 and answer `{ ok: true }` no sooner than `REGISTER_MIN_MS` after the request,
  *                 so neither the answer nor its time tells them apart. Nobody is signed in: the
  *                 new account signs in with its password. Registrations are limited to 5 an hour
- *                 per address (counted once the form passes the rules). Without a mailer the
- *                 answer is the same and nothing is sent.
+ *                 per address (counted once the form passes the rules), and one address gets 3
+ *                 mails an hour at most. Without a mailer the answer is the same and nothing is
+ *                 sent.
  * Depends on:     node:crypto, @seasonal/kit/server, @sc/contracts, ./auth/*, ./http.js,
  *                 ./localRoutes.js (types), ./addressKey.js
  */
@@ -83,9 +84,15 @@ async function created(ctx: Ctx, local: LocalAccounts, body: RegisterRequest): P
     email,
     passwordHash,
   });
+  if (made) return true;
   // Another registration took the name or e-mail in between: this account never signs in.
-  if (!made) await ctx.auth.accounts.save({ ...account, deleted: true });
-  return made;
+  await ctx.auth.accounts.save({ ...account, deleted: true });
+  // A name lost in the race is a taken name, never a mail about an account that does not exist
+  // (security pass 3, finding 5).
+  if ((await local.credentials.byEmail(email)) === undefined) {
+    throw new Refusal(409, 'This name is already taken.');
+  }
+  return false;
 }
 
 const wait = (ms: number): Promise<void> =>
@@ -95,6 +102,9 @@ const wait = (ms: number): Promise<void> =>
 
 export function registerRoute(ctx: Ctx, local: LocalAccounts): void {
   const registrations = new RateLimiter({ limit: 5, windowMs: HOUR });
+  // At most 3 mails an hour to one address, so nobody floods a stranger's mailbox from many
+  // networks (security pass 3, finding 5); the answer stays the same.
+  const perRecipient = new RateLimiter({ limit: 3, windowMs: HOUR });
   ctx.app.post('/api/auth/register', async (request) => {
     const started = Date.now();
     const body = parseBody(RegisterRequestSchema, request.body);
@@ -110,7 +120,7 @@ export function registerRoute(ctx: Ctx, local: LocalAccounts): void {
     const text = (isNew ? readyText : existsText)(local.publicOrigin);
     const subject = isNew ? 'Your Seasonal Cases account' : 'Your Seasonal Cases account exists';
     // The answer does not wait for the mail: sending takes as long as it takes.
-    if (local.mailer !== null) {
+    if (local.mailer !== null && perRecipient.take(emailKey(body.email)).allowed) {
       void local.mailer.send({ to: body.email, subject, text }).catch(local.log);
     }
     await wait(REGISTER_MIN_MS - (Date.now() - started));

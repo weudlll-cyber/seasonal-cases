@@ -87,6 +87,9 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   Piece 4: `e2e` is a required check of master's protection (D38).
   Piece 5: the applause button for everyone watching a live show; the stage counts it and the
   confetti grows with it (D39). Concept 1.8.
+  Piece 6: the third independent review: a socket message without its ack no longer stops the
+  server; Latin look-alikes out of names; a re-issue ends other sessions; mail capped per
+  address. Version `1.0.0-rc.2`.
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
@@ -145,6 +148,11 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
 - A write right for a sibling clone of this repository (for example
   `C:\Users\weudl\seasonal-cases-2`) would let future night chains run independent pieces in
   parallel; tonight's permissions cover this folder only.
+
+- From the third review (docs/security-pass.md, third pass): an e-mail confirmation before an
+  account exists (registration still tells a taken e-mail by what it leaves behind); whether a
+  name needs a letter; applause per socket, account or address, and for guests; the address
+  budget shared by claims and sign-ins.
 
 ## Needs the owner's hand
 

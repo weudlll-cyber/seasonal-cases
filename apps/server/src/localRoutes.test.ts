@@ -6,6 +6,7 @@
  */
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { memoryCredentials } from './auth/credentials.js';
 import { mailbox } from './mail.js';
 import { REGISTER_MIN_MS } from './registerRoute.js';
 import { startHarness, type Harness } from './testing/harness.js';
@@ -119,6 +120,33 @@ describe('the neutral registration (D36)', () => {
       expect(answer.statusCode).toBe(400);
       expect(answer.json<{ error: string }>().error).toMatch(/3 to 32 Latin letters/);
     }
+  });
+});
+
+describe('registration mail (security pass 3, finding 5)', () => {
+  it('sends one address 3 mails an hour at most, with the same answer', async () => {
+    const box = mailbox();
+    const h = await startHarness(false, {}, { mailer: box });
+    harness = h;
+    const names = ['Ada', 'Bea', 'Cid', 'Dov'];
+    for (const name of names) {
+      const answer = await post(h, '/api/auth/register', { ...ADA, name });
+      expect(answer.json()).toEqual({ ok: true });
+    }
+    // Let a fourth mail have its chance to arrive before counting.
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    expect(box.sent).toHaveLength(3);
+  });
+
+  it('answers a name lost in a race as taken, and mails nobody', async () => {
+    const box = mailbox();
+    const credentials = { ...memoryCredentials(), create: () => Promise.resolve(false) };
+    const h = await startHarness(false, {}, { mailer: box, credentials });
+    harness = h;
+    const answer = await post(h, '/api/auth/register', ADA);
+    expect(answer.statusCode).toBe(409);
+    expect(answer.json()).toEqual({ error: 'This name is already taken.' });
+    expect(box.sent).toHaveLength(0);
   });
 });
 

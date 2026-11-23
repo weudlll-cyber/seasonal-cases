@@ -141,6 +141,8 @@ describe('two-factor sign-in for a standalone admin', () => {
     expect((await signInFrom(h, withOld, '10.0.0.3')).statusCode).toBe(401);
     const withNew = { ...LOGIN, code: fresh[0] ?? '' };
     expect((await signInFrom(h, withNew, '10.0.0.3')).statusCode).toBe(200);
+    // The re-issue ended the other sessions: the setup's cookie no longer signs anyone in.
+    expect((await get(h, '/api/me', cookie)).json()).toEqual({ me: null });
     expect((await post(h, url, { password: PASSWORD, code: '123456' })).statusCode).toBe(401);
   });
 

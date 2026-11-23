@@ -106,6 +106,34 @@ describe('the address budget (D37)', () => {
   });
 });
 
+describe('third pass, 1: a message without its ack', () => {
+  it('is dropped, and the server keeps answering', async () => {
+    const h = await startHarness();
+    harness = h;
+    const olga = await h.signIn('Olga', 'organiser');
+    const made = h.server.shows.quickTest({ ...SETUP, seed: 'p3' }, olga.me);
+    if (!made.ok) throw new Error(made.error);
+    const id = made.model.id;
+    const guest = await h.socket();
+    const events = [
+      'show:watch',
+      'show:applaud',
+      'direction:begin',
+      'direction:select',
+      'direction:step',
+      'direction:handOver',
+      'direction:end',
+    ] as const;
+    // Without an ack, and with the ack in the request's place: both once made the handler
+    // call `undefined`.
+    for (const event of events) {
+      guest.emit(event, { showId: id }, undefined as never);
+      (guest.emit as (e: string, ...a: unknown[]) => void)(event, () => undefined);
+    }
+    expect(await send(guest, 'show:watch', { showId: id })).toEqual({ ok: true });
+  });
+});
+
 describe('5: a socket follows its session', () => {
   it('refuses direction and closes once the session is gone elsewhere', async () => {
     const h = await startHarness();

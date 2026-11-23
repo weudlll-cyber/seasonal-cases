@@ -514,3 +514,59 @@ The owner decided the open points on 2026-11-22 (DECISIONS D34–D37); built and
   route's own limits (`addressLimit.ts`, `securityPass2.test.ts`). Bots: development and the
   Quick Test only (D34, `showRules.test.ts`). The Caddy profile asks for the trusted range with
   172.16.0.0/12 as the default, remembers it and names it in the route file (installer harness).
+
+## Third pass: SC-N4 (2026-11-23)
+
+A fresh review agent that had not seen the chain reviewed `cc75504..db03755` and, in full, the
+auth files, the limiters, the registration, two-factor, realtime, show and organiser routes,
+the configuration and the two PostgreSQL stores, against CONCEPT §8 and §10, CLAUDE.md, the
+website's AUTH.md and DECISIONS D34–D39. Read-only; one throwaway script tested the name rule.
+
+### Findings
+
+1. **High: a socket message without its ack stopped the server** (CONFIRMED). socket.io hands a
+   handler `undefined` for the ack when the packet has none; every handler called it, the throw
+   (or the rejected promise in the direction handlers) was not caught, and the process exited.
+   Anyone, a guest included, could send it. `show:applaud` was new; `show:watch` and the
+   direction messages had it since SC-N1.
+2. **Medium: registration still tells whether an e-mail has an account, by what it leaves
+   behind** (CONFIRMED). The answer is the same, but a new e-mail makes an account at once:
+   signing in with it afterwards, or registering the same name again, tells the two apart.
+3. **Low: the name rule took Latin-script look-alikes** (CONFIRMED): `ɡame`, `ǀeo`, `ɑdmin`,
+   `ᴀdmin`, `admɪn`, `ꜱam`, `ɩvo` passed beside their ASCII twins; `---` passed (no letter).
+4. **Low: a re-issue of recovery codes left the other sessions open** (CONFIRMED).
+5. **Low: registration mail** (CONFIRMED): a name lost in a race got the "an account exists"
+   mail; one address could get any number of mails from many networks.
+6. **Note: applause**: the 5 a second is per socket, so many sockets raise the confetti (cosmetic);
+   a tally stays in memory after its show ends (bounded).
+
+### Checked and found sound
+
+The test-only cookie switch (refused outside NODE_ENV=test, which is never production); bots
+only in development; the re-issue route (session, per-account limit, Argon2, one 401 for both
+wrong answers, the TOTP step used up by a conditional update, one transaction, no codes logged);
+the registration's same answer and 1 s floor; the name rule's NFC and NFKC handling; the
+address budget's keys and order; applause only for watchers of a live show, sent only to them,
+no event; no unopened content in the new code; no `Math.random`; parameterised SQL.
+
+### Outcome (same night)
+
+| #   | Outcome                                                                                                                                                                                                                                                                                                                       |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Fixed: every socket drops a message that is not a request and an ack before any handler (`realtime.ts`); test sends each event without an ack and with the ack in the request's place, then the server still answers (`securityPass2.test.ts`). Sabotage probe: without the guard the test run stops with 14 uncaught errors. |
+| 2   | For the owner: the owner's piece 3 asked that a new e-mail take "the usual flow", which makes the account at once; closing this needs an e-mail confirmation before an account exists, a change to decided behaviour. Left as built; in HANDOVER and the morning sheet.                                                       |
+| 3   | Fixed: the rule allows the Latin letter blocks with diacritics only (Basic Latin, Latin-1, Extended-A, Extended-B without the click letters, Extended Additional); the seven look-alikes are in the test. Whether a name needs a letter is the owner's.                                                                       |
+| 4   | Fixed: a re-issue ends the account's other sessions (`twoFactorRoutes.test.ts`).                                                                                                                                                                                                                                              |
+| 5   | Fixed: a name lost in a race answers 409 and mails nobody; one address gets 3 mails an hour at most from registration and from the forgotten password (`localRoutes.test.ts`).                                                                                                                                                |
+| 6   | Noted, unchanged: cosmetic and bounded.                                                                                                                                                                                                                                                                                       |
+
+Scans: `pnpm audit --prod` no known vulnerabilities; osv-scanner (CI's v2.7.0 image) 467
+packages, no issues; gitleaks over the full history (38 commits) no leaks.
+
+### For the owner
+
+- An e-mail confirmation before an account exists (finding 2), or the side channel as it is.
+- Whether a name needs at least one letter (`---` passes today).
+- Applause per account or address instead of per socket; whether guests may applaud.
+- The address budget of 60 a minute is shared by claims and sign-ins: a room of more than about
+  60 players behind one public address may meet it; separate budgets or a higher number?

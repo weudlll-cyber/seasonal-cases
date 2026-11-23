@@ -3,6 +3,35 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
+## 1.0.0-rc.2 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `proto/cases-v1`, night chain SC-N4 (the owner's decisions of 2026-11-22, D27–D39).
+
+### The show
+
+- The main prize's gem turns only in the centre case and the ceremony; the logo per theme; the
+  phone menu wraps; the spotlight painted once (`0b2c8ef`).
+- No bots in real shows; cases nobody claimed are "Unclaimed" and their prizes "not won"
+  everywhere; "End show" asks before an early end (`95ab963`).
+- The applause button: counted per live show, the confetti grows with it (`db03755`).
+
+### Accounts and security
+
+- Recovery codes re-issued with the password and a current code; the name rule (Latin letters
+  with diacritics, digits, `-`, `_`); a registration that answers alike for every e-mail; 60 a
+  minute per address for claims and sign-ins; the installer asks for the trusted range
+  (`2b379cb`).
+- `e2e` is a required check of master (`39fd2b8`).
+- The third independent review and its fixes: a socket message without its ack is dropped (it
+  stopped the server); the name rule keeps Latin look-alikes out; a re-issue ends the other
+  sessions; at most 3 mails an hour per address; a name lost in a race answers 409
+  (docs/security-pass.md, third pass).
+
+### Tests and browsers
+
+- The journeys in Chromium, Firefox and WebKit at desktop and phone sizes (nightly); WebKit's
+  phone journeys pass; the admin's setup form keeps what was typed.
+
 ## 1.0.0-rc.1 (not tagged; the tag follows the merge with the owner's word)
 
 Branch `proto/cases-v1`, from `master` (the bootstrap of night chain SC-N1, piece 1).

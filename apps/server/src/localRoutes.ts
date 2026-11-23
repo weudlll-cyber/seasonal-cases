@@ -11,8 +11,9 @@
  *                   per address, 5 per login and address, then the address's budget shared with
  *                   claims (60 a minute, ./addressLimit.ts, D37).
  *                 - Forgotten password: always the same answer; a known e-mail gets a link with a
- *                   random token, stored as its sha256, valid 1 hour, used once. The reset ends
- *                   every session and every other link of the account.
+ *                   random token, stored as its sha256, valid 1 hour, used once (3 mails an hour
+ *                   per address at most). The reset ends every session and every other link of
+ *                   the account.
  *                 Registered only in local mode (./app.ts); website mode answers 404 here.
  * Depends on:     node:crypto, fastify (types), @seasonal/kit/server, @sc/contracts,
  *                 ./addressKey.js, ./addressLimit.js (types), ./auth/*, ./http.js,
@@ -123,6 +124,8 @@ function entryRoutes(ctx: Ctx, { credentials, perAddress: budget }: LocalAccount
 function passwordRoutes(ctx: Ctx, local: LocalAccounts): void {
   const { app, auth } = ctx;
   const forgotten = new RateLimiter({ limit: 5, windowMs: 60 * MINUTE });
+  // At most 3 reset mails an hour to one address (security pass 3, finding 5).
+  const perRecipient = new RateLimiter({ limit: 3, windowMs: 60 * MINUTE });
   const resets = new RateLimiter({ limit: 10, windowMs: 15 * MINUTE });
 
   app.post('/api/auth/forgot', (request) => {
@@ -131,7 +134,9 @@ function passwordRoutes(ctx: Ctx, local: LocalAccounts): void {
     if (mailer === null) throw new Refusal(503, 'mail is not set up on this server');
     const { email } = parseBody(ForgotRequestSchema, request.body);
     // The answer does not wait for the lookup or the mail: it is the same for every e-mail.
-    void sendReset(local, mailer, emailKey(email), auth.now()).catch(local.log);
+    if (perRecipient.take(emailKey(email)).allowed) {
+      void sendReset(local, mailer, emailKey(email), auth.now()).catch(local.log);
+    }
     return { ok: true };
   });
 

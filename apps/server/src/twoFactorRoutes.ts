@@ -10,7 +10,8 @@
  *                 it once, ends the account's other sessions and answers ten new recovery codes,
  *                 shown once and stored only as hashes. `POST /api/me/2fa/recovery` re-issues
  *                 them with the password and a current code from the app (DECISIONS D35): the
- *                 old codes are void at once, the new ones shown once, and the log says it
+ *                 old codes are void at once, the account's other sessions end, the new ones
+ *                 shown once, and the log says it
  *                 happened, never the codes. Confirmations and re-issues are limited to 10 per 15
  *                 minutes per account (Mini Games' twoFactor rule).
  * Depends on:     @seasonal/kit/server, @sc/contracts, ./auth/*, ./http.js, ./session.js
@@ -60,6 +61,8 @@ function freshCodes(): { codes: readonly string[]; hashes: Buffer[] } {
 function reissueRoute(ctx: Ctx, credentials: CredentialStore, limiter: RateLimiter): void {
   const { app, auth } = ctx;
   app.post('/api/me/2fa/recovery', async (request): Promise<RecoveryCodes> => {
+    const current = await sessionOf(app, auth, request);
+    if (current === null) throw new Refusal(401, 'sign in first');
     const account = await signedInAccount(ctx, request);
     if (!limiter.take(account.id).allowed) {
       throw new Refusal(429, 'too many tries, wait a few minutes');
@@ -80,6 +83,10 @@ function reissueRoute(ctx: Ctx, credentials: CredentialStore, limiter: RateLimit
     if (!(await auth.twoFactor.replaceRecovery(account.id, hashes))) {
       throw new Refusal(409, 'two-factor sign-in is not set up');
     }
+    // New codes are a recovery step: a session opened elsewhere with a leaked code ends too
+    // (security pass 3, finding 4).
+    const ended = await auth.sessions.removeOthers(account.id, current.session.id);
+    if (ended.length > 0) void auth.ends.end(ended);
     request.log.info({ event: 'recovery-codes-reissued', accountId: account.id });
     return { recoveryCodes: [...codes] };
   });

@@ -2,7 +2,8 @@
  * @file   apps/server/src/realtime.ts
  * @brief  The socket side: watching a show, the pushed projections, the direction's actions.
  *
- * Responsibility: a socket watches one show (at most 10 watches in 10 s). Organisers and admins
+ * Responsibility: a socket watches one show (at most 10 watches in 10 s). A message without
+ *                 its request and ack is dropped unanswered. Organisers and admins
  *                 receive the organiser view, everyone else the public view, players also their
  *                 personal view; a client never receives more than its projection (CONCEPT §8).
  *                 Every direction message is checked against the session as it stands now and,
@@ -182,6 +183,12 @@ export function attachRealtime({ app, auth, io, shows }: RealtimeDeps): Realtime
 
   io.on('connection', (socket) => {
     const { me } = socket.data as SocketData;
+    // Every message takes a request and an ack; one without the ack would make the handler call
+    // `undefined` and stop the server (security pass 3, finding 1). Such a packet is dropped
+    // before any handler sees it.
+    socket.use((packet, next) => {
+      if (packet.length === 3 && typeof packet[2] === 'function') next();
+    });
     // At most 10 watches in 10 s per socket (security pass 2, finding 3).
     const watches = new RateLimiter({ limit: 10, windowMs: 10_000 });
     // The session as it is now, read again for every direction message (finding 5): one that

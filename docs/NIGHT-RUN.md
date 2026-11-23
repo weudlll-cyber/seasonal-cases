@@ -21,11 +21,18 @@ a required check, the applause button, a third review, the play-through. Branch
 | 2     | No bots in real shows, unclaimed cases, early-end question              | done  | `95ab963`          | 45088460771 green (e2e: 6 passed in 36.6 s) |
 | 3     | Security items (recovery codes, names, registration, limits, installer) | done  | `2b379cb`          | 45089168263 green                           |
 | 4     | `e2e` as a required check                                               | done  | `39fd2b8`          | 45089674958 green                           |
-| 5     | The applause button                                                     | done  | see piece 5 report | see piece 5 report                          |
-| 6     | Third independent review, 1.0.0-rc.2                                    | open  | —                  | —                                           |
+| 5     | The applause button                                                     | done  | `db03755`          | see piece 6 report                          |
+| 6     | Third independent review, 1.0.0-rc.2                                    | done  | see piece 6 report | see piece 6 report                          |
 | 7     | Play-through, pictures, hand-over                                       | open  | —                  | —                                           |
 
 ### Needs the owner's word (SC-N4)
+
+- **Registration's side channel** (third review, finding 2): an e-mail confirmation before an
+  account exists, or the side channel as built (the owner's piece 3 text: "a new one the usual
+  flow").
+- **Names without a letter** (`---` passes); **applause** per socket, per account or per
+  address, and whether guests may applaud; the **address budget** of 60 a minute shared by
+  claims and sign-ins (a room behind one address).
 
 - **The kit:** `v0.10.1` exists (tagged 2026-11-22 11:56); the pin stays `v0.8.0`, as CLAUDE.md
   changes the kit only on the owner's word and this chain names the kit's items as not tonight.
@@ -194,6 +201,27 @@ a required check, the applause button, a third review, the play-through. Branch
   `applause.ts` (server, 95), `applause.ts` (client), `BarPress.tsx`, both tests.
 - **Checks:** typecheck, lint; server applause, realtime and security tests 12 passed; ui 5 and
   web 50 tests in Playwright's Linux image (the local jsdom workers still timed out at times).
+
+### Piece 6 report
+
+- **Review:** a fresh agent, read-only, over `cc75504..db03755` and the auth, limiter,
+  registration, two-factor, realtime and route files in full (docs/security-pass.md, third
+  pass). Six findings: one high, one medium, three low, one note.
+- **Fixed before the push:** 1 (high: a socket message without its ack stopped the server; now
+  dropped at the socket, test and sabotage probe); 3 (the name rule narrowed to the Latin letter
+  blocks with diacritics; seven look-alikes in the test); 4 (a re-issue ends the other
+  sessions); 5 (a lost race answers 409, at most 3 mails an hour per address).
+- **Not fixed, for the owner:** 2 (registration's side channel: the owner's piece 3 text asked
+  that a new e-mail take the usual flow, which makes the account at once; closing it needs an
+  e-mail confirmation first). 6 is a note (cosmetic, bounded).
+- **Scans:** `pnpm audit --prod` clean; osv-scanner with CI's pinned v2.7.0 image, 467 packages,
+  no issues (a local v2.2.4 read only 15 packages from the lockfile, so CI's image is the
+  record); gitleaks over the full history, 38 commits, no leaks.
+- **Release:** every `package.json` at `1.0.0-rc.2`; CHANGELOG, RELEASING, README, OPEN and the
+  concept's P4 row name it.
+- **Found on the way:** the shell tool turns a doubled backslash into one even inside a quoted
+  heredoc, which mangled escapes in tonight's Python edits; the name rule's escapes were written
+  with `chr(92)` and checked byte by byte.
 
 ## Night chain SC-N3 (2026-11-21)
 

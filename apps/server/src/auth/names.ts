@@ -16,7 +16,12 @@
  * Depends on:     nothing
  */
 
-const ALLOWED = /^[\p{Script=Latin}0-9_-]{3,32}$/u;
+// The Latin letters with their diacritics, by block: Basic Latin, Latin-1 (without × and ÷),
+// Extended-A, Extended-B (without the click letters ǀ ǁ ǂ ǃ) and Extended Additional. The rest of
+// the Latin script (IPA, small capitals, Extended-C and -D) holds look-alikes of plain letters
+// (ɡ, ɑ, ᴀ, ɪ, ꜱ: security pass 3, finding 3) and stays out.
+const ALLOWED =
+  /^[A-Za-z0-9_\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u01BF\u01C4-\u024F\u1E00-\u1EFF-]{3,32}$/u;
 const COMBINING = /\p{M}/gu;
 
 /** Whether a name meets the rule (D36); `name` as typed, trimmed. */

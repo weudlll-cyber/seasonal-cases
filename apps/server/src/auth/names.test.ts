@@ -40,6 +40,14 @@ describe('nameAllowed', () => {
       'ana.lee',
       'ana@x',
       '٣٣٣',
+      // Latin-script look-alikes of plain letters (security pass 3, finding 3).
+      'ɡame',
+      'ǀeo',
+      'ɑdmin',
+      'ᴀdmin',
+      'admɪn',
+      'ꜱam',
+      'ɩvo',
     ]) {
       expect(nameAllowed(name)).toBe(false);
     }
