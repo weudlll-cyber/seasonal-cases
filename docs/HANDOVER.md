@@ -16,6 +16,8 @@ the cases in five reveal steps. [CONCEPT.md](CONCEPT.md) v1.0 governs it; the de
 - **Repository:** `weudlll-cyber/seasonal-cases` (public). Standards, skeleton, CI (verify,
   security, docs; CodeQL; nightly browsers), kit `v0.5.0` pinned (DECISIONS D15).
 - **Morning sheet of the running chain:** [NIGHT-RUN.md](NIGHT-RUN.md).
+- **Working cheaply** (2026-11-23, DECISIONS D54): CLAUDE.md has the section of that name,
+  the saving rules every Seasonal project follows.
 
 ## What runs
 

@@ -55,3 +55,11 @@ owner confirms them.
 - **D17 — Storage of the prototype.** Shows live in memory; every event is appended as one JSON
   line to `.local/data/<showId>.jsonl` (git-ignored), and the server rebuilds each show from its
   lines on start. PostgreSQL comes with the full build (CONCEPT §11).
+
+## 2026-11-23
+
+Numbered D54: `proto/cases-v1` holds D18–D53 and keeps them when it is merged.
+
+- **D54 — Working cheaply.** From 2026-11-23 the saving rules that Seasonal Bingo Royale has had
+  since 2026-11-06 apply to every Seasonal project: spend fewer tokens without testing or
+  checking less. In this repository they are CLAUDE.md "Working cheaply".

@@ -80,12 +80,28 @@ The owner is addressed in German by the planning chat, never by files in this re
 ## Tests and checks
 
 - Tests prove something; none is written for a number. Targets: game logic 85 % branches.
-- No flaky tests: one that is sometimes red is fixed at its cause.
+- No flaky tests: one that is sometimes red is fixed at its cause the first time it flakes, not
+  re-run.
 - Only run checks that can answer something about the change: docs-only changes get the format
   check only; an identical tree is not measured again; no soak or hours-long comparison runs.
 - Browser tests: Chromium at merge and on master; Firefox and WebKit nightly.
 - Before the owner tests: play the show through yourself (start, every step, end; light and dark;
   PC and phone sizes from `docs/CONCEPT.md` §7), look at every picture, fix known defects first.
+
+## Working cheaply
+
+Fewer tokens, without testing or checking less (DECISIONS D54). Which checks to run, never again
+on an unchanged tree, and flaky tests: "Tests and checks" above.
+
+- Test runs print failures only. This repository has no quiet scripts, so pass the runner's own
+  reporter flag: `pnpm test --reporter=dot` (Vitest), `pnpm e2e --reporter=dot` (Playwright).
+  Never read a passing run's full output.
+- Long logs (installer tests, rehearsals, load checks, CI job logs such as
+  `gh run view <id> --log-failed`) go to a file under the git-ignored `.local/logs/`; read only
+  the failing part (search or tail), never the whole log.
+- Wait for CI with one blocking command, `gh run watch <id> --exit-status` with its output in a
+  file, not by polling.
+- Read large files by searching first and reading only the lines needed.
 
 ## Before reporting
 
