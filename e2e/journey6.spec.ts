@@ -5,7 +5,8 @@
  * Signs in as the seeded admin (./rootAdmin.ts) with the password only; the admin area asks for
  * two-factor sign-in before the accounts. The test reads the key from the page, makes the codes
  * an authenticator app would (the kit's `hotp`), confirms, keeps one recovery code, then signs in
- * again with the password and a TOTP code, and once more with the recovery code. The admin's
+ * again with the password and a TOTP code, and once more with the recovery code, then makes new
+ * recovery codes in the admin area with the password and a code (D35). The admin's
  * second factor lives in the e2e server's memory, so the journey runs once per server start.
  */
 import { expect, test, type Page } from '@playwright/test';
@@ -38,7 +39,8 @@ test('journey 6: an admin sets up two-factor sign-in, then signs in with a code 
   const secret = base32Decode(key);
   if (secret === null) throw new Error(`not a base32 key: ${key}`);
   const step = stepAt(Date.now());
-  await setup.getByLabel('Code').fill(hotp(secret, step));
+  // The server takes the step now and one either side: confirm, sign in and re-issue use one each.
+  await setup.getByLabel('Code').fill(hotp(secret, step - 1));
   await setup.getByRole('button', { name: 'Confirm' }).click();
 
   const codes = page.getByRole('region', { name: 'Recovery codes' });
@@ -48,11 +50,22 @@ test('journey 6: an admin sets up two-factor sign-in, then signs in with a code 
   await expect(page.getByRole('region', { name: 'Accounts' })).toContainText(ROOT.name);
 
   await page.getByRole('button', { name: 'Sign out' }).click();
-  await signIn(page, hotp(secret, step + 1));
+  await signIn(page, hotp(secret, step));
   await expect(page.locator('.shell-me')).toContainText(ROOT.name);
 
   await page.getByRole('button', { name: 'Sign out' }).click();
   await signIn(page, recovery);
   await expect(page.locator('.shell-me')).toContainText(ROOT.name);
+
+  // New recovery codes in the admin area: the password and a current code (D35).
+  await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Admin' }).click();
+  const reissue = page.getByRole('form', { name: 'New recovery codes' });
+  await reissue.getByLabel('Password').fill(ROOT.password);
+  await reissue.getByLabel('Code').fill(hotp(secret, step + 1));
+  await reissue.getByRole('button', { name: 'Make new codes' }).click();
+  const fresh = page.getByRole('region', { name: 'Recovery codes' });
+  await expect(fresh.locator('code')).toHaveCount(10);
+  await expect(fresh.locator('code').first()).not.toHaveText(recovery);
+  await fresh.getByRole('button', { name: 'I have saved them' }).click();
   await page.getByRole('button', { name: 'Sign out' }).click();
 });

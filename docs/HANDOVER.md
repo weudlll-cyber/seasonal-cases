@@ -75,7 +75,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   closes the panels, the bar keeps the stage's gutter, the result's rings whole, the start card
   counts picks; WebKit's phone journeys 1 and 3 still stall on slow drawing (BACKLOG 12).
 
-- **Night chain SC-N4 (running):** the owner's decisions of 2026-11-22 (D27–). Piece 1: the
+- **Night chain SC-N4 (done):** the owner's decisions of 2026-11-22 (D27–). Piece 1: the
   gem turns only in the centre case and the ceremony (D27), the logo per theme (D28), the phone
   menu wraps (D29), the spotlight painted once, WebKit's phone journeys pass, journey 4 on the
   test-only plain cookie, the admin's setup form no longer loses what was typed. Concept 1.6.
@@ -90,6 +90,9 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   Piece 6: the third independent review: a socket message without its ack no longer stops the
   server; Latin look-alikes out of names; a re-issue ends other sessions; mail capped per
   address. Version `1.0.0-rc.2`.
+  Piece 7: the play-through and 62 pictures in `.local/screens/proto-v4/` (the header's height
+  loop and the ceremony's pictures fixed); the six-project browser matrix stopped at 19 of 36,
+  Firefox failing there (BACKLOG 40).
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
@@ -109,8 +112,10 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   their events on start. Without `DATABASE_URL` the server uses `.local/data/*.jsonl` and memory.
 - `pnpm e2e --project=chromium`: the journeys on their own stack (3980/5480; 3990/5485 for
   website mode), without a database.
-- `pnpm e2e --project=screens`: eight screens and the phone's direction panel at the ten check
-  sizes, light and dark, into `.local/screens/proto-v2/`.
+- `pnpm e2e --project=screens`: ten screens and the phone's direction panel at 1536 × 768,
+  1280 × 720 and 390 × 844, light and dark, into `.local/screens/proto-v4/`.
+- `pnpm e2e --project=<p>` for `chromium-mobile`, `firefox`, `firefox-mobile`, `webkit` and
+  `webkit-mobile`: the journeys in every browser and size (nightly on master; BACKLOG 40).
 - The store tests need PostgreSQL: the development database, or `SC_TEST_DATABASE_URL` (CI).
 - Journey 5 needs Mailpit (the development services above; a service in CI).
 - `pnpm dev:sc admin promote <name>` makes a standalone account an admin on the dev database

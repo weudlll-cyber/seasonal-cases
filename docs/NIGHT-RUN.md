@@ -11,19 +11,55 @@ a required check, the applause button, a third review, the play-through. Branch
 
 ### Final report
 
-(Written at the end of the chain.)
+All seven pieces are done and pushed on `proto/cases-v1`; nothing is merged. Version
+`1.0.0-rc.2`.
+
+- **Decided and built** (D27–D39):
+  - the gem turns only in the centre case and the ceremony;
+  - the logo per theme;
+  - the phone menu wraps;
+  - no bots in real shows; unclaimed cases and "not won";
+  - "End show" asks before an early end;
+  - recovery codes re-issued with the password and a code;
+  - the name rule and a registration that answers alike for every e-mail;
+  - 60 a minute per address for claims and sign-ins;
+  - the installer asks for the trusted range;
+  - `e2e` is a required check of master;
+  - the applause button.
+- **Third review:** one high finding fixed: a socket message without its ack stopped the server.
+  Three low ones fixed. One medium (registration's side channel) is for the owner.
+- **WebKit:**
+  - phone journeys 1–4 pass on this machine;
+  - the stage's costly repaint (the turning gem in the scoreboard, the spotlight) is gone;
+  - journey 4 runs on the test-only plain cookie.
+- **Not done:** the six-project browser matrix stopped at 19 of 36 on this machine (BACKLOG 40).
+  - Firefox failed every journey there; it passed this morning, so it is a regression or this
+    machine's load.
+  - Chromium at phone size failed journeys 1, 2 and 6, for the reasons in BACKLOG 40.
+  - BACKLOG 12's closing text claimed more than was run and is corrected.
+- **Committed too early:** piece 6 (`b02925b`) went in before its checks finished. Its CI was
+  red on the lint; the follow-up `f3ae123` is green. No commit was amended.
+- **Running for the owner:** the server at 127.0.0.1:3970 (`1.0.0-rc.2`, PostgreSQL), the
+  client at http://localhost:5470 (phone: http://192.168.0.66:5470), Mailpit at
+  http://localhost:8570. Quick Test seed `sc-n1-01` in the admin area.
+- **To look at:**
+  - the pictures in `.local/screens/proto-v4/`;
+  - the not-won ceremony (a show nobody claimed);
+  - the early-end question, on the PC and in the phone's panel;
+  - "Applaud" in the game bar;
+  - the admin area's "New recovery codes".
 
 ### Pieces
 
-| Piece | What                                                                    | State | Commit             | CI run                                      |
-| ----- | ----------------------------------------------------------------------- | ----- | ------------------ | ------------------------------------------- |
-| 1     | Gem, logo, phone menu, the WebKit causes, journey 4                     | done  | `0b2c8ef`          | 45078180392 green                           |
-| 2     | No bots in real shows, unclaimed cases, early-end question              | done  | `95ab963`          | 45088460771 green (e2e: 6 passed in 36.6 s) |
-| 3     | Security items (recovery codes, names, registration, limits, installer) | done  | `2b379cb`          | 45089168263 green                           |
-| 4     | `e2e` as a required check                                               | done  | `39fd2b8`          | 45089674958 green                           |
-| 5     | The applause button                                                     | done  | `db03755`          | see piece 6 report                          |
-| 6     | Third independent review, 1.0.0-rc.2                                    | done  | see piece 6 report | see piece 6 report                          |
-| 7     | Play-through, pictures, hand-over                                       | open  | —                  | —                                           |
+| Piece | What                                                                    | State | Commit                         | CI run                                              |
+| ----- | ----------------------------------------------------------------------- | ----- | ------------------------------ | --------------------------------------------------- |
+| 1     | Gem, logo, phone menu, the WebKit causes, journey 4                     | done  | `0b2c8ef`                      | 45078180392 green                                   |
+| 2     | No bots in real shows, unclaimed cases, early-end question              | done  | `95ab963`                      | 45088460771 green (e2e: 6 passed in 36.6 s)         |
+| 3     | Security items (recovery codes, names, registration, limits, installer) | done  | `2b379cb`                      | 45089168263 green                                   |
+| 4     | `e2e` as a required check                                               | done  | `39fd2b8`                      | 45089674958 green                                   |
+| 5     | The applause button                                                     | done  | `db03755`                      | 45092747536 green                                   |
+| 6     | Third independent review, 1.0.0-rc.2                                    | done  | `b02925b`, follow-up `f3ae123` | 45095876865 red (lint), follow-up 45096702130 green |
+| 7     | Play-through, pictures, hand-over                                       | done  | see the last commit            | see HANDOVER                                        |
 
 ### Needs the owner's word (SC-N4)
 
@@ -219,9 +255,40 @@ a required check, the applause button, a third review, the play-through. Branch
   record); gitleaks over the full history, 38 commits, no leaks.
 - **Release:** every `package.json` at `1.0.0-rc.2`; CHANGELOG, RELEASING, README, OPEN and the
   concept's P4 row name it.
+- **Committed too early:** `b02925b` went in while its lint and the server tests were still
+  running (they ran side by side); its CI run failed on the lint (`attachRealtime` 66 lines).
+  The follow-up `f3ae123` split it, froze the clock in the address-budget test (the budget refills
+  one a second, so a slow run let a 61st claim through) and gave the Argon2-heavy two-factor
+  tests 40 s; its CI run is green. No commit was amended.
 - **Found on the way:** the shell tool turns a doubled backslash into one even inside a quoted
   heredoc, which mangled escapes in tonight's Python edits; the name rule's escapes were written
   with `chr(92)` and checked byte by byte.
+
+### Piece 7 report
+
+- **Play-through:** the Quick Test with seed `sc-n1-01` (Begin, the three steps on the main
+  prize, the early-end question, the ceremony, the result) and a real show of six cases nobody
+  claimed (Begin, the early-end question, the ceremony with every prize "not won") in the
+  screens run; journey 1's unclaimed show; journey 6 extended by the recovery-code re-issue in
+  the admin area (password and a code; ten new codes, the old ones void).
+- **Pictures** in `.local/screens/proto-v4/` (proto-v3 deleted): start, sign-in, opening,
+  selected, open, owner, the early-end question, the result, the ceremony with a not-won prize,
+  the admin's settings, at 1536 × 768, 1280 × 720 and 390 × 844 in light and dark, and the
+  phone's direction panel: 62 pictures, every one looked at; the measurements found no text
+  under 14 px and no sideways overflow.
+- **Fixed from the pictures:**
+  - the header kept the height of the last phone size on a desktop (108 and 153 px for one
+    row): its own floor was `--shell-height`, which piece 1 made its measured height; the floor
+    is 64 px now;
+  - the ceremony's pictures showed only its end: the run outlasted the 2.5 s per prize, so the
+    page's clock is held (Playwright's `clock`) and the pictures show the first prize with "not
+    won";
+  - "ResizeObserver loop completed with undelivered notifications" in the console: the header's
+    height is published on the next frame.
+- **Left, listed:** on a phone the case tokens shorten "Unclaimed" to "Unclaim…", as they
+  shorten long names; after an early end the scoreboard does not mark the prizes of unopened
+  cases "not won" (the ceremony and the result do); at 1280 × 720 the early-end question takes
+  a second row of the bar.
 
 ## Night chain SC-N3 (2026-11-21)
 

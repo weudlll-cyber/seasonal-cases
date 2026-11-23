@@ -1,13 +1,14 @@
 /**
  * @file   e2e/screens.spec.ts
- * @brief  The pictures for the owner and the planning chat: nine screens at 1536 × 768,
- *         1280 × 720 and 390 × 844, light and dark, into .local/screens/proto-v3/ (never into
+ * @brief  The pictures for the owner and the planning chat: ten screens at 1536 × 768,
+ *         1280 × 720 and 390 × 844, light and dark, into .local/screens/proto-v4/ (never into
  *         git).
  *
  * Responsibility: delete the topic's previous pictures, then shoot the sign-in (the start page
  *                 for a guest), the start page with its registration board, the opening, the
  *                 stage at "selected", "open" and "owner" on the main prize (and the phone's
- *                 direction panel), the ceremony, the result and the admin's settings, at every
+ *                 direction panel), the early-end question, the result, the ceremony of a show
+ *                 nobody claimed a case in (every prize "not won") and the admin's settings, at every
  *                 size in both themes. Beside each picture it measures the smallest visible text
  *                 and whether the page overflows sideways, and writes all findings to
  *                 `checks.json`. Runs only as the project `screens`.
@@ -20,8 +21,8 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import { boardCase, openShow, quickTestSealing, signInApi } from './helpers.js';
 
-const DIR = fileURLToPath(new URL('../.local/screens/proto-v3/', import.meta.url));
-// The sizes of night chain SC-N3 piece 8: two PCs and a phone.
+const DIR = fileURLToPath(new URL('../.local/screens/proto-v4/', import.meta.url));
+// The sizes of night chains SC-N3 piece 8 and SC-N4 piece 7: two PCs and a phone.
 const SIZES = [
   [1536, 768],
   [1280, 720],
@@ -51,6 +52,33 @@ async function measure(page: Page): Promise<{ smallest: number; sideways: boolea
     }
     return { smallest, sideways: document.documentElement.scrollWidth > window.innerWidth + 1 };
   });
+}
+
+/**
+ * "End show" asking before an early end, at every size and theme: under the stage on a PC, in
+ * the game bar's direction panel on a phone; each picture answers "Keep playing".
+ */
+async function shootEarlyEnd(page: Page): Promise<void> {
+  for (const theme of THEMES) {
+    await page.emulateMedia({ colorScheme: theme });
+    for (const [width, height] of SIZES) {
+      await page.setViewportSize({ width, height });
+      await page.waitForTimeout(350);
+      const phone = width < 700;
+      if (phone) await page.getByRole('button', { name: 'Direction', exact: true }).click();
+      const bar = page.getByRole('navigation', { name: 'Direction' });
+      await bar.getByRole('button', { name: 'End show' }).click();
+      await expect(bar.getByRole('group', { name: 'End the show early?' })).toBeVisible();
+      const file = `early-end-${String(width)}x${String(height)}-${theme}.png`;
+      await page.screenshot({ path: `${DIR}${file}`, animations: 'disabled' });
+      const { smallest, sideways } = await measure(page);
+      checks.push({ file, smallestText: smallest, sideways });
+      await bar.getByRole('button', { name: 'Keep playing' }).click();
+      if (phone) await page.keyboard.press('Escape');
+    }
+  }
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.setViewportSize({ width: 1280, height: 720 });
 }
 
 async function shoot(page: Page, name: string, scrollTo?: Locator): Promise<void> {
@@ -149,16 +177,34 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await page.emulateMedia({ colorScheme: 'light' });
   await page.setViewportSize({ width: 1280, height: 720 });
 
+  await shootEarlyEnd(page);
   await bar.getByRole('button', { name: 'End show' }).click();
   await bar
     .getByRole('group', { name: 'End the show early?' })
     .getByRole('button', { name: 'End now' })
     .click();
   await expect(page.getByRole('region', { name: 'The winners' })).toBeVisible();
-  await shoot(page, 'ceremony');
   await page.goto(`/results/${id}`);
   await expect(page.locator('.result-seal')).toContainText('verified');
   await shoot(page, 'result');
+
+  // The ceremony of a real show nobody claimed a case in: every prize "not won" (D34).
+  const empty = await openShow(page.request, 6, 3);
+  for (const step of ['close', 'seal', 'start']) {
+    expect((await page.request.post(`/api/shows/${empty}/${step}`)).ok()).toBe(true);
+  }
+  // The page's clock is held, so the ceremony stays on its first prize (one every 2.5 s) for all
+  // twelve pictures; without it the run outlasts the ceremony.
+  await page.clock.install();
+  await page.goto('/show');
+  await page.getByRole('button', { name: 'Begin' }).click();
+  await bar.getByRole('button', { name: 'End show' }).click();
+  await bar.getByRole('button', { name: 'End now' }).click();
+  const ceremony = page.getByRole('region', { name: 'The winners' });
+  await expect(ceremony.getByRole('status')).toContainText('not won');
+  // Paused at the page's own now: no timer is due yet, so nothing moves on.
+  await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 10);
+  await shoot(page, 'ceremony');
 
   // The admin area with the settings (a development admin needs no second factor).
   await signInApi(page.request, 'Ada', 'admin');

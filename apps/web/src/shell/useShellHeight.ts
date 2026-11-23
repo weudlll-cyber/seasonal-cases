@@ -19,15 +19,22 @@ export function useShellHeight(header: RefObject<HTMLElement | null>): void {
     const el = header.current;
     if (el === null || typeof ResizeObserver !== 'function') return undefined;
     const root = document.documentElement;
+    let frame = 0;
     const publish = (): void => {
       const height = Math.ceil(el.getBoundingClientRect().height);
       if (height > 0) root.style.setProperty(VAR, `${String(height)}px`);
       else root.style.removeProperty(VAR);
     };
-    const observer = new ResizeObserver(publish);
+    // On the next frame, not inside the observer's callback: the new height resizes the screens
+    // the kit's fit observes, which in the same frame ends in "ResizeObserver loop completed".
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(publish);
+    });
     observer.observe(el);
     publish();
     return () => {
+      cancelAnimationFrame(frame);
       observer.disconnect();
       root.style.removeProperty(VAR);
     };

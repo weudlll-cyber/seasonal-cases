@@ -58,7 +58,9 @@ a {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-1) var(--space-2);
-  min-height: var(--shell-height);
+  /* 64 px, not --shell-height: that is this bar's measured height (./useShellHeight.ts), and as
+     its own floor it would keep the bar as tall as it ever was (a phone's 153 px on a desktop). */
+  min-height: 64px;
   padding: 8px var(--gutter);
   background: var(--sidebar-background);
   border-bottom: 1px solid var(--color-border);
