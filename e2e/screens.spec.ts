@@ -233,8 +233,10 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await bar.getByRole('button', { name: 'End now' }).click();
   const ceremony = page.getByRole('region', { name: 'The winners' });
   await expect(ceremony.getByRole('status')).toContainText('not won');
-  // Paused at the page's own now: no timer is due yet, so nothing moves on.
-  await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 10);
+  // Paused just after the page's own now: no timer is due yet (the next prize comes after 2.5 s),
+  // so nothing moves on. 250 ms, not 10: on a loaded machine more passes between the read and the
+  // pause, and a pause in the past is refused.
+  await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 250);
   await shoot(page, 'ceremony');
 
   // The admin area with the settings (a development admin needs no second factor).

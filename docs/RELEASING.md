@@ -8,7 +8,7 @@ owner's word (CLAUDE.md "Git").
 - `pnpm verify` green, the journeys green in Chromium (`pnpm e2e --project=chromium`), CI green
   on the branch's last commit (`gh run list --branch <branch>`).
 - [CHANGELOG.md](../CHANGELOG.md) names the release; every `package.json` carries its version
-  (`1.0.0-rc.2` now, then `1.0.0`).
+  (`1.0.0-rc.3` now, then `1.0.0`).
 - [security-pass.md](security-pass.md) has no open confirmed finding.
 
 ## 2. Merge (with the owner's word)

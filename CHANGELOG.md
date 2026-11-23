@@ -3,18 +3,43 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
-## 1.0.0-rc.3 (in progress)
+## 1.0.0-rc.3 (not tagged; the tag follows the merge with the owner's word)
 
-Branch `proto/cases-v1`, day chain SC-D5 (the owner's decisions of 2026-11-23, D40–D45).
+Branch `proto/cases-v1`, day chain SC-D5: the owner's decisions of 2026-11-23 (D40, D41) and the
+proposals D42–D45, standing until the owner says otherwise.
 
 ### The kit
 
-- Kit v0.11.0 (D40): the cases' fit floors, the dock reserve, the local chat frame and the
-  sound toggle are the kit's; the bar's chat button shows the dock's unread count and opens the
-  dock's chat; the bar's lead shows on a narrow phone again; the open rounds come from the kit's
-  `openRoundsPage`, which leaves out a round without an https join address. Recovery codes are
-  HMAC-SHA-256 with the new `SC_RECOVERY_KEY` (kit K20); codes stored before keep working until
-  used (kit K27).
+- **Kit v0.11.0 (D40), `d888d96`:**
+  - the cases' fit floors, the dock reserve, the local chat frame and the sound toggle are the
+    kit's;
+  - the bar's chat button shows the dock's unread count and opens the dock's chat;
+  - the bar's lead shows on a narrow phone again;
+  - the open rounds come from the kit's `openRoundsPage`, which leaves out a round without an
+    https join address;
+  - recovery codes are HMAC-SHA-256 with the new `SC_RECOVERY_KEY` (kit K20); codes stored
+    before keep working until used (kit K27).
+- **The kit-version watch (D41), `02bf9fb`:** `pnpm kit:check`, last in `pnpm verify`, and a
+  notice in CI. It never fails. Today it says v0.11.0 against v0.11.1.
+
+### Accounts and security
+
+- **`6a91c93`:**
+  - an account exists only once the mail's confirmation link is used (D42);
+  - a name needs a letter (D43);
+  - applause is limited per account, or per address for guests (D44);
+  - sign-ins have 20 and claims 300 requests a minute per address, each its own budget (D45).
+- **The fourth independent review's fixes, `52dc6ef`:**
+  - a waiting registration keeps its first form, so a later one cannot set the password;
+  - a refused mail leaves the last link working;
+  - the proxy chain is walked past every trusted hop;
+  - the recovery key may not be the data key.
+
+### Tests
+
+- **The browser matrix:** 36 of 36 (three browsers, two sizes, six journeys); journey 6 uses an
+  admin per project (`52dc6ef`).
+- **The pictures:** `proto-v5`, with the registration's pending page.
 
 ## 1.0.0-rc.2 (not tagged; the tag follows the merge with the owner's word)
 

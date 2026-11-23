@@ -12,17 +12,67 @@ continued; nothing merged.
 
 ### Final report
 
-Follows at the end of the chain.
+All five pieces are done and pushed on `proto/cases-v1`; nothing is merged. Version
+`1.0.0-rc.3`.
+
+**Done:**
+
+1. **Kit v0.11.0 (D40):** four stand-ins replaced by the kit's parts. The bar's chat button
+   shows the dock's unread count. The open rounds come from the kit's publisher. Recovery codes
+   are keyed with the new `SC_RECOVERY_KEY`, and codes stored before still work. "Applaud"
+   (BACKLOG 41) and the chat hand-over (43) stay as stand-ins.
+2. **The kit-version watch (D41):** `pnpm kit:check` runs last in `pnpm verify` and as a CI step
+   with a warning annotation. Today: `kit: pinned v0.11.0, newest v0.11.1, 1 release behind`.
+3. **The four proposals (D42–D45):**
+   - registration through a confirmation link;
+   - a letter in every name;
+   - applause per account, or per address for guests;
+   - sign-ins 20 and claims 300 a minute per address.
+4. **The browser matrix:** 36 of 36 passed, under 68–100 % CPU from other sessions. Firefox's
+   failures were load. Journey 6 has an admin per project.
+5. **A fourth independent review:** nine findings, none high. Seven are fixed, among them a
+   pre-hijack of a waiting registration's password. 66 pictures in `.local/screens/proto-v5/`,
+   all looked at; the phone bar's lead is hidden again.
+
+**Running for the evening test** (restarted on rc.3, PostgreSQL, health `db: ok`):
+
+- server: 127.0.0.1:3970;
+- client: http://localhost:5470 (phone http://192.168.0.66:5470);
+- Mailpit: http://localhost:8570;
+- Quick Test seed: `sc-n1-01`.
+
+**The confirmation link, step by step:**
+
+1. On the start page choose "Create an account"; give a name with a letter, an e-mail and a
+   password of 12 characters or more; press "Create account".
+2. The page says a mail tells you how to go on. Signing in now fails like any unknown name.
+3. Open Mailpit (http://localhost:8570): the mail "Confirm your Seasonal Cases account" names
+   the account and holds the link.
+4. Open the link, press "Confirm"; the page says the account is ready.
+5. Choose "Sign in" and sign in with the name or e-mail and the password.
+
+**Needs the owner's word:**
+
+- the four proposals D42–D45 (HANDOVER);
+- the review's questions (security-pass.md, fourth pass, "For the owner"), above all sign-ins at
+  20 a minute per address against the old 20 per 15 minutes;
+- the kit pin to v0.11.1;
+- the HANDBOOK deviations (HANDOVER).
+
+**Noticed, left alone:**
+
+- the empty `https:/example.org/cases.git` folder from the installer test of 2026-11-21;
+- the ceremony's phone cases cut "Unclaimed" to "Unclaim…".
 
 ### Pieces
 
-| Piece                     | Done | Running | Open | Needs the owner's word         | Commits, CI                                         |
-| ------------------------- | ---- | ------- | ---- | ------------------------------ | --------------------------------------------------- |
-| 1 Kit v0.11.0             | yes  |         |      | HANDBOOK deviations (HANDOVER) | `d888d96`, CI 45136922671 green                     |
-| 2 The kit-version watch   | yes  |         |      | the pin to v0.11.1             | `02bf9fb`, CI 45143064781 green (the warning shows) |
-| 3 The owner's four items  | yes  |         |      | the four proposals (D42–D45)   | `6a91c93`, CI 45147973538 green                     |
-| 4 The browser matrix      | yes  |         |      |                                | with the review's fixes, below                      |
-| 5 Review, play, hand-over |      |         | yes  |                                |                                                     |
+| Piece                     | Done | Running | Open | Needs the owner's word         | Commits, CI                                              |
+| ------------------------- | ---- | ------- | ---- | ------------------------------ | -------------------------------------------------------- |
+| 1 Kit v0.11.0             | yes  |         |      | HANDBOOK deviations (HANDOVER) | `d888d96`, CI 45136922671 green                          |
+| 2 The kit-version watch   | yes  |         |      | the pin to v0.11.1             | `02bf9fb`, CI 45143064781 green (the warning shows)      |
+| 3 The owner's four items  | yes  |         |      | the four proposals (D42–D45)   | `6a91c93`, CI 45147973538 green                          |
+| 4 The browser matrix      | yes  |         |      |                                | with the review's fixes, below                           |
+| 5 Review, play, hand-over | yes  |         |      | the review's questions         | `52dc6ef` (CI 45158153327 green), the final commit below |
 
 ### Choices made without the owner (SC-D5)
 
@@ -39,6 +89,56 @@ Follows at the end of the chain.
   whose join address is not https, which the website would refuse as well.
 - **BACKLOG 32 closed with the others:** the kit's bar shrinks its facts and wraps its buttons,
   so the lead "Seasonal Cases" shows on a narrow phone again.
+
+### Piece 5 report
+
+**The review.** A fresh agent reviewed `e6990c5..6a91c93` against CONCEPT §8/§10, CLAUDE.md
+and the kit's HANDBOOK. It found nine findings, none high (security-pass.md, "Fourth pass").
+
+Fixed, each with a test:
+
+- **1, medium:** a later registration for the same e-mail replaced the waiting name and
+  password. The mailbox's owner then confirmed the attacker's password. Now the first form stays
+  and only the link is renewed; the mail names the account.
+- **2:** the mail budget is taken before the row changes.
+- **4:** `X-Forwarded-For` is walked past every trusted hop.
+- **5:** the recovery key may not be the data key.
+- **6:** a dropped open round is logged once.
+- **7:** the chat hand-over moved to `pending/` (BACKLOG 43) and leaves an open sheet open.
+- **9:** the decisions heading, a `names.ts` sentence, and the confirm page drops its spent
+  token.
+
+Left for the owner: 3 (sign-in tries per address) and 8 (one extra `git ls-remote` in CI,
+which the task asks for).
+
+**The pictures.** `.local/screens/proto-v5/` (proto-v4 deleted): 66 pictures at 1536×768,
+1280×720 and 390×844, light and dark. They show sign-in, the registration's pending page (new),
+the start page, opening, selected, open, owner, the direction panel, the early end, the ceremony,
+the result and the admin's settings. The checks found no text under 14 px and nothing scrolling
+sideways. I looked at every screen kind at each size.
+
+- **Fixed:** on a phone, the kit's bar showed the lead "Seasonal Cases". That cut the fact to
+  "24 cas…" and wrapped the buttons into a second row, which the direction panel covered. The
+  lead is hidden up to 480 px again (`moments.css`); re-shot, the bar is one row.
+- **Fixed:** a re-shoot failed once with "Cannot fast-forward to the past". The ceremony's
+  clock pause had a 10 ms margin, which a loaded machine overran; it is 250 ms now.
+- **Left:** the ceremony's phone cases show "Unclaim…".
+
+**The play-through.** The journeys covered it in all three browsers at both sizes:
+
+- the Quick Test to the result;
+- registration through the link via Mailpit;
+- the recovery codes re-issued;
+- the sound toggle (unit test) and "Applaud" (pictures, unit and socket tests).
+
+The owner's dev server was restarted on rc.3 (health `db: ok`). I made no accounts in the
+development database, so there is nothing to clean up there.
+
+**Version:** `1.0.0-rc.3` in every package.json, README, RELEASING, CONCEPT §12, OPEN; the
+CHANGELOG has its section.
+
+**Tests:** the final `pnpm verify` green (45 files, 229 tests, then the kit line); journeys 1–6
+in Chromium after the last change all passed (1.6 min).
 
 ### Piece 4 report
 

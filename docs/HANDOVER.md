@@ -92,7 +92,13 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   address. Version `1.0.0-rc.2`.
   Piece 7: the play-through and 62 pictures in `.local/screens/proto-v4/` (the header's height
   loop and the ceremony's pictures fixed); the six-project browser matrix stopped at 19 of 36,
-  Firefox failing there (BACKLOG 40).
+  Firefox failing there (BACKLOG 40, closed by SC-D5).
+
+- **Day chain SC-D5 (done, 2026-11-23):** kit v0.11.0 replaces four stand-ins (D40); the
+  kit-version watch `pnpm kit:check` (D41); the four proposals D42–D45 (registration with a
+  confirmation link, a letter in every name, applause per account or address, separate address
+  budgets); the six-project browser matrix 36 of 36 under load; a fourth independent review and
+  its fixes; 66 pictures in `.local/screens/proto-v5/`; version `1.0.0-rc.3`.
 
 - **Kit:** `kit: pinned v0.11.0, newest v0.11.1, 1 release behind` (`pnpm kit:check`,
   2026-11-23, SC-D5 piece 2). v0.11.1 (same day) widens the kit's peer ranges and changes its own
@@ -109,7 +115,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   has a rule for the kit's tags once the app is enabled.
 - `pnpm dev`: server 127.0.0.1:3970, client 0.0.0.0:5470 (http://localhost:5470; the phone at
   http://192.168.0.66:5470 on the home Wi-Fi). Left running hidden for the owner at the end of
-  SC-N3, on PostgreSQL; the development database holds three accounts the chains did not make
+  SC-D5 (rc.3), on PostgreSQL; the development database holds three accounts the chains did not make
   ("Plan-Claude", "Walter", "walter"), left as they are; the play-through steps are in
   [NIGHT-RUN.md](NIGHT-RUN.md) "Final report" (Quick Test seed `sc-n1-01`).
 - The development services: `docker compose --env-file ops/compose.dev.env -f
@@ -120,15 +126,20 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
 - `pnpm e2e --project=chromium`: the journeys on their own stack (3980/5480; 3990/5485 for
   website mode), without a database.
 - `pnpm e2e --project=screens`: ten screens and the phone's direction panel at 1536 × 768,
-  1280 × 720 and 390 × 844, light and dark, into `.local/screens/proto-v4/`.
+  1280 × 720 and 390 × 844, light and dark, into `.local/screens/proto-v5/` (with the
+  registration's pending page).
 - `pnpm e2e --project=<p>` for `chromium-mobile`, `firefox`, `firefox-mobile`, `webkit` and
-  `webkit-mobile`: the journeys in every browser and size (nightly on master; BACKLOG 40).
+  `webkit-mobile`: the journeys in every browser and size (nightly on master); all 36 passed on
+  2026-11-23, one project per run.
 - The store tests need PostgreSQL: the development database, or `SC_TEST_DATABASE_URL` (CI).
 - Journey 5 needs Mailpit (the development services above; a service in CI).
 - `pnpm dev:sc admin promote <name>` makes a standalone account an admin on the dev database
   (`pnpm sc …` on a real server, with `DATABASE_URL` and `SC_DATA_KEY` in its shell); that admin
   sets up two-factor sign-in in the admin area before the accounts and settings open.
-- Journey 6 signs in as the e2e server's seeded admin and runs once per e2e server start.
+- Journey 6 signs in as its browser project's seeded admin (`e2e/rootAdmin.ts`), so it runs
+  once per project and e2e server start.
+- Registering a local account needs mail: the link arrives in Mailpit (http://localhost:8570)
+  in development; without SMTP the registration answers 503.
 - Stopping a background `pnpm --filter @sc/server dev` leaves its node child running: end the
   process that listens on the port as well.
 

@@ -301,7 +301,7 @@ injected ports) ← `application` ← `apps/server`; the client renders, the ser
 | **P1 Prototype** | Development sign-in, dev admin, registration board with case conflicts, sealing with commitment, the live stage with the reveal steps, direction bar with hand-over, result screen, bots, Quick Test seed, light/dark, fit to the check sizes. Silent. | The owner plays it and says it is fun. | Built on `proto/cases-v1`; the gate waits for the owner. |
 | **P2 Foundation** | Accounts, 2FA, roles, lobby, website mode, chat dock, call slot, ranks (website / manual), PostgreSQL, admin area with the settings catalogue. | Owner's acceptance. | Built on `proto/cases-v1`; the call slot stays hidden (no call yet). |
 | **P3 Show polish** | Sound, chronicle, "My matches", viewer participation (applause button, tips on the main-prize owner, next-case suggestions), seasonal theming of the stage. | Owner's acceptance per item. | Built; viewer participation starts with the applause button (decided 2026-11-22): anyone watching a live show applauds from the game bar, the stage counts it and the confetti on a prize or in the ceremony grows with the last 10 s, with no effect on the show (§1). Tips and next-case suggestions wait (BACKLOG 10). |
-| **P4 Release** | Installer, security review, first show on the VPS. | Security pass green. | Installer and three security reviews built; release candidate 1.0.0-rc.2; the first show on the VPS waits for the merge. |
+| **P4 Release** | Installer, security review, first show on the VPS. | Security pass green. | Installer and four security reviews built; release candidate 1.0.0-rc.3; the first show on the VPS waits for the merge. |
 
 ## 13. Deliberately not built
 
