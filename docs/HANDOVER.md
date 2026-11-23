@@ -14,7 +14,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
 - **Phase:** P0 bootstrap done on `master` (night chain SC-N1, piece 1). The P1 prototype is
   complete on `proto/cases-v1` (pieces 2–4), not merged: the owner plays it first.
 - **Repository:** `weudlll-cyber/seasonal-cases` (public). Master is protected (checks `verify`,
-  `security`, `docs`; a pull request; no force push, no deletion). Kit `v0.5.0` on master
+  `security`, `docs` and, since 2026-11-22, `e2e` (D38); a pull request; no force push, no
+  deletion). Kit `v0.5.0` on master
   (D15), `v0.8.0` on `proto/cases-v1` (D18).
 - **On `proto/cases-v1`:**
   - the contracts;
@@ -83,6 +84,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   Piece 3: recovery codes re-issued with the password and a code (D35); names of Latin letters,
   digits, `-`, `_` and a registration that answers alike for every e-mail (D36); 60 a minute
   per address for claims and sign-ins, the installer asks for the trusted range (D37).
+  Piece 4: `e2e` is a required check of master's protection (D38).
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
@@ -130,7 +132,6 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   now (D25), so the owner can change them there.
 - The choices of the night recorded in [NIGHT-RUN.md](NIGHT-RUN.md) "Choices made without the
   owner", among them the separate "Start show" step after sealing.
-- `e2e` as a required check of master (BACKLOG 22).
 - The website's side for the slug `cases` (BACKLOG 27): it lives in the website repository.
 - The independent review's questions that remain ([security-pass.md](security-pass.md), "Out of
   scope or for the owner"; the enrolment window, recovery codes, names and the registration

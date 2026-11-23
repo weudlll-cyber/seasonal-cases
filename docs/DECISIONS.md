@@ -116,3 +116,5 @@ owner confirms them.
 - **D37 — Limits.** 20 claims a minute per player and 10 watches in 10 s per socket stay; new:
   60 requests a minute per address on claims and sign-in. Real shows get no bots (D34). The Caddy
   profile's trusted range is asked by the installer, with 172.16.0.0/12 as the default.
+- **D38 — `e2e` is required.** `e2e` becomes a required check of master's protection, beside
+  `verify`, `security` and `docs`.

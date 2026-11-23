@@ -19,8 +19,8 @@ a required check, the applause button, a third review, the play-through. Branch
 | ----- | ----------------------------------------------------------------------- | ----- | ------------------ | ------------------------------------------- |
 | 1     | Gem, logo, phone menu, the WebKit causes, journey 4                     | done  | `0b2c8ef`          | 45078180392 green                           |
 | 2     | No bots in real shows, unclaimed cases, early-end question              | done  | `95ab963`          | 45088460771 green (e2e: 6 passed in 36.6 s) |
-| 3     | Security items (recovery codes, names, registration, limits, installer) | done  | see piece 3 report | see piece 3 report                          |
-| 4     | `e2e` as a required check                                               | open  | —                  | —                                           |
+| 3     | Security items (recovery codes, names, registration, limits, installer) | done  | `2b379cb`          | 45089168263 green                           |
+| 4     | `e2e` as a required check                                               | done  | see piece 4 report | see piece 4 report                          |
 | 5     | The applause button                                                     | open  | —                  | —                                           |
 | 6     | Third independent review, 1.0.0-rc.2                                    | open  | —                  | —                                           |
 | 7     | Play-through, pictures, hand-over                                       | open  | —                  | —                                           |
@@ -158,6 +158,17 @@ a required check, the applause button, a third review, the play-through. Branch
   vitest's 60 s worker limit while other projects' sessions ran); the local Chromium journeys
   ran at a sixth of their speed (2, 5, 6 passed, 1, 3, 4 hit the 90 s limit), so CI's e2e job is
   the record (piece 2's: 6 passed in 36.6 s).
+
+### Piece 4 report
+
+- Read master's protection with GET: required checks `verify`, `security`, `docs` (strict, app
+  15368), a pull request with 0 approvals, admins included, no force push, no deletion, no linear
+  history, no signatures. PUT the same with `e2e` added to the checks; the answer: checks
+  `verify`, `security`, `docs`, `e2e`, strict, admins included, 0 approvals, force pushes and
+  deletions off. Nothing else changed.
+- The protection line is in CONTRIBUTING.md (the README has none); it names the four checks now.
+  BACKLOG 22 closed, DECISIONS D38, HANDOVER's repository line.
+- Docs only: the format check.
 
 ## Night chain SC-N3 (2026-11-21)
 

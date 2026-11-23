@@ -8,8 +8,8 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   lobby, "My matches", the settings catalogue, the chronicle (BACKLOG 1, 2, 3, 5, 6, 8, 9, 17, 18,
   21, 28, closed).
 - **The website's side:** the slug `cases` on the website (BACKLOG 27).
-- **The owner's word:** `e2e` as a required check (BACKLOG 22); viewer participation (BACKLOG
-  10); the security review's questions are decided and built (BACKLOG 29, 30, 37, closed). Decided 2026-11-22: the gem, the logo
+- **The owner's word:** viewer participation beyond the applause (BACKLOG 10); `e2e` is a
+  required check since 2026-11-22 (BACKLOG 22, closed); the security review's questions are decided and built (BACKLOG 29, 30, 37, closed). Decided 2026-11-22: the gem, the logo
   per theme, the phone menu and the website-mode rank (BACKLOG 12, 38, 39, 4, closed).
 - **Show polish:** viewer participation (BACKLOG 10); sound is built (BACKLOG 7, closed).
 - **Release:** the installer is built (BACKLOG 11, closed); a first run on a real VPS (BACKLOG
