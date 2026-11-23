@@ -10,15 +10,24 @@
  *                 cases' floors of `data-sk-game="cases"`) and keeps the dock's height free
  *                 (DECISIONS D7); the cases sit in a named scroll area that takes what does not
  *                 fit. On a phone the bar lives in the game bar's direction panel (`barInline`).
- * Depends on:     react, @seasonal/kit/react, @sc/contracts (types), @sc/ui, ./arc.js,
+ *                 The applause count shows once someone claps, and the confetti grows with it.
+ * Depends on:     react, @seasonal/kit/react, @sc/contracts (types), @sc/ui, ./applause.js, ./arc.js,
  *                 ./CaseToken.js, ./CentreStage.js, ./Ceremony.js, ./DirectionBar.js,
  *                 ./LowerThird.js, ./motion.js, ./Opening.js, ./Scoreboard.js, ./travel.js
  */
 import { useFitScale } from '@seasonal/kit/react';
-import type { Ack, ClientToServerEvents, Me, OrganiserView, PublicShowView } from '@sc/contracts';
+import type {
+  Ack,
+  Applause,
+  ClientToServerEvents,
+  Me,
+  OrganiserView,
+  PublicShowView,
+} from '@sc/contracts';
 import { useDockReserve } from '@sc/ui';
 import type { CSSProperties } from 'react';
 
+import { useApplauseStep, type ApplauseStep } from './applause.js';
 import { arcSpots, tokenSize } from './arc.js';
 import { CaseToken } from './CaseToken.js';
 import { CentreStage } from './CentreStage.js';
@@ -39,6 +48,17 @@ export interface StageProps {
   readonly direct: Direct;
   // False on a phone, where the bar sits in the game bar's direction panel.
   readonly barInline?: boolean;
+  // The show's latest applause count (D39); the stage shows it and the confetti grows with it.
+  readonly applause?: Applause | null;
+}
+
+function ApplauseCount({ applause }: { applause: Applause | null }) {
+  if (applause === null || applause.total === 0) return null;
+  return (
+    <p className="applause-count" data-fit-fixed title="Applause in this show" role="status">
+      Applause {applause.total}
+    </p>
+  );
 }
 
 // Selecting another case is possible until the case is open (CONCEPT §3.4).
@@ -68,11 +88,20 @@ function StateNote({ show }: { show: PublicShowView }) {
 function Middle(props: {
   show: PublicShowView;
   returning: number | null;
+  step: ApplauseStep;
   begin?: () => Promise<Ack>;
 }) {
-  const { show, returning, begin } = props;
-  if (show.state === 'ended' && show.result !== null)
-    return <Ceremony showId={show.id} result={show.result} confetti={show.presentation.confetti} />;
+  const { show, returning, step, begin } = props;
+  if (show.state === 'ended' && show.result !== null) {
+    return (
+      <Ceremony
+        showId={show.id}
+        result={show.result}
+        confetti={show.presentation.confetti}
+        applause={step}
+      />
+    );
+  }
   if (show.state === 'live' && !show.live.begun) {
     return <Opening show={show} {...(begin === undefined ? {} : { onBegin: begin })} />;
   }
@@ -95,8 +124,15 @@ function holderActions(show: PublicShowView, isHolder: boolean, direct: Direct) 
   return { onSelect, begin };
 }
 
-export function Stage({ show, organiser, me, direct, barInline = true }: StageProps) {
+/** The stage's CSS variables: the motion's timings and the dock's height. */
+function stageStyle(motion: ReturnType<typeof motionOf>, reserve: number): CSSProperties {
+  return { ...motionVars(motion), '--dock-reserve': `${String(reserve)}px` } as CSSProperties;
+}
+
+export function Stage(props: StageProps) {
+  const { show, organiser, me, direct, barInline = true, applause = null } = props;
   const reserve = useDockReserve();
+  const cheer = useApplauseStep(applause);
   const { selected, step, begun } = show.live;
   const fitRef = useFitScale<HTMLElement>('mini-games', `${String(show.caseCount)}:${step}`, true);
   // The bar exists only while the show is live: after the end only "See the result" stays.
@@ -105,10 +141,7 @@ export function Stage({ show, organiser, me, direct, barInline = true }: StagePr
   const { onSelect, begin } = holderActions(show, holder !== null, direct);
   const motion = motionOf(show.presentation);
   const returning = useReturn(selected, motion.travelMs);
-  const style = {
-    ...motionVars(motion),
-    '--dock-reserve': `${String(reserve)}px`,
-  } as CSSProperties;
+  const style = stageStyle(motion, reserve);
   const arenaStyle = { '--token': `${String(tokenSize(show.caseCount))}px` } as CSSProperties;
   const opening = show.state === 'live' && !begun;
   return (
@@ -125,6 +158,7 @@ export function Stage({ show, organiser, me, direct, barInline = true }: StagePr
     >
       <Scoreboard show={show} />
       <StateNote show={show} />
+      <ApplauseCount applause={applause} />
       <div className="stage" data-fit-fixed>
         <div className="spotlight" aria-hidden="true" />
         <div className="arena-scroll" role="region" aria-label="Cases" tabIndex={0}>
@@ -140,9 +174,14 @@ export function Stage({ show, organiser, me, direct, barInline = true }: StagePr
             ))}
           </ol>
         </div>
-        <Middle show={show} returning={returning} {...(begin === undefined ? {} : { begin })} />
+        <Middle
+          show={show}
+          returning={returning}
+          step={cheer}
+          {...(begin === undefined ? {} : { begin })}
+        />
       </div>
-      <Confetti show={show} />
+      <Confetti show={show} step={cheer} />
       {holder !== null && me !== null && begun && barInline && (
         <DirectionBar view={holder} me={me} direct={direct} />
       )}

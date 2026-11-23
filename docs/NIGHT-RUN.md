@@ -20,8 +20,8 @@ a required check, the applause button, a third review, the play-through. Branch
 | 1     | Gem, logo, phone menu, the WebKit causes, journey 4                     | done  | `0b2c8ef`          | 45078180392 green                           |
 | 2     | No bots in real shows, unclaimed cases, early-end question              | done  | `95ab963`          | 45088460771 green (e2e: 6 passed in 36.6 s) |
 | 3     | Security items (recovery codes, names, registration, limits, installer) | done  | `2b379cb`          | 45089168263 green                           |
-| 4     | `e2e` as a required check                                               | done  | see piece 4 report | see piece 4 report                          |
-| 5     | The applause button                                                     | open  | —                  | —                                           |
+| 4     | `e2e` as a required check                                               | done  | `39fd2b8`          | 45089674958 green                           |
+| 5     | The applause button                                                     | done  | see piece 5 report | see piece 5 report                          |
 | 6     | Third independent review, 1.0.0-rc.2                                    | open  | —                  | —                                           |
 | 7     | Play-through, pictures, hand-over                                       | open  | —                  | —                                           |
 
@@ -169,6 +169,31 @@ a required check, the applause button, a third review, the play-through. Branch
 - The protection line is in CONTRIBUTING.md (the README has none); it names the four checks now.
   BACKLOG 22 closed, DECISIONS D38, HANDOVER's repository line.
 - Docs only: the format check.
+
+### Piece 5 report
+
+- **Server:** `applause.ts` (new): `show:applaud` from a socket that watches the live show, at
+  most 5 a second per socket (the kit's RateLimiter); per show the total and the last 10 s;
+  `show:applause` to the show's watchers at once, then no sooner than 500 ms after the last
+  (fake-timer tests for the limit, the cadence and the 10 s window; a socket test: a guest who
+  watches is heard by another watcher, and the show's model is the same object afterwards: no
+  event, no state). In memory only; a restart starts at 0. "In the public view" read as: to every
+  watcher, as a message of its own beside the projection, so the domain's projections stay
+  free of it (the smallest change).
+- **Client:** "Applaud" in the game bar's lead beside Sound (`BarPress`, a pending piece beside
+  `BarToggle` under BACKLOG 36, sharing its look and CSS), on a phone and a desktop while the
+  show is live; the stage shows "Applause N" once someone clapped; the confetti on the main
+  prize and in the ceremony has 1, 1.5 or 2 times its pieces for fewer than 5, fewer than 20 or
+  from 20 claps in the last 10 s, back to the first step 10 s after the last count
+  (`stage/applause.ts`, tests).
+- **Concept 1.8** (§12 P3), DECISIONS D39, BACKLOG 10 narrowed to tips and suggestions.
+- **Lint splits:** `useEscapeCloses` out of `FocusBar`, `applauseOf` out of `attachRealtime`,
+  `stageStyle` out of `Stage` (each over 60 lines with the applause).
+- **Lines:** `realtime.ts` 248 → 276, `FocusBar.tsx` 115 → 127, `Stage.tsx` 151 → 190,
+  `feed.ts` 132 → 140, `LowerThird.tsx` 71 → 76, `stageParts.css` 230 → 241; new:
+  `applause.ts` (server, 95), `applause.ts` (client), `BarPress.tsx`, both tests.
+- **Checks:** typecheck, lint; server applause, realtime and security tests 12 passed; ui 5 and
+  web 50 tests in Playwright's Linux image (the local jsdom workers still timed out at times).
 
 ## Night chain SC-N3 (2026-11-21)
 

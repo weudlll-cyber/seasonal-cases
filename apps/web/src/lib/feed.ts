@@ -6,12 +6,13 @@
  *                 every few seconds, so a new show from /admin appears by itself; a show that
  *                 ended while this page watched it stays until the viewer leaves the stage. `useShowFeed`
  *                 watches one show over socket.io and keeps the last public, organiser and
- *                 personal view it received; `direct` sends a direction message and resolves
- *                 with its ack. The client only renders what it receives (CONCEPT §8).
+ *                 personal view it received, and its applause count; `direct` sends a direction
+ *                 message (or an applause) and resolves with its ack. The client only renders what it receives (CONCEPT §8).
  * Depends on:     react, socket.io-client, @sc/contracts (types), ./api.js, ./base.js
  */
 import type {
   Ack,
+  Applause,
   ClientToServerEvents,
   Me,
   OrganiserView,
@@ -75,6 +76,8 @@ export interface ShowFeed {
   readonly show: PublicShowView | null;
   readonly organiser: OrganiserView | null;
   readonly personal: PersonalView | null;
+  // The show's latest applause count, null until someone claps (D39).
+  readonly applause: Applause | null;
   readonly direct: (event: keyof ClientToServerEvents, payload: object) => Promise<Ack>;
 }
 
@@ -88,6 +91,7 @@ export function useShowFeed(
   const [show, setShow] = useState<PublicShowView | null>(null);
   const [organiser, setOrganiser] = useState<OrganiserView | null>(null);
   const [personal, setPersonal] = useState<PersonalView | null>(null);
+  const [applause, setApplause] = useState<Applause | null>(null);
   const socketRef = useRef<Client | null>(null);
   // `me` matters only through its id: a new sign-in needs a new socket with the new cookie.
   const meId = me?.id ?? null;
@@ -102,6 +106,9 @@ export function useShowFeed(
       setShow(view.show);
     });
     socket.on('show:personal', setPersonal);
+    socket.on('show:applause', (counted) => {
+      if (counted.showId === showId) setApplause(counted);
+    });
     // Watch again after every reconnect (a server restart rebuilds the show from its log).
     socket.on('connect', () => {
       socket.emit('show:watch', { showId }, () => undefined);
@@ -114,6 +121,7 @@ export function useShowFeed(
       setShow(null);
       setOrganiser(null);
       setPersonal(null);
+      setApplause(null);
     };
   }, [showId, meId, ready]);
   const direct = useCallback(
@@ -128,5 +136,5 @@ export function useShowFeed(
       }),
     [],
   );
-  return { show, organiser, personal, direct };
+  return { show, organiser, personal, applause, direct };
 }

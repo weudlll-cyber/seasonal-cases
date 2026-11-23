@@ -4,12 +4,20 @@
  *
  * Responsibility: the client watches one show and receives its projection (public, organiser,
  *                 personal); the direction holder sends the reveal steps, each acknowledged at
- *                 once (CONCEPT §8: within 5 seconds).
+ *                 once (CONCEPT §8: within 5 seconds); anyone watching a live show may applaud,
+ *                 and the watchers receive the applause count.
  * Depends on:     zod, ./view.js
  */
 import { z } from 'zod';
 
 import type { OrganiserView, PersonalView, PublicShowView } from './view.js';
+
+/** A live show's applause: the total and the last 10 s (CONCEPT §12 P3, DECISIONS D39). */
+export interface Applause {
+  readonly showId: string;
+  readonly total: number;
+  readonly recent: number;
+}
 
 export const WatchRequestSchema = z.object({ showId: z.string().min(1) });
 export const SelectRequestSchema = z.object({
@@ -41,10 +49,13 @@ export interface ClientToServerEvents {
   'direction:step': (request: unknown, ack: AckFn) => void;
   'direction:handOver': (request: unknown, ack: AckFn) => void;
   'direction:end': (request: unknown, ack: AckFn) => void;
+  // Anyone watching a live show; it changes nothing of the show (CONCEPT §1).
+  'show:applaud': (request: unknown, ack: AckFn) => void;
 }
 
 export interface ServerToClientEvents {
   'show:public': (view: PublicShowView) => void;
   'show:organiser': (view: OrganiserView) => void;
   'show:personal': (view: PersonalView) => void;
+  'show:applause': (applause: Applause) => void;
 }

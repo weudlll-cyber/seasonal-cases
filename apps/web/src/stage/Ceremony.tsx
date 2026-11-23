@@ -8,13 +8,14 @@
  *                 up to the main prize, 2.5 s apart (the chain's decision rule), each with its
  *                 artifact and the lower third; confetti on the main prize; then the link to the
  *                 result. Under reduced motion the steps still follow each other, without motion.
- * Depends on:     react, @sc/contracts (types), ../lib/router.js, ./ArtifactEmblem.js,
- *                 ./LowerThird.js
+ * Depends on:     react, @sc/contracts (types), ../lib/router.js, ./applause.js (types),
+ *                 ./ArtifactEmblem.js, ./LowerThird.js
  */
 import { prizeName, winnerText, type FoundPrize, type ShowResult } from '@sc/contracts';
 import { useEffect, useState } from 'react';
 
 import { Link } from '../lib/router.js';
+import type { ApplauseStep } from './applause.js';
 import { ArtifactEmblem } from './ArtifactEmblem.js';
 import { ConfettiPieces } from './LowerThird.js';
 
@@ -46,9 +47,11 @@ export interface CeremonyProps {
   readonly result: ShowResult;
   // The show's confetti setting (D25).
   readonly confetti?: boolean;
+  // The applause's step: more confetti on the main prize (D39).
+  readonly applause?: ApplauseStep;
 }
 
-export function Ceremony({ showId, result, confetti = true }: CeremonyProps) {
+export function Ceremony({ showId, result, confetti = true, applause = 1 }: CeremonyProps) {
   const order = ceremonyOrder(result);
   const count = useCount(showId, order.length);
   const current = order[Math.min(count, order.length) - 1];
@@ -74,7 +77,7 @@ export function Ceremony({ showId, result, confetti = true }: CeremonyProps) {
           <span className="lower-third-name">{winnerText(current.ownerName)}</span>
         </div>
       )}
-      {confetti && current?.slot === MAIN_PRIZE && <ConfettiPieces />}
+      {confetti && current?.slot === MAIN_PRIZE && <ConfettiPieces step={applause} />}
       {done && (
         <p className="ceremony-end">
           <Link to={`/results/${showId}`} className="button button-solid">

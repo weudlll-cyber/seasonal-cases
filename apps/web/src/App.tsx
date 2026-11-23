@@ -120,6 +120,7 @@ function Routes({ route, me, mode, feed, current, session, phone }: RoutesProps)
         me={signedIn}
         direct={feed.direct}
         barInline={!phone}
+        applause={feed.applause}
       />
     );
   }

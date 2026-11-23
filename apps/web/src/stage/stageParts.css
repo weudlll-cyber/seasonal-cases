@@ -23,6 +23,17 @@
   font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 17px));
 }
 
+/* The applause count (./Stage.tsx, D39): a small pill at the right, once someone claps. */
+.applause-count {
+  align-self: flex-end;
+  margin: 0;
+  padding: 2px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-glass);
+  font-size: max(var(--sk-floor-text), 14px);
+  font-variant-numeric: tabular-nums;
+}
+
 /* The lower third: the owner's name and rank badge at the "Owner" step. */
 .lower-third {
   position: absolute;

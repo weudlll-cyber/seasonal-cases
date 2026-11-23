@@ -118,3 +118,5 @@ owner confirms them.
   profile's trusted range is asked by the installer, with 172.16.0.0/12 as the default.
 - **D38 — `e2e` is required.** `e2e` becomes a required check of master's protection, beside
   `verify`, `security` and `docs`.
+- **D39 — Applause first.** Viewer participation starts with the applause button only; tips and
+  suggestions wait (BACKLOG 10 narrowed; CONCEPT §12 P3, v1.8).

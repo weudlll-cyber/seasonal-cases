@@ -10,11 +10,12 @@
  *                 kit's motion.css stops them and ./stageParts.css hides them. The Stage places
  *                 the confetti outside its measured parts, so the falling pieces never count as
  *                 overflow for the fit.
- * Depends on:     react, @sc/contracts (types)
+ * Depends on:     react, @sc/contracts (types), ./applause.js, ./Badges.js
  */
 import { ownerText, type CaseView, type PublicShowView } from '@sc/contracts';
 import type { CSSProperties } from 'react';
 
+import { confettiPieces, type ApplauseStep } from './applause.js';
 import { Badges } from './Badges.js';
 
 const PIECES = 36;
@@ -26,17 +27,20 @@ function ownerStepCase(show: PublicShowView): CaseView | undefined {
   return show.cases.find((c) => c.number === show.live.selected);
 }
 
-export function Confetti({ show }: { show: PublicShowView }) {
+export function Confetti({ show, step = 1 }: { show: PublicShowView; step?: ApplauseStep }) {
   if (!show.presentation.confetti) return null;
   if (ownerStepCase(show)?.artifact?.prizeSlot !== MAIN_PRIZE) return null;
-  return <ConfettiPieces />;
+  return <ConfettiPieces step={step} />;
 }
 
-/** The falling pieces themselves; the ceremony shows them for the main prize too. */
-export function ConfettiPieces() {
+/**
+ * The falling pieces themselves; the ceremony shows them for the main prize too. More with the
+ * applause of the last 10 s (./applause.ts, D39).
+ */
+export function ConfettiPieces({ step = 1 }: { step?: ApplauseStep }) {
   return (
-    <div className="confetti" aria-hidden="true">
-      {Array.from({ length: PIECES }, (_, i) => (
+    <div className="confetti" aria-hidden="true" data-step={step}>
+      {Array.from({ length: confettiPieces(PIECES, step) }, (_, i) => (
         <span
           key={i}
           className={`confetti-piece piece-${String(i % 4)}`}

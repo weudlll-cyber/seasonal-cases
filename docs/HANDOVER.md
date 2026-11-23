@@ -85,6 +85,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   digits, `-`, `_` and a registration that answers alike for every e-mail (D36); 60 a minute
   per address for claims and sign-ins, the installer asks for the trusted range (D37).
   Piece 4: `e2e` is a required check of master's protection (D38).
+  Piece 5: the applause button for everyone watching a live show; the stage counts it and the
+  confetti grows with it (D39). Concept 1.8.
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.

@@ -7,7 +7,8 @@
  *                 (counted from the received view), full screen where the browser offers it, and
  *                 the panel buttons: players (the owners), and for the direction holder on a
  *                 phone the direction panel, so the bar's buttons are never below the fold. The
- *                 chat button joins in website mode (piece 4). One panel at a time (`usePanels`);
+ *                 chat button joins in website mode (piece 4); "Applaud" for everyone watching
+ *                 (D39, sent as `show:applaud`). One panel at a time (`usePanels`);
  *                 Escape closes the open one from anywhere on the page, as Mini Games' focus
  *                 shell does from its bar (the kit's hook leaves the key to the game).
  * Depends on:     react, @seasonal/kit/react, @sc/contracts, @sc/ui, ../stage/DirectionBar.js,
@@ -22,7 +23,7 @@ import {
   type BarAction,
 } from '@seasonal/kit/react';
 import { ownerText, type Me, type OrganiserView, type PublicShowView } from '@sc/contracts';
-import { BarToggle } from '@sc/ui';
+import { BarPress, BarToggle } from '@sc/ui';
 import { useEffect, type ReactNode, type RefObject } from 'react';
 
 import { DirectionBar } from '../stage/DirectionBar.js';
@@ -55,10 +56,8 @@ function Players({ show }: { show: PublicShowView }) {
   );
 }
 
-export function FocusBar({ show, organiser, me, direct, target, chat, sound }: FocusBarProps) {
-  useFocusMode(true);
-  const panels = usePanels<PanelId>();
-  const { open, close } = panels;
+/** Escape closes the open panel from anywhere on the page (the kit leaves the key to the game). */
+function useEscapeCloses({ open, close }: { open: PanelId | null; close: () => void }): void {
   useEffect(() => {
     if (open === null) return undefined;
     const onKey = (e: KeyboardEvent): void => {
@@ -69,6 +68,12 @@ export function FocusBar({ show, organiser, me, direct, target, chat, sound }: F
       document.removeEventListener('keydown', onKey);
     };
   }, [open, close]);
+}
+
+export function FocusBar({ show, organiser, me, direct, target, chat, sound }: FocusBarProps) {
+  useFocusMode(true);
+  const panels = usePanels<PanelId>();
+  useEscapeCloses(panels);
   const fullscreen = useFullscreen(target);
   const view = useDockView();
   const holder = holderView(show, organiser, me);
@@ -89,6 +94,13 @@ export function FocusBar({ show, organiser, me, direct, target, chat, sound }: F
           <>
             <span className="focus-lead">Seasonal Cases</span>
             <BarToggle on={sound.on} label="Sound" onToggle={sound.toggle} />
+            <BarPress
+              label="Applaud"
+              tip="Applaud: the stage counts it, and the confetti grows with it"
+              onPress={() => {
+                void direct('show:applaud', { showId: show.id });
+              }}
+            />
           </>
         }
         facts={[

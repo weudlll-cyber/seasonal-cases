@@ -241,6 +241,7 @@ export async function buildServer(config: ServerConfig, stores: Stores = {}): Pr
         );
   app.addHook('onClose', async () => {
     stopFeed();
+    realtime.stop();
     await io.close();
   });
   return { app, shows, auth, io };

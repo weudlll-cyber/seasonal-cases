@@ -8,9 +8,11 @@
  *                 Every direction message is checked against the session as it stands now and,
  *                 in the domain, against the direction holder, and acknowledged at once. A change of a show is pushed to its watchers,
  *                 with the players' current names and badges. A socket whose session ends (sign-out,
- *                 a new sign-in, the website's account feed) is disconnected at once.
+ *                 a new sign-in, the website's account feed) is disconnected at once. Anyone
+ *                 watching a live show may applaud (./applause.ts); the count goes to the
+ *                 show's watchers.
  * Depends on:     socket.io, fastify, @seasonal/kit/server, @sc/application (types),
- *                 @sc/contracts, @sc/domain, ./session.js
+ *                 @sc/contracts, @sc/domain, ./applause.js, ./session.js
  */
 import type { Outcome, ShowService } from '@sc/application';
 import {
@@ -31,6 +33,7 @@ import { RateLimiter } from '@seasonal/kit/server';
 import type { FastifyInstance } from 'fastify';
 import type { Server, Socket } from 'socket.io';
 
+import { applauseCounter } from './applause.js';
 import { sessionFromHeader, type Auth } from './session.js';
 
 type IoServer = Server<ClientToServerEvents, ServerToClientEvents>;
@@ -44,6 +47,8 @@ interface Watcher {
 export interface Realtime {
   /** Sends the show's new state to everyone watching it, each their projection. */
   push(model: ShowModel): void;
+  /** Stops pending applause sends (the server closes). */
+  stop(): void;
 }
 
 const refused = (error: string): Ack => ({ ok: false, error });
@@ -51,6 +56,8 @@ const ackOf = (outcome: Outcome): Ack => (outcome.ok ? { ok: true } : refused(ou
 
 interface Watching {
   readonly organisersOf: (showId: string) => OrganiserRef[];
+  readonly socketsOf: (showId: string) => IoSocket[];
+  readonly watches: (socketId: string, showId: string) => boolean;
   readonly push: (model: ShowModel) => void;
   readonly join: (socket: IoSocket, me: Me | null, model: ShowModel) => void;
   readonly leave: (socket: IoSocket) => void;
@@ -109,7 +116,12 @@ function watchingOf(shows: () => ShowService, people: People): Watching {
     else send(watcher, model);
   };
 
-  return { organisersOf, push, join, leave };
+  const socketsOf = (showId: string): IoSocket[] =>
+    [...(watching.get(showId)?.values() ?? [])].map((w) => w.socket);
+  const watches = (socketId: string, showId: string): boolean =>
+    watching.get(showId)?.has(socketId) === true;
+
+  return { organisersOf, socketsOf, watches, push, join, leave };
 }
 
 export interface RealtimeDeps {
@@ -130,8 +142,22 @@ interface SocketData {
   sessionId: string | null;
 }
 
+// Applause: counted per live show, sent to its watchers twice a second at most (./applause.ts).
+function applauseOf(watching: Watching, shows: () => ShowService) {
+  return applauseCounter({
+    isLive: (showId) => shows().get(showId)?.state === 'live',
+    watches: watching.watches,
+    broadcast: (counted) => {
+      for (const socket of watching.socketsOf(counted.showId))
+        socket.emit('show:applause', counted);
+    },
+    now: () => Date.now(),
+  });
+}
+
 export function attachRealtime({ app, auth, io, shows }: RealtimeDeps): Realtime {
   const watching = watchingOf(shows, auth.directory.lookup);
+  const applause = applauseOf(watching, shows);
 
   // Guests connect too (they may watch, CONCEPT §2); `me` is null for them.
   io.use((socket, next) => {
@@ -179,12 +205,15 @@ export function attachRealtime({ app, auth, io, shows }: RealtimeDeps): Realtime
       watching.join(socket, me, model);
     });
     directionHandlers(socket, current, shows, watching.organisersOf);
+    socket.on('show:applaud', (request, ack) => {
+      ack(applause.applaud(socket.id, request));
+    });
     socket.on('disconnect', () => {
       watching.leave(socket);
     });
   });
 
-  return { push: watching.push };
+  return { push: watching.push, stop: applause.stop };
 }
 
 /** The direction holder's messages; each is answered with an ack before anything else. */
