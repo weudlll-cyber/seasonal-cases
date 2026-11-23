@@ -4,14 +4,16 @@
  *
  * Responsibility: one button per step after the click on a case (Open, Owner, Back to stage),
  *                 each enabled when it is the next one; "Hand over" to an organiser watching the show;
- *                 "End show", highlighted once every prize is found. Every click goes to the
- *                 server, whose ack or refusal is shown; the server decides.
- * Depends on:     react, @sc/contracts (types), ../lib/useAction.js
+ *                 "End show" (./EndShow.tsx), highlighted once every prize is found and asking
+ *                 first while prizes are hidden. Every click goes to the server, whose ack or
+ *                 refusal is shown; the server decides.
+ * Depends on:     react, @sc/contracts (types), ../lib/useAction.js, ./EndShow.js
  */
 import type { Ack, DirectionStep, Me, OrganiserView, RevealStep } from '@sc/contracts';
 import { useState } from 'react';
 
 import { useAction, type Action } from '../lib/useAction.js';
+import { EndShow } from './EndShow.js';
 
 type Direct = (
   event: 'direction:step' | 'direction:handOver' | 'direction:end',
@@ -103,17 +105,11 @@ export function DirectionBar({ view, me, direct }: Omit<PartProps, 'action'>) {
         </button>
       ))}
       <HandOver view={view} me={me} direct={direct} action={action} />
-      <button
-        type="button"
-        className={`button button-end${show.allPrizesFound ? ' is-ready' : ''}`}
-        title={show.allPrizesFound ? 'Every prize is found: end the show' : 'End the show now'}
-        disabled={action.busy}
-        onClick={() => {
-          action.run(() => direct('direction:end', { showId: show.id }));
-        }}
-      >
-        End show
-      </button>
+      <EndShow
+        show={show}
+        end={() => direct('direction:end', { showId: show.id })}
+        action={action}
+      />
       {action.error !== null && (
         <span className="direction-error" role="alert">
           {action.error}

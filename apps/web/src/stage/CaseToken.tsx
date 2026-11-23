@@ -7,7 +7,7 @@
  *                 holder it is a button that selects the case; for everyone else plain content.
  * Depends on:     react, @sc/contracts (types), ./ArtifactEmblem.js, ./arc.js
  */
-import type { CaseView } from '@sc/contracts';
+import { ownerText, type CaseView } from '@sc/contracts';
 import type { CSSProperties } from 'react';
 
 import { ArtifactEmblem } from './ArtifactEmblem.js';
@@ -24,7 +24,7 @@ export interface CaseTokenProps {
 }
 
 export function CaseToken({ view, spot, away, onSelect }: CaseTokenProps) {
-  const owner = view.ownerName ?? 'no owner';
+  const owner = ownerText(view.ownerName);
   const label = `Case ${String(view.number)}, ${owner}${view.opened ? ', opened' : ''}`;
   // --roll-index staggers the cases rolling in during the opening (./moments.css).
   const style = {

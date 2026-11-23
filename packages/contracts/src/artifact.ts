@@ -3,7 +3,8 @@
  * @brief  Artifacts and prize slots as they cross the wire (CONCEPT §3.1, §6).
  *
  * Responsibility: an artifact's identity, name, season colour and the prize slot it stands for
- *                 (null: no prize); a prize slot's number and its optional label.
+ *                 (null: no prize); a prize slot's number and its optional label; the words for
+ *                 a prize, an owner and a winner, so every screen says the same.
  * Depends on:     zod, ./show.js
  */
 import { z } from 'zod';
@@ -41,3 +42,12 @@ export function prizeName(slot: number, label: string): string {
 
 /** A prize slot's name (`prizeName`). */
 export const prizeTitle = (slot: PrizeSlot): string => prizeName(slot.slot, slot.label);
+
+/**
+ * How every screen names a case's owner: the name, or "Unclaimed" for a case nobody claimed
+ * (DECISIONS D34; real shows get no bots).
+ */
+export const ownerText = (name: string | null): string => name ?? 'Unclaimed';
+
+/** How every screen names a prize's winner: the owner, or "not won" in an unclaimed case (D34). */
+export const winnerText = (name: string | null): string => name ?? 'not won';

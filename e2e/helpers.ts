@@ -96,3 +96,17 @@ export async function direct(page: Page, act: (bar: Locator) => Promise<void>): 
   if (await panel.isVisible()) await page.keyboard.press('Escape');
   await expect(panel).toHaveCount(0);
 }
+
+/**
+ * Ends a show with prizes still hidden: "End show" asks first, naming how many (DECISIONS D33),
+ * and "End now" ends it. `hidden` is the number the question must name.
+ */
+export async function endEarly(page: Page, hidden: number): Promise<void> {
+  await direct(page, async (bar) => {
+    await bar.getByRole('button', { name: 'End show' }).click();
+    const question = bar.getByRole('group', { name: 'End the show early?' });
+    const words = hidden === 1 ? '1 prize is' : `${String(hidden)} prizes are`;
+    await expect(question).toContainText(`${words} still hidden`);
+    await question.getByRole('button', { name: 'End now' }).click();
+  });
+}

@@ -3,8 +3,10 @@
  * @brief  The organiser's routes in every mode: create a show and take it through registration,
  *         sealing and the start (CONCEPT §3.1–§3.3).
  *
- * Responsibility: an organiser or admin creates a show and opens registration, fills free cases
- *                 with bots, closes, seals and starts it; whoever starts holds the direction.
+ * Responsibility: an organiser or admin creates a show and opens registration, closes, seals
+ *                 and starts it; whoever starts holds the direction. Filling free cases with
+ *                 bots answers 403 outside development (DECISIONS D34): a real show never gets
+ *                 bots, and a case nobody claimed stays unclaimed.
  *                 Each answers with the show's summary. The Quick Test stays a development route
  *                 (./devRoutes.ts).
  * Depends on:     @sc/application (types), @sc/contracts, ./http.js
@@ -12,7 +14,7 @@
 import type { ShowService } from '@sc/application';
 import { CreateShowRequestSchema, type Me } from '@sc/contracts';
 
-import { accepted, organiser, parseBody, summary, type Ctx } from './http.js';
+import { accepted, organiser, parseBody, Refusal, summary, type Ctx } from './http.js';
 
 interface IdParams {
   readonly id: string;
@@ -31,7 +33,12 @@ export function organiserRoutes(ctx: Ctx): void {
   const steps: Record<string, (id: string, me: Me) => ReturnType<ShowService['seal']>> = {
     open: (id, me) => shows.openRegistration(id, me.id),
     close: (id, me) => shows.closeRegistration(id, me.id),
-    bots: (id) => shows.fillWithBots(id),
+    bots: (id) => {
+      // Bots fill cases in development and in the Quick Test only; a real show never gets bots
+      // (DECISIONS D34).
+      if (!ctx.config.dev) throw new Refusal(403, 'bots exist in development only');
+      return shows.fillWithBots(id);
+    },
     seal: (id, me) => shows.seal(id, me.id),
     start: (id, me) => shows.start(id, me),
   };

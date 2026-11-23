@@ -10,7 +10,7 @@
  */
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 
-import { direct } from './helpers.js';
+import { endEarly } from './helpers.js';
 import { STEP_ICON, STUB_ORIGIN } from './stubShared.js';
 
 const GAME = `${STUB_ORIGIN}/games/cases/`;
@@ -84,7 +84,7 @@ test('journey 4: website sign-in, back link, docked chat, badges; a guest only w
   // behind for the next journey.
   await olga.goto(`${GAME}show`);
   await olga.getByRole('button', { name: 'Begin' }).click();
-  await direct(olga, (bar) => bar.getByRole('button', { name: 'End show' }).click());
+  await endEarly(olga, 1);
   await expect(watcher.getByRole('region', { name: 'The winners' })).toBeVisible();
   for (const c of [host, member, guest]) await c.close();
 });

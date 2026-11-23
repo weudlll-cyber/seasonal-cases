@@ -7,12 +7,19 @@
  *                 its emblem, name and "Prize n: label", "Prize n" or "no prize". A row's state comes only
  *                 from the received public view: "open" (still hidden), "lit" (its case is at
  *                 the front and open, with the owner's name from the "Owner" step), "taken" (its
- *                 case has left the front: struck through, the owner's name kept). The blank
+ *                 case has left the front: struck through, the owner's name kept, "not won" for
+ *                 a case nobody claimed, D34). The blank
  *                 row lights up while a blank is at the front and is never taken: there are many.
  *                 Visible from sealing on, to everyone; the commitment stays beside it.
  * Depends on:     @sc/contracts, @sc/ui, ./ArtifactEmblem.js
  */
-import { prizeTitle, type Artifact, type PublicShowView } from '@sc/contracts';
+import {
+  ownerText,
+  prizeTitle,
+  winnerText,
+  type Artifact,
+  type PublicShowView,
+} from '@sc/contracts';
 import { shortCommitment } from '@sc/ui';
 
 import { ArtifactEmblem } from './ArtifactEmblem.js';
@@ -42,15 +49,20 @@ export function scoreRows(show: PublicShowView): ScoreRow[] {
         artifact,
         meaning,
         state: lit ? 'lit' : 'open',
-        owner: lit && ownerShown ? front.ownerName : null,
+        owner: lit && ownerShown ? ownerText(front.ownerName) : null,
       };
     }
     const holder = show.cases.find((c) => c.artifact?.id === artifact.id);
     if (holder === undefined) return { artifact, meaning, state: 'open', owner: null };
     if (frontOpen && holder.number === front.number) {
-      return { artifact, meaning, state: 'lit', owner: ownerShown ? holder.ownerName : null };
+      return {
+        artifact,
+        meaning,
+        state: 'lit',
+        owner: ownerShown ? winnerText(holder.ownerName) : null,
+      };
     }
-    return { artifact, meaning, state: 'taken', owner: holder.ownerName };
+    return { artifact, meaning, state: 'taken', owner: winnerText(holder.ownerName) };
   });
 }
 

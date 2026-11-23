@@ -11,7 +11,7 @@
  * Depends on:     react, @sc/contracts (types), ../lib/router.js, ./ArtifactEmblem.js,
  *                 ./LowerThird.js
  */
-import { prizeName, type FoundPrize, type ShowResult } from '@sc/contracts';
+import { prizeName, winnerText, type FoundPrize, type ShowResult } from '@sc/contracts';
 import { useEffect, useState } from 'react';
 
 import { Link } from '../lib/router.js';
@@ -71,7 +71,7 @@ export function Ceremony({ showId, result, confetti = true }: CeremonyProps) {
           <span className="lower-third-case">
             {prizeName(current.slot, current.label)} · case {current.caseNumber}
           </span>
-          <span className="lower-third-name">{current.ownerName ?? 'no owner'}</span>
+          <span className="lower-third-name">{winnerText(current.ownerName)}</span>
         </div>
       )}
       {confetti && current?.slot === MAIN_PRIZE && <ConfettiPieces />}

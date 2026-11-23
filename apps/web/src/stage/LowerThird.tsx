@@ -12,7 +12,7 @@
  *                 overflow for the fit.
  * Depends on:     react, @sc/contracts (types)
  */
-import type { CaseView, PublicShowView } from '@sc/contracts';
+import { ownerText, type CaseView, type PublicShowView } from '@sc/contracts';
 import type { CSSProperties } from 'react';
 
 import { Badges } from './Badges.js';
@@ -52,10 +52,14 @@ export function LowerThird({ show }: { show: PublicShowView }) {
   if (view === undefined) return null;
   return (
     <div className="lower-third" role="status">
-      <span className="lower-third-case">Case {view.number} belongs to</span>
+      {/* A case nobody claimed shows "Unclaimed" in place of a name (D34). */}
+      <span className="lower-third-case">
+        Case {view.number}
+        {view.ownerName === null ? '' : ' belongs to'}
+      </span>
       <span className="lower-third-name">
         <Badges badges={view.ownerBadges} />
-        {view.ownerName ?? 'nobody'}
+        {ownerText(view.ownerName)}
       </span>
       {view.ownerRank !== null && (
         <span className="rank-badge" title={`Seasonal rank ${String(view.ownerRank)}`}>

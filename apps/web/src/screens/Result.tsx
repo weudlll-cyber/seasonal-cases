@@ -11,7 +11,13 @@
  *                 ../lib/base.js, ../stage/ArtifactEmblem.js
  */
 import { ResultFrame } from '@seasonal/kit/react';
-import { prizeName, type PublicShowView, type ShowResult } from '@sc/contracts';
+import {
+  ownerText,
+  prizeName,
+  winnerText,
+  type PublicShowView,
+  type ShowResult,
+} from '@sc/contracts';
 import { formatTime, shortCommitment } from '@sc/ui';
 import { useEffect, useState } from 'react';
 
@@ -26,7 +32,7 @@ function Placings({ result }: { result: ShowResult }) {
         <li key={w.slot}>
           <span className="result-slot">{prizeName(w.slot, w.label)}</span>
           <ArtifactEmblem artifact={w.artifact} />
-          <span className="result-owner">{w.ownerName ?? 'no owner'}</span>
+          <span className="result-owner">{winnerText(w.ownerName)}</span>
           <span className="result-case">case {w.caseNumber}</span>
         </li>
       ))}
@@ -68,7 +74,7 @@ function AllCases({ result }: { result: ShowResult }) {
         {result.cases.map((c) => (
           <li key={c.number}>
             <span className="result-number show-font">{c.number}</span>
-            <span className="result-case-owner">{c.ownerName ?? 'no owner'}</span>
+            <span className="result-case-owner">{ownerText(c.ownerName)}</span>
             <ArtifactEmblem artifact={c.artifact} />
           </li>
         ))}

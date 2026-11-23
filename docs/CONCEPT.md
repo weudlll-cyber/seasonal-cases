@@ -9,6 +9,7 @@
 | 1.4 | 2026-11-21 | Night chain SC-N2: website mode as built, the organiser role, the rank and badges in website mode (§10). |
 | 1.5 | 2026-11-22 | Night chain SC-N3: the phases' status (§12); nothing else changes. |
 | 1.6 | 2026-11-22 | Night chain SC-N4, from the owner's decisions of 2026-11-22: the website-mode rank rule decided (§4, §10); the logo per theme, the phone menu, the still gem outside the centre and the ceremony (§7). |
+| 1.7 | 2026-11-22 | Night chain SC-N4: unclaimed cases and no bots in real shows (§3.2), "not won" (§3.4, §3.5), the early-end question (§3.5), the ceremony's reveal and pace decided (§3.5). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -69,6 +70,9 @@ SETUP → REGISTRATION → SEALED → LIVE → ENDED
   their own rank is higher. They may change their pick at any time (decided 2026-11-21).
 - When registration closes, each case belongs to its winning claimant. Players who end up without a
   case are out of luck and become viewers (decided 2026-11-21).
+- A case nobody claimed stays on the stage as **unclaimed**: sealing gives it an artifact like any
+  other, it can be opened like any other, and its owner step shows "Unclaimed". Bots fill cases
+  only in development and in the Quick Test; a real show never gets bots (decided 2026-11-22).
 - Guests may watch the registration board but cannot register (ecosystem rule).
 
 ### 3.3 Sealing (organiser)
@@ -94,8 +98,8 @@ timer does (decided 2026-11-21). A case takes a click and three steps:
   dim. The moderator talks as long as they want.
 - **Open** — the case opens; the artifact appears in its season colour, and its meaning with it:
   "Prize 1 · <label>", "Prize 1" when the slot has no label, or "No prize".
-- **Owner** — the lower third shows the owner's name and Discord badge; confetti on the main
-  prize.
+- **Owner** — the lower third shows the owner's name and Discord badge, or "Unclaimed"; confetti
+  on the main prize. A prize in an unclaimed case is **not won** (decided 2026-11-22).
 - **Back to stage** — the case returns to the stage as "opened".
 
 Between any two steps the moderator can talk as long as they want. A choice can be changed only
@@ -106,13 +110,19 @@ show**.
 
 ### 3.5 Ended
 - The show ends when the moderator ends it. The game offers "End show" once the last prize has been
-  found, but opening the remaining cases is allowed (decided 2026-11-21).
-- **The ceremony** (decided 2026-11-21): after "End show" the stage shows the winners one after
-  another, from the lowest prize up to the main prize, each with its artifact and the lower
-  third, confetti on the main prize; then "See the result". The pace (2.5 s per winner) is a
-  proposal.
+  found, but opening the remaining cases is allowed (decided 2026-11-21). "End show" asks once
+  before an early end, naming how many prizes are still hidden; with every prize found it ends
+  without a question (decided 2026-11-22). A prize counts as found once its case is open, won or
+  not.
+- **The ceremony** (decided 2026-11-21): after "End show" the stage shows every prize, found or
+  not, one after another, from the lowest prize up to the main prize, each with its artifact and
+  the lower third ("not won" for a prize in an unclaimed case), confetti on the main prize; then
+  "See the result". The pace (2.5 s per winner) and the motion stay as built and are admin
+  settings (decided 2026-11-22).
 - The result page, on the kit's result frame, lists the winners (prize slot, label, artifact,
-  owner) as its placings, every case as its reveal, and all cases with their owners below.
+  owner or "not won") as its placings, every case as its reveal, and all cases with their owners
+  ("Unclaimed" where nobody claimed) below. The chronicle and the website's member summary never
+  count a prize that was not won.
 - The server reveals the sealing secret; the result screen shows "sealed at <time>, verified".
 - The show goes into the **chronicle**: past shows with winners and prizes. There is no ranking
   (decided 2026-11-21). A player's "My matches" lists their shows and cases.

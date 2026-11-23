@@ -10,8 +10,8 @@
  *                 chat button joins in website mode (piece 4). One panel at a time (`usePanels`);
  *                 Escape closes the open one from anywhere on the page, as Mini Games' focus
  *                 shell does from its bar (the kit's hook leaves the key to the game).
- * Depends on:     react, @seasonal/kit/react, @sc/contracts (types), ../stage/DirectionBar.js,
- *                 ../stage/Stage.js
+ * Depends on:     react, @seasonal/kit/react, @sc/contracts, @sc/ui, ../stage/DirectionBar.js,
+ *                 ../stage/facts.js, ../stage/Stage.js
  */
 import {
   GameBar,
@@ -21,11 +21,12 @@ import {
   usePanels,
   type BarAction,
 } from '@seasonal/kit/react';
-import type { Me, OrganiserView, PublicShowView } from '@sc/contracts';
+import { ownerText, type Me, type OrganiserView, type PublicShowView } from '@sc/contracts';
 import { BarToggle } from '@sc/ui';
 import { useEffect, type ReactNode, type RefObject } from 'react';
 
 import { DirectionBar } from '../stage/DirectionBar.js';
+import { showFacts } from '../stage/facts.js';
 import { holderView, type Direct } from '../stage/Stage.js';
 
 export type PanelId = 'players' | 'direction' | 'chat';
@@ -42,19 +43,12 @@ export interface FocusBarProps {
   readonly sound: { readonly on: boolean; readonly toggle: () => void };
 }
 
-/** The bar's facts, counted from the view. */
-export function focusFacts(show: PublicShowView): { casesLeft: number; prizesLeft: number } {
-  const opened = show.cases.filter((c) => c.opened);
-  const prizesFound = opened.filter((c) => c.artifact?.prizeSlot !== null).length;
-  return { casesLeft: show.caseCount - opened.length, prizesLeft: show.winnerCount - prizesFound };
-}
-
 function Players({ show }: { show: PublicShowView }) {
   return (
     <ul className="focus-players">
       {show.cases.map((c) => (
         <li key={c.number}>
-          <span className="show-font">{c.number}</span> {c.ownerName ?? 'no owner'}
+          <span className="show-font">{c.number}</span> {ownerText(c.ownerName)}
         </li>
       ))}
     </ul>
@@ -78,7 +72,7 @@ export function FocusBar({ show, organiser, me, direct, target, chat, sound }: F
   const fullscreen = useFullscreen(target);
   const view = useDockView();
   const holder = holderView(show, organiser, me);
-  const { casesLeft, prizesLeft } = focusFacts(show);
+  const { casesLeft, prizesLeft } = showFacts(show);
   const actions: BarAction<PanelId>[] = [
     ...(chat === undefined
       ? []

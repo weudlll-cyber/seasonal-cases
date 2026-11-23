@@ -10,7 +10,7 @@
  */
 import { expect, test, type WebSocket } from '@playwright/test';
 
-import { direct, quickTestSealing, signInApi, signInUi } from './helpers.js';
+import { direct, endEarly, quickTestSealing, signInApi, signInUi } from './helpers.js';
 
 // The direction bar's buttons and the step the player's stage shows after each.
 const STEPS = [
@@ -75,7 +75,8 @@ test('journey 3: no unopened content reaches a player; the commitment holds', as
   await expect(page.locator('.case-token.is-opened')).toHaveCount(2);
   const beforeEnd = frames.filter(([event]) => event === 'show:public');
 
-  await direct(mod, (bar) => bar.getByRole('button', { name: 'End show' }).click());
+  // Prize 2 is still hidden: the end asks first (DECISIONS D33).
+  await endEarly(mod, 1);
   await page.goto(`/results/${id}`);
   const seal = page.locator('.result-seal');
   await expect(seal).toContainText('· verified');

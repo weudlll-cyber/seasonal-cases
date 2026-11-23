@@ -150,6 +150,10 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await page.setViewportSize({ width: 1280, height: 720 });
 
   await bar.getByRole('button', { name: 'End show' }).click();
+  await bar
+    .getByRole('group', { name: 'End the show early?' })
+    .getByRole('button', { name: 'End now' })
+    .click();
   await expect(page.getByRole('region', { name: 'The winners' })).toBeVisible();
   await shoot(page, 'ceremony');
   await page.goto(`/results/${id}`);

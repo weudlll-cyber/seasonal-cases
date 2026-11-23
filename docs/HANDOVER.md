@@ -78,6 +78,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   gem turns only in the centre case and the ceremony (D27), the logo per theme (D28), the phone
   menu wraps (D29), the spotlight painted once, WebKit's phone journeys pass, journey 4 on the
   test-only plain cookie, the admin's setup form no longer loses what was typed. Concept 1.6.
+  Piece 2: no bots in real shows (403 outside development), unclaimed cases ("Unclaimed", their
+  prizes "not won" everywhere), "End show" asks before an early end (D32–D34). Concept 1.7.
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.

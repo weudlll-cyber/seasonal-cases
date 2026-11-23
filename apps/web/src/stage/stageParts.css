@@ -145,6 +145,19 @@
   border-color: transparent;
 }
 
+/* "End show" asking before an early end (./EndShow.tsx): the question and its two answers in
+   the bar's row, wrapping where it is narrow. */
+.direction-confirm {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.direction-confirm-text {
+  font-weight: var(--font-weight-strong);
+}
+
 .direction-error {
   color: var(--color-danger);
 }

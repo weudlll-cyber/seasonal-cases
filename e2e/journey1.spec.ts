@@ -7,11 +7,13 @@
  *                 three steps (a blank and the main prize among them), the scoreboard striking
  *                 each prize through once its case is back; hands over to a second organiser in a
  *                 second browser context, who ends the show; the result verifies. Each step is
- *                 asserted as visible; the lower third shows the owner.
+ *                 asserted as visible; the lower third shows the owner. Then a real show of two
+ *                 cases nobody claims (no bots, D34): a case opens through the three steps as
+ *                 "Unclaimed", and its prize is "not won" in the ceremony and the result.
  */
 import { expect, test, type Page } from '@playwright/test';
 
-import { direct, quickTestSealing, signInUi } from './helpers.js';
+import { direct, endEarly, openShow, quickTestSealing, signInUi } from './helpers.js';
 
 const SEED = 'sc-n1-01';
 const STEPS = ['Open', 'Owner', 'Back to stage'] as const;
@@ -58,6 +60,8 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
   page,
   browser,
 }) => {
+  // Two shows in one journey (the Quick Test, then the unclaimed show): three times the time.
+  test.slow();
   const sealing = quickTestSealing(SEED, 12, 3);
   const main = sealing.get('prize-1');
   const blank = sealing.get('blank-1');
@@ -119,4 +123,37 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
   await expect(noah.locator('.result-winners li')).toHaveCount(3);
   await expect(noah.locator('.result-winners li').first()).toContainText('Halving Stone');
   await other.close();
+
+  await unclaimedShow(page);
 });
+
+/**
+ * A real show nobody claims a case in (DECISIONS D34): two cases, one prize, no bots. A case
+ * opens like any other and says "Unclaimed" at the owner step; the prize is "not won" in the
+ * ceremony and the result, wherever it lies.
+ */
+async function unclaimedShow(page: Page): Promise<void> {
+  const id = await openShow(page.request, 2, 1);
+  for (const step of ['close', 'seal', 'start']) {
+    expect((await page.request.post(`/api/shows/${id}/${step}`)).ok()).toBe(true);
+  }
+  await page.goto('/show');
+  await page.getByRole('button', { name: 'Begin' }).click();
+  await expect(page.getByLabel('Case 1, Unclaimed')).toBeVisible();
+  await page.locator('.case-token[data-case="1"] .case-body').click();
+  await direct(page, (bar) => bar.getByRole('button', { name: 'Open' }).click());
+  const prizeFound = (await page.locator('.centre-meaning').innerText()) !== 'No prize';
+  await direct(page, (bar) => bar.getByRole('button', { name: 'Owner' }).click());
+  await expect(page.locator('.lower-third')).toHaveText('Case 1Unclaimed');
+  await direct(page, (bar) => bar.getByRole('button', { name: 'Back to stage' }).click());
+  if (prizeFound) {
+    await expect(page.locator('.score-row.is-taken')).toContainText('not won');
+    await direct(page, (bar) => bar.getByRole('button', { name: 'End show' }).click());
+  } else {
+    await endEarly(page, 1);
+  }
+  const ceremony = page.getByRole('region', { name: 'The winners' });
+  await expect(ceremony.getByRole('status')).toContainText('not won');
+  await ceremony.getByRole('link', { name: 'See the result' }).click();
+  await expect(page.locator('.result-winners li')).toContainText('not won');
+}

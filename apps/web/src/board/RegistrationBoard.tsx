@@ -10,7 +10,13 @@
  * Depends on:     react, @seasonal/kit/react, @sc/contracts (types), @sc/ui, ./ArtifactTable.js
  */
 import { useFitScale } from '@seasonal/kit/react';
-import type { BoardCase, PersonalView, PublicShowView, Standing } from '@sc/contracts';
+import {
+  ownerText,
+  type BoardCase,
+  type PersonalView,
+  type PublicShowView,
+  type Standing,
+} from '@sc/contracts';
 import { formatTime, useDockReserve } from '@sc/ui';
 import type { CSSProperties } from 'react';
 
@@ -46,8 +52,11 @@ function PickLine({ personal }: { personal: PersonalView | null }) {
   );
 }
 
-function Claimants({ entry }: { entry: BoardCase }) {
-  if (entry.holder === null) return <span className="board-free">free</span>;
+// Before the close a case without a holder is free; after it, nobody claimed it (D34).
+function Claimants({ entry, closed }: { entry: BoardCase; closed: boolean }) {
+  if (entry.holder === null) {
+    return <span className="board-free">{closed ? ownerText(null) : 'free'}</span>;
+  }
   return (
     <>
       <span className="board-holder" title={`Picked ${formatTime(entry.holder.at)}`}>
@@ -70,15 +79,17 @@ function BoardCaseCard({
   entry,
   standing,
   onClaim,
+  closed,
 }: {
   entry: BoardCase;
   standing: Standing | undefined;
   onClaim: ((caseNumber: number) => void) | undefined;
+  closed: boolean;
 }) {
   const body = (
     <>
       <span className="board-number show-font">{entry.number}</span>
-      <Claimants entry={entry} />
+      <Claimants entry={entry} closed={closed} />
       {standing !== undefined && (
         <span className={`board-hint hint-${standing}`}>{HINTS[standing]}</span>
       )}
@@ -157,6 +168,7 @@ export function RegistrationBoard({ show, personal, onClaim, error }: BoardProps
               entry={entry}
               standing={standings.get(entry.number)}
               onClaim={onClaim}
+              closed={show.board === null}
             />
           ))}
         </ol>

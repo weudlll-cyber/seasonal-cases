@@ -191,8 +191,23 @@ html[data-sk-focus] {
 .focus-panel .direction-hint,
 .focus-panel .direction-handover,
 .focus-panel .button-end,
+.focus-panel .direction-confirm,
 .focus-panel .direction-error {
   grid-column: 1 / -1;
+}
+
+/* The early-end question in the panel: the sentence over the full width, its answers in a pair. */
+.focus-panel .direction-confirm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.focus-panel .direction-confirm-text {
+  grid-column: 1 / -1;
+}
+
+.focus-panel .direction-confirm .button-end {
+  grid-column: auto;
 }
 
 .focus-panel .direction-handover {

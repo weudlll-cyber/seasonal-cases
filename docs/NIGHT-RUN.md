@@ -15,15 +15,15 @@ a required check, the applause button, a third review, the play-through. Branch
 
 ### Pieces
 
-| Piece | What                                                                    | State   | Commit | CI run |
-| ----- | ----------------------------------------------------------------------- | ------- | ------ | ------ |
-| 1     | Gem, logo, phone menu, the WebKit causes, journey 4                     | done    | —      | —      |
-| 2     | No bots in real shows, unclaimed cases, early-end question              | running | —      | —      |
-| 3     | Security items (recovery codes, names, registration, limits, installer) | open    | —      | —      |
-| 4     | `e2e` as a required check                                               | open    | —      | —      |
-| 5     | The applause button                                                     | open    | —      | —      |
-| 6     | Third independent review, 1.0.0-rc.2                                    | open    | —      | —      |
-| 7     | Play-through, pictures, hand-over                                       | open    | —      | —      |
+| Piece | What                                                                    | State   | Commit    | CI run            |
+| ----- | ----------------------------------------------------------------------- | ------- | --------- | ----------------- |
+| 1     | Gem, logo, phone menu, the WebKit causes, journey 4                     | done    | `0b2c8ef` | 45078180392 green |
+| 2     | No bots in real shows, unclaimed cases, early-end question              | running | —         | —                 |
+| 3     | Security items (recovery codes, names, registration, limits, installer) | open    | —         | —                 |
+| 4     | `e2e` as a required check                                               | open    | —         | —                 |
+| 5     | The applause button                                                     | open    | —         | —                 |
+| 6     | Third independent review, 1.0.0-rc.2                                    | open    | —         | —                 |
+| 7     | Play-through, pictures, hand-over                                       | open    | —         | —                 |
 
 ### Needs the owner's word (SC-N4)
 
@@ -82,6 +82,42 @@ a required check, the applause button, a third review, the play-through. Branch
 - **Piece 2 landed early in this commit:** the admin page offers "Fill with bots" in
   development only (it shares `Admin.tsx` with the setup-form fix).
 - `pnpm verify` green (39 files, 176 tests).
+
+### Piece 2 report
+
+- **Unclaimed cases (D34):** the domain already sealed every case and kept a case without a claim
+  ownerless; new tests prove it through every step (`unclaimed.test.ts`: sealing, the three steps
+  with no owner, the prize "found but not won", the result's winner without an owner, "all prizes
+  found" counting opened prize cases, won or not). The member summary counts only owned cases, so
+  a not-won prize never counts. The client says it with one pair of words from the contracts
+  (`ownerText`: "Unclaimed", `winnerText`: "not won"): the case on the stage, the players panel,
+  the owner step ("Case 7 · Unclaimed"), the registration board after the close, the scoreboard
+  (struck through with "not won"), the ceremony, the result and the chronicle.
+- **Bots (D34):** `POST /api/shows/:id/bots` answers 403 outside development; the admin page
+  offers "Fill with bots" only in development (landed in piece 1's commit); the Quick Test keeps
+  its bots. Sabotage probe: with the guard removed the refusal test failed (`expected 200 to be
+403`), restored.
+- **Early end (D33):** "End show" asks once while prizes are hidden ("2 prizes are still hidden.
+  End the show now?", "End now" / "Keep playing"), the same in the phone's panel; with none hidden
+  it ends at once (`EndShow.tsx`, new, 72 lines; the count from `facts.ts`, moved out of the focus
+  bar so both use it).
+- **Journeys:** journey 1 ends with a real show of two cases nobody claims: case 1 opens as
+  "Unclaimed" and its prize is "not won" in the ceremony and the result, wherever the sealing put
+  it; journeys 3 and 4 and the screens run answer the early-end question (`endEarly`).
+- **Concept 1.7** (§3.2, §3.4, §3.5): 1.6 was taken by piece 1, so this piece's revision is 1.7.
+  D32 (the ceremony reveals every prize) and D33, D34 recorded; no backlog item closes here (37,
+  which also holds the bots, closes with the limits in piece 3).
+- **Lines** (before → after): `DirectionBar.tsx` 124 → 116, `Scoreboard.tsx` 87 → 99,
+  `LowerThird.tsx` 67 → 71, `Result.tsx` 110 → 116, `FocusBar.tsx` 121 → 115,
+  `RegistrationBoard.tsx` 167 → 179, `stageParts.css` 217 → 230, `moments.css` 232 → 247,
+  `organiserRoutes.ts` 44 → 51, `artifact.ts` 43 → 53, `journey1.spec.ts` 122 → 157,
+  `helpers.ts` 98 → 112; new: `EndShow.tsx`, `facts.ts`, `showRules.test.tsx`,
+  `showRules.test.ts` (server), `unclaimed.test.ts`. **Removed:** `focusFacts` in the focus bar
+  (moved), every "no owner" and "nobody" string. **Reused:** the domain's ownerless cases, the
+  kit's RateLimiter-free `Refusal`, `direct` for the phone path.
+- **Checks:** see the piece's row; the web unit tests could not start on this machine for a time
+  (jsdom took about 60 s to set up, over vitest's worker limit, while other projects' sessions ran
+  servers and browser tests), so they ran in Playwright's Linux image and in CI.
 
 ## Night chain SC-N3 (2026-11-21)
 

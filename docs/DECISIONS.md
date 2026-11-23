@@ -99,3 +99,12 @@ owner confirms them.
   admin settings.
 - **D31 — The website-mode rank.** In website mode the rank is the number of the member's valid
   Discord steps, at most 5; the steps' icons are the badges (CONCEPT §4, §10).
+- **D32 — The ceremony reveals every prize.** The ceremony reveals every prize, found or not, as
+  built (CONCEPT §3.5, v1.7).
+- **D33 — The early-end question.** "End show" asks once before an early end, naming how many
+  prizes are still hidden; with none hidden it ends without a question.
+- **D34 — No bots in real shows; unclaimed cases.** Bots fill cases in development and in the
+  Quick Test only; a real show never gets bots. Cases nobody claimed stay on the stage as
+  "unclaimed" and can be opened like any other; a prize in such a case counts as not won: the
+  scoreboard, the ceremony, the result, the chronicle and the member summary show it as "not
+  won" (CONCEPT §3.2, §3.4, §3.5).
