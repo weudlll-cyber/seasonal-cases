@@ -2,11 +2,11 @@
  * @file   packages/ui/src/pending/BarPress.tsx
  * @brief  A press button for the kit's game bar: here "Applaud".
  *
- * Responsibility: kit adoption item "kit: a toggle or press action in the game bar"
- *                 (docs/BACKLOG.md 36): the kit's `GameBar` actions open panels; a game puts
- *                 this button into the bar's `lead`, beside ./BarToggle.tsx, with the same look
- *                 (its `sc-bar-toggle` classes: icon and words on a desktop, the icon alone on a
- *                 phone, the 44 px target). A line icon of two clapping hands. Delete it once the
+ * Responsibility: kit adoption item "kit: a press action in the game bar"
+ *                 (docs/BACKLOG.md 41): the kit's `GameBar` actions open panels and its
+ *                 `toggles` switch a setting (v0.11.0); a press that only sends has neither. A
+ *                 game puts this button into the bar's `lead` (its `sc-bar-press` classes: icon
+ *                 and words on a desktop, the icon alone on a phone, the 44 px target). A line icon of two clapping hands. Delete it once the
  *                 kit has the action.
  * Depends on:     react (types)
  */
@@ -30,7 +30,7 @@ export function BarPress({
   className = 'button',
 }: BarPressProps): ReactElement {
   return (
-    <button type="button" className={`${className} sc-bar-toggle`} title={tip} onClick={onPress}>
+    <button type="button" className={`${className} sc-bar-press`} title={tip} onClick={onPress}>
       <svg
         viewBox="0 0 24 24"
         width="20"
@@ -43,7 +43,7 @@ export function BarPress({
         <path d={HANDS} />
         <path d={CLAP} />
       </svg>
-      <span className="sc-bar-toggle-label">{label}</span>
+      <span className="sc-bar-press-label">{label}</span>
     </button>
   );
 }

@@ -132,6 +132,7 @@ async function authOf(app: FastifyInstance, config: ServerConfig, stores: Stores
     accounts,
     sessions: stores.sessions ?? memorySessions(),
     twoFactor: stores.twoFactor ?? memoryTwoFactor(),
+    recoveryKey: config.recoveryKey,
     directory: await Directory.load(accounts),
     ends: new SessionEnds((error) => {
       app.log.error(error);

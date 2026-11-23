@@ -6,7 +6,7 @@
  *                 dock's height free (`--dock-reserve`, DECISIONS D7), and its cases sit in a
  *                 named scroll area that takes what does not fit. Colours only from the kit's
  *                 tokens; the standing hints are told by text and colour together.
- * Depends on:     @seasonal/kit/tokens.css, @sc/ui pending/fit-cases.css, ../shell/shell.css
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/fit.css (the cases floors), ../shell/shell.css
  */
 
 .board-screen {

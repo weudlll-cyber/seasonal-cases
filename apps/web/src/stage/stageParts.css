@@ -7,7 +7,7 @@
  *                 tokens; text never under the cases' 14 px floor; buttons at least the 44 px
  *                 target. Under 700 px of width the cases form two rows in their named scroll
  *                 area and the centre stage follows below them.
- * Depends on:     @seasonal/kit/tokens.css, @sc/ui pending/fit-cases.css, ./stage.css
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/fit.css (the cases floors), ./stage.css
  */
 
 .stage-commitment {

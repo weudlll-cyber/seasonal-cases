@@ -9,7 +9,7 @@
  *                 dock's height free (DECISIONS D7); the cases sit in a named scroll area.
  * Depends on:     react, @seasonal/kit/react, @sc/contracts (types), @sc/ui, ./ArtifactTable.js
  */
-import { useFitScale } from '@seasonal/kit/react';
+import { useDockReserve, useFitScale } from '@seasonal/kit/react';
 import {
   ownerText,
   type BoardCase,
@@ -17,7 +17,7 @@ import {
   type PublicShowView,
   type Standing,
 } from '@sc/contracts';
-import { formatTime, useDockReserve } from '@sc/ui';
+import { formatTime } from '@sc/ui';
 import type { CSSProperties } from 'react';
 
 import { Badges } from '../stage/Badges.js';
@@ -135,11 +135,7 @@ function owners(show: PublicShowView): BoardCase[] {
 
 export function RegistrationBoard({ show, personal, onClaim, error }: BoardProps) {
   const reserve = useDockReserve();
-  const fitRef = useFitScale<HTMLElement>(
-    'mini-games',
-    `${show.id}:${String(show.caseCount)}`,
-    true,
-  );
+  const fitRef = useFitScale<HTMLElement>('cases', `${show.id}:${String(show.caseCount)}`, true);
   const standings = new Map(personal?.standings.map((s) => [s.number, s.standing]) ?? []);
   const entries = show.board ?? owners(show);
   const style = { '--dock-reserve': `${String(reserve)}px` } as CSSProperties;
@@ -151,7 +147,7 @@ export function RegistrationBoard({ show, personal, onClaim, error }: BoardProps
       style={style}
       aria-label="Registration board"
     >
-      <header className="board-head" data-fit-fixed>
+      <header className="board-head" data-sk-fit-fixed>
         <h2>{show.registrationOpen ? 'Pick a case' : 'The cases and their owners'}</h2>
         <PickLine personal={show.registrationOpen ? personal : null} />
         {error !== null && error !== undefined && (
@@ -160,7 +156,7 @@ export function RegistrationBoard({ show, personal, onClaim, error }: BoardProps
           </p>
         )}
       </header>
-      <div className="board-scroll" role="region" aria-label="Cases" tabIndex={0} data-fit-fixed>
+      <div className="board-scroll" role="region" aria-label="Cases" tabIndex={0} data-sk-fit-fixed>
         <ol className="board-grid">
           {entries.map((entry) => (
             <BoardCaseCard

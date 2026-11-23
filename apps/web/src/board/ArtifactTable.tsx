@@ -13,7 +13,7 @@ import { ArtifactEmblem } from '../stage/ArtifactEmblem.js';
 
 export function ArtifactTable({ show }: { show: PublicShowView }) {
   return (
-    <aside className="artifact-table" aria-label="Artifact table" data-fit-fixed>
+    <aside className="artifact-table" aria-label="Artifact table" data-sk-fit-fixed>
       <ul>
         {show.artifactTable.map((a) => {
           const slot = show.prizeSlots.find((s) => s.slot === a.prizeSlot);

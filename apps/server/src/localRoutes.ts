@@ -89,7 +89,14 @@ async function secondFactorMissing(
   if (found?.enabled !== true) return false;
   if (code === undefined) return true;
   limited(perAccount, account.id);
-  if (!(await codeAccepted(ctx.auth.twoFactor, account.id, code, ctx.auth.now()))) {
+  if (
+    !(await codeAccepted(
+      { store: ctx.auth.twoFactor, recoveryKey: ctx.auth.recoveryKey },
+      account.id,
+      code,
+      ctx.auth.now(),
+    ))
+  ) {
     throw new Refusal(401, 'Wrong code.');
   }
   return false;

@@ -75,7 +75,7 @@ const STATE_WORDS: Record<RowState, string> = {
 export function Scoreboard({ show }: { show: PublicShowView }) {
   if (show.commitment === null) return null;
   return (
-    <header className="scoreboard" data-fit-fixed>
+    <header className="scoreboard" data-sk-fit-fixed>
       <ol className="scoreboard-rows" aria-label="Scoreboard">
         {scoreRows(show).map((row) => (
           <li

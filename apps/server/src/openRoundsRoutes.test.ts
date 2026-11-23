@@ -1,9 +1,10 @@
 /**
  * @file   apps/server/src/openRoundsRoutes.test.ts
  * @brief  Tests the website's open sign-ups: the contract's page, only open and listed
- *         registrations, no names, the join address of each mode.
+ *         registrations, no names, the join address of each mode, and no round on a plain-http
+ *         address (the kit's openRoundsPage, which the website would refuse too).
  */
-import { OpenRoundsPageSchema } from '@sc/contracts';
+import type { OpenRoundsPage } from '@seasonal/kit/server';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { startHarness, type Harness } from './testing/harness.js';
@@ -31,13 +32,17 @@ describe('the open rounds', () => {
     shows.claim(listed, { id: 'bo', name: 'Bo' }, 1, 4);
     const answer = await h.server.app.inject({ method: 'GET', url: '/api/public/open-rounds' });
     expect(answer.headers['cache-control']).toBe('public, max-age=30');
-    const page = OpenRoundsPageSchema.parse(answer.json());
+    const page = answer.json<OpenRoundsPage>();
+    expect(page.version).toBe(1);
     expect(page.rounds.map((r) => r.id)).toEqual([listed]);
-    expect(page.rounds[0]).toMatchObject({
+    expect(page.rounds[0]).toEqual({
+      id: listed,
+      title: 'Seasonal Cases: 6 cases, 2 prizes',
       kind: 'Seasonal Cases',
       players: 2,
       maxPlayers: 6,
       startsAt: null,
+      signupClosesAt: null,
       joinUrl: 'https://cases.example/',
     });
     expect(answer.body).not.toContain('Ana');
@@ -63,8 +68,22 @@ describe('the open rounds', () => {
       method: 'GET',
       url: '/games/cases/api/public/open-rounds',
     });
-    expect(OpenRoundsPageSchema.parse(answer.json()).rounds[0]?.joinUrl).toBe(
+    expect(answer.json<OpenRoundsPage>().rounds[0]?.joinUrl).toBe(
       'https://site.example/games/cases/',
     );
+  });
+
+  it('leave out a round the website would refuse: a join address that is not https', async () => {
+    const h = await startHarness(true, { SC_PUBLIC_ORIGIN: 'http://cases.example' });
+    harness = h;
+    const { shows } = h.server;
+    const made = shows.createShow(
+      { id: 'o', name: 'O' },
+      { cases: 4, winners: 1, labels: [], listed: true },
+    );
+    if (!made.ok) throw new Error(made.error);
+    shows.openRegistration(made.model.id, 'o');
+    const answer = await h.server.app.inject({ method: 'GET', url: '/api/public/open-rounds' });
+    expect(answer.json<OpenRoundsPage>()).toEqual({ version: 1, rounds: [] });
   });
 });

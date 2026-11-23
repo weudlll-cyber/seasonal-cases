@@ -42,10 +42,9 @@ test('journey 4: website sign-in, back link, docked chat, badges; a guest only w
   const member = await browser.newContext();
   const ana = await signInThroughWebsite(member, 7);
   await expect(ana).toHaveURL(GAME);
-  await expect(ana.getByRole('link', { name: '← Seasonal Entertainment' })).toHaveAttribute(
-    'href',
-    '/games',
-  );
+  await expect(
+    ana.getByRole('link', { name: 'Seasonal Entertainment', exact: true }),
+  ).toHaveAttribute('href', '/games');
   await expect(ana.locator('.shell-me .badge-icon')).toHaveAttribute('src', STEP_ICON);
   const chat = ana.getByTestId('chat-frame');
   await expect(chat).toHaveAttribute('src', /^\/embed\/chat\?room=cases&theme=/);
@@ -67,7 +66,9 @@ test('journey 4: website sign-in, back link, docked chat, badges; a guest only w
   const guest = await browser.newContext();
   const watcher = await guest.newPage();
   await watcher.goto(GAME);
-  await expect(watcher.getByRole('link', { name: '← Seasonal Entertainment' })).toBeVisible();
+  await expect(
+    watcher.getByRole('link', { name: 'Seasonal Entertainment', exact: true }),
+  ).toBeVisible();
   await expect(watcher.getByRole('link', { name: 'Sign in' })).toBeVisible();
   await expect(watcher.locator('.board-case[data-case="3"]')).toContainText('Ana');
   await expect(watcher.locator('.board-case button')).toHaveCount(0);

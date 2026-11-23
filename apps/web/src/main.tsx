@@ -2,10 +2,10 @@
  * @file   apps/web/src/main.tsx
  * @brief  The client's entry: the stylesheets in order, then the app into #root.
  *
- * Responsibility: the kit's CSS first (fonts, tokens, motion, fit floors, shell, frames, bar,
- *                 dock, call slot), then the cases' pending floors, then the client's own
- *                 (CLAUDE.md "The kit").
- * Depends on:     react-dom, @seasonal/kit CSS entries, @sc/ui pending/fit-cases.css,
+ * Responsibility: the kit's CSS first (fonts, tokens, motion, fit floors with the cases' own,
+ *                 shell, frames, bar, dock, call slot), then the client's own (CLAUDE.md "The
+ *                 kit").
+ * Depends on:     react-dom, @seasonal/kit CSS entries,
  *                 ./shell/*.css, ./stage/*.css, ./board/board.css, ./screens/*.css, ./App.js
  */
 import '@seasonal/kit/fonts.css';
@@ -17,7 +17,6 @@ import '@seasonal/kit/frames.css';
 import '@seasonal/kit/bar.css';
 import '@seasonal/kit/dock.css';
 import '@seasonal/kit/call.css';
-import '@sc/ui/pending/fit-cases.css';
 import './shell/fonts.css';
 import './shell/shell.css';
 import './stage/artifact.css';

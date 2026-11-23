@@ -200,20 +200,24 @@ describe('the two-factor store', () => {
     const raw = JSON.stringify((await db.pool.query('SELECT * FROM two_factor')).rows);
     expect(raw).not.toContain(Buffer.from(secret).toString('base64'));
     const hash = Buffer.alloc(32, 1);
-    await twoFactor.enable('acc-t', 100, [hash, Buffer.alloc(32, 2)]);
+    await twoFactor.enable('acc-t', 100, [hash, Buffer.alloc(32, 2), Buffer.alloc(32, 6)]);
     expect(await twoFactor.get('acc-t')).toMatchObject({ lastStep: 100, enabled: true });
     expect(await twoFactor.useStep('acc-t', 100)).toBe(false);
     expect(await twoFactor.useStep('acc-t', 101)).toBe(true);
-    expect(await twoFactor.useRecovery('acc-t', hash)).toBe(true);
-    expect(await twoFactor.useRecovery('acc-t', hash)).toBe(false);
-    expect(await twoFactor.useRecovery('acc-t', Buffer.alloc(32, 3))).toBe(false);
+    expect(await twoFactor.useRecovery('acc-t', [hash])).toBe(true);
+    expect(await twoFactor.useRecovery('acc-t', [hash])).toBe(false);
+    expect(await twoFactor.useRecovery('acc-t', [Buffer.alloc(32, 3)])).toBe(false);
+    // A code stored before the recovery key is found by the kit's second lookup (kit K27).
+    expect(await twoFactor.useRecovery('acc-t', [Buffer.alloc(32, 9), Buffer.alloc(32, 2)])).toBe(
+      true,
+    );
     // Re-issued codes void the old ones at once (D35).
     expect(await twoFactor.replaceRecovery('acc-t', [Buffer.alloc(32, 4)])).toBe(true);
-    expect(await twoFactor.useRecovery('acc-t', Buffer.alloc(32, 2))).toBe(false);
-    expect(await twoFactor.useRecovery('acc-t', Buffer.alloc(32, 4))).toBe(true);
+    expect(await twoFactor.useRecovery('acc-t', [Buffer.alloc(32, 6)])).toBe(false);
+    expect(await twoFactor.useRecovery('acc-t', [Buffer.alloc(32, 4)])).toBe(true);
     await twoFactor.remove('acc-t');
     expect(await twoFactor.replaceRecovery('acc-t', [Buffer.alloc(32, 5)])).toBe(false);
     expect(await twoFactor.get('acc-t')).toBeUndefined();
-    expect(await twoFactor.useRecovery('acc-t', Buffer.alloc(32, 2))).toBe(false);
+    expect(await twoFactor.useRecovery('acc-t', [Buffer.alloc(32, 2)])).toBe(false);
   });
 });

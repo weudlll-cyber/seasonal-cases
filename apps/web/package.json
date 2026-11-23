@@ -12,7 +12,7 @@
   "dependencies": {
     "@sc/contracts": "workspace:*",
     "@sc/ui": "workspace:*",
-    "@seasonal/kit": "github:weudlll-cyber/seasonal-kit#v0.8.0",
+    "@seasonal/kit": "github:weudlll-cyber/seasonal-kit#v0.11.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "socket.io-client": "4.8.4"

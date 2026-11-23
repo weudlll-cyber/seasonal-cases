@@ -25,11 +25,12 @@ service's environment file), **website** (the website's operator gives it), **de
 
 ## Database and secrets
 
-| Variable           | Default                    | Required in                         | From      | What                                                                                   |
-| ------------------ | -------------------------- | ----------------------------------- | --------- | -------------------------------------------------------------------------------------- |
-| `DATABASE_URL`     | (none: files and memory)   | production                          | installer | `postgres://user:password@host:port/database`                                          |
-| `SC_DATA_KEY`      | —                          | production; any run with a database | installer | 64 hex digits (`openssl rand -hex 32`); encrypts sealed shows and TOTP secrets at rest |
-| `SC_COOKIE_SECRET` | a new random one per start | production                          | installer | at least 32 characters; signs the session cookie, so sessions survive a restart        |
+| Variable           | Default                    | Required in                         | From      | What                                                                                                                                                                                                                                                                                                 |
+| ------------------ | -------------------------- | ----------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`     | (none: files and memory)   | production                          | installer | `postgres://user:password@host:port/database`                                                                                                                                                                                                                                                        |
+| `SC_DATA_KEY`      | —                          | production; any run with a database | installer | 64 hex digits (`openssl rand -hex 32`); encrypts sealed shows and TOTP secrets at rest                                                                                                                                                                                                               |
+| `SC_RECOVERY_KEY`  | a new random one per start | production; any run with a database | installer | 64 hex digits (`openssl rand -hex 32`), not one byte repeated; the HMAC key of the admins' recovery codes (kit v0.9.0, kit K20). Its own secret, never `SC_DATA_KEY`. Codes stored before it (plain SHA-256) keep working until used (kit K27). A changed key voids every code made with the old one |
+| `SC_COOKIE_SECRET` | a new random one per start | production                          | installer | at least 32 characters; signs the session cookie, so sessions survive a restart                                                                                                                                                                                                                      |
 
 ## Local mode
 

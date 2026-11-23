@@ -157,24 +157,3 @@ export const PersonalViewSchema = z.object({
   standings: z.array(z.object({ number: z.number().int(), standing: StandingSchema })),
 });
 export type PersonalView = z.infer<typeof PersonalViewSchema>;
-
-// The website's open sign-ups (Seasonal Entertainment docs/OPEN-ROUNDS.md, version 1).
-export const OPEN_ROUNDS_MAX = 20;
-
-export const OpenRoundSchema = z.object({
-  id: z.string().max(64),
-  title: z.string().max(80),
-  kind: z.string().max(40),
-  startsAt: z.string().nullable(),
-  signupClosesAt: z.string().nullable(),
-  players: z.number().int().min(0),
-  maxPlayers: z.number().int().min(1).nullable(),
-  joinUrl: z.string(),
-});
-export type OpenRound = z.infer<typeof OpenRoundSchema>;
-
-export const OpenRoundsPageSchema = z.object({
-  version: z.literal(1),
-  rounds: z.array(OpenRoundSchema).max(OPEN_ROUNDS_MAX),
-});
-export type OpenRoundsPage = z.infer<typeof OpenRoundsPageSchema>;

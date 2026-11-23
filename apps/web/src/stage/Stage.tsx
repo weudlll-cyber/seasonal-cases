@@ -15,7 +15,7 @@
  *                 ./CaseToken.js, ./CentreStage.js, ./Ceremony.js, ./DirectionBar.js,
  *                 ./LowerThird.js, ./motion.js, ./Opening.js, ./Scoreboard.js, ./travel.js
  */
-import { useFitScale } from '@seasonal/kit/react';
+import { useDockReserve, useFitScale } from '@seasonal/kit/react';
 import type {
   Ack,
   Applause,
@@ -24,7 +24,6 @@ import type {
   OrganiserView,
   PublicShowView,
 } from '@sc/contracts';
-import { useDockReserve } from '@sc/ui';
 import type { CSSProperties } from 'react';
 
 import { useApplauseStep, type ApplauseStep } from './applause.js';
@@ -55,7 +54,7 @@ export interface StageProps {
 function ApplauseCount({ applause }: { applause: Applause | null }) {
   if (applause === null || applause.total === 0) return null;
   return (
-    <p className="applause-count" data-fit-fixed title="Applause in this show" role="status">
+    <p className="applause-count" data-sk-fit-fixed title="Applause in this show" role="status">
       Applause {applause.total}
     </p>
   );
@@ -78,7 +77,7 @@ function StateNote({ show }: { show: PublicShowView }) {
       ? 'The cases are sealed. The show starts soon.'
       : 'Registration: pick your case on the start page.';
   return (
-    <p className="stage-note" data-fit-fixed>
+    <p className="stage-note" data-sk-fit-fixed>
       {text}
     </p>
   );
@@ -134,7 +133,7 @@ export function Stage(props: StageProps) {
   const reserve = useDockReserve();
   const cheer = useApplauseStep(applause);
   const { selected, step, begun } = show.live;
-  const fitRef = useFitScale<HTMLElement>('mini-games', `${String(show.caseCount)}:${step}`, true);
+  const fitRef = useFitScale<HTMLElement>('cases', `${String(show.caseCount)}:${step}`, true);
   // The bar exists only while the show is live: after the end only "See the result" stays.
   const holder = holderView(show, organiser, me);
   const spots = arcSpots(show.caseCount);
@@ -159,7 +158,7 @@ export function Stage(props: StageProps) {
       <Scoreboard show={show} />
       <StateNote show={show} />
       <ApplauseCount applause={applause} />
-      <div className="stage" data-fit-fixed>
+      <div className="stage" data-sk-fit-fixed>
         <div className="spotlight" aria-hidden="true" />
         <div className="arena-scroll" role="region" aria-label="Cases" tabIndex={0}>
           <ol className="arena" style={arenaStyle}>

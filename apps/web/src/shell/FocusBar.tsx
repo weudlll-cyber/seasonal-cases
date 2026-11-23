@@ -7,12 +7,14 @@
  *                 (counted from the received view), full screen where the browser offers it, and
  *                 the panel buttons: players (the owners), and for the direction holder on a
  *                 phone the direction panel, so the bar's buttons are never below the fold. The
- *                 chat button joins in website mode (piece 4); "Applaud" for everyone watching
- *                 (D39, sent as `show:applaud`). One panel at a time (`usePanels`);
+ *                 chat button joins wherever the screens are docked, with the dock's unread
+ *                 count as its badge, and opens the dock's own chat (./useChatHandOver.ts). The
+ *                 sound is the kit's toggle (v0.11.0); "Applaud" for everyone watching (D39, sent
+ *                 as `show:applaud`). One panel at a time (`usePanels`);
  *                 Escape closes the open one from anywhere on the page, as Mini Games' focus
  *                 shell does from its bar (the kit's hook leaves the key to the game).
- * Depends on:     react, @seasonal/kit/react, @sc/contracts, @sc/ui, ../stage/DirectionBar.js,
- *                 ../stage/facts.js, ../stage/Stage.js
+ * Depends on:     react, @seasonal/kit/react, @sc/contracts, @sc/ui, ./useChatHandOver.js,
+ *                 ../stage/DirectionBar.js, ../stage/facts.js, ../stage/Stage.js
  */
 import {
   GameBar,
@@ -23,12 +25,13 @@ import {
   type BarAction,
 } from '@seasonal/kit/react';
 import { ownerText, type Me, type OrganiserView, type PublicShowView } from '@sc/contracts';
-import { BarPress, BarToggle } from '@sc/ui';
-import { useEffect, type ReactNode, type RefObject } from 'react';
+import { BarPress } from '@sc/ui';
+import { useEffect, type RefObject } from 'react';
 
 import { DirectionBar } from '../stage/DirectionBar.js';
 import { showFacts } from '../stage/facts.js';
 import { holderView, type Direct } from '../stage/Stage.js';
+import { useChatHandOver } from './useChatHandOver.js';
 
 export type PanelId = 'players' | 'direction' | 'chat';
 
@@ -38,8 +41,8 @@ export interface FocusBarProps {
   readonly me: Me | null;
   readonly direct: Direct;
   readonly target: RefObject<HTMLElement | null>;
-  // The chat panel's content and unread count in website mode; absent otherwise.
-  readonly chat?: { readonly unread: number; readonly content: ReactNode };
+  // The docked chat's unread count, wherever the screens are docked; absent otherwise.
+  readonly chat?: { readonly unread: number } | undefined;
   // The stage's sound, on or off for this viewer (../stage/sound.ts).
   readonly sound: { readonly on: boolean; readonly toggle: () => void };
 }
@@ -74,6 +77,7 @@ export function FocusBar({ show, organiser, me, direct, target, chat, sound }: F
   useFocusMode(true);
   const panels = usePanels<PanelId>();
   useEscapeCloses(panels);
+  useChatHandOver(panels);
   const fullscreen = useFullscreen(target);
   const view = useDockView();
   const holder = holderView(show, organiser, me);
@@ -93,7 +97,6 @@ export function FocusBar({ show, organiser, me, direct, target, chat, sound }: F
         lead={
           <>
             <span className="focus-lead">Seasonal Cases</span>
-            <BarToggle on={sound.on} label="Sound" onToggle={sound.toggle} />
             <BarPress
               label="Applaud"
               tip="Applaud: the stage counts it, and the confetti grows with it"
@@ -108,7 +111,11 @@ export function FocusBar({ show, organiser, me, direct, target, chat, sound }: F
           // Read out on a phone: the scoreboard above the stage shows the prizes there.
           { text: `${String(prizesLeft)} prizes left`, desktopOnly: true },
         ]}
+        time={null}
         actions={actions}
+        toggles={[
+          { id: 'sound', icon: 'sound', label: 'Sound', on: sound.on, onToggle: sound.toggle },
+        ]}
         panels={panels}
         fullscreen={fullscreen}
         buttonClassName="button"
@@ -119,7 +126,6 @@ export function FocusBar({ show, organiser, me, direct, target, chat, sound }: F
           {panels.open === 'direction' && holder !== null && me !== null && (
             <DirectionBar view={holder} me={me} direct={direct} />
           )}
-          {panels.open === 'chat' && chat?.content}
         </aside>
       )}
     </>

@@ -5,15 +5,14 @@
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./pending/fit-cases.css": "./src/pending/fit-cases.css"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@sc/contracts": "workspace:*",
-    "@seasonal/kit": "github:weudlll-cyber/seasonal-kit#v0.8.0",
+    "@seasonal/kit": "github:weudlll-cyber/seasonal-kit#v0.11.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },

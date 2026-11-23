@@ -16,7 +16,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
 - **Repository:** `weudlll-cyber/seasonal-cases` (public). Master is protected (checks `verify`,
   `security`, `docs` and, since 2026-11-22, `e2e` (D38); a pull request; no force push, no
   deletion). Kit `v0.5.0` on master
-  (D15), `v0.8.0` on `proto/cases-v1` (D18).
+  (D15), `v0.11.0` on `proto/cases-v1` since 2026-11-23 (D40; `v0.8.0` before, D18).
 - **On `proto/cases-v1`:**
   - the contracts;
   - the domain:
@@ -158,6 +158,22 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   account exists (registration still tells a taken e-mail by what it leaves behind); whether a
   name needs a letter; applause per socket, account or address, and for guests; the address
   budget shared by claims and sign-ins.
+
+- **Where this repository departs from the kit's HANDBOOK (v0.11.0)**, read once on
+  2026-11-23; nothing changed for them:
+  - the header is the game's own `ShellBar`, not the kit's `AppHeader` (and no `DevSignIn`):
+    the kit's header folds into a Menu, this one wraps on a phone (D29);
+  - coverage thresholds are the domain's 90 % lines / 85 % branches and the application's
+    80 / 75 (CLAUDE.md "game logic 85 % branches"), not 95 % of lines, branches and functions
+    everywhere;
+  - the season of a show comes from its date (UTC month, `packages/application/src/season.ts`),
+    not from the website's season feed (`seasonFeedReader`);
+  - the morning sheet is one file, `docs/NIGHT-RUN.md`, with a section per chain, not
+    `docs/NIGHT-<date>.md`;
+  - some browser tests wait on the clock (`waitForTimeout` in journey 1 for the case's
+    travel), where the handbook passes time in;
+  - the handbook asks that each rule's test be run once without the change; the chains did
+    that for the probes recorded in BACKLOG "Checks run", not for every rule.
 
 ## Needs the owner's hand
 

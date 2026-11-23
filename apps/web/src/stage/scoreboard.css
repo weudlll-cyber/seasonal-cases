@@ -6,7 +6,7 @@
  *                 (under 700 px of width). "Lit" glows in Autumn's colour; "taken" is struck through and muted
  *                 but keeps its owner readable. Colours only from the kit's tokens; text never
  *                 under the cases' 14 px floor.
- * Depends on:     @seasonal/kit/tokens.css, @sc/ui pending/fit-cases.css, ./artifact.css
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/fit.css (the cases floors), ./artifact.css
  */
 
 .scoreboard {

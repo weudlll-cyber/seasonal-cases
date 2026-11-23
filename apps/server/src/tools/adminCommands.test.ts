@@ -63,7 +63,7 @@ describe('the admin commands', () => {
     await openSession(s.sessions, OLGA.id, 0);
     expect(await resetTwoFactor(s, 'olga')).toMatch(/no second factor/);
     expect(await s.twoFactor.get(OLGA.id)).toBeUndefined();
-    expect(await s.twoFactor.useRecovery(OLGA.id, Buffer.alloc(32, 1))).toBe(false);
+    expect(await s.twoFactor.useRecovery(OLGA.id, [Buffer.alloc(32, 1)])).toBe(false);
     expect(await s.sessions.removeForAccount(OLGA.id)).toEqual([]);
   });
 });

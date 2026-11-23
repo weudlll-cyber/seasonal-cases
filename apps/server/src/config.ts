@@ -11,7 +11,8 @@
  *                 - Production (NODE_ENV=production): DATABASE_URL, SC_DATA_KEY and
  *                   SC_COOKIE_SECRET (32 characters at least) are required; the built client is
  *                   served from apps/web/dist unless SC_CLIENT_DIR names another folder.
- *                 - DATABASE_URL needs SC_DATA_KEY (secrets at rest).
+ *                 - DATABASE_URL needs SC_DATA_KEY (secrets at rest) and SC_RECOVERY_KEY (the
+ *                   recovery codes' HMAC key); production needs both too.
  *                 - Website mode: SC_PROXY_SECRET, SC_WEBSITE_ORIGIN, SC_TRUSTED_PROXIES; the
  *                   feed's SC_WEBSITE_LOCAL_ORIGIN and SC_GAMES_SYNC_TOKEN both or neither.
  *                 - Local mode: SC_CHAT_ORIGIN (development), the SMTP relay (SC_SMTP_HOST,
@@ -55,6 +56,8 @@ export interface ServerConfig {
   readonly dataDir: string;
   readonly database: { readonly url: string; readonly keyHex: string } | null;
   readonly cookieSecret: string;
+  // The recovery codes' HMAC key (the kit's recoveryHash, kit DECISIONS K20), 32 bytes.
+  readonly recoveryKey: Buffer;
   readonly website: WebsiteConfig | null;
   readonly chatOrigin: string | null;
   readonly smtp: SmtpConfig | null;
@@ -103,6 +106,17 @@ function databaseFrom(read: EnvReader, production: boolean): ServerConfig['datab
   const needKey = production ? 'production' : url === '' ? undefined : 'a run with DATABASE_URL';
   const keyHex = read.hexKey('SC_DATA_KEY', needKey);
   return url === '' || keyHex === '' ? null : { url, keyHex };
+}
+
+// The recovery codes' key is its own secret, never SC_DATA_KEY, so losing one leaves the other
+// working (kit HANDBOOK "Security"). Needed wherever codes outlive the process; a run without a
+// database keeps them in memory and takes a new random key per start. The kit refuses a key of
+// one repeated byte, so the start does too.
+function recoveryKeyFrom(read: EnvReader, production: boolean, database: boolean): Buffer {
+  const need = production ? 'production' : database ? 'a run with DATABASE_URL' : undefined;
+  const hex = read.hexKey('SC_RECOVERY_KEY', need);
+  if (/^([0-9a-f]{2})\1{31}$/i.test(hex)) read.note('SC_RECOVERY_KEY must not repeat one byte');
+  return hex === '' ? randomBytes(32) : Buffer.from(hex, 'hex');
 }
 
 function cookieSecretFrom(read: EnvReader, production: boolean): string {
@@ -204,6 +218,7 @@ function addressesFrom(read: EnvReader, basics: Basics) {
 export function configFrom(env: NodeJS.ProcessEnv): ServerConfig {
   const read = new EnvReader(env);
   const basics = basicsFrom(read);
+  const database = databaseFrom(read, basics.production);
   const config: ServerConfig = {
     ...basics,
     port: read.int('SC_PORT', 3970, { min: 0, max: 65_535 }),
@@ -211,8 +226,9 @@ export function configFrom(env: NodeJS.ProcessEnv): ServerConfig {
     basePath: basics.mode === 'website' ? `/games/${GAME_SLUG}/` : '/',
     version: version(),
     ...runtimeFrom(read, basics),
-    database: databaseFrom(read, basics.production),
+    database,
     cookieSecret: cookieSecretFrom(read, basics.production),
+    recoveryKey: recoveryKeyFrom(read, basics.production, database !== null),
     plainCookie: plainCookieFrom(read),
     ...addressesFrom(read, basics),
   };

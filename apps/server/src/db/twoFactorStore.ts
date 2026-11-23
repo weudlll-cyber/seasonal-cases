@@ -106,13 +106,14 @@ export function pgTwoFactor(pool: DbPool, key: Buffer): TwoFactorStore {
       await pool.query('DELETE FROM recovery_codes WHERE account_id = $1', [accountId]);
       await pool.query('DELETE FROM two_factor WHERE account_id = $1', [accountId]);
     },
-    async useRecovery(accountId, hash) {
+    async useRecovery(accountId, hashes) {
+      // The kit's two lookups never both name a stored code: an HMAC and a SHA-256 of codes.
       const result = await pool.query(
         `UPDATE recovery_codes SET used_at = now()
-         WHERE account_id = $1 AND code_hash = $2 AND used_at IS NULL`,
-        [accountId, hash],
+         WHERE account_id = $1 AND code_hash = ANY($2::bytea[]) AND used_at IS NULL`,
+        [accountId, [...hashes]],
       );
-      return result.rowCount === 1;
+      return (result.rowCount ?? 0) > 0;
     },
   };
 }

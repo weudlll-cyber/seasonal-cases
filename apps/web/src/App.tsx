@@ -10,13 +10,19 @@
  *                 stage the kit's game bar replaces the header (focus mode); on a phone the
  *                 direction bar then lives in the bar's panel. In website mode, or locally with a
  *                 chat origin, every screen sits in the kit's `DockedScreen` with the website's
- *                 chat, mounted once (GAME-INTEGRATION §5); the call slot stays hidden.
- * Depends on:     react, @seasonal/kit/react, @sc/ui, ./account/*, ./lib/*, ./screens/*, ./shell/*,
+ *                 chat, mounted once (GAME-INTEGRATION §5); the call slot stays hidden. The
+ *                 dock's unread count (the kit's `onUnread`) is the game bar's chat badge.
+ * Depends on:     react, @seasonal/kit/react, ./account/*, ./lib/*, ./screens/*, ./shell/*,
  *                 ./stage/Stage.js
  */
-import { DockedScreen, useDockView, useTheme, WebsiteChatFrame } from '@seasonal/kit/react';
-import { OriginChatFrame } from '@sc/ui';
-import { useRef, type ReactNode } from 'react';
+import {
+  DockedScreen,
+  OriginChatFrame,
+  useDockView,
+  useTheme,
+  WebsiteChatFrame,
+} from '@seasonal/kit/react';
+import { useRef, useState, type ReactNode } from 'react';
 
 import { Matches } from './account/Matches.js';
 import { ResetPage } from './account/ResetPage.js';
@@ -36,7 +42,7 @@ import { Stage } from './stage/Stage.js';
 const ROOM = 'cases';
 
 function chatOf(mode: ServerMode): ReactNode {
-  if (mode.mode === 'website') return <WebsiteChatFrame room={ROOM} sandboxed />;
+  if (mode.mode === 'website') return <WebsiteChatFrame room={ROOM} />;
   return mode.chatOrigin === null ? null : <OriginChatFrame origin={mode.chatOrigin} room={ROOM} />;
 }
 
@@ -56,6 +62,7 @@ export function App() {
   const show = feed.show;
   const focus = route.name === 'stage' && show?.state === 'live';
   const isDocked = docked(mode);
+  const [unread, setUnread] = useState(0);
   const content = (
     <Routes
       route={route}
@@ -77,6 +84,7 @@ export function App() {
           direct={feed.direct}
           target={shellRef}
           sound={sound}
+          chat={isDocked ? { unread } : undefined}
         />
       ) : (
         <ShellBar
@@ -88,7 +96,7 @@ export function App() {
         />
       )}
       {isDocked ? (
-        <DockedScreen chat={chatOf(mode)} bar="line" callId={null}>
+        <DockedScreen chat={chatOf(mode)} bar="line" callId={null} onUnread={setUnread}>
           {content}
         </DockedScreen>
       ) : (

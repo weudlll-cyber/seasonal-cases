@@ -51,10 +51,10 @@ export async function signedInAccount(ctx: Ctx, request: FastifyRequest): Promis
   return account;
 }
 
-/** Ten new recovery codes and their hashes, to be shown once and stored. */
-function freshCodes(): { codes: readonly string[]; hashes: Buffer[] } {
+/** Ten new recovery codes and their keyed hashes, to be shown once and stored. */
+function freshCodes(key: Uint8Array): { codes: readonly string[]; hashes: Buffer[] } {
   const codes = newRecoveryCodes(RECOVERY_STYLE);
-  return { codes, hashes: codes.map((c) => recoveryHash(c, RECOVERY_STYLE)) };
+  return { codes, hashes: codes.map((c) => recoveryHash(c, RECOVERY_STYLE, key)) };
 }
 
 // New recovery codes for an account that has two-factor sign-in: password and a current code.
@@ -79,7 +79,7 @@ function reissueRoute(ctx: Ctx, credentials: CredentialStore, limiter: RateLimit
     if (step === null || !(await auth.twoFactor.useStep(account.id, step))) {
       throw new Refusal(401, 'Wrong password or code.');
     }
-    const { codes, hashes } = freshCodes();
+    const { codes, hashes } = freshCodes(auth.recoveryKey);
     if (!(await auth.twoFactor.replaceRecovery(account.id, hashes))) {
       throw new Refusal(409, 'two-factor sign-in is not set up');
     }
@@ -127,7 +127,7 @@ export function twoFactorRoutes(ctx: Ctx, credentials: CredentialStore): void {
     if (found === undefined || found.enabled) throw new Refusal(409, 'set up a new secret first');
     const step = matchingStep(found.secret, code, auth.now(), null);
     if (step === null) throw new Refusal(400, 'Wrong code: check the time on your phone.');
-    const { codes: recoveryCodes, hashes } = freshCodes();
+    const { codes: recoveryCodes, hashes } = freshCodes(auth.recoveryKey);
     if (!(await auth.twoFactor.enable(account.id, step, hashes))) {
       throw new Refusal(409, 'two-factor sign-in is already set up');
     }

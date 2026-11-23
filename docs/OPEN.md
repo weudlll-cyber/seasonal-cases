@@ -17,5 +17,6 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   34); website mode behind the site's Caddy lacks the feed (BACKLOG 35). The open-rounds listing
   and the member summary are built (BACKLOG 25, 26, closed); the website wires the card's origin
   (BACKLOG 33).
-- **Always open:** kit adoption items (BACKLOG 13, 19, 20,
-  23, 24, 32, 36).
+- **Kit:** v0.11.0 since 2026-11-23 (D40); its parts replaced four stand-ins and the bar's chat
+  count (BACKLOG 13, 19, 20, 23, 24, 32, 36, closed). Open: the bar's press action for "Applaud"
+  (BACKLOG 41).

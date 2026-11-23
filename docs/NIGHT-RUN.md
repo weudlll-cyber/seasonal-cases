@@ -2,6 +2,103 @@
 
 The morning sheets of the unattended night chains, newest first.
 
+## Day chain SC-D5 (2026-11-23)
+
+The owner's decisions of 2026-11-23 (D40–D45): kit v0.11.0, the kit-version watch, and four
+proposals that stand until the owner says otherwise (registration with confirmation, a letter in
+every name, applause per account or address, separate address budgets). Then the browser matrix,
+a review, the play-through and the hand-over for the evening test. Branch `proto/cases-v1`,
+continued; nothing merged.
+
+### Final report
+
+Follows at the end of the chain.
+
+### Pieces
+
+| Piece                     | Done | Running | Open | Needs the owner's word         | Commits, CI              |
+| ------------------------- | ---- | ------- | ---- | ------------------------------ | ------------------------ |
+| 1 Kit v0.11.0             | yes  |         |      | HANDBOOK deviations (HANDOVER) | piece 1 commit, CI below |
+| 2 The kit-version watch   |      | next    |      |                                |                          |
+| 3 The owner's four items  |      |         | yes  |                                |                          |
+| 4 The browser matrix      |      |         | yes  |                                |                          |
+| 5 Review, play, hand-over |      |         | yes  |                                |                          |
+
+### Choices made without the owner (SC-D5)
+
+- **The recovery key.** The kit hashes recovery codes with HMAC-SHA-256 and a key since v0.9.0
+  (kit K20). New setting `SC_RECOVERY_KEY` (64 hex digits, never one byte repeated), required in
+  production and in any run with a database, like `SC_DATA_KEY`; without a database a new random
+  key per start, like the cookie secret. The installer makes it once and keeps it; the
+  development key is in `apps/server/dev.env`. Codes stored before (plain SHA-256) still work
+  until used, through the kit's second lookup (kit K27).
+- **The bar's chat button** carries the dock's unread count and opens the dock's own chat (the
+  phone's sheet, or the focus into the desktop strip), because the website's chat is mounted once
+  in the dock; it has no panel of its own.
+- **Open rounds in local development** are empty now: the kit's publisher leaves out a round
+  whose join address is not https, which the website would refuse as well.
+- **BACKLOG 32 closed with the others:** the kit's bar shrinks its facts and wraps its buttons,
+  so the lead "Seasonal Cases" shows on a narrow phone again.
+
+### Piece 1 report
+
+Kit `v0.11.0` in all four package.json files (lockfile: `version: 0.11.0`), the migration tables
+of 0.9.0, 0.9.1, 0.10.0, 0.10.1 and 0.11.0 followed:
+
+- **0.9.0:** `recoveryHash(code, style, key)` with `SC_RECOVERY_KEY`, look-ups with
+  `recoveryLookups` (`code_hash = ANY($2)` in PostgreSQL); `WebsiteChatFrame` without
+  `sandboxed`. The header and dev tools: the game keeps its own (HANDOVER, deviations).
+- **0.9.1:** the back link's arrow is hidden from screen readers; journey 4 finds the link by
+  "Seasonal Entertainment".
+- **0.10.0:** `GameBar` `time={null}`. Not used here: `RequestHeaders`, `BarIconName`'s
+  `expand`, `devStubPlugin`, `AppHeader`'s order, `signIn.href`. The focus ring needs nothing.
+- **0.10.1:** `data-fit-fixed` → `data-sk-fit-fixed` (five files). No other renamed attribute is
+  read here.
+- **0.11.0:** the stand-ins replaced as ADOPTION.md's Cases table says:
+  - `useFitScale('cases')` with the kit's floors; `fit-cases.css` deleted;
+  - the kit's `useDockReserve` and `OriginChatFrame`;
+  - `GameBar` `toggles` for the sound;
+  - `DockedScreen` `onUnread` into the chat button's `badge`;
+  - the lead shows on a narrow phone again;
+  - `openRoundsPage` for the open rounds.
+
+What stays under `packages/ui/src/pending/`: `BarPress.tsx` ("Applaud"). The kit's actions open
+panels and its toggles switch a setting; neither sends a single press (BACKLOG 41, from 36).
+
+Lines before → after:
+
+- deleted: `BarToggle.tsx` 54, `OriginChatFrame.tsx` 53, `useDockReserve.ts` 33,
+  `fit-cases.css` 17;
+- new: `apps/web/src/shell/useChatHandOver.ts` 35;
+- changed (added/removed): `openRoundsRoutes.ts` +34/−18, `config.ts` +18/−2, `twoFactor.ts`
+  +12/−9, `FocusBar.tsx` +16/−10, `App.tsx` +15/−7, `RegistrationBoard.tsx` +5/−9, `Stage.tsx`
+  +5/−6, `shell.css` +5/−9, `moments.css` −8, `contracts/view.ts` −21 (the open-rounds shapes,
+  now the kit's), `ui/index.ts` +2/−7; one-line changes in the CSS headers, `ArtifactTable`,
+  `DirectionBar`, `Scoreboard`, `session.ts`, `app.ts`, `twoFactorRoutes.ts`.
+
+Reused from the kit: `useFitScale`, `useDockReserve`, `OriginChatFrame`, `GameBar` `toggles`,
+`DockedScreen` `onUnread`, `openRoundsPage`, `OPEN_ROUNDS_CACHE_CONTROL`, `recoveryHash`,
+`recoveryLookups`. Removed: four stand-ins, the CSS of the toggle's pressed state, the lead's
+phone rule, the contracts' open-rounds schema.
+
+Tests:
+
+- new: the kit toggle, the chat badge and hand-over, no chat button undocked
+  (`FocusBar.test.tsx`); a round without an https address left out (`openRoundsRoutes.test.ts`);
+  a legacy recovery code found by the second lookup (`stores.test.ts`); the recovery key's rules
+  (`production.test.ts`); the installer makes the recovery key, apart from the data key;
+- `pnpm verify` green: 42 files, 204 tests;
+- journeys 1–6 in Chromium: 1, 2, 3, 5 and 6 passed. Journey 4 failed on the back link's new
+  name; after the fix it passed alone;
+- the installer harness in the Linux image: 52 passed. On Windows its three 0600 file-mode checks
+  fail, as before, since Windows has no such modes.
+
+Noticed, left alone:
+
+- a folder `https:/example.org/cases.git/.git` in the repository root, made on 2026-11-21 at
+  23:45 by the installer harness's fake clone on Windows. It is empty, so git does not list it;
+- the HANDBOOK deviations, listed in HANDOVER.
+
 ## Night chain SC-N4 (2026-11-22)
 
 The owner's decisions of 2026-11-22: the three picture decisions and WebKit, the show rules

@@ -5,8 +5,8 @@
  * Responsibility: the season colours come only from the kit's tokens (CONCEPT §7); the main
  *                 prize's "all four" is a ring of them, turning slowly in the centre case and
  *                 the ceremony only (still under reduced motion); the blank is muted. Sizes
- *                 follow `--fit` and never go below the cases' floors (pending/fit-cases.css).
- * Depends on:     @seasonal/kit/tokens.css, @sc/ui pending/fit-cases.css
+ *                 follow `--fit` and never go below the cases' floors (the kit's fit.css).
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/fit.css (the cases floors)
  */
 
 .artifact {

@@ -120,3 +120,21 @@ owner confirms them.
   `verify`, `security` and `docs`.
 - **D39 — Applause first.** Viewer participation starts with the applause button only; tips and
   suggestions wait (BACKLOG 10 narrowed; CONCEPT §12 P3, v1.8).
+
+## 2026-11-23, the owner's decisions for day chain SC-D5
+
+- **D40 — Kit v0.11.0.** The kit is pinned to v0.11.0; every stand-in under
+  `packages/ui/src/pending/` that the kit now has is replaced by the kit's part.
+- **D41 — The kit-version watch.** A kit-version watch reports, on every verify and in CI, the
+  pinned tag against the newest tag; it never fails the build; moving the pin stays the owner's
+  word.
+- **D42 — Registration with confirmation (proposal, until the owner says otherwise).**
+  Registration creates the account only after a confirmation link from the mail is used; before
+  that nothing exists, so a sign-in reveals nothing.
+- **D43 — A letter in every name (proposal, until the owner says otherwise).** An account name
+  contains at least one letter.
+- **D44 — Applause limits (proposal, until the owner says otherwise).** Applause is limited per
+  account for signed-in users and per address for guests; guests may applaud.
+- **D45 — Separate address budgets (proposal, until the owner says otherwise).** Sign-in has 20
+  requests a minute per address and claims 300 a minute per address, each its own budget; the
+  per-player and per-socket limits stay.

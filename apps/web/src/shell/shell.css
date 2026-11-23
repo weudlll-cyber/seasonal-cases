@@ -267,9 +267,9 @@ select {
   height: 16px;
 }
 
-/* The game bar's sound toggle (@sc/ui pending/BarToggle.tsx): icon and words on a desktop, the
-   icon alone on a phone, a 44 px target. */
-.sc-bar-toggle {
+/* The game bar's "Applaud" (@sc/ui pending/BarPress.tsx), shaped like the kit's toggles: icon
+   and words on a desktop, the icon alone on a phone, a 44 px target. */
+.sc-bar-press {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -278,18 +278,14 @@ select {
   margin-left: var(--space-1);
 }
 
-.sc-bar-toggle[aria-pressed='true'] {
-  border-color: var(--color-autumn);
-}
-
 @media (max-width: 899px), (orientation: portrait) {
-  .sc-bar-toggle {
+  .sc-bar-press {
     justify-content: center;
     width: var(--hit-target);
     padding: 0;
   }
 
-  .sc-bar-toggle-label {
+  .sc-bar-press-label {
     position: absolute;
     width: 1px;
     height: 1px;

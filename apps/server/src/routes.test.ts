@@ -22,6 +22,7 @@ describe('development mode', () => {
       NODE_ENV: 'production',
       DATABASE_URL: 'postgres://u:p@127.0.0.1:5432/db',
       SC_DATA_KEY: 'ab'.repeat(32),
+      SC_RECOVERY_KEY: 'cd'.repeat(31) + 'ef',
       SC_COOKIE_SECRET: 'x'.repeat(32),
       SC_PUBLIC_ORIGIN: 'https://cases.example',
     };

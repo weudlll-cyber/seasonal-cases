@@ -4,13 +4,15 @@
  *
  * Responsibility: a TOTP secret per account (the kit's `newSecret`, 30 s steps, 6 digits), set up
  *                 first and enabled once a code from it is confirmed; ten recovery codes in the
- *                 kit's `grouped` style (Mini Games'), kept as hashes, each used once. A TOTP step
+ *                 kit's `grouped` style (Mini Games'), kept as HMAC-SHA-256 hashes with the
+ *                 server's recovery key (kit K20), each used once; a code stored before the key
+ *                 (plain SHA-256) is still found through the kit's second lookup (kit K27). A TOTP step
  *                 is accepted only after the last one used, so a code never works twice. Who needs
  *                 it: a local account with the admin role (website accounts sign in through the
  *                 website and its own 2FA; development accounts are for development only).
  * Depends on:     @seasonal/kit/server, ./accounts.js (types)
  */
-import { looksLikeRecoveryCode, matchingStep, recoveryHash } from '@seasonal/kit/server';
+import { looksLikeRecoveryCode, matchingStep, recoveryLookups } from '@seasonal/kit/server';
 
 import type { Account } from './accounts.js';
 
@@ -29,8 +31,9 @@ export interface TwoFactorStore {
   enable(accountId: string, step: number, codeHashes: readonly Buffer[]): Promise<boolean>;
   // Moves the last step forward; answers false if `step` is not after the stored one.
   useStep(accountId: string, step: number): Promise<boolean>;
-  // Marks the recovery code used; answers false if it is unknown or used.
-  useRecovery(accountId: string, codeHash: Buffer): Promise<boolean>;
+  // Marks the unused recovery code stored under one of these hashes used (the kit's lookups: the
+  // keyed hash and the legacy one); answers false if none is stored unused.
+  useRecovery(accountId: string, codeHashes: readonly Buffer[]): Promise<boolean>;
   // Replaces every recovery code of an enabled account at once, so the old ones are void;
   // answers false when two-factor sign-in is not enabled (DECISIONS D35).
   replaceRecovery(accountId: string, codeHashes: readonly Buffer[]): Promise<boolean>;
@@ -46,7 +49,7 @@ export const needsTwoFactor = (account: Account): boolean =>
 
 /** Checks a TOTP or recovery code of an enabled account and uses it up. */
 export async function codeAccepted(
-  store: TwoFactorStore,
+  { store, recoveryKey }: { readonly store: TwoFactorStore; readonly recoveryKey: Uint8Array },
   accountId: string,
   code: string,
   now: number,
@@ -55,7 +58,7 @@ export async function codeAccepted(
   if (found === undefined || !found.enabled) return false;
   const typed = code.trim();
   if (looksLikeRecoveryCode(typed)) {
-    return store.useRecovery(accountId, recoveryHash(typed, RECOVERY_STYLE));
+    return store.useRecovery(accountId, recoveryLookups(typed, RECOVERY_STYLE, recoveryKey));
   }
   const step = matchingStep(found.secret, typed, now, found.lastStep);
   return step !== null && store.useStep(accountId, step);
@@ -86,10 +89,10 @@ export function memoryTwoFactor(): TwoFactorStore {
       all.set(id, { ...found, lastStep: step });
       return Promise.resolve(true);
     },
-    useRecovery: (id, hash) => {
+    useRecovery: (id, hashes) => {
       const mine = codes.get(id);
-      const key = hash.toString('hex');
-      if (mine?.get(key) !== false) return Promise.resolve(false);
+      const key = hashes.map((h) => h.toString('hex')).find((k) => mine?.get(k) === false);
+      if (mine === undefined || key === undefined) return Promise.resolve(false);
       mine.set(key, true);
       return Promise.resolve(true);
     },

@@ -23,6 +23,7 @@ const PRODUCTION = {
   NODE_ENV: 'production',
   DATABASE_URL: 'postgres://u:p@127.0.0.1:5432/db',
   SC_DATA_KEY: KEY,
+  SC_RECOVERY_KEY: 'cd'.repeat(31) + 'ef',
   SC_COOKIE_SECRET: 'x'.repeat(32),
   SC_PUBLIC_ORIGIN: 'https://cases.example',
 };
@@ -46,7 +47,8 @@ function problemsOf(env: NodeJS.ProcessEnv): readonly string[] {
 describe('the settings check', () => {
   it('names every missing value of production in one message', () => {
     const problems = problemsOf({ NODE_ENV: 'production' });
-    for (const name of ['DATABASE_URL', 'SC_DATA_KEY', 'SC_COOKIE_SECRET', 'SC_PUBLIC_ORIGIN']) {
+    const names = ['DATABASE_URL', 'SC_DATA_KEY', 'SC_RECOVERY_KEY', 'SC_COOKIE_SECRET'];
+    for (const name of [...names, 'SC_PUBLIC_ORIGIN']) {
       expect(problems.some((p) => p.startsWith(`${name} is required in production`))).toBe(true);
     }
     expect(problemsOf(PRODUCTION)).toEqual([]);
@@ -58,12 +60,27 @@ describe('the settings check', () => {
       SC_PORT: 'eighty',
       DATABASE_URL: 'mysql://x',
       SC_DATA_KEY: 'short',
+      SC_RECOVERY_KEY: 'short',
       SC_COOKIE_SECRET: 'too short',
       SC_PUBLIC_ORIGIN: 'not an address',
       SC_MODE: 'cloud',
       SC_HOST: 'localhost',
     });
-    expect(problems).toHaveLength(7);
+    expect(problems).toHaveLength(8);
+  });
+
+  it('refuses a recovery key of one repeated byte, which the kit would refuse at the first code', () => {
+    expect(problemsOf({ ...PRODUCTION, SC_RECOVERY_KEY: 'ab'.repeat(32) })).toEqual([
+      'SC_RECOVERY_KEY must not repeat one byte',
+    ]);
+  });
+
+  it('asks a development run with a database for its recovery key, and none without one', () => {
+    const database = { DATABASE_URL: PRODUCTION.DATABASE_URL, SC_DATA_KEY: KEY };
+    expect(problemsOf(database)).toEqual([
+      'SC_RECOVERY_KEY is required in a run with DATABASE_URL',
+    ]);
+    expect(configFrom({}).recoveryKey).toHaveLength(32);
   });
 
   it('asks website mode for its trust settings and the feed for both values', () => {

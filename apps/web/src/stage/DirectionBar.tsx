@@ -84,7 +84,7 @@ export function DirectionBar({ view, me, direct }: Omit<PartProps, 'action'>) {
   const action = useAction();
   const { show } = view;
   return (
-    <nav className="direction-bar" aria-label="Direction" data-fit-fixed>
+    <nav className="direction-bar" aria-label="Direction" data-sk-fit-fixed>
       <span className="direction-hint">
         {show.live.step === 'idle'
           ? 'Click a case to select it'

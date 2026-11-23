@@ -5,7 +5,7 @@
  * Responsibility: the frame's layout is the kit's (`@seasonal/kit/frames.css`); these rules fill
  *                 its slots. Colours only from the kit's tokens; text never under the cases'
  *                 14 px floor.
- * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/frames.css, @sc/ui pending/fit-cases.css
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/frames.css, @seasonal/kit/fit.css (the cases floors)
  */
 
 .result-winners {

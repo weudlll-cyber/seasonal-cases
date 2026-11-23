@@ -7,7 +7,7 @@
  *                 cases' floors. The screen leaves `--dock-reserve` free at the bottom
  *                 (DECISIONS D7). Phone widths: the cases in two rows in a named scroll area.
  *                 Reduced motion: the kit's motion.css stops every animation.
- * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/motion.css, @sc/ui pending/fit-cases.css,
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/motion.css, @seasonal/kit/fit.css (the cases floors),
  *                 ../shell/shell.css (--shell-height)
  */
 

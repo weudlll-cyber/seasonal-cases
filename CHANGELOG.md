@@ -3,6 +3,19 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
+## 1.0.0-rc.3 (in progress)
+
+Branch `proto/cases-v1`, day chain SC-D5 (the owner's decisions of 2026-11-23, D40–D45).
+
+### The kit
+
+- Kit v0.11.0 (D40): the cases' fit floors, the dock reserve, the local chat frame and the
+  sound toggle are the kit's; the bar's chat button shows the dock's unread count and opens the
+  dock's chat; the bar's lead shows on a narrow phone again; the open rounds come from the kit's
+  `openRoundsPage`, which leaves out a round without an https join address. Recovery codes are
+  HMAC-SHA-256 with the new `SC_RECOVERY_KEY` (kit K20); codes stored before keep working until
+  used (kit K27).
+
 ## 1.0.0-rc.2 (not tagged; the tag follows the merge with the owner's word)
 
 Branch `proto/cases-v1`, night chain SC-N4 (the owner's decisions of 2026-11-22, D27–D39).

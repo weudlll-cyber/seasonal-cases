@@ -86,11 +86,14 @@ case_local() {
   check 'grep -q "^SC_PUBLIC_ORIGIN='"'"'https://cases.example.org'"'"'" "$env"' "no public origin"
   check 'grep -q "^SC_SMTP_PORT='"'"'1025'"'"'" "$env"' "no SMTP port"
   check '! grep -q "SC_DATA_KEY\|SC_COOKIE_SECRET\|DB_PASSWORD" "$state"' "a secret in the state file"
-  local key cookie
+  check '! grep -q "SC_RECOVERY_KEY" "$state"' "the recovery key in the state file"
+  local key cookie recovery
   key=$(grep '^SC_DATA_KEY=' "$env" | cut -d"'" -f2)
   cookie=$(grep '^SC_COOKIE_SECRET=' "$env" | cut -d"'" -f2)
-  check '[[ ${#key} == 64 && ${#cookie} == 64 ]]' "secrets not made"
-  check '[[ $OUT != *"$key"* && $OUT != *"$cookie"* ]]' "a secret was printed"
+  recovery=$(grep '^SC_RECOVERY_KEY=' "$env" | cut -d"'" -f2)
+  check '[[ ${#key} == 64 && ${#cookie} == 64 && ${#recovery} == 64 ]]' "secrets not made"
+  check '[[ $recovery != "$key" ]]' "the recovery key is the data key"
+  check '[[ $OUT != *"$key"* && $OUT != *"$cookie"* && $OUT != *"$recovery"* ]]' "a secret was printed"
   check 'grep -q "^runuser .*createdb -O seasonal_cases seasonal_cases" "$ROOT/calls.log"' "no database created"
   check 'grep -q "^pnpm build" "$ROOT/calls.log"' "no build"
   check 'grep -q "^systemctl restart seasonal-cases" "$ROOT/calls.log"' "no restart"

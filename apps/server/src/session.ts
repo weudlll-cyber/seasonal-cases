@@ -31,6 +31,8 @@ export interface Auth {
   readonly accounts: AccountStore;
   readonly sessions: SessionStore;
   readonly twoFactor: TwoFactorStore;
+  // The recovery codes' HMAC key (./config.ts).
+  readonly recoveryKey: Buffer;
   readonly directory: Directory;
   readonly ends: SessionEnds;
   readonly cookiePath: string;

@@ -57,6 +57,7 @@ write_env() {
   step "settings"
   keep_secret SC_DATA_KEY 32
   keep_secret SC_COOKIE_SECRET 32
+  keep_secret SC_RECOVERY_KEY 32
   {
     printf '# Written by deploy/install.sh; every variable is in docs/CONFIG.md.\n'
     quoted NODE_ENV production
@@ -67,6 +68,7 @@ write_env() {
     [[ -n ${SC_DB_PASSWORD:-} ]] && quoted SC_DB_PASSWORD "$SC_DB_PASSWORD"
     quoted SC_DATA_KEY "$SC_DATA_KEY"
     quoted SC_COOKIE_SECRET "$SC_COOKIE_SECRET"
+    quoted SC_RECOVERY_KEY "$SC_RECOVERY_KEY"
     quoted SC_CLIENT_DIR "/opt/seasonal-cases/app/apps/web/dist"
     quoted SC_TRUSTED_PROXIES "$SC_TRUSTED_PROXIES"
     if [[ $SC_INSTALL_MODE == website ]]; then
