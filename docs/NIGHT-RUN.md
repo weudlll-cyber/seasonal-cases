@@ -66,13 +66,13 @@ All five pieces are done and pushed on `proto/cases-v1`; nothing is merged. Vers
 
 ### Pieces
 
-| Piece                     | Done | Running | Open | Needs the owner's word         | Commits, CI                                              |
-| ------------------------- | ---- | ------- | ---- | ------------------------------ | -------------------------------------------------------- |
-| 1 Kit v0.11.0             | yes  |         |      | HANDBOOK deviations (HANDOVER) | `d888d96`, CI 45136922671 green                          |
-| 2 The kit-version watch   | yes  |         |      | the pin to v0.11.1             | `02bf9fb`, CI 45143064781 green (the warning shows)      |
-| 3 The owner's four items  | yes  |         |      | the four proposals (D42–D45)   | `6a91c93`, CI 45147973538 green                          |
-| 4 The browser matrix      | yes  |         |      |                                | with the review's fixes, below                           |
-| 5 Review, play, hand-over | yes  |         |      | the review's questions         | `52dc6ef` (CI 45158153327 green), the final commit below |
+| Piece                     | Done | Running | Open | Needs the owner's word         | Commits, CI                                                        |
+| ------------------------- | ---- | ------- | ---- | ------------------------------ | ------------------------------------------------------------------ |
+| 1 Kit v0.11.0             | yes  |         |      | HANDBOOK deviations (HANDOVER) | `d888d96`, CI 45136922671 green                                    |
+| 2 The kit-version watch   | yes  |         |      | the pin to v0.11.1             | `02bf9fb`, CI 45143064781 green (the warning shows)                |
+| 3 The owner's four items  | yes  |         |      | the four proposals (D42–D45)   | `6a91c93`, CI 45147973538 green                                    |
+| 4 The browser matrix      | yes  |         |      |                                | with the review's fixes, below                                     |
+| 5 Review, play, hand-over | yes  |         |      | the review's questions         | `52dc6ef` (CI 45158153327 green), `79113d5` (CI 45159917597 green) |
 
 ### Choices made without the owner (SC-D5)
 
