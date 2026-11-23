@@ -1,0 +1,27 @@
+# @file   deploy/answers.example
+# @brief  The installer's answers for an unattended run: `sudo ./deploy/install.sh --answers FILE
+#         --yes` (docs/INSTALL.md). One KEY=value per line; secrets are not answers, the
+#         installer makes them.
+
+# local (own domain, own accounts) or website (under the website, /games/cases/)
+SC_INSTALL_MODE=local
+SC_PORT=3970
+# create: a local PostgreSQL role and database; url: DATABASE_URL below
+SC_DB=create
+# DATABASE_URL=postgres://user:password@host:5432/name
+SC_REPO=https://github.com/weudlll-cyber/seasonal-cases.git
+SC_REF=master
+
+# Local mode
+SC_PUBLIC_ORIGIN=https://cases.example.org
+SC_HOST=127.0.0.1
+SC_TRUSTED_PROXIES=127.0.0.1,::1
+# SC_SMTP_HOST=127.0.0.1
+# SC_SMTP_PORT=25
+# SC_MAIL_FROM=Seasonal Cases <cases@example.org>
+
+# Website mode
+# SC_WEBSITE_ORIGIN=https://example.org
+# SC_PROXY=nginx
+# SC_ROUTES_DIR=/etc/seasonal/routes
+# SC_SITE_PORT_FILE=/etc/seasonal/site-local-port

@@ -1,0 +1,109 @@
+/**
+ * @file   apps/web/src/stage/artifact.css
+ * @brief  The artifact emblem: a glowing gem in its season colour beside its name.
+ *
+ * Responsibility: the season colours come only from the kit's tokens (CONCEPT §7); the main
+ *                 prize's "all four" is a ring of them, turning slowly in the centre case and
+ *                 the ceremony only (still under reduced motion); the blank is muted. Sizes
+ *                 follow `--fit` and never go below the cases' floors (the kit's fit.css).
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/fit.css (the cases floors)
+ */
+
+.artifact {
+  --season: var(--color-border-strong);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-width: 0;
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
+}
+
+.season-winter {
+  --season: var(--color-winter);
+}
+.season-spring {
+  --season: var(--color-spring);
+}
+.season-summer {
+  --season: var(--color-summer);
+}
+.season-autumn {
+  --season: var(--color-autumn);
+}
+.season-all {
+  --season: var(--color-autumn);
+}
+
+.artifact-gem {
+  flex: none;
+  width: 1.1em;
+  height: 1.1em;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgb(255 255 255 / 85%) 0 12%,
+    var(--season) 48%,
+    color-mix(in srgb, var(--season) 55%, #000) 100%
+  );
+  box-shadow: 0 0 0.6em color-mix(in srgb, var(--season) 70%, transparent);
+}
+
+/* The main prize: the four seasons. */
+.season-all .artifact-gem {
+  background:
+    radial-gradient(circle at 35% 30%, rgb(255 255 255 / 85%) 0 12%, transparent 30%),
+    conic-gradient(
+      var(--color-winter),
+      var(--color-spring),
+      var(--color-summer),
+      var(--color-autumn),
+      var(--color-winter)
+    );
+}
+
+/* It turns only in the centre case and in the ceremony; everywhere else (the scoreboard, the
+   opening, the result) it is still, so nothing repaints the page every frame (DECISIONS D27). */
+.centre .season-all .artifact-gem,
+.ceremony .season-all .artifact-gem {
+  animation: sc-turn 6s linear infinite;
+}
+
+@keyframes sc-turn {
+  to {
+    rotate: 1turn;
+  }
+}
+
+/* An endless turn is motion the viewer asked to be spared: the gem holds still, as the confetti
+   goes (./stageParts.css). */
+@media (prefers-reduced-motion: reduce) {
+  .centre .season-all .artifact-gem,
+  .ceremony .season-all .artifact-gem {
+    animation: none;
+  }
+}
+
+.artifact-blank .artifact-gem {
+  filter: grayscale(0.75);
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+.artifact-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artifact-large {
+  flex-direction: column;
+  gap: 0.3em;
+  font-size: max(var(--sk-floor-display), calc(var(--fit, 1) * 34px));
+}
+
+.artifact-large .artifact-gem {
+  width: 2.2em;
+  height: 2.2em;
+  box-shadow: 0 0 1.4em color-mix(in srgb, var(--season) 80%, transparent);
+}

@@ -1,0 +1,261 @@
+/**
+ * @file   apps/web/src/stage/moments.css
+ * @brief  The stage's moments around the cases: the opening with its cases rolling in, the
+ *         winners' ceremony, and the focus mode's panel.
+ *
+ * Responsibility: the opening over the half circle until "Begin"; the ceremony's winners one
+ *                 after another; the game bar's panel as a sheet under the bar. Focus mode hides
+ *                 the app header (`html[data-sk-focus]`, the kit's useFocusMode) and the stage
+ *                 subtracts the bar's height instead. Reduced motion: the kit's motion.css stops
+ *                 the rolling in and the ceremony's motion; the end states show.
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/bar.css, ./stage.css, ./front.css
+ */
+
+/* Focus mode: the game bar (at most 44 px, 52 px on a phone) replaces the header. */
+html[data-sk-focus] {
+  --shell-height: 44px;
+}
+
+@media (max-width: 640px) {
+  html[data-sk-focus] {
+    --shell-height: 52px;
+  }
+}
+
+/* The kit's bar has no inline padding of its own: it keeps the stage's gutter, 0.5rem on a
+   phone, as Mini Games' focus shell does (its round/focus.css). */
+.shell > .sk-game-bar {
+  padding-inline: var(--gutter);
+}
+
+@media (max-width: 640px) {
+  .shell > .sk-game-bar {
+    padding-inline: 0.5rem;
+  }
+}
+
+.focus-lead {
+  font-weight: var(--font-weight-heading);
+}
+
+.focus-panel {
+  position: fixed;
+  top: var(--shell-height);
+  right: var(--gutter);
+  z-index: 30;
+  width: min(92vw, 26rem);
+  max-height: calc(100dvh - var(--shell-height) - 16px);
+  overflow: auto;
+  padding: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-raised);
+}
+
+.focus-players {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 4px var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: max(var(--sk-floor-text), 15px);
+}
+
+/* The opening: title, facts and table over the stage; the cases roll in. */
+.opening {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: min(92%, 40rem);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-card);
+  background: var(--color-card);
+  box-shadow: var(--shadow-raised);
+  text-align: center;
+  translate: -50% 0;
+}
+
+.opening-title {
+  margin: 0;
+  font-size: max(var(--sk-floor-display), calc(var(--fit, 1) * 44px));
+}
+
+.opening-facts {
+  margin: 0;
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 18px));
+}
+
+.opening-table {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.opening-table li {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.stage-screen[data-opening='true'] .case-token {
+  animation: sc-roll-in 600ms var(--ease-out) backwards;
+  animation-delay: calc(var(--roll-index, 0) * 40ms);
+}
+
+@keyframes sc-roll-in {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.6);
+  }
+}
+
+/* The ceremony: the winners so far, the current one large, its lower third. */
+.ceremony {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.ceremony-shown {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ceremony-shown li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  animation: sc-emerge 700ms var(--ease-out);
+}
+
+/* The current winner: its case opening, the artifact rising out of it (./CasePicture.tsx). */
+.ceremony-shown li.is-now {
+  background: none;
+}
+
+.ceremony .case-picture {
+  --cw: max(130px, calc(var(--fit, 1) * 190px));
+}
+
+@keyframes sc-emerge {
+  from {
+    opacity: 0;
+    transform: translateY(30%) scale(0.6);
+  }
+}
+
+.ceremony-slot {
+  font-weight: var(--font-weight-strong);
+  font-size: max(var(--sk-floor-text), 15px);
+}
+
+.ceremony-end {
+  margin: 0;
+}
+
+.ceremony-end .button {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+/* The game bar's lead on a narrow phone: the kit's bar (v0.11.0) shrinks its facts and wraps its
+   buttons instead, but then "23 cases left" is cut short and the second row of buttons lies under
+   the direction panel; the facts matter more than the game's name, so the lead still gives way
+   (SC-D5 piece 5, pictures proto-v5). */
+@media (max-width: 480px) {
+  .focus-lead {
+    display: none;
+  }
+}
+
+/* The direction in the phone's panel: the case over the full width, the steps in pairs, the
+   hand-over and "End show" each on a row of their own (SC-N2 piece 8). */
+.focus-panel .direction-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.focus-panel .direction-hint,
+.focus-panel .direction-handover,
+.focus-panel .button-end,
+.focus-panel .direction-confirm,
+.focus-panel .direction-error {
+  grid-column: 1 / -1;
+}
+
+/* The early-end question in the panel: the sentence over the full width, its answers in a pair. */
+.focus-panel .direction-confirm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.focus-panel .direction-confirm-text {
+  grid-column: 1 / -1;
+}
+
+.focus-panel .direction-confirm .button-end {
+  grid-column: auto;
+}
+
+.focus-panel .direction-handover {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-1);
+}
+
+.focus-panel .direction-bar .button {
+  width: 100%;
+}
+
+/* The opening on a phone: in the stage's column under the cases, as the front case is there
+   (./stageParts.css), without the artifact table the scoreboard above already shows (SC-N2
+   piece 10: absolute in a stage as tall as its rows, the card was cut off). */
+@media (max-width: 699px) {
+  .opening {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    max-width: calc(100% - 2 * var(--space-1));
+    margin: 0 auto;
+    padding: var(--space-1) var(--space-2);
+    translate: none;
+  }
+
+  .opening-table {
+    display: none;
+  }
+
+  /* The ceremony as well: in the column, not over a stage as tall as its rows (SC-N3 piece 8). */
+  .ceremony {
+    position: relative;
+    inset: auto;
+    padding: var(--space-1);
+  }
+}

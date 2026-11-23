@@ -1,0 +1,76 @@
+/**
+ * @file   apps/web/src/stage/caseOpening.css
+ * @brief  The case's open states and its opening (DECISIONS D49), over the picture of ./case.css.
+ *
+ * Responsibility: the opening runs over the phases of ./motion.ts (`--<phase>-delay`,
+ *                 `--<phase>-ms`): the latches flip, the lid swings about its back edge to
+ *                 `--lid-open-deg` with ease-out, the glow grows in the lining, the artifact rises
+ *                 and is hidden until its phase begins. The base styles of `is-opening` and
+ *                 `is-open` are the end state and each keyframe starts closed, so under reduced
+ *                 motion (the kit's motion.css switches animations off) the end state shows at
+ *                 once.
+ * Depends on:     @seasonal/kit/tokens.css (`--ease-out`), ./case.css, ./motion.ts (the variables)
+ */
+
+/* Opened: the end state. The opening's keyframes start from the closed case. */
+.case-picture.is-opening .cp-latch,
+.case-picture.is-open .cp-latch {
+  transform: rotateX(-150deg);
+}
+
+.case-picture.is-opening .cp-lid,
+.case-picture.is-open .cp-lid {
+  transform: translateZ(calc(var(--cd) / -2)) rotateX(calc(90deg + var(--lid-open-deg, 105deg)));
+}
+
+.case-picture.is-opening .cp-glow,
+.case-picture.is-open .cp-glow {
+  opacity: 1;
+}
+
+.case-picture.is-opening .cp-latch {
+  animation: cp-latch var(--latches-ms, 160ms) ease-in var(--latches-delay, 0ms) backwards;
+}
+
+.case-picture.is-opening .cp-lid {
+  animation: cp-lid-open var(--lid-ms, 960ms) var(--ease-out) var(--lid-delay, 160ms) backwards;
+}
+
+.case-picture.is-opening .cp-glow {
+  animation: cp-glow var(--glow-ms, 1120ms) var(--ease-out) var(--glow-delay, 480ms) backwards;
+}
+
+/* Nothing of the artifact shows before its phase begins (55 %). */
+.case-picture.is-opening .cp-content {
+  animation: cp-rise var(--artifact-ms, 720ms) var(--ease-out) var(--artifact-delay, 880ms)
+    backwards;
+}
+
+@keyframes cp-latch {
+  from {
+    transform: none;
+  }
+}
+
+@keyframes cp-lid-open {
+  from {
+    transform: translateZ(calc(var(--cd) / -2)) rotateX(90deg);
+  }
+}
+
+@keyframes cp-glow {
+  from {
+    opacity: 0;
+    scale: 0.3;
+  }
+}
+
+@keyframes cp-rise {
+  from {
+    visibility: hidden;
+    opacity: 0;
+    /* The x stays the base's -50% (./case.css): only the height and the size change (D50). */
+    translate: -50% calc(var(--ch) * 0.8);
+    scale: 0.4;
+  }
+}

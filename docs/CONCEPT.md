@@ -3,6 +3,18 @@
 | Version | Date | Change |
 |---|---|---|
 | 1.0 | 2026-11-21 | First concept, from the owner's project vision and his answers of 2026-11-21. |
+| 1.1 | 2026-11-21 | Night chain SC-N2, from the owner's decisions of 2026-11-21: three moderator steps after the click on a case (§3.4); the scoreboard and the meaning shown at Open (§7). |
+| 1.2 | 2026-11-21 | Night chain SC-N2: the moving case (§7). |
+| 1.3 | 2026-11-21 | Night chain SC-N2: the opening and the ceremony (§3.4, §3.5), the result frame (§3.5), the start page and focus mode (§7). |
+| 1.4 | 2026-11-21 | Night chain SC-N2: website mode as built, the organiser role, the rank and badges in website mode (§10). |
+| 1.5 | 2026-11-22 | Night chain SC-N3: the phases' status (§12); nothing else changes. |
+| 1.6 | 2026-11-22 | Night chain SC-N4, from the owner's decisions of 2026-11-22: the website-mode rank rule decided (§4, §10); the logo per theme, the phone menu, the still gem outside the centre and the ceremony (§7). |
+| 1.7 | 2026-11-22 | Night chain SC-N4: unclaimed cases and no bots in real shows (§3.2), "not won" (§3.4, §3.5), the early-end question (§3.5), the ceremony's reveal and pace decided (§3.5). |
+| 1.8 | 2026-11-23 | Night chain SC-N4: the applause button (§12 P3). |
+| 1.9 | 2026-11-23 | Day chain SC-D5: registration confirmed by the mail's link, a proposal (§10). |
+| 1.10 | 2026-11-23 | Night chain SC-N6, from the owner's decisions of 2026-11-23: the case and its opening (§7); registration through the mail's link decided (§10). |
+| 1.11 | 2026-11-23 | Task SC-P7, from the owner's decisions of 2026-11-23: the artifact rises straight up from the case's centre (§7); release candidate 1.0.0-rc.4 (§12). |
+| 1.12 | 2026-11-23 | Task SC-R1: version 1.0.0, merged into master and tagged `v1.0.0` (§12). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -63,6 +75,9 @@ SETUP → REGISTRATION → SEALED → LIVE → ENDED
   their own rank is higher. They may change their pick at any time (decided 2026-11-21).
 - When registration closes, each case belongs to its winning claimant. Players who end up without a
   case are out of luck and become viewers (decided 2026-11-21).
+- A case nobody claimed stays on the stage as **unclaimed**: sealing gives it an artifact like any
+  other, it can be opened like any other, and its owner step shows "Unclaimed". Bots fill cases
+  only in development and in the Quick Test; a real show never gets bots (decided 2026-11-22).
 - Guests may watch the registration board but cannot register (ecosystem rule).
 
 ### 3.3 Sealing (organiser)
@@ -74,38 +89,54 @@ SETUP → REGISTRATION → SEALED → LIVE → ENDED
   After the show the secret is revealed, so anyone can check that no case was changed during the
   show (fairness, §8).
 - From sealing on, the stage shows: all cases with their owners' names and badges, the artifact
-  table, and the "still hidden / already found" bar.
+  table, and the scoreboard (§7).
 
 ### 3.4 Live (moderator)
-The moderator opens cases one at a time, in any order, in five steps that **only the moderator
-triggers** — no timer moves the show forward (proposal of 2026-11-21, accepted by the owner's
-"start" of the night chain; confirm or change in v1.1):
+**The opening** (decided 2026-11-21): after "Start show" the stage shows the opening for everyone:
+the show's title, the number of cases and prizes, the artifact table, and the cases with their
+owners rolling in. Only the direction holder sees **Begin**; until then no case can be selected.
 
-1. **Select** — the chosen case moves to the centre, the other cases dim.
-2. **Tension** — lights down, drum-roll motion (sound comes last, §7), the moderator talks.
-3. **Open** — the case opens, the artifact appears in its season colour.
-4. **Prize** — the artifact's meaning is shown: a prize slot and its label, or "no prize".
-5. **Owner** — the lower-third shows the owner's name and Discord badge; confetti on the main
-   prize; the case returns to the stage as "opened".
+The moderator opens cases one at a time, in any order. Only the moderator moves the show; no
+timer does (decided 2026-11-21). A case takes a click and three steps:
 
-Between any two steps the moderator can talk as long as they want. A step can be undone only before
-"Open" (select another case); after "Open" the content is public and stays public.
+- **The click on a case** — the case comes to the front and the lights go down; the other cases
+  dim. The moderator talks as long as they want.
+- **Open** — the case opens; the artifact appears in its season colour, and its meaning with it:
+  "Prize 1 · <label>", "Prize 1" when the slot has no label, or "No prize".
+- **Owner** — the lower third shows the owner's name and Discord badge, or "Unclaimed"; confetti
+  on the main prize. A prize in an unclaimed case is **not won** (decided 2026-11-22).
+- **Back to stage** — the case returns to the stage as "opened".
+
+Between any two steps the moderator can talk as long as they want. A choice can be changed only
+before "Open" (click another case); after "Open" the content is public and stays public.
 
 The direction bar also offers **hand over direction** to another signed-in moderator and **end the
 show**.
 
 ### 3.5 Ended
 - The show ends when the moderator ends it. The game offers "End show" once the last prize has been
-  found, but opening the remaining cases is allowed (decided 2026-11-21).
-- The result screen lists the winners (prize slot, label, artifact, owner), then all cases.
+  found, but opening the remaining cases is allowed (decided 2026-11-21). "End show" asks once
+  before an early end, naming how many prizes are still hidden; with every prize found it ends
+  without a question (decided 2026-11-22). A prize counts as found once its case is open, won or
+  not.
+- **The ceremony** (decided 2026-11-21): after "End show" the stage shows every prize, found or
+  not, one after another, from the lowest prize up to the main prize, each with its artifact and
+  the lower third ("not won" for a prize in an unclaimed case), confetti on the main prize; then
+  "See the result". The pace (2.5 s per winner) and the motion stay as built and are admin
+  settings (decided 2026-11-22).
+- The result page, on the kit's result frame, lists the winners (prize slot, label, artifact,
+  owner or "not won") as its placings, every case as its reveal, and all cases with their owners
+  ("Unclaimed" where nobody claimed) below. The chronicle and the website's member summary never
+  count a prize that was not won.
 - The server reveals the sealing secret; the result screen shows "sealed at <time>, verified".
 - The show goes into the **chronicle**: past shows with winners and prizes. There is no ranking
   (decided 2026-11-21). A player's "My matches" lists their shows and cases.
 
 ## 4. The Seasonal rank
 
-- **Website mode:** the rank is the account's Discord tier from the website, as the website reports
-  it (decided 2026-11-21). The badges appear in the game as on the website.
+- **Website mode:** the rank is the number of the member's valid Discord steps as the website
+  reports them, at most 5, and the steps' icons are the badges beside the name (decided
+  2026-11-22).
 - **Standalone mode:** admins assign each account's rank by hand in the admin area (decided
   2026-11-21). Unassigned accounts have the lowest rank.
 - The rank decides only case conflicts (§3.2). It has no other effect.
@@ -139,13 +170,44 @@ point, so the main prize is the Halving Stone.
 
 Target: a TV-studio feel with small means — SVG, icons, gradients, glow, CSS animation, no 3D.
 
+- **Start page** (decided 2026-11-21): the game's name and the Seasonal Entertainment logo (the
+  full logo in light theme, its emblem without lettering in dark, as the website's forms show it;
+  decided 2026-11-22), the
+  current or next show on the kit's start card (state, cases, prizes; "Opens in N s" once shows
+  have a start time), its registration board below while registration is open, and the sign-in
+  where it belongs.
+- **Header on a phone** (decided 2026-11-22): the menu's links wrap to a row of their own;
+  nothing scrolls sideways and nothing is hidden.
+- **Focus mode:** during a live show the kit's game bar replaces the app header: "Seasonal
+  Cases", the cases left and the prizes left, full screen where offered, and panels for the
+  players (the owners), the chat (website mode) and, for the direction holder on a phone, the
+  direction. On a desktop the direction bar stays under the stage.
+
 - **Stage:** the cases in a half circle (two rows on a phone), each with its number, its owner's name
   and a soft season glow. The selected case moves large into the centre; the rest dims.
 - **Light:** a spotlight cone and glow on the selected case; the background keeps the website's
   night blue (dark) or cream white (light) with the four season shimmers, never flat black or white.
-- **Top bar:** "still hidden: Halving Stone, Season Key …" and the found prizes with their owners.
+- **Scoreboard** (decided 2026-11-21): above the stage, every artifact with its prize, visible to
+  everyone from sealing on. A prize lights up when its case opens; once the next case is selected
+  it is struck through with its owner's name, so everyone sees which prizes are taken and which
+  are still open. The commitment stays visible beside it.
+- **Open:** the artifact appears with its meaning under it (§3.4).
+- **The case** (decided 2026-11-23): every case is a real case, seen a little from above and in
+  front: a body with a season-coloured trim, a handle on its lid, two latches at the front, and a
+  lid hinged at the body's back edge. At Open the latches flip, the lid swings slowly open towards
+  the viewer in perspective and shows the dark lining with the season's glow, then the artifact
+  rises straight up out of the centre of the case (centred from its first visible frame to its
+  last, only its height and size change, its name and the meaning centred under it) and the
+  meaning appears last, over the opening's duration (a setting,
+  §9). On the stage an opened case stands with its lid open and the artifact's small gem inside.
+- **The moving case** (decided 2026-11-21): after the click the closed case travels from its place
+  on the half circle to the front in one continuous motion while the others dim, and opens there
+  at Open. After Back to stage it travels home with its lid open and stays there opened
+  (decided 2026-11-23; durations: settings, §9).
 - **Lower third:** owner's name and Discord badge at the "Owner" step.
 - **Confetti** only on the main prize.
+- **The main prize's gem** (the four seasons) turns only in the centre case and in the ceremony;
+  in the scoreboard and everywhere else it is still (decided 2026-11-22).
 - **Fonts:** Luxora Grotesk from the kit for the frame (Book for text, Bold for headings). The stage
   may use a playful show font for case numbers and artifact names (decided 2026-11-21); proposal:
   Fredoka, as Seasonal Party uses it.
@@ -196,13 +258,26 @@ Both are required (ecosystem principle, confirmed for this game 2026-11-21).
   (GAME-INTEGRATION §2–§4, AUTH.md), rights per game, website admins are game admins, guests watch,
   the website's chat embedded (room `cases`), the call slot reserved, the "← Seasonal Entertainment"
   link top left, deleted accounts shown as "deleted player" plus short id.
-- **Standalone:** own accounts (register, sign in, forgotten password by e-mail), 2FA for admins,
+- **Standalone:** own accounts (register, made only once the mail's confirmation link is used,
+  decided 2026-11-23; sign in; forgotten password by e-mail), 2FA for admins,
   roles player / organiser / admin, super admin by server command, manual ranks (§4), no website
   link, no chat and no call.
 - **Installer:** one call on a VPS for both modes, asking what it needs; general instructions.
 
-The **prototype** runs standalone on the development machine with a development sign-in (name and
-role, no password), so the owner can play as a player in one tab and hold the direction in another.
+**What exists (night chain SC-N2):** website mode under `/games/cases/` with the website's
+sign-in route and its login hop, accounts keyed by (website origin, website user id), a website
+admin as game admin, a host of this game as organiser, everyone else as player, guests who watch
+and cannot register, the account-changes feed (a lock or a rights change ends the game sessions; a
+deletion shows "deleted player" plus the short id), 7-day game sessions, the website's chat
+docked under every screen (room `cases`), the call slot reserved and hidden, and the
+"← Seasonal Entertainment" link. The rank in website mode is the number of the member's valid
+Discord steps, at most 5, and the steps' icons are the badges beside the name (§4, decided
+2026-11-22). The role formerly called "moderator" is the **organiser**: they create shows, hold
+the direction and hand it to any signed-in organiser or admin.
+
+The **development sign-in** (name, role and rank, no password) stays in local mode with
+`NODE_ENV=development` and `SC_DEV=1`, so the owner can run the Quick Test and play as a player in
+one tab and hold the direction in another (decided 2026-11-21).
 
 ## 11. Technology
 
@@ -230,13 +305,13 @@ injected ports) ← `application` ← `apps/server`; the client renders, the ser
 
 ## 12. Phases
 
-| Phase | Content | Gate |
-|---|---|---|
-| **P0 Bootstrap** | Repository, standards, CI, protection, kit pinned, docs skeleton. | CI green on master. |
-| **P1 Prototype** | Development sign-in, dev admin, registration board with case conflicts, sealing with commitment, the live stage with the five reveal steps, direction bar with hand-over, result screen, bots, Quick Test seed, light/dark, fit to the check sizes. Silent. | The owner plays it and says it is fun. |
-| **P2 Foundation** | Accounts, 2FA, roles, lobby, website mode, chat dock, call slot, ranks (website / manual), PostgreSQL, admin area with the settings catalogue. | Owner's acceptance. |
-| **P3 Show polish** | Sound, chronicle, "My matches", viewer participation (applause button, tips on the main-prize owner, next-case suggestions), seasonal theming of the stage. | Owner's acceptance per item. |
-| **P4 Release** | Installer, security review, first show on the VPS. | Security pass green. |
+| Phase | Content | Gate | Status (2026-11-22) |
+|---|---|---|---|
+| **P0 Bootstrap** | Repository, standards, CI, protection, kit pinned, docs skeleton. | CI green on master. | Done (on master). |
+| **P1 Prototype** | Development sign-in, dev admin, registration board with case conflicts, sealing with commitment, the live stage with the reveal steps, direction bar with hand-over, result screen, bots, Quick Test seed, light/dark, fit to the check sizes. Silent. | The owner plays it and says it is fun. | Built on `proto/cases-v1`; the gate waits for the owner. |
+| **P2 Foundation** | Accounts, 2FA, roles, lobby, website mode, chat dock, call slot, ranks (website / manual), PostgreSQL, admin area with the settings catalogue. | Owner's acceptance. | Built on `proto/cases-v1`; the call slot stays hidden (no call yet). |
+| **P3 Show polish** | Sound, chronicle, "My matches", viewer participation (applause button, tips on the main-prize owner, next-case suggestions), seasonal theming of the stage. | Owner's acceptance per item. | Built; viewer participation starts with the applause button (decided 2026-11-22): anyone watching a live show applauds from the game bar, the stage counts it and the confetti on a prize or in the ceremony grows with the last 10 s, with no effect on the show (§1). Tips and next-case suggestions wait (BACKLOG 10). |
+| **P4 Release** | Installer, security review, first show on the VPS. | Security pass green. | Installer and four security reviews built; version 1.0.0 (tag `v1.0.0`); the first show on the VPS is next. |
 
 ## 13. Deliberately not built
 
@@ -245,8 +320,6 @@ sound before P3, no viewer polls before P3, no rankings, no payout of anything.
 
 ## 14. Needs the owner's word (v1.1)
 
-- The five reveal steps and that only the moderator moves the show (§3.4): proposed, built in P1 so
-  the owner can judge it in play.
 - Artifact names and order (§6): the owner's examples, in the proposed order.
 - Fredoka as the stage font (§7).
 - Defaults N = 24, W = 3 (§3.1).

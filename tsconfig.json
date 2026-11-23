@@ -1,6 +1,6 @@
 /**
  * @file   tsconfig.json
- * @brief  Type-checks the root config files (ESLint, Prettier, Vitest).
+ * @brief  Type-checks the root config files (ESLint, Prettier, Vitest) and the root tools.
  *
  * Responsibility: give root-level config files a TypeScript program for typecheck and
  *                 typed linting. Workspace projects have their own tsconfig.json.
@@ -13,5 +13,5 @@
     "checkJs": true,
     "types": ["node"]
   },
-  "include": ["*.js", "*.ts"]
+  "include": ["*.js", "*.ts", "tools/**/*.ts"]
 }

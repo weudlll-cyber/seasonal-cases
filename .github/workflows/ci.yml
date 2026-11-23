@@ -1,12 +1,15 @@
 # @file   .github/workflows/ci.yml
-# @brief  CI: verify with coverage, security scans and the docs' link check.
+# @brief  CI: verify with coverage, security scans, the docs' link check and the browser
+#         journeys in Chromium.
 #
 # Responsibility: run what "pnpm verify" runs and the domain/application coverage, the
-#                 dependency and secret scans and the markdown link check on every push to any
-#                 branch and every pull request against master. Any red job blocks a merge.
+#                 kit-version notice (never a failure), the
+#                 dependency and secret scans, the markdown link check and the Playwright
+#                 journeys on every push to any branch and every pull request against master.
+#                 Any red job blocks a merge.
 #                 After seasonal-mini-games .github/workflows/ci.yml; action SHAs and image
 #                 digests are its own.
-# Depends on:     .github/actions/setup, osv-scanner.toml
+# Depends on:     .github/actions/setup, osv-scanner.toml, e2e/
 name: CI
 
 on:
@@ -28,16 +31,40 @@ concurrency:
 env:
   OSV_SCANNER_IMAGE: ghcr.io/google/osv-scanner:v2.7.0@sha256:4f3b7e2c64b9d38a5febc5a7e4a3dfef1d1362f726dea7a2ef4762b46469fcd0
   GITLEAKS_IMAGE: ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+  SHELLCHECK_IMAGE: koalaman/shellcheck:v0.10.0@sha256:2097951f02e735b613f4a34de20c40f937a6c8f18ecb170612c88c34517221fb
   LYCHEE_IMAGE: lycheeverse/lychee:0.24.2@sha256:e2d19e57cf6ab037026f20b8e449a1f30d9d7f81eef4194763aab2eab20bd28d
 
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # The store tests run against a real PostgreSQL (apps/server/src/db/stores.test.ts), the same
+    # image as ops/compose.dev.yml. CI-only credentials; nothing is kept after the job.
+    services:
+      postgres:
+        image: postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+        env:
+          POSTGRES_USER: sc
+          POSTGRES_PASSWORD: ci-only
+          POSTGRES_DB: sc
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sc -d sc" --health-interval 5s --health-timeout 3s
+          --health-retries 10
+    env:
+      SC_TEST_DATABASE_URL: postgres://sc:ci-only@127.0.0.1:5432/sc
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
-      # The same script developers run locally: format check, lint, typecheck, tests.
+      # The same script developers run locally: format check, lint, typecheck, tests, and the
+      # kit-version line last.
       - run: pnpm verify
+      # The kit-version watch (DECISIONS D41): the line in the job summary and, when the pin is
+      # behind the kit's newest tag, a warning annotation. Never a failure; moving the pin is
+      # the owner's word.
+      - name: Kit version
+        run: pnpm kit:check --ci
+        continue-on-error: true
       # Domain and application coverage against the thresholds in vitest.config.ts.
       - run: pnpm test:coverage
 
@@ -81,3 +108,44 @@ jobs:
         run: |
           docker run --rm -v "$PWD:/src" -w /src "$LYCHEE_IMAGE" --offline --no-progress \
             --exclude-path node_modules '**/*.md'
+
+  deploy:
+    # The installer (deploy/): shellcheck through its entry points (it follows the libraries)
+    # and the dry-run harness, every question path and file without root or a network.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: shellcheck
+        run: |
+          docker run --rm -v "$PWD:/mnt" -w /mnt "$SHELLCHECK_IMAGE" -x \
+            deploy/install.sh deploy/admin.sh deploy/test/installer.test.sh
+      - name: Installer harness
+        run: bash deploy/test/installer.test.sh
+
+  e2e:
+    # The journeys in Chromium on every push and pull request; Firefox and WebKit run
+    # nightly in ./browsers.yml (CLAUDE.md "Tests and checks").
+    runs-on: ubuntu-latest
+    # Journey 5 reads the forgotten-password mail from Mailpit's API, as on the dev machine
+    # (ops/compose.dev.yml: SMTP 1170, API 8570).
+    services:
+      mailpit:
+        image: axllent/mailpit:v1.34.0@sha256:23a2ef85bc50853ab3093645d1d64679afd8887e89da5e48a88940c172591a4e
+        ports:
+          - 1170:1025
+          - 8570:8025
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+      - name: Playwright browser (Chromium)
+        run: pnpm exec playwright install --with-deps chromium
+      # The run's own stack: server 127.0.0.1:3980 with data under .local/e2e (cleaned at
+      # start), client 5480 (e2e/playwright.config.ts).
+      - run: pnpm e2e --project=chromium
+      # On a failure: the traces of the failed tests, for a week.
+      - if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: playwright-results
+          path: test-results
+          retention-days: 7

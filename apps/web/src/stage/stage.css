@@ -1,0 +1,221 @@
+/**
+ * @file   apps/web/src/stage/stage.css
+ * @brief  The stage: the studio panel, the half circle of cases, the spotlight and the dimming.
+ *
+ * Responsibility: every step is a visible state change (`data-step` on the screen) with short
+ *                 transitions; the show's season (`data-season`) tints the floor glow; colours only from the kit's tokens; sizes follow `--fit` with the
+ *                 cases' floors. The screen leaves `--dock-reserve` free at the bottom
+ *                 (DECISIONS D7). Phone widths: the cases in two rows in a named scroll area.
+ *                 Reduced motion: the kit's motion.css stops every animation.
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/motion.css, @seasonal/kit/fit.css (the cases floors),
+ *                 ../shell/shell.css (--shell-height)
+ */
+
+.stage-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  height: calc(100dvh - var(--shell-height) - var(--dock-reserve, 0px));
+  padding: var(--space-1) var(--gutter);
+  overflow: hidden;
+}
+
+/* The show's season tints the studio's floor glow (SC-N2 piece 8); autumn without a season. */
+.stage-screen {
+  --season-tint: var(--color-autumn);
+}
+
+.stage-screen[data-season='winter'] {
+  --season-tint: var(--color-winter);
+}
+
+.stage-screen[data-season='spring'] {
+  --season-tint: var(--color-spring);
+}
+
+.stage-screen[data-season='summer'] {
+  --season-tint: var(--color-summer);
+}
+
+/* The studio: a card over the page's season glows, never flat black or white (CONCEPT §7). */
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background:
+    radial-gradient(
+      ellipse at 50% 105%,
+      color-mix(in srgb, var(--season-tint) 30%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(ellipse at 10% 0%, rgb(4 170 247 / 16%), transparent 45%),
+    radial-gradient(ellipse at 90% 0%, rgb(224 110 34 / 14%), transparent 45%), var(--color-card);
+  overflow: hidden;
+}
+
+/* Lights down while a case is at the front: the overlay darkens, the spotlight stays. */
+.stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgb(5 8 30 / 0%);
+  pointer-events: none;
+  transition: background var(--duration-slow) var(--ease-out);
+}
+
+.stage-screen[data-dimmed='true'] .stage::after {
+  background: rgb(5 8 30 / 38%);
+}
+
+/* On cream a dark overlay only greys; a warm multiply darkens it like a studio (piece 8). */
+:root:not([data-theme='dark']) .stage-screen[data-dimmed='true'] .stage::after {
+  background: rgb(92 58 24 / 42%);
+  mix-blend-mode: multiply;
+}
+
+/* The spotlight is painted once into a layer of its own (`will-change`), so a turning gem or a
+   travelling case never repaints its large clipped gradient; with the lights up it is not
+   drawn at all (`visibility`, flipped after the fade). Playwright's WebKit drew the stage at
+   under one frame a second without this (BACKLOG 12, closed). */
+.spotlight {
+  position: absolute;
+  inset: 0 20%;
+  z-index: 2;
+  background: linear-gradient(rgb(255 248 220 / 42%), rgb(255 248 220 / 4%) 85%);
+  clip-path: polygon(44% 0, 56% 0, 86% 100%, 14% 100%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: opacity;
+  transition:
+    opacity var(--duration-slow) var(--ease-out),
+    visibility 0s linear var(--duration-slow);
+}
+
+.stage-screen[data-dimmed='true'] .spotlight {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--duration-slow) var(--ease-out),
+    visibility 0s;
+}
+
+.arena-scroll {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+}
+
+.arena {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* One case on the half circle; --x, --y from src/stage/arc.ts, --token from the count. */
+.case-token {
+  --glow: var(--color-winter);
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  /* 62 px at least: an owner name like "bot-24" stays whole at the 14 px floor. */
+  width: max(62px, calc(var(--fit, 1) * var(--token, 80px)));
+  translate: -50% -50%;
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    filter var(--duration-base) var(--ease-out);
+}
+
+.case-token:nth-child(4n + 2) {
+  --glow: var(--color-spring);
+}
+.case-token:nth-child(4n + 3) {
+  --glow: var(--color-summer);
+}
+.case-token:nth-child(4n + 4) {
+  --glow: var(--color-autumn);
+}
+
+.case-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  min-height: var(--sk-floor-target);
+  padding: 2px 4px;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+}
+
+button.case-body {
+  cursor: pointer;
+}
+
+button.case-body:hover,
+button.case-body:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.case-owner {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The case's picture (./case.css) fills the token; its glow is the token's season colour. The
+   room above is the same closed and open, so opening a case does not move it on the arc. */
+.case-token .case-picture {
+  --cw: calc(max(62px, calc(var(--fit, 1) * var(--token, 80px))) - 8px);
+  filter: drop-shadow(
+    0 0 calc(var(--fit, 1) * 6px) color-mix(in srgb, var(--glow) 55%, transparent)
+  );
+}
+
+/* Named with the open state, so it outranks ./case.css's own room for an open case. */
+.case-token .case-picture,
+.case-token .case-picture.is-open {
+  --above: calc(var(--cw) * 0.44);
+}
+
+/* An opened case: the lid stands open, the artifact's gem sits inside. */
+.case-token .cp-content .artifact {
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
+}
+
+/* An opened case shows its artifact's gem; the name is the gem's tooltip and stays readable to
+   screen readers, so the small case never overflows. */
+.case-token .artifact-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The rest dims while a case is at the front. The case at the front (or on its way back) is
+   away from its place: the place keeps its room, the case itself shows only at the front, so it
+   never shows twice (./front.css). */
+.stage-screen[data-dimmed='true'] .case-token:not(.is-away) {
+  opacity: 0.4;
+  filter: saturate(0.6);
+}
+
+.case-token.is-away {
+  visibility: hidden;
+}

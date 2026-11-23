@@ -1,0 +1,52 @@
+/**
+ * @file   apps/web/src/screens/showcase.css
+ * @brief  The opening's showcase page (`/dev/opening`, development only): its controls and the
+ *         stage's front case set in the page instead of over the half circle.
+ *
+ * Responsibility: layout only; the case, its opening and the meaning keep the stage's own rules
+ *                 (../stage/case.css, ../stage/front.css).
+ * Depends on:     @seasonal/kit/tokens.css, ../stage/stage.css, ../stage/front.css
+ */
+
+.showcase-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.showcase-stage {
+  height: auto;
+  min-height: 420px;
+  padding: var(--space-3);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--season-tint) 18%, var(--color-surface-2));
+}
+
+.showcase-stage .centre {
+  position: static;
+  translate: none;
+}
+
+.showcase-states {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.showcase-states .case-token {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: auto;
+  translate: none;
+}
+
+.showcase-states .case-picture {
+  --cw: 80px;
+}

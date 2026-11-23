@@ -15,6 +15,15 @@
       "description": "One weekly PR for all non-major updates.",
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "minor and patch updates"
+    },
+    {
+      "description": "The kit's tags (github:weudlll-cyber/seasonal-kit#vX.Y.Z, datasource github-tags): one PR of their own as a second notice beside pnpm kit:check (DECISIONS D41), never merged without the owner's word.",
+      "matchDatasources": ["github-tags"],
+      "matchPackageNames": ["weudlll-cyber/seasonal-kit", "@seasonal/kit"],
+      "groupName": "seasonal kit",
+      "schedule": ["at any time"],
+      "minimumReleaseAge": null,
+      "automerge": false
     }
   ],
   "osvVulnerabilityAlerts": true,

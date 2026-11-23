@@ -1,0 +1,78 @@
+/**
+ * @file   apps/web/src/stage/front.css
+ * @brief  The case at the front: its place and size, its travel, and its meaning appearing last.
+ *
+ * Responsibility: CSS only (DECISIONS D21, D49). The case's picture and its opening are
+ *                 ./case.css and ./caseOpening.css; here its size at the front (`--cw`) and the
+ *                 meaning, which fades in over the last phase of
+ *                 ./motion.ts (`--meaning-delay`, `--meaning-ms`). The travel's transform is set
+ *                 by ./travel.ts over `--travel-ms`. Reduced motion: the kit's motion.css turns
+ *                 every transition and animation off, so the end states show at once.
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/motion.css, ./case.css, ./motion.ts,
+ *                 ./travel.ts
+ */
+
+.centre {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  translate: -50% 0;
+}
+
+.centre-case {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  transform-origin: center;
+  will-change: transform;
+}
+
+/* The case at the front; the room above it for the risen artifact is ./case.css's. */
+.centre .case-picture {
+  --cw: max(150px, calc(var(--fit, 1) * 230px));
+  filter: drop-shadow(0 0 calc(var(--cw) * 0.12) color-mix(in srgb, var(--tint) 45%, transparent));
+}
+
+.centre-meaning {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-solid);
+  color: var(--color-on-solid);
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 20px));
+  font-weight: var(--font-weight-strong);
+  animation: sc-fade-in var(--meaning-ms, 240ms) var(--ease-out) var(--meaning-delay, 1360ms)
+    backwards;
+}
+
+.centre-meaning.is-blank {
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+}
+
+@keyframes sc-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* A wide but short stage (1280 × 720): the front case sits lower and a little smaller, so it no
+   longer covers the inner row of the half circle (SC-N2 piece 8). */
+@media (min-width: 900px) and (max-height: 800px) {
+  .centre {
+    bottom: 2%;
+  }
+
+  .centre .case-picture {
+    --cw: max(130px, calc(var(--fit, 1) * 160px));
+  }
+}

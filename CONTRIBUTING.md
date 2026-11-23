@@ -28,8 +28,9 @@ pnpm dev   # server 127.0.0.1:3970, client 0.0.0.0:5470
 
 ## Branching
 
-- `master` is protected: every change is a branch and a pull request with green required checks;
-  no force push, no deletion.
+- `master` is protected: every change is a branch and a pull request with the required checks
+  `verify`, `security`, `docs` and `e2e` green (up to date with master); no force push, no
+  deletion, admins included.
 - One topic, one branch, kept until the topic is done; then it is merged once and deleted.
 - Push after every finished piece, so the work is never only on one machine.
 - Never force-push and never rewrite published history.

@@ -1,0 +1,295 @@
+/**
+ * @file   apps/web/src/screens/screens.css
+ * @brief  The sign-ins, the admin area, the start page with its lobby, "My matches" and the
+ *         chronicle.
+ *
+ * Responsibility: normal pages that scroll (CONCEPT §7). The start page holds the logo, the
+ *                 kit's start card (`@seasonal/kit/frames.css`) and the board; the card's
+ *                 "Opens in N s" is hidden while shows have no start time. Colours only from the
+ *                 kit's tokens.
+ * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/frames.css, ../shell/shell.css
+ */
+
+.start-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.start-brand h1 {
+  margin: 0;
+}
+
+.start-logo {
+  width: 64px;
+  height: auto;
+}
+
+.start-page .sk-start-icon img {
+  width: 100%;
+  height: auto;
+}
+
+/* One logo per theme (./BrandLogo.tsx, DECISIONS D28): the emblem in dark, the full logo in
+   light, switched on the kit's theme attribute as the website's forms.css does. */
+:root[data-theme='dark'] .brand-logo-light,
+:root:not([data-theme='dark']) .brand-logo-dark {
+  display: none;
+}
+
+/* No show has a start time yet, so the card's countdown would always say 0. */
+.start-page .sk-start-count {
+  display: none;
+}
+
+.start-badge {
+  padding: 2px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-solid);
+  color: var(--color-on-solid);
+  font-size: max(var(--sk-floor-text), 14px);
+}
+
+.start-links {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.sign-in,
+.admin-setup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.sign-in h2 {
+  flex-basis: 100%;
+}
+
+.sign-in label,
+.admin-setup label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.95rem;
+}
+
+.admin-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.admin-buttons {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.admin-error {
+  margin: 0;
+  color: var(--color-danger);
+  font-weight: var(--font-weight-strong);
+}
+
+.admin-shows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-shows li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-show-id {
+  font-weight: var(--font-weight-strong);
+}
+
+.admin-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* The standalone sign-in (../account/AccountEntry.tsx): the card holds one of three forms. */
+/* A column that does not wrap: a wrapping column sized the form at a width where its button
+   wraps and kept that height, an empty band under the heading (SC-N3 piece 8). */
+.account-entry {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+
+/* In the column the heading's basis would be a height (`.sign-in h2` is for the row). */
+.account-entry h2 {
+  flex-basis: auto;
+  margin: 0;
+}
+
+.account-entry form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.account-entry label {
+  flex: 1 1 14rem;
+}
+
+.account-entry [role='status'],
+.account-entry [role='alert'] {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.account-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* The lobby, "My matches" and the admin's accounts: one line per entry, wrapping on a phone. */
+.lobby-list,
+.match-list,
+.admin-accounts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lobby-list li,
+.match-list li,
+.admin-accounts li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Two-factor setup (../account/TwoFactorSetup.tsx): the key and the codes in a fixed font. */
+.two-factor form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.two-factor form p {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.two-factor-secret,
+.recovery-codes code {
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  overflow-wrap: anywhere;
+}
+
+.recovery-codes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--space-1);
+  padding: 0;
+  list-style: none;
+}
+
+/* The chronicle (./Chronicle.tsx): one card per ended show. */
+.chronicle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.chronicle-entry h2 {
+  margin: 0;
+}
+
+.chronicle-winners {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0;
+  list-style: none;
+}
+
+.chronicle-winners li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+}
+
+.chronicle-proof {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+/* The settings (./SettingsAdmin.tsx): each value with its description and warning under it, at
+   the text floor. */
+.settings-admin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.setting {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setting small {
+  font-size: max(var(--sk-floor-text), 14px);
+  color: var(--color-text-muted);
+}
+
+.setting .setting-warning {
+  color: var(--color-danger);
+}
+
+.setting-artifact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.setting label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+label.setting-check {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-1);
+}

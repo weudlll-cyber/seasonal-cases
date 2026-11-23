@@ -1,0 +1,16 @@
+/**
+ * @file   e2e/tsconfig.json
+ * @brief  TypeScript settings for the browser tests and their server start.
+ *
+ * Responsibility: extend the shared strict base with Node types and the DOM library (code that
+ *                 `page.evaluate` runs in the browser); include the specs, helpers, config and
+ *                 e2e/server.ts.
+ */
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"]
+  },
+  "include": ["*.ts"]
+}

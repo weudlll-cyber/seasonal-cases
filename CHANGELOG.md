@@ -1,0 +1,159 @@
+# Changelog
+
+What changed, by release. The commits behind each line are on the branch named; the night chains'
+reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
+
+## 1.0.0 (2026-11-23, tag `v1.0.0`)
+
+The first release: the release candidates below, merged into master with the owner's word
+(DECISIONS, 2026-11-23).
+
+- **The show** (rc.1–rc.4): a moderated live show of numbered cases with sealed artifacts and a
+  public commitment; the click and three steps, the moving case that really opens (D49, D50),
+  the opening and the ceremony, the scoreboard, sound, applause, the result with its proof.
+- **Accounts and security** (rc.1–rc.4): website mode on the kit's checks; standalone accounts
+  with a confirmation link, two-factor sign-in for admins with keyed recovery codes; five
+  independent reviews and their fixes.
+- **Toward production** (rc.1): PostgreSQL, `pnpm build` and `pnpm start`, the installer for
+  Debian and Ubuntu, health and ready, the member summary and the open rounds for the website.
+- **The kit:** `@seasonal/kit` v0.11.1, with `pnpm kit:check` watching for new tags.
+- **This release:** sign-in's brake per account and address (D55): 20 failed sign-ins in 15
+  minutes brake one account at one address, 100 brake the account everywhere, 20 brake an
+  address across accounts; a success counts nothing. Master's "Working cheaply" (D54) is in.
+
+## 1.0.0-rc.4 (not tagged; merged as 1.0.0)
+
+Branch `proto/cases-v1`, night chain SC-N6 and task SC-P7: the owner's decisions of 2026-11-23
+(D46–D53).
+
+### Task SC-P7
+
+- **The artifact rises straight up (D50):** it stays on the case's centre from its first visible
+  frame to its last; only its height and size change. It started up to 57 px to the right (its
+  centring offset shrank with the rise's scale). A long name is whole on a narrow case.
+- **The brake counts failures only (D51):** 20 failed sign-ins per 15 minutes per address and per
+  account; a successful sign-in does not count. The cap of 20 a minute stays.
+- **A screen reader hears the opened artifact at once (D52):** its name and meaning, in a
+  visually hidden polite live region, at the Open step.
+
+### Night chain SC-N6
+
+- **Kit v0.11.1 (D47):** its peer ranges are wider; nothing in Cases changes with it.
+- **Sign-in's brake against guessing (D48):** 20 tries per 15 minutes per address and 5 per
+  login and address, in front of the password check and before the 20-a-minute cap counts
+  (its counting changed by D51 in SC-P7).
+- **The phone's cases:** "Unclaimed" is whole at 360 and 390 px (88 px columns).
+- **D42–D45 confirmed (D46).**
+- **The case that really opens (D49):** every case is a case with a handle, latches and a lid
+  hinged at its back edge. At "Open" the latches flip, the lid swings open towards the viewer, the
+  lining glows in the season's colour, the artifact rises out of it and the meaning comes last;
+  opened cases on the stage stand open, and the ceremony opens each winner's case.
+- **`/dev/opening`:** the opening on its own, with replay, speed and season, in development only.
+
+## 1.0.0-rc.3 (not tagged; merged as 1.0.0)
+
+Branch `proto/cases-v1`, day chain SC-D5: the owner's decisions of 2026-11-23 (D40, D41) and the
+proposals D42–D45, standing until the owner says otherwise.
+
+### The kit
+
+- **Kit v0.11.0 (D40), `d888d96`:**
+  - the cases' fit floors, the dock reserve, the local chat frame and the sound toggle are the
+    kit's;
+  - the bar's chat button shows the dock's unread count and opens the dock's chat;
+  - the bar's lead shows on a narrow phone again;
+  - the open rounds come from the kit's `openRoundsPage`, which leaves out a round without an
+    https join address;
+  - recovery codes are HMAC-SHA-256 with the new `SC_RECOVERY_KEY` (kit K20); codes stored
+    before keep working until used (kit K27).
+- **The kit-version watch (D41), `02bf9fb`:** `pnpm kit:check`, last in `pnpm verify`, and a
+  notice in CI. It never fails. Today it says v0.11.0 against v0.11.1.
+
+### Accounts and security
+
+- **`6a91c93`:**
+  - an account exists only once the mail's confirmation link is used (D42);
+  - a name needs a letter (D43);
+  - applause is limited per account, or per address for guests (D44);
+  - sign-ins have 20 and claims 300 requests a minute per address, each its own budget (D45).
+- **The fourth independent review's fixes, `52dc6ef`:**
+  - a waiting registration keeps its first form, so a later one cannot set the password;
+  - a refused mail leaves the last link working;
+  - the proxy chain is walked past every trusted hop;
+  - the recovery key may not be the data key.
+
+### Tests
+
+- **The browser matrix:** 36 of 36 (three browsers, two sizes, six journeys); journey 6 uses an
+  admin per project (`52dc6ef`).
+- **The pictures:** `proto-v5`, with the registration's pending page.
+
+## 1.0.0-rc.2 (not tagged; merged as 1.0.0)
+
+Branch `proto/cases-v1`, night chain SC-N4 (the owner's decisions of 2026-11-22, D27–D39).
+
+### The show
+
+- The main prize's gem turns only in the centre case and the ceremony; the logo per theme; the
+  phone menu wraps; the spotlight painted once (`0b2c8ef`).
+- No bots in real shows; cases nobody claimed are "Unclaimed" and their prizes "not won"
+  everywhere; "End show" asks before an early end (`95ab963`).
+- The applause button: counted per live show, the confetti grows with it (`db03755`).
+
+### Accounts and security
+
+- Recovery codes re-issued with the password and a current code; the name rule (Latin letters
+  with diacritics, digits, `-`, `_`); a registration that answers alike for every e-mail; 60 a
+  minute per address for claims and sign-ins; the installer asks for the trusted range
+  (`2b379cb`).
+- `e2e` is a required check of master (`39fd2b8`).
+- The third independent review and its fixes: a socket message without its ack is dropped (it
+  stopped the server); the name rule keeps Latin look-alikes out; a re-issue ends the other
+  sessions; at most 3 mails an hour per address; a name lost in a race answers 409
+  (docs/security-pass.md, third pass).
+
+### Tests and browsers
+
+- The journeys in Chromium, Firefox and WebKit at desktop and phone sizes (nightly); WebKit's
+  phone journeys pass; the admin's setup form keeps what was typed.
+
+## 1.0.0-rc.1 (not tagged; merged as 1.0.0)
+
+Branch `proto/cases-v1`, from `master` (the bootstrap of night chain SC-N1, piece 1).
+
+### The show (SC-N1, SC-N2)
+
+- The show's domain: registration with rank conflicts, sealing with a sha256 commitment that the
+  result verifies, the direction held by one organiser and handed over, projections that never
+  carry a case's content before "Open" (`90a40e1`).
+- The client: the start page on the kit's start card, the registration board, the stage with a
+  click and three steps (Open, Owner, Back to stage), the scoreboard, the moving case, the
+  opening with Begin, focus mode with the kit's game bar, the ceremony, the result frame
+  (`10b486a`, `c36b3e1`, `aaa6022`, `ad20ab0`).
+- The season tint, the chronicle, the lobby and "My matches" (`2edcd6a`, `17886f4`).
+- The settings catalogue in the admin area; a show keeps the values it was created with
+  (`3d81756`).
+- Fixes from the play-throughs: the ceremony kept on the stage, phone layouts (`1172a27`).
+
+### Sign-in and accounts (SC-N2)
+
+- Website mode under `/games/cases/`: the website's sign-in through its proxy, rights, rank and
+  badges, the account-changes feed, the docked chat, the back link (`3d2d783`).
+- PostgreSQL for accounts, sessions and the shows' events, the sealed secret encrypted at rest
+  (`2b326a2`).
+- Standalone accounts: registration, sign-in by name or e-mail, the forgotten password by mail,
+  roles and ranks (`2edcd6a`); two-factor sign-in for admins (`f482024`).
+- The first independent security review and its fixes (`49433d9`, docs/security-pass.md).
+
+### Toward production (SC-N3)
+
+- One way to name a prize; look-alike names refused; a 49 233-entry common-password list;
+  `pnpm sc admin reset-2fa` (`06eafb6`).
+- `pnpm build` and `pnpm start`: one process with the built client, a checked configuration
+  (docs/CONFIG.md), `/api/health` and `/api/ready`, JSON logs, a graceful stop (`eeab324`).
+- The website's open sign-ups and the member summary for its profile (`031f379`, `40d6bb3`).
+- The installer for Debian and Ubuntu, both modes, `--update` and `--check` (`8d6b838`,
+  `be9764c`, docs/INSTALL.md).
+- Synthesised sound, off until a viewer turns it on (`dd90ada`).
+- Browser runs in Firefox and WebKit, findings in BACKLOG 12 (`0336ab8`).
+- The second independent security review and release readiness (this release).
