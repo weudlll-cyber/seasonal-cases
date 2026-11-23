@@ -14,6 +14,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
 - **Phase:** version 1.0.0 on `master`, tag `v1.0.0` (task SC-R1, 2026-11-23): P0 to P3
   built, P4 (installer, security reviews) built; the first show on a server is next. The work
   branch `proto/cases-v1` is merged and deleted; the chains below ran on it.
+- **Working cheaply** (2026-11-23, DECISIONS D54): CLAUDE.md has the section of that name,
+  the saving rules every Seasonal project follows.
 - **Repository:** `weudlll-cyber/seasonal-cases` (public). Master is protected (checks `verify`,
   `security`, `docs` and, since 2026-11-22, `e2e` (D38); a pull request; no force push, no
   deletion). Kit `v0.5.0` on master
@@ -125,6 +127,12 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   Cases changed with it. The pin moves only on the owner's word.
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
+  ||||||| 2bf720c
+- **Phase:** P0 bootstrap done on `master` (night chain SC-N1, piece 1); P1 prototype in progress
+  on `proto/cases-v1`.
+- **Repository:** `weudlll-cyber/seasonal-cases` (public). Standards, skeleton, CI (verify,
+  security, docs; CodeQL; nightly browsers), kit `v0.5.0` pinned (DECISIONS D15).
+- **Morning sheet of the running chain:** [NIGHT-RUN.md](NIGHT-RUN.md).
 
 ## What runs
 

@@ -57,6 +57,14 @@ owner confirms them.
   line to `.local/data/<showId>.jsonl` (git-ignored), and the server rebuilds each show from its
   lines on start. PostgreSQL comes with the full build (CONCEPT §11). Replaced by D26.
 
+## 2026-11-23
+
+Numbered D54: `proto/cases-v1` holds D18–D53 and keeps them when it is merged.
+
+- **D54 — Working cheaply.** From 2026-11-23 the saving rules that Seasonal Bingo Royale has had
+  since 2026-11-06 apply to every Seasonal project: spend fewer tokens without testing or
+  checking less. In this repository they are CLAUDE.md "Working cheaply".
+
 ## 2026-11-21, the owner's decisions for night chain SC-N2
 
 - **D18 — The kit follows its newest tag.** `@seasonal/kit` is pinned to its newest tag; on
@@ -181,3 +189,5 @@ the owner confirmed them on 2026-11-23 (D46).
   stays at 20 failures per 15 minutes. A success counts nothing and resets nothing. The cap of 20
   sign-ins a minute per address stays. This replaces the per-account 20 of D51.
 - **Release 1.0.0.** The merge of `proto/cases-v1` into master and the tag `v1.0.0` are approved.
+  ||||||| 2bf720c
+  lines on start. PostgreSQL comes with the full build (CONCEPT §11).
