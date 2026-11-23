@@ -52,4 +52,11 @@ describe('nameAllowed', () => {
       expect(nameAllowed(name)).toBe(false);
     }
   });
+
+  it('needs at least one letter (D43): digits and signs alone are no name', () => {
+    for (const name of ['---', '___', '123', '1-2_3', '0'.repeat(32)]) {
+      expect(nameAllowed(name)).toBe(false);
+    }
+    for (const name of ['a--', '_1é', '42x']) expect(nameAllowed(name)).toBe(true);
+  });
 });

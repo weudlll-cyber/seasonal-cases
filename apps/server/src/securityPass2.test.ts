@@ -6,7 +6,7 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ADDRESS_LIMIT, ADDRESS_LIMIT_TEXT } from './addressLimit.js';
+import { CLAIM_ADDRESS_LIMIT, SIGN_IN_ADDRESS_LIMIT } from './addressLimit.js';
 import { send, startHarness, type Harness } from './testing/harness.js';
 
 let harness: Harness | undefined;
@@ -60,9 +60,9 @@ describe('3: watching and claiming are limited', () => {
   });
 });
 
-describe('the address budget (D37)', () => {
-  it('stops the 61st claim from one address across players, and sign-ins with it', async () => {
-    // The budget refills one a second: a frozen clock keeps a slow run from refilling it.
+describe('the address budgets (D45)', () => {
+  it('stops the 301st claim from one address across players, and leaves sign-ins alone', async () => {
+    // The budget refills five a second: a frozen clock keeps a slow run from refilling it.
     vi.useFakeTimers({ toFake: ['Date'] });
     const h = await startHarness();
     harness = h;
@@ -79,32 +79,48 @@ describe('the address budget (D37)', () => {
       url: `/api/shows/${id}/open`,
       headers: { cookie: olga.cookie },
     });
-    const players = await Promise.all(['Ana', 'Bo', 'Cy', 'Di'].map((n) => h.signIn(n, 'player')));
-    const answers = [];
-    // Each player stays within their own 20 a minute; together they pass the address's 60.
+    const names = Array.from({ length: 16 }, (_, i) => `Player${String(i)}`);
+    const players = await Promise.all(names.map((n) => h.signIn(n, 'player')));
+    const codes: number[] = [];
+    // Each player stays within their own 20 a minute; together they pass the address's 300.
     for (const player of players) {
-      for (let i = 0; i < 16; i += 1) {
-        answers.push(
-          await h.server.app.inject({
-            method: 'POST',
-            url: `/api/shows/${id}/claim`,
-            payload: { caseNumber: 1 + (i % 4) },
-            headers: { cookie: player.cookie },
-          }),
-        );
+      for (let i = 0; i < 19; i += 1) {
+        const answer = await h.server.app.inject({
+          method: 'POST',
+          url: `/api/shows/${id}/claim`,
+          payload: { caseNumber: 1 + (i % 4) },
+          headers: { cookie: player.cookie },
+        });
+        codes.push(answer.statusCode);
       }
     }
-    const codes = answers.map((a) => a.statusCode);
-    expect(codes.slice(0, ADDRESS_LIMIT).every((c) => c === 200)).toBe(true);
-    expect(codes.slice(ADDRESS_LIMIT)).toEqual([429, 429, 429, 429]);
-    expect(answers[ADDRESS_LIMIT]?.json()).toEqual({ error: ADDRESS_LIMIT_TEXT });
+    expect(codes.slice(0, CLAIM_ADDRESS_LIMIT).every((c) => c === 200)).toBe(true);
+    expect(codes.slice(CLAIM_ADDRESS_LIMIT)).toEqual([429, 429, 429, 429]);
+    // The claims used up their own budget only: a sign-in is still heard (and refused as wrong).
     const signIn = await h.server.app.inject({
       method: 'POST',
       url: '/api/auth/sign-in',
       payload: { login: 'nobody', password: 'whatever it is' },
     });
-    expect(signIn.statusCode).toBe(429);
-    expect(signIn.json()).toEqual({ error: ADDRESS_LIMIT_TEXT });
+    expect(signIn.statusCode).toBe(401);
+    vi.useRealTimers();
+  });
+
+  it('stops the 21st sign-in in a minute from one address, whatever the login', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    const h = await startHarness();
+    harness = h;
+    const codes: number[] = [];
+    for (let i = 0; i <= SIGN_IN_ADDRESS_LIMIT; i += 1) {
+      const answer = await h.server.app.inject({
+        method: 'POST',
+        url: '/api/auth/sign-in',
+        payload: { login: `nobody${String(i)}`, password: 'whatever it is' },
+      });
+      codes.push(answer.statusCode);
+    }
+    expect(codes.slice(0, SIGN_IN_ADDRESS_LIMIT).every((c) => c === 401)).toBe(true);
+    expect(codes[SIGN_IN_ADDRESS_LIMIT]).toBe(429);
     vi.useRealTimers();
   });
 });

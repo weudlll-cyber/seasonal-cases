@@ -7,7 +7,7 @@
  *                 player's one action, the claim (CONCEPT §3.2). Every show leaves the server only
  *                 as its public view, with the players' current names and badges (the directory
  *                 of accounts). Guests read; claiming needs a signed-in player, 20 a minute, and
- *                 the address's budget shared with sign-ins (./addressLimit.ts, D37).
+ *                 the claims' budget per address, 300 a minute (./addressLimit.ts, D45).
  * Depends on:     fastify, @sc/application (types), @sc/contracts, @sc/domain,
  *                 ./addressLimit.js (types), ./http.js, ./session.js
  */

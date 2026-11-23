@@ -570,3 +570,34 @@ packages, no issues; gitleaks over the full history (38 commits) no leaks.
 - Applause per account or address instead of per socket; whether guests may applaud.
 - The address budget of 60 a minute is shared by claims and sign-ins: a room of more than about
   60 players behind one public address may meet it; separate budgets or a higher number?
+
+## Status after SC-D5 piece 3 (2026-11-23)
+
+The owner's proposals of 2026-11-23 (DECISIONS D42–D45) answer the third pass's questions for
+the owner; built and tested:
+
+- **Registration with confirmation (D42, finding 2):** the form makes no account, only a
+  registration waiting for its link (`auth/pending.ts`, `db/pendingStore.ts`, migration 0003):
+  the name, the e-mail key, the Argon2id hash, the token's sha256, 24 hours. The link makes the
+  account once; a used, replaced or expired link is refused. A sign-in with a name or e-mail whose
+  link was not used answers as for any unknown one, so registering no longer tells whether an
+  e-mail was free. One registration per e-mail: a second one answers the same, and mails a new link
+  no sooner than a minute later. Names are reserved only by accounts: the first link used wins,
+  the other answers 409 at the link. Without mail set up, registration answers 503.
+  `registerRoute.test.ts`, `stores.test.ts`, journey 5.
+- **A letter in every name (D43, finding 3):** `---`, `123` and `1-2_3` are refused
+  (`names.test.ts`, `registerRoute.test.ts`).
+- **Applause per account or address (D44, finding 6):** 5 a second per account for a signed-in
+  viewer, per address (IPv6 /64) for a guest; guests may applaud. More tabs or sockets add
+  nothing. A socket's address is its peer, or the last `X-Forwarded-For` entry when the peer is a
+  trusted proxy (`socketAddress.ts`, using the kit's `trustedPeers`). Tests:
+  `applause.test.ts`, `socketAddress.test.ts`.
+- **Separate address budgets (D45):** sign-ins 20 a minute per address and claims 300 a minute,
+  each its own bucket (`addressLimit.ts`), so claims never use up sign-ins. The sign-in's own
+  per-address limit of 20 per 15 minutes is replaced by the 20 a minute: with it, a room of more
+  than 20 players on one network could not all sign in within a quarter of an hour. The
+  per-login (5 per 15 minutes), per-player (20 claims a minute) and per-socket (10 watches in
+  10 s) limits stay. Tests: `securityPass2.test.ts`.
+- **Kit v0.11.0 (D40):** recovery codes are HMAC-SHA-256 with `SC_RECOVERY_KEY`, their own
+  secret, never `SC_DATA_KEY` (kit K20). Codes stored as plain SHA-256 before keep working until
+  used, through the kit's second lookup (kit K27; `stores.test.ts`).

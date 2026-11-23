@@ -16,13 +16,13 @@ Follows at the end of the chain.
 
 ### Pieces
 
-| Piece                     | Done | Running | Open | Needs the owner's word         | Commits, CI                         |
-| ------------------------- | ---- | ------- | ---- | ------------------------------ | ----------------------------------- |
-| 1 Kit v0.11.0             | yes  |         |      | HANDBOOK deviations (HANDOVER) | `d888d96`, CI 45136922671 green     |
-| 2 The kit-version watch   | yes  |         |      | the pin to v0.11.1             | piece 2 commit, CI in piece 3's row |
-| 3 The owner's four items  |      | next    |      |                                |                                     |
-| 4 The browser matrix      |      |         | yes  |                                |                                     |
-| 5 Review, play, hand-over |      |         | yes  |                                |                                     |
+| Piece                     | Done | Running | Open | Needs the owner's word         | Commits, CI                                         |
+| ------------------------- | ---- | ------- | ---- | ------------------------------ | --------------------------------------------------- |
+| 1 Kit v0.11.0             | yes  |         |      | HANDBOOK deviations (HANDOVER) | `d888d96`, CI 45136922671 green                     |
+| 2 The kit-version watch   | yes  |         |      | the pin to v0.11.1             | `02bf9fb`, CI 45143064781 green (the warning shows) |
+| 3 The owner's four items  | yes  |         |      | the four proposals (D42–D45)   | piece 3 commit; CI in piece 4's row                 |
+| 4 The browser matrix      |      | next    |      |                                |                                                     |
+| 5 Review, play, hand-over |      |         | yes  |                                |                                                     |
 
 ### Choices made without the owner (SC-D5)
 
@@ -39,6 +39,59 @@ Follows at the end of the chain.
   whose join address is not https, which the website would refuse as well.
 - **BACKLOG 32 closed with the others:** the kit's bar shrinks its facts and wraps its buttons,
   so the lead "Seasonal Cases" shows on a narrow phone again.
+
+### Piece 3 report
+
+The four proposals of 2026-11-23 (D42–D45), built:
+
+1. **Registration with confirmation (D42).** The form stores a pending registration
+   (`auth/pending.ts`, PostgreSQL `db/pendingStore.ts`, migration 0003): name, e-mail key,
+   password hash, the token's sha256, 24 hours. It mails `/confirm?token=…` and answers the same
+   neutral page as before. A taken e-mail gets the "an account exists" mail. A second
+   registration of the same e-mail answers alike and mails a new link no sooner than a minute
+   later; the old link stops working. `POST /api/auth/confirm` makes the account once; a used,
+   replaced or expired link answers 400. The name is reserved only by an account: the first link
+   used wins, the other answers 409. Expired registrations are purged on every registration and
+   at the start. The client's `/confirm` page has one "Confirm" button. Sign-in is unchanged: one
+   answer, one time for an unknown name and a wrong password.
+2. **A letter in every name (D43):** `---`, `123` refused.
+3. **Applause per account or address (D44):** 5 a second per account, or per address for guests;
+   guests may applaud. The socket's address comes from `socketAddress.ts`.
+4. **Separate address budgets (D45):** sign-ins 20 a minute, claims 300 a minute
+   (`addressLimit.ts`). The per-player and per-socket limits stay.
+
+Choices made without the owner:
+
+- **Same name, different e-mail, while one is waiting:** each e-mail keeps its own pending
+  registration and its own mail. "Refreshes the mail" is read as the same e-mail's.
+- **Without mail set up, registration answers 503,** as the forgotten password does, since no
+  link could reach anyone.
+- **The sign-in's old 20 per 15 minutes per address is gone:** it would have held a room back
+  long before the new 20 a minute. The 5 per login and address stays.
+- **The confirm page needs a press,** not the page's load, so a mail program that opens links
+  makes no account.
+
+Lines (added/removed; new files in full):
+
+- new: `auth/pending.ts` 60, `db/pendingStore.ts` 65, migration 0003 15, `socketAddress.ts`
+  49, `ConfirmPage.tsx` 59, `registerRoute.test.ts` 184, `socketAddress.test.ts` 42;
+- changed: `registerRoute.ts` +105/−42 (192), `testing/harness.ts` +41/−5 (a default mailbox
+  and `register`, which follows the mailed link), `localRoutes.test.ts` +6/−73 (its registration
+  tests moved to `registerRoute.test.ts`), `securityPass2.test.ts` +38/−22, `applause.ts`
+  +22/−7, `applause.test.ts` +40/−11, `addressLimit.ts` +15/−10, `realtime.ts` +13/−7 (299),
+  `localRoutes.ts` +11/−9, `app.ts` +11/−6, `journey5.spec.ts` +20/−5, `CONFIG.md` +27/−10
+  (mail and the limits table), `security-pass.md` +31, CONCEPT 1.9.
+
+Reused: the reset link's pattern (`tokenHash`, base64url token, the `?token=` page), the kit's
+`RateLimiter` and `trustedPeers`, `addressKey`, `mailbox`. Extracted: `registerThrough` and
+`linkOf` in the harness; `clappers` in `socketAddress.ts`, so `realtime.ts` stays under 300.
+
+Tests:
+
+- server: 19 files, 105 tests;
+- new: the link flow (6 tests), 503 without mail, the letter rule, the applause per account and
+  per address, the socket address (4), the two budgets (2), the PostgreSQL pending store;
+- journeys 1–6 in Chromium: all passed, journey 5 through the link via Mailpit's API.
 
 ### Piece 2 report
 

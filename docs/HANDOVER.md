@@ -161,10 +161,14 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   `C:\Users\weudl\seasonal-cases-2`) would let future night chains run independent pieces in
   parallel; tonight's permissions cover this folder only.
 
-- From the third review (docs/security-pass.md, third pass): an e-mail confirmation before an
-  account exists (registration still tells a taken e-mail by what it leaves behind); whether a
-  name needs a letter; applause per socket, account or address, and for guests; the address
-  budget shared by claims and sign-ins.
+- **The four proposals of 2026-11-23, built and standing until the owner says otherwise**
+  (D42–D45, answering the third review's questions):
+  - registration makes the account only once the mail's confirmation link is used (24 h, once);
+  - an account name contains at least one letter;
+  - applause is limited per account for signed-in users and per address for guests, and guests
+    may applaud;
+  - separate address budgets: sign-ins 20 a minute, claims 300 a minute. The sign-in's old
+    limit of 20 per 15 minutes per address went with it (a room could not all sign in).
 
 - **Where this repository departs from the kit's HANDBOOK (v0.11.0)**, read once on
   2026-11-23; nothing changed for them:

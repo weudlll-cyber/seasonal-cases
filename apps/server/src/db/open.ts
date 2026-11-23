@@ -7,7 +7,8 @@
  *                 links, load the event log, and answer the stores
  *                 for buildServer plus a close that waits for pending writes first.
  * Depends on:     ../app.js (types), ./accountStore.js, ./box.js, ./credentialStore.js,
- *                 ./eventStore.js, ./migrator.js, ./pool.js, ./state.js, ./twoFactorStore.js
+ *                 ./eventStore.js, ./migrator.js, ./pendingStore.js, ./pool.js, ./state.js,
+ *                 ./twoFactorStore.js
  */
 import type { Stores } from '../app.js';
 import { pgAccounts, pgSessions } from './accountStore.js';
@@ -15,6 +16,7 @@ import { pgCredentials } from './credentialStore.js';
 import { dataKey } from './box.js';
 import { pgEventStore, type PgEventStore } from './eventStore.js';
 import { migrate } from './migrator.js';
+import { pgPending } from './pendingStore.js';
 import { createPool, SCHEMA, type DbPool } from './pool.js';
 import { pgCursor, pgSettings } from './state.js';
 import { pgTwoFactor } from './twoFactorStore.js';
@@ -48,10 +50,12 @@ async function probe(pool: DbPool): Promise<boolean> {
   return Promise.race([answer, timeout]);
 }
 
-// Expired sessions and spent or expired reset links are of no use: gone at every start.
+// Expired sessions, spent or expired reset links and expired registrations are of no use: gone
+// at every start.
 async function cleanUp(pool: DbPool): Promise<void> {
   await pool.query('DELETE FROM sessions WHERE expires_at <= now()');
   await pool.query('DELETE FROM password_resets WHERE used_at IS NOT NULL OR expires_at <= now()');
+  await pool.query('DELETE FROM pending_registrations WHERE expires_at <= now()');
 }
 
 export async function openDatabase(options: DatabaseOptions): Promise<Database> {
@@ -70,6 +74,7 @@ export async function openDatabase(options: DatabaseOptions): Promise<Database> 
       cursor: pgCursor(pool),
       settings: pgSettings(pool),
       credentials: pgCredentials(pool),
+      pending: pgPending(pool),
       twoFactor: pgTwoFactor(pool, key),
       probe: () => probe(pool),
     },

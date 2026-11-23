@@ -10,10 +10,11 @@
  *                 in the domain, against the direction holder, and acknowledged at once. A change of a show is pushed to its watchers,
  *                 with the players' current names and badges. A socket whose session ends (sign-out,
  *                 a new sign-in, the website's account feed) is disconnected at once. Anyone
- *                 watching a live show may applaud (./applause.ts); the count goes to the
- *                 show's watchers.
+ *                 watching a live show may applaud, guests too, limited per account or per
+ *                 address (./applause.ts, ./socketAddress.ts); the count goes to the show's
+ *                 watchers.
  * Depends on:     socket.io, fastify, @seasonal/kit/server, @sc/application (types),
- *                 @sc/contracts, @sc/domain, ./applause.js, ./session.js
+ *                 @sc/contracts, @sc/domain, ./applause.js, ./session.js, ./socketAddress.js
  */
 import type { Outcome, ShowService } from '@sc/application';
 import {
@@ -35,6 +36,7 @@ import type { FastifyInstance } from 'fastify';
 import type { Server, Socket } from 'socket.io';
 
 import { applauseCounter } from './applause.js';
+import { clappers } from './socketAddress.js';
 import { sessionFromHeader, type Auth } from './session.js';
 
 type IoServer = Server<ClientToServerEvents, ServerToClientEvents>;
@@ -130,6 +132,8 @@ export interface RealtimeDeps {
   readonly auth: Auth;
   readonly io: IoServer;
   readonly shows: () => ShowService;
+  // SC_TRUSTED_PROXIES, to find a guest's address behind the proxy (./socketAddress.ts).
+  readonly proxies: readonly string[];
 }
 
 // The session as it stands now, and whether the one the socket connected with has ended.
@@ -169,7 +173,7 @@ function applauseOf(watching: Watching, shows: () => ShowService) {
  * Every socket carries the session it connected with (guests connect too, CONCEPT §2: `me` is
  * null for them), and a session that ends takes its live connections with it.
  */
-function followSessions({ app, auth, io }: RealtimeDeps): void {
+function followSessions({ app, auth, io }: Pick<RealtimeDeps, 'app' | 'auth' | 'io'>): void {
   io.use((socket, next) => {
     sessionFromHeader(app, auth, socket.handshake.headers.cookie)
       .then((current) => {
@@ -189,11 +193,12 @@ function followSessions({ app, auth, io }: RealtimeDeps): void {
   });
 }
 
-export function attachRealtime({ app, auth, io, shows }: RealtimeDeps): Realtime {
+export function attachRealtime({ app, auth, io, shows, proxies }: RealtimeDeps): Realtime {
   const watching = watchingOf(shows, auth.directory.lookup);
   const applause = applauseOf(watching, shows);
+  const clapperOf = clappers(proxies);
 
-  followSessions({ app, auth, io, shows });
+  followSessions({ app, auth, io });
 
   io.on('connection', (socket) => {
     const { me } = socket.data as SocketData;
@@ -221,8 +226,9 @@ export function attachRealtime({ app, auth, io, shows }: RealtimeDeps): Realtime
       watching.join(socket, me, model);
     });
     directionHandlers(socket, current, shows, watching.organisersOf);
+    const clapper = clapperOf(socket, me);
     socket.on('show:applaud', (request, ack) => {
-      ack(applause.applaud(socket.id, request));
+      ack(applause.applaud(clapper, request));
     });
     socket.on('disconnect', () => {
       watching.leave(socket);

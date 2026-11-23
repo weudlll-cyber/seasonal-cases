@@ -38,13 +38,13 @@ const me = async (h: Harness, cookie: string) =>
 
 /** Olga registered (registration signs nobody in, D36) and signed in with her password. */
 async function registered(h: Harness): Promise<Answer> {
-  await post(h, '/api/auth/register', OLGA);
+  await h.register(OLGA);
   return post(h, '/api/auth/sign-in', { login: 'olga', password: PASSWORD });
 }
 
 /** Olga registered and made admin; answers a password-only session cookie. */
 async function localAdmin(h: Harness): Promise<{ id: string; cookie: string }> {
-  await post(h, '/api/auth/register', OLGA);
+  await h.register(OLGA);
   const account = (await h.server.auth.accounts.all()).find((a) => a.name === 'Olga');
   if (account === undefined) throw new Error('no account');
   await h.server.auth.accounts.save({ ...account, role: 'admin' });
@@ -58,7 +58,7 @@ describe('1: limits count the visitor behind the proxy', () => {
   it('lets the right password in from another visitor after five wrong ones', async () => {
     const h = await startHarness(false);
     harness = h;
-    await post(h, '/api/auth/register', OLGA);
+    await h.register(OLGA);
     const from = (ip: string) => ({ 'x-forwarded-for': ip });
     for (let i = 0; i < 5; i += 1) {
       await post(
@@ -151,7 +151,7 @@ describe('7: a reset ends the older links', () => {
     const box = mailbox();
     const h = await startHarness(false, {}, { mailer: box });
     harness = h;
-    await post(h, '/api/auth/register', OLGA);
+    await h.register(OLGA);
     await post(h, '/api/auth/forgot', { email: OLGA.email });
     await post(h, '/api/auth/forgot', { email: OLGA.email });
     // The registration's own mail, then the two links.

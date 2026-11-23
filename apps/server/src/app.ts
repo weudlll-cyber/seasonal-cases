@@ -42,10 +42,11 @@ import Fastify, { LogController, type FastifyInstance } from 'fastify';
 import { Server } from 'socket.io';
 
 import { accountRoutes } from './accountRoutes.js';
-import { addressLimit } from './addressLimit.js';
+import { addressLimit, CLAIM_ADDRESS_LIMIT, SIGN_IN_ADDRESS_LIMIT } from './addressLimit.js';
 import { memoryCursor, startFeed, type CursorStore } from './auth/accountFeed.js';
 import { Directory, memoryAccounts, type AccountStore } from './auth/accounts.js';
 import { memoryCredentials, type CredentialStore } from './auth/credentials.js';
+import { memoryPending, type PendingStore } from './auth/pending.js';
 import { memorySessions, type SessionStore } from './auth/sessions.js';
 import { memoryTwoFactor, type TwoFactorStore } from './auth/twoFactor.js';
 import type { ServerConfig } from './config.js';
@@ -81,6 +82,7 @@ export interface Stores {
   readonly sessions?: SessionStore;
   readonly cursor?: CursorStore;
   readonly credentials?: CredentialStore;
+  readonly pending?: PendingStore;
   readonly twoFactor?: TwoFactorStore;
   readonly settings?: SettingsStore;
   // Whether the database answers (`/api/health`, `/api/ready`); none without a database.
@@ -153,11 +155,13 @@ async function authOf(app: FastifyInstance, config: ServerConfig, stores: Stores
 async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Promise<void> {
   const { config } = root;
   const mailer = stores.mailer ?? (config.smtp === null ? null : smtpMailer(config.smtp));
-  // One budget per address for claims and sign-ins together (D37).
-  const perAddress = addressLimit();
+  // A budget per address for sign-ins and one for claims, each its own (D45).
+  const signIns = addressLimit(SIGN_IN_ADDRESS_LIMIT);
+  const claims = addressLimit(CLAIM_ADDRESS_LIMIT);
   const local = {
     credentials: stores.credentials ?? memoryCredentials(),
-    perAddress,
+    pending: stores.pending ?? memoryPending(),
+    perAddress: signIns,
     mailer,
     publicOrigin: config.publicOrigin,
     log: (error: unknown) => {
@@ -167,7 +171,7 @@ async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Pro
   await root.app.register(
     (scope, _options, done) => {
       const ctx: Ctx = { ...root, app: scope };
-      showRoutes(ctx, perAddress);
+      showRoutes(ctx, claims);
       organiserRoutes(ctx);
       accountRoutes(ctx);
       openRoundsRoutes(ctx);
@@ -213,7 +217,8 @@ export async function buildServer(config: ServerConfig, stores: Stores = {}): Pr
   });
   // The service tells the socket side of every change; the socket side reads the service
   // (only once a socket connects, after both exist).
-  const realtime = attachRealtime({ app, auth, io, shows: () => shows });
+  const { proxies } = config;
+  const realtime = attachRealtime({ app, auth, io, shows: () => shows, proxies });
   const settings = await CurrentSettings.load(stores.settings ?? memorySettings());
   const shows: ShowService = createShowService({
     clock: { now: () => new Date().toISOString() },

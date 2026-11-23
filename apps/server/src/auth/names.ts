@@ -9,8 +9,8 @@
  *                 then no combining marks) and of all whitespace. "Ólga", "OLGA" and "o l g a"
  *                 share the key "olga". Letters of different scripts that only look alike (a
  *                 Cyrillic "О") stay different, and the name rule keeps them out: a name is 3 to 32
- *                 Latin letters (with diacritics), digits, `-` and `_` (DECISIONS D36), so no
- *                 name mixes scripts. Compatibility forms (full-width "Ａ", ligatures) are refused
+ *                 Latin letters (with diacritics), digits, `-` and `_` (DECISIONS D36), with at
+ *                 least one letter (D43, so `---` or `123` is no name), and no name mixes scripts. Compatibility forms (full-width "Ａ", ligatures) are refused
  *                 too: they are what NFKC would change. Used by registration and
  *                 `pnpm sc admin promote`; names made before the rule are not changed.
  * Depends on:     nothing
@@ -23,11 +23,13 @@
 const ALLOWED =
   /^[A-Za-z0-9_\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u01BF\u01C4-\u024F\u1E00-\u1EFF-]{3,32}$/u;
 const COMBINING = /\p{M}/gu;
+// Every allowed character that is not a digit, `-` or `_` is a letter (D43).
+const LETTER = /\p{L}/u;
 
 /** Whether a name meets the rule (D36); `name` as typed, trimmed. */
 export function nameAllowed(name: string): boolean {
   const composed = name.normalize('NFC');
-  return composed === composed.normalize('NFKC') && ALLOWED.test(composed);
+  return composed === composed.normalize('NFKC') && ALLOWED.test(composed) && LETTER.test(composed);
 }
 
 const SPACE = /\s/gu;

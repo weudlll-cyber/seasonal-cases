@@ -28,7 +28,7 @@ export const PASSWORD_TEXT: Record<PasswordProblem, string> = {
 };
 
 export const NAME_TEXT =
-  'The name needs 3 to 32 Latin letters (é and ß too) or digits, also - and _, no spaces.';
+  'The name needs 3 to 32 Latin letters (é and ß too) or digits, also - and _, no spaces, and at least one letter.';
 
 export const RegisterRequestSchema = z.object({
   // The shape only; the rule is the server's (D36). NFC: "é" typed as e + accent is one letter.
@@ -88,6 +88,12 @@ export const ResetRequestSchema = z.object({
   password: z.string().max(PASSWORD_LIMIT),
 });
 export type ResetRequest = z.infer<typeof ResetRequestSchema>;
+
+// The registration's confirmation link (D42): its token, once; the answer names the new account.
+export const ConfirmRequestSchema = z.object({ token: z.string().min(16).max(128) });
+export type ConfirmRequest = z.infer<typeof ConfirmRequestSchema>;
+export const ConfirmResultSchema = z.object({ name: z.string() });
+export type ConfirmResult = z.infer<typeof ConfirmResultSchema>;
 
 // The roles an admin assigns; a viewer is anyone not signed in, never an account's role.
 export const ACCOUNT_ROLES = ['player', 'organiser', 'admin'] as const;

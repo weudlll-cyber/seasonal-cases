@@ -6,7 +6,8 @@
  *                 whole page, and render the route: the start page (`/`), the stage (`/show`),
  *                 the result (`/results/<id>`), the admin (`/admin`), "My matches" (`/matches`),
  *                 the chronicle (`/chronicle`)
- *                 and the forgotten password's page (`/reset`). While a live show is on the
+ *                 the forgotten password's page (`/reset`) and the registration's confirmation
+ *                 (`/confirm`). While a live show is on the
  *                 stage the kit's game bar replaces the header (focus mode); on a phone the
  *                 direction bar then lives in the bar's panel. In website mode, or locally with a
  *                 chat origin, every screen sits in the kit's `DockedScreen` with the website's
@@ -24,6 +25,7 @@ import {
 } from '@seasonal/kit/react';
 import { useRef, useState, type ReactNode } from 'react';
 
+import { ConfirmPage } from './account/ConfirmPage.js';
 import { Matches } from './account/Matches.js';
 import { ResetPage } from './account/ResetPage.js';
 import { useCurrentShow, useShowFeed } from './lib/feed.js';
@@ -136,6 +138,7 @@ function Routes({ route, me, mode, feed, current, session, phone }: RoutesProps)
   if (route.name === 'matches') return <Matches me={signedIn} />;
   if (route.name === 'chronicle') return <Chronicle />;
   if (route.name === 'reset') return <ResetPage />;
+  if (route.name === 'confirm') return <ConfirmPage />;
   if (route.name === 'admin') {
     return <Admin me={signedIn} onShowChanged={current.refresh} dev={mode.dev} />;
   }

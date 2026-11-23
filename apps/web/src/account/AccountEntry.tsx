@@ -162,12 +162,12 @@ function RegisterForm() {
   );
 }
 
-// The same words for a new and a taken e-mail (D36).
+// The same words for a new and a taken e-mail (D36); the account waits for the mail's link (D42).
 function RegisterSent() {
   return (
     <p role="status">
-      Thank you. A mail to this address tells you how to go on; then sign in with your name and
-      password.
+      Thank you. A mail to this address tells you how to go on: a new account is made once you open
+      the link in it. Then sign in with your name and password.
     </p>
   );
 }

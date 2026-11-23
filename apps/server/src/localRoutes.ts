@@ -4,12 +4,13 @@
  *
  * Responsibility: DECISIONS D24 on the rules of seasonal-mini-games (./auth/passwords.ts).
  *                 - Register (./registerRoute.ts): one answer for every e-mail, the rest by mail
- *                   (D36).
+ *                   (D36); the account exists once the mail's link is used (D42).
  *                 - Sign-in by name or e-mail; a wrong name and a wrong password answer the same
  *                   and take as long (the dummy hash). An admin with two-factor sign-in gets
- *                   `{ twoFactor: true }` until a TOTP or recovery code comes with the password. The kit's RateLimiter: 20 per 15 minutes
- *                   per address, 5 per login and address, then the address's budget shared with
- *                   claims (60 a minute, ./addressLimit.ts, D37).
+ *                   `{ twoFactor: true }` until a TOTP or recovery code comes with the password.
+ *                   Limits: the sign-ins' own budget per address, 20 a minute
+ *                   (./addressLimit.ts, D45), and the kit's RateLimiter, 5 per 15 minutes per
+ *                   login and address.
  *                 - Forgotten password: always the same answer; a known e-mail gets a link with a
  *                   random token, stored as its sha256, valid 1 hour, used once (3 mails an hour
  *                   per address at most). The reset ends every session and every other link of
@@ -36,6 +37,7 @@ import type { Account } from './auth/accounts.js';
 import { emailKey, type CredentialStore } from './auth/credentials.js';
 import { nameKey } from './auth/names.js';
 import { dummyHash, hashPassword, passwordMatches, passwordProblem } from './auth/passwords.js';
+import type { PendingStore } from './auth/pending.js';
 import { tokenHash } from './auth/sessions.js';
 import { codeAccepted, needsTwoFactor } from './auth/twoFactor.js';
 import { parseBody, Refusal, type Ctx } from './http.js';
@@ -49,7 +51,9 @@ const SIGN_IN_FAILED = 'Wrong name, e-mail or password.';
 
 export interface LocalAccounts {
   readonly credentials: CredentialStore;
-  // The budget per address that sign-ins share with claims (./addressLimit.ts, D37).
+  // Registrations waiting for their link (./auth/pending.ts, D42).
+  readonly pending: PendingStore;
+  // The sign-ins' budget per address, 20 a minute (./addressLimit.ts, D45).
   readonly perAddress: AddressLimit;
   readonly mailer: Mailer | null;
   readonly publicOrigin: string;
@@ -103,17 +107,15 @@ async function secondFactorMissing(
 }
 
 // Sign in.
-function entryRoutes(ctx: Ctx, { credentials, perAddress: budget }: LocalAccounts): void {
+function entryRoutes(ctx: Ctx, { credentials, perAddress }: LocalAccounts): void {
   const { app, auth } = ctx;
-  const perAddress = new RateLimiter({ limit: 20, windowMs: 15 * MINUTE });
   const perLogin = new RateLimiter({ limit: 5, windowMs: 15 * MINUTE });
   const perAccount = new RateLimiter({ limit: 10, windowMs: 15 * MINUTE });
 
   app.post('/api/auth/sign-in', async (request, reply) => {
-    limited(perAddress, addressKey(request.ip));
+    perAddress(request.ip);
     const { login, password, code } = parseBody(LocalSignInRequestSchema, request.body);
     limited(perLogin, `${login.toLowerCase()}|${addressKey(request.ip)}`);
-    budget(request.ip);
     const found = login.includes('@')
       ? await credentials.byEmail(emailKey(login))
       : await credentials.byName(nameKey(login));

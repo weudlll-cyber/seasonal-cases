@@ -11,6 +11,7 @@
 | 1.6 | 2026-11-22 | Night chain SC-N4, from the owner's decisions of 2026-11-22: the website-mode rank rule decided (§4, §10); the logo per theme, the phone menu, the still gem outside the centre and the ceremony (§7). |
 | 1.7 | 2026-11-22 | Night chain SC-N4: unclaimed cases and no bots in real shows (§3.2), "not won" (§3.4, §3.5), the early-end question (§3.5), the ceremony's reveal and pace decided (§3.5). |
 | 1.8 | 2026-11-23 | Night chain SC-N4: the applause button (§12 P3). |
+| 1.9 | 2026-11-23 | Day chain SC-D5: registration confirmed by the mail's link, a proposal (§10). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -246,7 +247,9 @@ Both are required (ecosystem principle, confirmed for this game 2026-11-21).
   (GAME-INTEGRATION §2–§4, AUTH.md), rights per game, website admins are game admins, guests watch,
   the website's chat embedded (room `cases`), the call slot reserved, the "← Seasonal Entertainment"
   link top left, deleted accounts shown as "deleted player" plus short id.
-- **Standalone:** own accounts (register, sign in, forgotten password by e-mail), 2FA for admins,
+- **Standalone:** own accounts (register, made only once the mail's confirmation link is used:
+  a proposal of 2026-11-23 until the owner says otherwise; sign in; forgotten password by
+  e-mail), 2FA for admins,
   roles player / organiser / admin, super admin by server command, manual ranks (§4), no website
   link, no chat and no call.
 - **Installer:** one call on a VPS for both modes, asking what it needs; general instructions.

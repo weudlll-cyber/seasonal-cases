@@ -21,7 +21,7 @@ const post = (h: Harness, url: string, cookie: string, payload: object = {}) =>
 /** A registered account made organiser, signed in with its password. */
 async function localOrganiser(h: Harness): Promise<string> {
   const olga = { name: 'Olga', email: 'olga@example.org', password: 'a long enough secret' };
-  await h.server.app.inject({ method: 'POST', url: '/api/auth/register', payload: olga });
+  await h.register(olga);
   const found = (await h.server.auth.accounts.all()).find((a) => a.name === 'Olga');
   if (found === undefined) throw new Error('no account');
   await h.server.auth.accounts.save({ ...found, role: 'organiser' });

@@ -1,7 +1,8 @@
 /**
  * @file   apps/server/src/db/stores.test.ts
  * @brief  Tests the PostgreSQL stores against a real database: migrations, accounts, sessions,
- *         the feed cursor, and the event log with its secrets encrypted at rest.
+ *         the feed cursor, the pending registrations, and the event log with its secrets
+ *         encrypted at rest.
  *
  * Every test file works in a schema of its own (./testing.ts) and drops it at the end. The
  * database is SC_TEST_DATABASE_URL (CI's service container) or the development database.
@@ -181,6 +182,36 @@ describe('the credentials', () => {
     expect(await credentials.takeReset('r2', now)).toBeUndefined();
     expect(await credentials.takeReset('r1', now)).toBe('acc-c');
     expect(await credentials.takeReset('r1', now)).toBeUndefined();
+  });
+});
+
+describe('the pending registrations (D42)', () => {
+  it('keep one per e-mail, hand a token out once and only in time, and purge the expired', async () => {
+    const { pending } = db.stores;
+    const now = Date.parse('2026-11-23T10:00:00Z');
+    const first = {
+      tokenHash: 't1',
+      email: 'eve@example.org',
+      name: 'Eve',
+      passwordHash: 'h1',
+      expiresAt: now + 1000,
+      mailedAt: now,
+    };
+    await pending.put(first);
+    expect(await pending.byEmail('eve@example.org', now)).toEqual(first);
+    // A second registration of the e-mail replaces the first, and its token with it.
+    const second = { ...first, tokenHash: 't2', name: 'Evelyn', mailedAt: now + 10 };
+    await pending.put(second);
+    expect(await pending.take('t1', now)).toBeUndefined();
+    expect(await pending.take('t2', now)).toEqual(second);
+    expect(await pending.take('t2', now)).toBeUndefined();
+    await pending.put({ ...first, tokenHash: 't3', expiresAt: now - 1 });
+    expect(await pending.byEmail('eve@example.org', now)).toBeUndefined();
+    expect(await pending.take('t3', now)).toBeUndefined();
+    await pending.put({ ...first, tokenHash: 't4', expiresAt: now - 1 });
+    await pending.purge(now);
+    const left = await db.pool.query('SELECT count(*)::int AS n FROM pending_registrations');
+    expect(left.rows[0]).toEqual({ n: 0 });
   });
 });
 

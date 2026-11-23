@@ -34,14 +34,14 @@ service's environment file), **website** (the website's operator gives it), **de
 
 ## Local mode
 
-| Variable             | Default                            | Required in                                         | From      | What                                                                               |
-| -------------------- | ---------------------------------- | --------------------------------------------------- | --------- | ---------------------------------------------------------------------------------- |
-| `SC_PUBLIC_ORIGIN`   | `http://localhost:5470`            | production; a server that mails outside development | installer | the address players open; reset links point here; `https:` makes the cookie Secure |
-| `SC_TRUSTED_PROXIES` | `127.0.0.1,::1`                    | —                                                   | installer | addresses whose `X-Forwarded-For` names the visitor (the reverse proxy)            |
-| `SC_SMTP_HOST`       | (none: no reset mail)              | —                                                   | installer | the SMTP relay for the forgotten-password mail                                     |
-| `SC_SMTP_PORT`       | `25`                               | —                                                   | installer | its port                                                                           |
-| `SC_MAIL_FROM`       | `Seasonal Cases <cases@localhost>` | —                                                   | installer | the sender                                                                         |
-| `SC_CHAT_ORIGIN`     | (none)                             | —                                                   | dev       | the website's development server, whose chat is docked under the stage             |
+| Variable             | Default                            | Required in                                         | From      | What                                                                                                           |
+| -------------------- | ---------------------------------- | --------------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------- |
+| `SC_PUBLIC_ORIGIN`   | `http://localhost:5470`            | production; a server that mails outside development | installer | the address players open; reset and confirmation links point here; `https:` makes the cookie Secure            |
+| `SC_TRUSTED_PROXIES` | `127.0.0.1,::1`                    | —                                                   | installer | addresses whose `X-Forwarded-For` names the visitor (the reverse proxy)                                        |
+| `SC_SMTP_HOST`       | (none: no mail, no registration)   | —                                                   | installer | the SMTP relay for the registration's confirmation and the forgotten-password mail; without it both answer 503 |
+| `SC_SMTP_PORT`       | `25`                               | —                                                   | installer | its port                                                                                                       |
+| `SC_MAIL_FROM`       | `Seasonal Cases <cases@localhost>` | —                                                   | installer | the sender                                                                                                     |
+| `SC_CHAT_ORIGIN`     | (none)                             | —                                                   | dev       | the website's development server, whose chat is docked under the stage                                         |
 
 ## Website mode
 
@@ -55,12 +55,29 @@ service's environment file), **website** (the website's operator gives it), **de
 
 ## Account names
 
-New standalone accounts need 3 to 32 Latin letters (with diacritics), digits, `-` and `_`
-(DECISIONS D36). Accounts made before the rule keep their names, and `pnpm sc admin promote`
+New standalone accounts need 3 to 32 Latin letters (with diacritics), digits, `-` and `_`, with
+at least one letter (DECISIONS D36, D43). An account exists only once the link in its
+registration mail is used, within 24 hours (D42); until then its name is free, and the first link
+used for a name wins. Accounts made before the rule keep their names, and `pnpm sc admin promote`
 refuses one whose name breaks it. There is no rename route: an admin renames such an account by
 hand in the database, in one transaction for its two rows (`accounts.name`, and
 `local_credentials.name_key` as `apps/server/src/auth/names.ts` `nameKey` computes it from the new
 name), then the account signs in with the new name.
+
+## Limits
+
+Fixed in the code, not settings. A refusal is 429 with one sentence.
+
+| What                                         | Limit                                                   | Where              |
+| -------------------------------------------- | ------------------------------------------------------- | ------------------ |
+| Sign-ins per address (IPv6 /64)              | 20 a minute (D45)                                       | `addressLimit.ts`  |
+| Sign-ins per login and address               | 5 per 15 minutes                                        | `localRoutes.ts`   |
+| Claims per address                           | 300 a minute (D45)                                      | `addressLimit.ts`  |
+| Claims per player                            | 20 a minute (D37)                                       | `showRoutes.ts`    |
+| Registrations per address                    | 5 an hour; mails per e-mail 3 an hour, again 1 a minute | `registerRoute.ts` |
+| Confirmations per address                    | 10 per 15 minutes                                       | `registerRoute.ts` |
+| Watches per socket                           | 10 in 10 s (D37)                                        | `realtime.ts`      |
+| Applause per account, or per address (guest) | 5 a second (D44)                                        | `applause.ts`      |
 
 ## Tests only
 

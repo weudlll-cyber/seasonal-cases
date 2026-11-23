@@ -2,8 +2,9 @@
  * @file   e2e/journey5.spec.ts
  * @brief  Journey 5: a standalone account from registration to a new password (DECISIONS D24).
  *
- * Registers through the start page (nobody is signed in; the mail says the account is ready,
- * D36), signs in by name, signs out, asks for a new password, takes the link from the mail in
+ * Registers through the start page (nobody is signed in, D36), finds that the name cannot sign
+ * in before the mail's confirmation link is used (D42), opens the link from Mailpit and confirms,
+ * signs in by name, signs out, asks for a new password, takes the link from the mail in
  * Mailpit (its API on 127.0.0.1:8570), sets a new password, signs in with it by e-mail, and
  * opens "My matches". Both mails are deleted afterwards; the account lives in the e2e server's
  * memory and ends with it.
@@ -59,15 +60,29 @@ test('journey 5: register, forget the password, reset it by mail, sign in again'
   );
   await register.getByLabel('Password').fill('the first long password');
   await register.getByRole('button', { name: 'Create account' }).click();
-  // The same answer for every e-mail, nobody signed in; the mail says the account is ready (D36).
+  // The same answer for every e-mail, nobody signed in (D36); no account before the link (D42).
   await expect(register.getByRole('status')).toContainText('A mail to this address');
   await expect(page.locator('.shell-me')).toHaveCount(0);
-  const ready = await mailTo(request, email, 'Your Seasonal Cases account');
-  expect(ready.text).toContain('account is ready');
   await page
     .getByRole('region', { name: 'Create an account' })
     .getByRole('button', { name: 'Sign in' })
     .click();
+  const early = page.getByRole('form', { name: 'Sign in' });
+  await early.getByLabel('Name or e-mail').fill(name);
+  await early.getByLabel('Password').fill('the first long password');
+  await early.getByRole('button', { name: 'Sign in' }).click();
+  await expect(early.getByRole('alert')).toHaveText('Wrong name, e-mail or password.');
+
+  const ready = await mailTo(request, email, 'Confirm your Seasonal Cases account');
+  const confirmLink = /http\S+\/confirm\?token=[\w-]+/.exec(ready.text)?.[0] ?? '';
+  expect(confirmLink).not.toBe('');
+  await page.goto(confirmLink);
+  await page
+    .getByRole('region', { name: 'Confirm your account' })
+    .getByRole('button', { name: 'Confirm' })
+    .click();
+  await expect(page.getByRole('status')).toContainText(`Your account ${name} is ready`);
+  await page.getByRole('status').getByRole('link', { name: 'Sign in' }).click();
   const first = page.getByRole('form', { name: 'Sign in' });
   await first.getByLabel('Name or e-mail').fill(name);
   await first.getByLabel('Password').fill('the first long password');

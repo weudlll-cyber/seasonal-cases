@@ -37,7 +37,7 @@ const get = (h: Harness, url: string, cookie = '') =>
 
 /** A registered local account made admin, signed in with its password only. */
 async function localAdmin(h: Harness): Promise<string> {
-  await post(h, '/api/auth/register', {
+  await h.register({
     name: 'Olga',
     email: 'olga@example.org',
     password: PASSWORD,
@@ -151,7 +151,7 @@ describe('two-factor sign-in for a standalone admin', { timeout: 40_000 }, () =>
   it('is not asked of a player', async () => {
     const h = await startHarness(false);
     harness = h;
-    await post(h, '/api/auth/register', {
+    await h.register({
       name: 'Ana',
       email: 'ana@example.org',
       password: PASSWORD,
