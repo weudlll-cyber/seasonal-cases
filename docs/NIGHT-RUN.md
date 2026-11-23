@@ -37,6 +37,9 @@ All seven pieces are done and pushed on `proto/cases-v1`; nothing is merged. Ver
     machine's load.
   - Chromium at phone size failed journeys 1, 2 and 6, for the reasons in BACKLOG 40.
   - BACKLOG 12's closing text claimed more than was run and is corrected.
+- **Checks of the last piece:** locally format, lint and typecheck green, 195 of 198 tests
+  (three timed out on the loaded machine, none failed an assertion); CI 45105210079 green with
+  every test and the Chromium journeys.
 - **Committed too early:** piece 6 (`b02925b`) went in before its checks finished. Its CI was
   red on the lint; the follow-up `f3ae123` is green. No commit was amended.
 - **Running for the owner:** the server at 127.0.0.1:3970 (`1.0.0-rc.2`, PostgreSQL), the
@@ -59,7 +62,7 @@ All seven pieces are done and pushed on `proto/cases-v1`; nothing is merged. Ver
 | 4     | `e2e` as a required check                                               | done  | `39fd2b8`                      | 45089674958 green                                   |
 | 5     | The applause button                                                     | done  | `db03755`                      | 45092747536 green                                   |
 | 6     | Third independent review, 1.0.0-rc.2                                    | done  | `b02925b`, follow-up `f3ae123` | 45095876865 red (lint), follow-up 45096702130 green |
-| 7     | Play-through, pictures, hand-over                                       | done  | see the last commit            | see HANDOVER                                        |
+| 7     | Play-through, pictures, hand-over                                       | done  | `9c1fe35`                      | 45105210079 green (all five jobs)                   |
 
 ### Needs the owner's word (SC-N4)
 
