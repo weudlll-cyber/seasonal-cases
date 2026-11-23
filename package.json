@@ -22,7 +22,8 @@
     "test": "vitest run",
     "test:coverage": "vitest run packages/domain packages/application --coverage",
     "e2e": "playwright test -c e2e/playwright.config.ts",
-    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test"
+    "kit:check": "node --import=tsx tools/kitVersion.ts",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm kit:check"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

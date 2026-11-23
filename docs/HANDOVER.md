@@ -94,12 +94,19 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   loop and the ceremony's pictures fixed); the six-project browser matrix stopped at 19 of 36,
   Firefox failing there (BACKLOG 40).
 
+- **Kit:** `kit: pinned v0.11.0, newest v0.11.1, 1 release behind` (`pnpm kit:check`,
+  2026-11-23, SC-D5 piece 2). v0.11.1 (same day) widens the kit's peer ranges and changes its own
+  Renovate rules; its migration note says nothing to do for Cases. The pin moves only on the
+  owner's word.
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
 
 ## What runs
 
-- `pnpm verify` (format, lint, typecheck, tests) and `pnpm test:coverage`.
+- `pnpm verify` (format, lint, typecheck, tests, then the kit-version line) and
+  `pnpm test:coverage`. `pnpm kit:check` alone prints the pinned kit tag against the newest; CI's
+  `verify` job writes it to the job summary and warns when behind, never failing (D41); Renovate
+  has a rule for the kit's tags once the app is enabled.
 - `pnpm dev`: server 127.0.0.1:3970, client 0.0.0.0:5470 (http://localhost:5470; the phone at
   http://192.168.0.66:5470 on the home Wi-Fi). Left running hidden for the owner at the end of
   SC-N3, on PostgreSQL; the development database holds three accounts the chains did not make

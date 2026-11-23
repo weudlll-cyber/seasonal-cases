@@ -3,6 +3,7 @@
 #         journeys in Chromium.
 #
 # Responsibility: run what "pnpm verify" runs and the domain/application coverage, the
+#                 kit-version notice (never a failure), the
 #                 dependency and secret scans, the markdown link check and the Playwright
 #                 journeys on every push to any branch and every pull request against master.
 #                 Any red job blocks a merge.
@@ -55,8 +56,15 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
-      # The same script developers run locally: format check, lint, typecheck, tests.
+      # The same script developers run locally: format check, lint, typecheck, tests, and the
+      # kit-version line last.
       - run: pnpm verify
+      # The kit-version watch (DECISIONS D41): the line in the job summary and, when the pin is
+      # behind the kit's newest tag, a warning annotation. Never a failure; moving the pin is
+      # the owner's word.
+      - name: Kit version
+        run: pnpm kit:check --ci
+        continue-on-error: true
       # Domain and application coverage against the thresholds in vitest.config.ts.
       - run: pnpm test:coverage
 

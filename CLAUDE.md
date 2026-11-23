@@ -54,6 +54,7 @@ The owner is addressed in German by the planning chat, never by files in this re
   were run are recorded there too, so nothing is done twice.
 - `docs/HANDOVER.md` is the state for a new planning chat: what the project is, where things
   stand, what runs, what is open, what needs the owner's word. Update it at the end of every piece.
+- At the end of every chain, refresh HANDOVER's "Kit" line with the output of `pnpm kit:check`.
 - New dependencies: name each one and the reason in the report. Exact versions only.
 - The neighbour repositories (kit, Mini Games, Bingo Royale, website, Seasonal Party) are read-only
   from here. Something there that looks wrong is reported, not changed.

@@ -16,13 +16,13 @@ Follows at the end of the chain.
 
 ### Pieces
 
-| Piece                     | Done | Running | Open | Needs the owner's word         | Commits, CI              |
-| ------------------------- | ---- | ------- | ---- | ------------------------------ | ------------------------ |
-| 1 Kit v0.11.0             | yes  |         |      | HANDBOOK deviations (HANDOVER) | piece 1 commit, CI below |
-| 2 The kit-version watch   |      | next    |      |                                |                          |
-| 3 The owner's four items  |      |         | yes  |                                |                          |
-| 4 The browser matrix      |      |         | yes  |                                |                          |
-| 5 Review, play, hand-over |      |         | yes  |                                |                          |
+| Piece                     | Done | Running | Open | Needs the owner's word         | Commits, CI                         |
+| ------------------------- | ---- | ------- | ---- | ------------------------------ | ----------------------------------- |
+| 1 Kit v0.11.0             | yes  |         |      | HANDBOOK deviations (HANDOVER) | `d888d96`, CI 45136922671 green     |
+| 2 The kit-version watch   | yes  |         |      | the pin to v0.11.1             | piece 2 commit, CI in piece 3's row |
+| 3 The owner's four items  |      | next    |      |                                |                                     |
+| 4 The browser matrix      |      |         | yes  |                                |                                     |
+| 5 Review, play, hand-over |      |         | yes  |                                |                                     |
 
 ### Choices made without the owner (SC-D5)
 
@@ -39,6 +39,35 @@ Follows at the end of the chain.
   whose join address is not https, which the website would refuse as well.
 - **BACKLOG 32 closed with the others:** the kit's bar shrinks its facts and wraps its buttons,
   so the lead "Seasonal Cases" shows on a narrow phone again.
+
+### Piece 2 report
+
+`pnpm kit:check` (`tools/kitVersion.ts`, 80 lines; the parsing in `tools/kitVersionParse.ts`,
+107 lines) prints, today: `kit: pinned v0.11.0, newest v0.11.1, 1 release behind` and the
+heading `## [0.11.1] - 2026-11-23`. v0.11.1 is the kit's same-day patch: wider peer ranges and
+its own Renovate rules, nothing to do for Cases by its migration note. The pin stays.
+
+- **Where it runs:** last in `pnpm verify`; in CI's `verify` job a step `pnpm kit:check --ci`
+  writes the line to the job summary and a `::warning::` when behind, with
+  `continue-on-error`. Without the network it says so (checked with a dead proxy: exit 0).
+- **Renovate:** a rule for datasource `github-tags` and `weudlll-cyber/seasonal-kit` (also
+  matched by `@seasonal/kit`), its own group "seasonal kit", any time, no wait, no auto-merge.
+  Renovate's npm manager reads `github:owner/repo#tag` dependencies this way. The rule is not
+  run here: the app is not enabled (HANDOVER "Needs the owner's hand") and the validator is not
+  installed. The script stays the one source.
+- **Docs:** CLAUDE.md "Hygiene" says to refresh the HANDOVER "Kit" line at the end of every
+  chain; HANDOVER has the line; D41.
+- **Tests:** `tools/kitVersionParse.test.ts`, 9 tests in a new Vitest project `tools`
+  (`tools/vitest.config.ts`). They cover:
+  - the pin in dependencies and devDependencies, and none without a tag;
+  - the tag list: peeled and non-semver refs left out, semver order (`v0.10.0` after `v0.9.1`);
+  - the releases after the pin, and their headings;
+  - current, one release, several releases;
+  - skipped and missing headings, and an unknown newest.
+- **Lines:** new `tools/` files 80, 107, 120 (the test) and 15; `package.json` +2/−1; `vitest.config.ts`
+  +2/−2; `tsconfig.json` +2/−2; `ci.yml` +9/−1; `renovate.json` +9/−1; CLAUDE.md +1.
+- **Reused:** Node's `execFile` through `promisify`. No new dependency (tsx was already a root
+  devDependency).
 
 ### Piece 1 report
 
