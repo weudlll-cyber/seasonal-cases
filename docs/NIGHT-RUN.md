@@ -61,11 +61,11 @@ passed; CI green for every pushed commit (ids below).
 
 ### Pieces
 
-| Piece | What                                                                                                                                                                                                                             | Commit        | CI run             |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------ |
-| 1     | Kit v0.11.1 (D47); sign-in's brake (D48); "Unclaimed" whole at 360 and 390 px; D46                                                                                                                                               | `1c9e32a`     | 45242757137, green |
-| 2, 3  | The case that really opens (D49): `CasePicture.tsx`, `case.css`, `caseOpening.css`, the phases in `motion.ts`, centre, stage and ceremony; `/dev/opening` (404 outside development); one commit, as both are wired in `main.tsx` | `d78d230`     | 45252285613, green |
-| 4     | The opening's frames (`e2e/openingFrames.spec.ts`); the fifth review's fixes                                                                                                                                                     | (this commit) | (next entry)       |
+| Piece | What                                                                                                                                                                                                                             | Commit    | CI run             |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------------------ |
+| 1     | Kit v0.11.1 (D47); sign-in's brake (D48); "Unclaimed" whole at 360 and 390 px; D46                                                                                                                                               | `1c9e32a` | 45242757137, green |
+| 2, 3  | The case that really opens (D49): `CasePicture.tsx`, `case.css`, `caseOpening.css`, the phases in `motion.ts`, centre, stage and ceremony; `/dev/opening` (404 outside development); one commit, as both are wired in `main.tsx` | `d78d230` | 45252285613, green |
+| 4     | The opening's frames (`e2e/openingFrames.spec.ts`); the fifth review's fixes                                                                                                                                                     | `ea2261e` | 45256545230, green |
 
 ### Choices made without the owner
 
