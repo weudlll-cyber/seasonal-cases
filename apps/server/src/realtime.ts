@@ -143,6 +143,15 @@ interface SocketData {
   sessionId: string | null;
 }
 
+// Every message takes a request and an ack; one without the ack would make the handler call
+// `undefined` and stop the server (security pass 3, finding 1). Such a packet is dropped before
+// any handler sees it.
+function dropWithoutAck(socket: IoSocket): void {
+  socket.use((packet, next) => {
+    if (packet.length === 3 && typeof packet[2] === 'function') next();
+  });
+}
+
 // Applause: counted per live show, sent to its watchers twice a second at most (./applause.ts).
 function applauseOf(watching: Watching, shows: () => ShowService) {
   return applauseCounter({
@@ -156,11 +165,11 @@ function applauseOf(watching: Watching, shows: () => ShowService) {
   });
 }
 
-export function attachRealtime({ app, auth, io, shows }: RealtimeDeps): Realtime {
-  const watching = watchingOf(shows, auth.directory.lookup);
-  const applause = applauseOf(watching, shows);
-
-  // Guests connect too (they may watch, CONCEPT §2); `me` is null for them.
+/**
+ * Every socket carries the session it connected with (guests connect too, CONCEPT §2: `me` is
+ * null for them), and a session that ends takes its live connections with it.
+ */
+function followSessions({ app, auth, io }: RealtimeDeps): void {
   io.use((socket, next) => {
     sessionFromHeader(app, auth, socket.handshake.headers.cookie)
       .then((current) => {
@@ -171,8 +180,6 @@ export function attachRealtime({ app, auth, io, shows }: RealtimeDeps): Realtime
       })
       .catch(next);
   });
-
-  // A session that ends takes its live connections with it.
   auth.ends.onEnd((ended) => {
     const gone = new Set(ended);
     for (const socket of io.sockets.sockets.values()) {
@@ -180,15 +187,17 @@ export function attachRealtime({ app, auth, io, shows }: RealtimeDeps): Realtime
       if (sessionId !== null && gone.has(sessionId)) socket.disconnect(true);
     }
   });
+}
+
+export function attachRealtime({ app, auth, io, shows }: RealtimeDeps): Realtime {
+  const watching = watchingOf(shows, auth.directory.lookup);
+  const applause = applauseOf(watching, shows);
+
+  followSessions({ app, auth, io, shows });
 
   io.on('connection', (socket) => {
     const { me } = socket.data as SocketData;
-    // Every message takes a request and an ack; one without the ack would make the handler call
-    // `undefined` and stop the server (security pass 3, finding 1). Such a packet is dropped
-    // before any handler sees it.
-    socket.use((packet, next) => {
-      if (packet.length === 3 && typeof packet[2] === 'function') next();
-    });
+    dropWithoutAck(socket);
     // At most 10 watches in 10 s per socket (security pass 2, finding 3).
     const watches = new RateLimiter({ limit: 10, windowMs: 10_000 });
     // The session as it is now, read again for every direction message (finding 5): one that

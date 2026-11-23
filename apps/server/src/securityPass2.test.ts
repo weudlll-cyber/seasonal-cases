@@ -4,7 +4,7 @@
  *         the limits on watching and claiming, the address budget of claims and sign-ins (D37),
  *         and a socket that follows its session.
  */
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { ADDRESS_LIMIT, ADDRESS_LIMIT_TEXT } from './addressLimit.js';
 import { send, startHarness, type Harness } from './testing/harness.js';
@@ -62,6 +62,8 @@ describe('3: watching and claiming are limited', () => {
 
 describe('the address budget (D37)', () => {
   it('stops the 61st claim from one address across players, and sign-ins with it', async () => {
+    // The budget refills one a second: a frozen clock keeps a slow run from refilling it.
+    vi.useFakeTimers({ toFake: ['Date'] });
     const h = await startHarness();
     harness = h;
     const olga = await h.signIn('Olga', 'organiser');
@@ -103,6 +105,7 @@ describe('the address budget (D37)', () => {
     });
     expect(signIn.statusCode).toBe(429);
     expect(signIn.json()).toEqual({ error: ADDRESS_LIMIT_TEXT });
+    vi.useRealTimers();
   });
 });
 

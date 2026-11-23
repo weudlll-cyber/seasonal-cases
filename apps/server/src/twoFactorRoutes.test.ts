@@ -48,7 +48,9 @@ async function localAdmin(h: Harness): Promise<string> {
   return cookieOf(await post(h, '/api/auth/sign-in', LOGIN));
 }
 
-describe('two-factor sign-in for a standalone admin', () => {
+// About ten Argon2 hashes and checks per test, and a registration's 1 s floor (D36): on a busy
+// machine that passed the server's 20 s, so these get 40 s.
+describe('two-factor sign-in for a standalone admin', { timeout: 40_000 }, () => {
   it('is required for the admin area, set up with a code, then asked at every sign-in', async () => {
     const h = await startHarness(false);
     harness = h;
