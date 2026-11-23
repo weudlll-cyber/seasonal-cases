@@ -82,7 +82,7 @@ describe('the confirmation link (D42)', () => {
     expect((await signIn(h, 'ada')).statusCode).toBe(401);
   });
 
-  it('answers a second registration alike and mails again once a minute at most, the newest link alone working', async () => {
+  it('answers a second registration alike, mails a new link once a minute at most, and keeps the first form (security pass 4, finding 1)', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     const { h, box } = await started();
     await post(h, '/api/auth/register', ADA);
@@ -92,13 +92,19 @@ describe('the confirmation link (D42)', () => {
     await new Promise((resolve) => setTimeout(resolve, 100));
     expect(box.sent).toHaveLength(1);
     vi.setSystemTime(Date.now() + MINUTE + 1);
-    await post(h, '/api/auth/register', { ...ADA, name: 'Adele' });
+    const other = { ...ADA, name: 'Adele', password: 'somebody else entirely' };
+    await post(h, '/api/auth/register', other);
     await expect.poll(() => box.sent.length).toBe(2);
+    expect(box.sent[1]?.text).toContain('the Seasonal Cases account "Ada"');
     const [first, second] = tokensIn(box);
     expect((await post(h, '/api/auth/confirm', { token: first ?? '' })).statusCode).toBe(400);
     expect((await post(h, '/api/auth/confirm', { token: second ?? '' })).json()).toEqual({
-      name: 'Adele',
+      name: 'Ada',
     });
+    // The first form's password, never the later one's.
+    expect((await signIn(h, 'ada')).statusCode).toBe(200);
+    const theirs = await post(h, '/api/auth/sign-in', { login: 'ada', password: other.password });
+    expect(theirs.statusCode).toBe(401);
   });
 
   it('reserves a name only by an account: the first link used wins, the other must re-register', async () => {
@@ -180,5 +186,8 @@ describe('the neutral registration (D36)', () => {
     // Let a fourth mail have its chance to arrive before counting.
     await new Promise((resolve) => setTimeout(resolve, 200));
     expect(box.sent).toHaveLength(3);
+    // The fourth form, refused its mail, left the third mail's link working (finding 2).
+    const last = tokensIn(box).at(-1) ?? '';
+    expect((await post(h, '/api/auth/confirm', { token: last })).json()).toEqual({ name: 'Ada' });
   });
 });

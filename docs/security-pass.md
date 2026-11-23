@@ -573,7 +573,8 @@ packages, no issues; gitleaks over the full history (38 commits) no leaks.
 
 ## Status after SC-D5 piece 3 (2026-11-23)
 
-The owner's proposals of 2026-11-23 (DECISIONS D42–D45) answer the third pass's questions for
+The planning chat's proposals of 2026-11-23 (DECISIONS D42–D45, standing until the owner says
+otherwise) answer the third pass's questions for
 the owner; built and tested:
 
 - **Registration with confirmation (D42, finding 2):** the form makes no account, only a
@@ -601,3 +602,66 @@ the owner; built and tested:
 - **Kit v0.11.0 (D40):** recovery codes are HMAC-SHA-256 with `SC_RECOVERY_KEY`, their own
   secret, never `SC_DATA_KEY` (kit K20). Codes stored as plain SHA-256 before keep working until
   used, through the kit's second lookup (kit K27; `stores.test.ts`).
+
+## Fourth pass: SC-D5 (2026-11-23)
+
+A fresh, independent reviewer read the diff `e6990c5..6a91c93` (kit v0.11.0, the kit-version
+watch, the confirmation link, the name rule, the applause and address limits) against CONCEPT
+§8 and §10, CLAUDE.md and the kit's HANDBOOK. Nine findings, none high.
+
+### Findings
+
+| #   | Severity   | Finding                                                                                                                                                                                                                                                                                                                                     |
+| --- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | medium     | A later registration for the same e-mail replaced the waiting one's name and password; the owner of the mailbox then confirmed whatever the last person typed (`registerRoute.ts` `registered`). Repro: register v@x as Vic, a minute later as Evil with another password, use the second link: Evil signs in with the attacker's password. |
+| 2   | low–medium | A registration replaced the waiting link even when the per-recipient budget (3 mails an hour) sent no mail: the last mailed link stopped working and no new one came. Repro: four registrations of one e-mail a minute apart; the third mail's link answered 400.                                                                           |
+| 3   | low        | Sign-in tries per address went from 20 per 15 minutes to 20 a minute (D45 as written): spraying across logins from one address is about 15 times faster.                                                                                                                                                                                    |
+| 4   | low        | The socket's visitor address took the last `X-Forwarded-For` hop only; Fastify walks past every trusted hop, and keyword entries (`loopback`) mean nothing to the kit's `trustedPeers`.                                                                                                                                                     |
+| 5   | low        | `SC_RECOVERY_KEY` equal to `SC_DATA_KEY` was not refused at start (kit K20).                                                                                                                                                                                                                                                                |
+| 6   | low        | With an http public origin every `GET /api/public/open-rounds` logged one warning per listed show.                                                                                                                                                                                                                                          |
+| 7   | low        | `useChatHandOver.ts` drives the kit's dock through its DOM, a stand-in outside `pending/`; and pressing the bar's Chat while the phone sheet was open closed it (the kit's bar toggles).                                                                                                                                                    |
+| 8   | low        | CI calls `git ls-remote` twice: in `pnpm verify` and in the "Kit version" step.                                                                                                                                                                                                                                                             |
+| 9   | low (docs) | The decisions heading called D42–D45 the owner's decisions while each says "proposal"; a header sentence in `names.ts`; the confirm page kept its token in the address after success.                                                                                                                                                       |
+
+Checked and found sound: the token (32 random bytes, only its sha256 stored, unique, single use
+in one statement, expiry, purge, never logged, the press instead of the load); one answer and
+one time for every registration path; a sign-in with a waiting name or e-mail takes the unknown
+path; the races at the link; the letter rule; the keyed recovery codes and their legacy lookup;
+the open-rounds publisher; the kit migration; the limiters' keys; the repository's rules.
+
+### Outcome (same day)
+
+Fixed, each with a test:
+
+- **1:** a waiting registration keeps its name and password; a later form for the same e-mail
+  only gets a new link mailed (the old one stops working), and the mail names the account
+  (`registerRoute.test.ts`: the later form's password does not sign in).
+- **2:** the per-recipient budget is taken before the row changes; a refused mail leaves the
+  last mailed link working (`registerRoute.test.ts`: the third mail's link makes the account
+  after a fourth form).
+- **4:** `X-Forwarded-For` is read from the right past every trusted hop; CONFIG.md says
+  addresses or CIDRs only (`socketAddress.test.ts`).
+- **5:** `SC_RECOVERY_KEY` equal to `SC_DATA_KEY` stops the start (`production.test.ts`).
+- **6:** a dropped open round is logged once per show.
+- **7:** the hand-over moved to `packages/ui/src/pending/useChatHandOver.ts` (BACKLOG 43); an
+  open sheet is not pressed again (`FocusBar.test.tsx`).
+- **9:** the decisions heading names D42–D45 proposals; the `names.ts` sentence; the confirm
+  page drops the spent token from the address.
+
+Not changed:
+
+- **3:** this is D45 as written; for the owner.
+- **8:** the task asks for both the `verify` line and the CI step; one extra `git ls-remote`
+  per CI run.
+
+### For the owner
+
+- Finding 3: keep sign-ins at 20 a minute per address, or add a slow bucket for failed tries
+  only?
+- A waiting registration now keeps its first form for 24 hours: someone who mistyped their
+  password confirms and then resets it. Is that the wanted trade-off?
+- A stranger can spend an e-mail's 3 mails an hour (and so delay its registration by an hour).
+- Registration stays at 5 an hour per address, which a room on one network meets.
+- Legacy SHA-256 recovery codes (kit K27): drop the lookup, or re-issue with an end date, if no
+  real admin set up two-factor sign-in before v0.11.0.
+- Guests on one network share 5 applause a second.

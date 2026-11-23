@@ -20,8 +20,8 @@ Follows at the end of the chain.
 | ------------------------- | ---- | ------- | ---- | ------------------------------ | --------------------------------------------------- |
 | 1 Kit v0.11.0             | yes  |         |      | HANDBOOK deviations (HANDOVER) | `d888d96`, CI 45136922671 green                     |
 | 2 The kit-version watch   | yes  |         |      | the pin to v0.11.1             | `02bf9fb`, CI 45143064781 green (the warning shows) |
-| 3 The owner's four items  | yes  |         |      | the four proposals (D42–D45)   | piece 3 commit; CI in piece 4's row                 |
-| 4 The browser matrix      |      | next    |      |                                |                                                     |
+| 3 The owner's four items  | yes  |         |      | the four proposals (D42–D45)   | `6a91c93`, CI 45147973538 green                     |
+| 4 The browser matrix      | yes  |         |      |                                | with the review's fixes, below                      |
 | 5 Review, play, hand-over |      |         | yes  |                                |                                                     |
 
 ### Choices made without the owner (SC-D5)
@@ -39,6 +39,38 @@ Follows at the end of the chain.
   whose join address is not https, which the website would refuse as well.
 - **BACKLOG 32 closed with the others:** the kit's bar shrinks its facts and wraps its buttons,
   so the lead "Seasonal Cases" shows on a narrow phone again.
+
+### Piece 4 report
+
+**The load.** One minute measured at 10:37: 100 % CPU, 6.2 GB of 31.4 GB free. The CPU came from
+Seasonal Party's sessions (headless Chrome screenshot probes) and WSL (Docker), not from this
+project. I waited ten 2-minute rounds (10:39–11:01): 91.7, 91.8, 91.7, 99.9, 95.2, 91.0, 76.2,
+76.2, 82.0 and 68.3 % CPU, 2.3–6.3 GB free. The run then started anyway, as the task says.
+
+**The matrix.** One project per run, so each had a fresh e2e server; journeys in order.
+
+| Project         | Result | Run   | Journeys 1 / 2 / 3 / 4 / 5 / 6                |
+| --------------- | ------ | ----- | --------------------------------------------- |
+| chromium        | 6 / 6  | 446 s | 1.9m / 1.5m / 1.1m / 42.5s / 19.6s / 15.7s    |
+| chromium-mobile | 6 / 6  | 309 s | 1.0m / 28.2s / 50.7s / 44.4s / 19.8s / 15.6s  |
+| firefox         | 6 / 6  | 253 s | 56.8s / 27.7s / 47.3s / 41.6s / 19.9s / 19.4s |
+| firefox-mobile  | 6 / 6  | 234 s | 1.3m / 32.1s / 24.0s / 26.5s / 14.5s / 16.1s  |
+| webkit          | 6 / 6  | 312 s | 1.4m / 1.4m / 44.9s / 45.2s / 17.3s / 15.5s   |
+| webkit-mobile   | 6 / 6  | 257 s | 1.5m / 36.4s / 50.4s / 32.2s / 12.9s / 12.4s  |
+
+**What it means.**
+
+- **Firefox:** last night's failures did not repeat, so there was no regression to fix; they were
+  load.
+- **Chromium at phone size:** passed all six, so the order of the journeys did not matter this
+  time. Journey 2 still finds a show that journey 1 leaves live (the start page follows a live
+  show first). That stays as it is, since it did not show.
+- **Journey 6:** it now signs in as its own project's seeded admin (`e2e/rootAdmin.ts`
+  `rootFor`, `e2e/server.ts`), so a run of several projects against one server passes too, as
+  the nightly does.
+
+Lines: `rootAdmin.ts` 15 → 38, `server.ts` +21/−17, `journey6.spec.ts` +8/−6. BACKLOG 40 is
+closed.
 
 ### Piece 3 report
 

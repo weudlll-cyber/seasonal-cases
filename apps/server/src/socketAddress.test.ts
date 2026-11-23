@@ -22,6 +22,15 @@ describe('the visitor address of a socket', () => {
     expect(behind({ address: '172.18.0.3', headers })).toBe('198.51.100.7');
   });
 
+  it('walks past every trusted hop from the right, as Fastify does', () => {
+    const headers = { 'x-forwarded-for': '198.51.100.7, 172.20.0.9' };
+    expect(behind({ address: '127.0.0.1', headers })).toBe('198.51.100.7');
+    // Only trusted hops: the leftmost is the visitor.
+    expect(behind({ address: '127.0.0.1', headers: { 'x-forwarded-for': '172.20.0.2' } })).toBe(
+      '172.20.0.2',
+    );
+  });
+
   it('is the proxy itself when it forwards nothing', () => {
     expect(behind({ address: '127.0.0.1', headers: {} })).toBe('127.0.0.1');
     expect(behind({ address: '127.0.0.1', headers: { 'x-forwarded-for': ' , ' } })).toBe(

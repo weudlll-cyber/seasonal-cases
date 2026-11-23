@@ -6,8 +6,8 @@
  *                 in development mode on 127.0.0.1:3980 with its logs under `.local/e2e/data`.
  *                 A running `pnpm dev` (3970, `.local/data`) is neither used nor touched. Mail goes
  *                 to Mailpit (SMTP 127.0.0.1:1170, ops/compose.dev.yml; CI's service), whose
- *                 links open the e2e client (5480); journey 5 reads it there. One standalone admin
- *                 (`ROOT`) is seeded for journey 6.
+ *                 links open the e2e client (5480); journey 5 reads it there. A standalone admin
+ *                 per browser project (./rootAdmin.ts) is seeded for journey 6.
  * Depends on:     node:fs, node:url, ../apps/server/src/index.ts, ./rootAdmin.ts
  */
 import { rmSync } from 'node:fs';
@@ -20,7 +20,7 @@ import {
   memoryAccounts,
   memoryCredentials,
 } from '../apps/server/src/index.js';
-import { ROOT } from './rootAdmin.js';
+import { ROOT_PROJECTS, rootFor } from './rootAdmin.js';
 
 const E2E_DIR = fileURLToPath(new URL('../.local/e2e/', import.meta.url));
 const SERVER_PORT = 3980;
@@ -36,27 +36,31 @@ const config = configFrom({
   SC_SMTP_PORT: '1170',
   SC_PUBLIC_ORIGIN: 'http://127.0.0.1:5480',
 });
-// The standalone admin of journey 6, as `pnpm sc admin promote` would make it; it lives in this
-// server's memory and ends with it.
+// The standalone admins of journey 6, one per browser project, as `pnpm sc admin promote` would
+// make them; they live in this server's memory and end with it.
 const accounts = memoryAccounts();
 const credentials = memoryCredentials();
-await accounts.save({
-  id: ROOT.id,
-  kind: 'local',
-  name: ROOT.name,
-  role: 'admin',
-  rank: 0,
-  badges: [],
-  websiteOrigin: null,
-  websiteUserId: null,
-  deleted: false,
-});
-await credentials.create({
-  accountId: ROOT.id,
-  nameKey: 'root',
-  email: ROOT.email,
-  passwordHash: await hashPassword(ROOT.password),
-});
+for (const project of ROOT_PROJECTS) {
+  const root = rootFor(project);
+  await accounts.save({
+    id: root.id,
+    kind: 'local',
+    name: root.name,
+    role: 'admin',
+    rank: 0,
+    badges: [],
+    websiteOrigin: null,
+    websiteUserId: null,
+    deleted: false,
+  });
+  await credentials.create({
+    accountId: root.id,
+    // The name key as ../apps/server/src/auth/names.ts makes it for these plain names.
+    nameKey: root.name.toLowerCase(),
+    email: root.email,
+    passwordHash: await hashPassword(root.password),
+  });
+}
 const { app } = await buildServer(config, { accounts, credentials });
 await app.listen({ host: '127.0.0.1', port: config.port });
 console.log(`e2e server on http://127.0.0.1:${String(config.port)}`);

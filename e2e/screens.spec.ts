@@ -1,11 +1,12 @@
 /**
  * @file   e2e/screens.spec.ts
  * @brief  The pictures for the owner and the planning chat: ten screens at 1536 × 768,
- *         1280 × 720 and 390 × 844, light and dark, into .local/screens/proto-v4/ (never into
+ *         1280 × 720 and 390 × 844, light and dark, into .local/screens/proto-v5/ (never into
  *         git).
  *
  * Responsibility: delete the topic's previous pictures, then shoot the sign-in (the start page
- *                 for a guest), the start page with its registration board, the opening, the
+ *                 for a guest), the registration's pending page (its mail is deleted from
+ *                 Mailpit again), the start page with its registration board, the opening, the
  *                 stage at "selected", "open" and "owner" on the main prize (and the phone's
  *                 direction panel), the early-end question, the result, the ceremony of a show
  *                 nobody claimed a case in (every prize "not won") and the admin's settings, at every
@@ -21,7 +22,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import { boardCase, openShow, quickTestSealing, signInApi } from './helpers.js';
 
-const DIR = fileURLToPath(new URL('../.local/screens/proto-v4/', import.meta.url));
+const DIR = fileURLToPath(new URL('../.local/screens/proto-v5/', import.meta.url));
 // The sizes of night chains SC-N3 piece 8 and SC-N4 piece 7: two PCs and a phone.
 const SIZES = [
   [1536, 768],
@@ -81,6 +82,21 @@ async function shootEarlyEnd(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
+/** Deletes the mails Mailpit holds for this address (its API on 127.0.0.1:8570). */
+async function deleteMailTo(page: Page, to: string): Promise<void> {
+  const api = 'http://127.0.0.1:8570/api/v1';
+  await expect
+    .poll(async () => {
+      const found = await page.request.get(`${api}/search?query=${encodeURIComponent(`to:${to}`)}`);
+      const { messages } = (await found.json()) as { messages: { ID: string }[] };
+      if (messages.length > 0) {
+        await page.request.delete(`${api}/messages`, { data: { IDs: messages.map((m) => m.ID) } });
+      }
+      return messages.length;
+    })
+    .toBeGreaterThan(0);
+}
+
 async function shoot(page: Page, name: string, scrollTo?: Locator): Promise<void> {
   for (const theme of THEMES) {
     await page.emulateMedia({ colorScheme: theme });
@@ -113,6 +129,21 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await page.goto('/');
   await expect(page.getByRole('form', { name: 'Sign in' })).toBeVisible();
   await shoot(page, 'sign-in');
+
+  // The registration's neutral page while the account waits for its link (D42).
+  const email = `screens.${String(Date.now())}@example.org`;
+  await page
+    .getByRole('region', { name: 'Sign in' })
+    .getByRole('button', { name: 'Create an account' })
+    .click();
+  const register = page.getByRole('form', { name: 'Create an account' });
+  await register.getByLabel('Name').fill(`Pia${String(Date.now()).slice(-6)}`);
+  await register.getByLabel('E-mail').fill(email);
+  await register.getByLabel('Password').fill('a long screens password');
+  await register.getByRole('button', { name: 'Create account' }).click();
+  await expect(register.getByRole('status')).toContainText('A mail to this address');
+  await shoot(page, 'registration-pending');
+  await deleteMailTo(page, email);
 
   // The registration board: a show with claims and one conflict, seen by a player.
   await page.goto('/');

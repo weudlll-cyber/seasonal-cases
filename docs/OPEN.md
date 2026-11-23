@@ -19,4 +19,5 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   (BACKLOG 33).
 - **Kit:** v0.11.0 since 2026-11-23 (D40); its parts replaced four stand-ins and the bar's chat
   count (BACKLOG 13, 19, 20, 23, 24, 32, 36, closed). Open: the bar's press action for "Applaud"
-  (BACKLOG 41).
+  (BACKLOG 41) and opening the dock's chat from the game (BACKLOG 43).
+- **Browsers:** all six projects pass all six journeys (BACKLOG 40, closed 2026-11-23).

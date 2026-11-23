@@ -11,9 +11,10 @@
  *                   24 h), and gets a mail with the link;
  *                 - a taken e-mail makes nothing and gets a mail that an account exists, with the
  *                   way to sign in or reset the password;
- *                 - an e-mail with a registration waiting gets the newest form's registration and
- *                   a new link, no sooner than a minute after the last mail (before that nothing
- *                   changes and nothing is sent).
+ *                 - an e-mail with a registration waiting keeps that registration's name and
+ *                   password and gets a new link (the old one stops working), no sooner than a
+ *                   minute after the last mail and only while its mail budget allows; otherwise
+ *                   nothing changes and nothing is sent. The mail names the account.
  *                 Every path hashes the password and answers `{ ok: true }` no sooner than
  *                 `REGISTER_MIN_MS` after the request. Until the link is used nothing exists, so a
  *                 sign-in with the new name or e-mail answers as for any unknown one. The link
@@ -54,9 +55,9 @@ const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 const NAME_TAKEN = 'This name is already taken.';
 
-const confirmText = (link: string): string =>
+const confirmText = (link: string, name: string): string =>
   [
-    'Someone registered a Seasonal Cases account with this e-mail.',
+    `Someone registered the Seasonal Cases account "${name}" with this e-mail.`,
     '',
     `Confirm it here to make the account (the link works once, for 24 hours):\n${link}`,
     '',
@@ -84,32 +85,40 @@ function checked(body: RegisterRequest): void {
   if (problem !== null) throw new Refusal(400, PASSWORD_TEXT[problem]);
 }
 
-/** The mail this registration sends, or null when it sends none (a mail went out < 1 min ago). */
+/**
+ * The mail this registration sends, or null when it sends none: a mail went out less than a
+ * minute ago, or the e-mail's budget (`mayMail`) refuses one; then nothing changes either.
+ */
 async function registered(
   local: LocalAccounts,
   body: RegisterRequest,
   now: number,
+  mayMail: () => boolean,
 ): Promise<Mail | null> {
   const passwordHash = await hashPassword(body.password);
   const email = emailKey(body.email);
   if ((await local.credentials.byEmail(email)) !== undefined) {
+    if (!mayMail()) return null;
     return { subject: 'Your Seasonal Cases account exists', text: existsText(local.publicOrigin) };
   }
   await local.pending.purge(now);
   const waiting = await local.pending.byEmail(email, now);
   if (waiting !== undefined && now - waiting.mailedAt < RESEND_MS) return null;
+  // Checked before the row changes: a refused mail leaves the last mailed link working
+  // (security pass 4, finding 2).
+  if (!mayMail()) return null;
   const token = randomBytes(32).toString('base64url');
+  // A waiting registration keeps its name and password and gets a new link only, so a stranger's
+  // form never sets what the mailbox's owner confirms (security pass 4, finding 1).
   const pending: Pending = {
+    ...(waiting ?? { email, name: body.name, passwordHash }),
     tokenHash: tokenHash(token),
-    email,
-    name: body.name,
-    passwordHash,
     expiresAt: now + PENDING_MS,
     mailedAt: now,
   };
   await local.pending.put(pending);
   const link = `${local.publicOrigin}/confirm?token=${token}`;
-  return { subject: 'Confirm your Seasonal Cases account', text: confirmText(link) };
+  return { subject: 'Confirm your Seasonal Cases account', text: confirmText(link, pending.name) };
 }
 
 /** The account of a used link; a name or e-mail taken in the meantime is a 409. */
@@ -169,11 +178,10 @@ export function registerRoute(ctx: Ctx, local: LocalAccounts): void {
     if ((await local.credentials.byName(nameKey(body.name))) !== undefined) {
       throw new Refusal(409, NAME_TAKEN);
     }
-    const mail = await registered(local, body, ctx.auth.now());
+    const mayMail = () => perRecipient.take(emailKey(body.email)).allowed;
+    const mail = await registered(local, body, ctx.auth.now(), mayMail);
     // The answer does not wait for the mail: sending takes as long as it takes.
-    if (mail !== null && perRecipient.take(emailKey(body.email)).allowed) {
-      void mailer.send({ to: body.email, ...mail }).catch(local.log);
-    }
+    if (mail !== null) void mailer.send({ to: body.email, ...mail }).catch(local.log);
     await wait(REGISTER_MIN_MS - (Date.now() - started));
     return { ok: true };
   });

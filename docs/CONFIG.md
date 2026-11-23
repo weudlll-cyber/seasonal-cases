@@ -34,14 +34,14 @@ service's environment file), **website** (the website's operator gives it), **de
 
 ## Local mode
 
-| Variable             | Default                            | Required in                                         | From      | What                                                                                                           |
-| -------------------- | ---------------------------------- | --------------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------- |
-| `SC_PUBLIC_ORIGIN`   | `http://localhost:5470`            | production; a server that mails outside development | installer | the address players open; reset and confirmation links point here; `https:` makes the cookie Secure            |
-| `SC_TRUSTED_PROXIES` | `127.0.0.1,::1`                    | —                                                   | installer | addresses whose `X-Forwarded-For` names the visitor (the reverse proxy)                                        |
-| `SC_SMTP_HOST`       | (none: no mail, no registration)   | —                                                   | installer | the SMTP relay for the registration's confirmation and the forgotten-password mail; without it both answer 503 |
-| `SC_SMTP_PORT`       | `25`                               | —                                                   | installer | its port                                                                                                       |
-| `SC_MAIL_FROM`       | `Seasonal Cases <cases@localhost>` | —                                                   | installer | the sender                                                                                                     |
-| `SC_CHAT_ORIGIN`     | (none)                             | —                                                   | dev       | the website's development server, whose chat is docked under the stage                                         |
+| Variable             | Default                            | Required in                                         | From      | What                                                                                                             |
+| -------------------- | ---------------------------------- | --------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------- |
+| `SC_PUBLIC_ORIGIN`   | `http://localhost:5470`            | production; a server that mails outside development | installer | the address players open; reset and confirmation links point here; `https:` makes the cookie Secure              |
+| `SC_TRUSTED_PROXIES` | `127.0.0.1,::1`                    | —                                                   | installer | addresses or CIDRs whose `X-Forwarded-For` names the visitor (the reverse proxy); no keywords such as `loopback` |
+| `SC_SMTP_HOST`       | (none: no mail, no registration)   | —                                                   | installer | the SMTP relay for the registration's confirmation and the forgotten-password mail; without it both answer 503   |
+| `SC_SMTP_PORT`       | `25`                               | —                                                   | installer | its port                                                                                                         |
+| `SC_MAIL_FROM`       | `Seasonal Cases <cases@localhost>` | —                                                   | installer | the sender                                                                                                       |
+| `SC_CHAT_ORIGIN`     | (none)                             | —                                                   | dev       | the website's development server, whose chat is docked under the stage                                           |
 
 ## Website mode
 

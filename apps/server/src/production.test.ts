@@ -19,6 +19,8 @@ import { configFrom } from './config.js';
 import { ConfigError } from './configRead.js';
 
 const KEY = 'ab'.repeat(32);
+// One key given twice: as the data key and as the recovery key.
+const SHARED = '12'.repeat(31) + '34';
 const PRODUCTION = {
   NODE_ENV: 'production',
   DATABASE_URL: 'postgres://u:p@127.0.0.1:5432/db',
@@ -70,9 +72,15 @@ describe('the settings check', () => {
   });
 
   it('refuses a recovery key of one repeated byte, which the kit would refuse at the first code', () => {
-    expect(problemsOf({ ...PRODUCTION, SC_RECOVERY_KEY: 'ab'.repeat(32) })).toEqual([
+    expect(problemsOf({ ...PRODUCTION, SC_RECOVERY_KEY: 'cd'.repeat(32) })).toEqual([
       'SC_RECOVERY_KEY must not repeat one byte',
     ]);
+  });
+
+  it('refuses a recovery key that is the data key (kit K20)', () => {
+    expect(
+      problemsOf({ ...PRODUCTION, SC_DATA_KEY: SHARED, SC_RECOVERY_KEY: SHARED.toUpperCase() }),
+    ).toEqual(['SC_RECOVERY_KEY must not be SC_DATA_KEY']);
   });
 
   it('asks a development run with a database for its recovery key, and none without one', () => {

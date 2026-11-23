@@ -121,7 +121,10 @@ owner confirms them.
 - **D39 — Applause first.** Viewer participation starts with the applause button only; tips and
   suggestions wait (BACKLOG 10 narrowed; CONCEPT §12 P3, v1.8).
 
-## 2026-11-23, the owner's decisions for day chain SC-D5
+## 2026-11-23, day chain SC-D5: the owner's decisions D40–D41 and the proposals D42–D45
+
+D42–D45 are the planning chat's proposals, built and standing until the owner says otherwise;
+they are listed in HANDOVER "Needs the owner's word".
 
 - **D40 — Kit v0.11.0.** The kit is pinned to v0.11.0; every stand-in under
   `packages/ui/src/pending/` that the kit now has is replaced by the kit's part.

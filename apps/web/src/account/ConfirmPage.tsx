@@ -46,6 +46,8 @@ export function ConfirmPage() {
           onClick={() => {
             action.run(async () => {
               const result = await postJson<ConfirmResult>(apiPath('/auth/confirm'), body);
+              // The token is spent: off the address, so a reload shows no dead button.
+              window.history.replaceState(null, '', window.location.pathname);
               setMade(result.name);
             });
           }}

@@ -112,9 +112,20 @@ function databaseFrom(read: EnvReader, production: boolean): ServerConfig['datab
 // working (kit HANDBOOK "Security"). Needed wherever codes outlive the process; a run without a
 // database keeps them in memory and takes a new random key per start. The kit refuses a key of
 // one repeated byte, so the start does too.
-function recoveryKeyFrom(read: EnvReader, production: boolean, database: boolean): Buffer {
-  const need = production ? 'production' : database ? 'a run with DATABASE_URL' : undefined;
+function recoveryKeyFrom(
+  read: EnvReader,
+  production: boolean,
+  database: ServerConfig['database'],
+): Buffer {
+  const need = production
+    ? 'production'
+    : database !== null
+      ? 'a run with DATABASE_URL'
+      : undefined;
   const hex = read.hexKey('SC_RECOVERY_KEY', need);
+  if (hex !== '' && hex.toLowerCase() === database?.keyHex.toLowerCase()) {
+    read.note('SC_RECOVERY_KEY must not be SC_DATA_KEY');
+  }
   if (/^([0-9a-f]{2})\1{31}$/i.test(hex)) read.note('SC_RECOVERY_KEY must not repeat one byte');
   return hex === '' ? randomBytes(32) : Buffer.from(hex, 'hex');
 }
@@ -228,7 +239,7 @@ export function configFrom(env: NodeJS.ProcessEnv): ServerConfig {
     ...runtimeFrom(read, basics),
     database,
     cookieSecret: cookieSecretFrom(read, basics.production),
-    recoveryKey: recoveryKeyFrom(read, basics.production, database !== null),
+    recoveryKey: recoveryKeyFrom(read, basics.production, database),
     plainCookie: plainCookieFrom(read),
     ...addressesFrom(read, basics),
   };

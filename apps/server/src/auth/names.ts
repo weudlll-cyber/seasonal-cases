@@ -9,8 +9,9 @@
  *                 then no combining marks) and of all whitespace. "Ólga", "OLGA" and "o l g a"
  *                 share the key "olga". Letters of different scripts that only look alike (a
  *                 Cyrillic "О") stay different, and the name rule keeps them out: a name is 3 to 32
- *                 Latin letters (with diacritics), digits, `-` and `_` (DECISIONS D36), with at
- *                 least one letter (D43, so `---` or `123` is no name), and no name mixes scripts. Compatibility forms (full-width "Ａ", ligatures) are refused
+ *                 Latin letters (with diacritics), digits, `-` and `_` (DECISIONS D36), so no
+ *                 name mixes scripts, and at least one of them a letter (D43: `---` or `123` is
+ *                 no name). Compatibility forms (full-width "Ａ", ligatures) are refused
  *                 too: they are what NFKC would change. Used by registration and
  *                 `pnpm sc admin promote`; names made before the rule are not changed.
  * Depends on:     nothing

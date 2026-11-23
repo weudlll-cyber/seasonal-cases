@@ -8,13 +8,13 @@
  *                 the panel buttons: players (the owners), and for the direction holder on a
  *                 phone the direction panel, so the bar's buttons are never below the fold. The
  *                 chat button joins wherever the screens are docked, with the dock's unread
- *                 count as its badge, and opens the dock's own chat (./useChatHandOver.ts). The
+ *                 count as its badge, and opens the dock's own chat (@sc/ui useChatHandOver). The
  *                 sound is the kit's toggle (v0.11.0); "Applaud" for everyone watching (D39, sent
  *                 as `show:applaud`). One panel at a time (`usePanels`);
  *                 Escape closes the open one from anywhere on the page, as Mini Games' focus
  *                 shell does from its bar (the kit's hook leaves the key to the game).
- * Depends on:     react, @seasonal/kit/react, @sc/contracts, @sc/ui, ./useChatHandOver.js,
- *                 ../stage/DirectionBar.js, ../stage/facts.js, ../stage/Stage.js
+ * Depends on:     react, @seasonal/kit/react, @sc/contracts, @sc/ui, ../stage/DirectionBar.js,
+ *                 ../stage/facts.js, ../stage/Stage.js
  */
 import {
   GameBar,
@@ -25,13 +25,12 @@ import {
   type BarAction,
 } from '@seasonal/kit/react';
 import { ownerText, type Me, type OrganiserView, type PublicShowView } from '@sc/contracts';
-import { BarPress } from '@sc/ui';
+import { BarPress, useChatHandOver } from '@sc/ui';
 import { useEffect, type RefObject } from 'react';
 
 import { DirectionBar } from '../stage/DirectionBar.js';
 import { showFacts } from '../stage/facts.js';
 import { holderView, type Direct } from '../stage/Stage.js';
-import { useChatHandOver } from './useChatHandOver.js';
 
 export type PanelId = 'players' | 'direction' | 'chat';
 

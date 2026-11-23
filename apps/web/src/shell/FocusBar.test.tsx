@@ -62,6 +62,10 @@ describe('the focus bar panels', () => {
     expect(opened).toHaveBeenCalledTimes(1);
     // No second chat in a panel of the bar.
     expect(screen.queryByRole('complementary', { name: 'chat' })).toBeNull();
+    // An open sheet stays open: the dock's bar toggles, so it is not pressed again.
+    dockBar.setAttribute('aria-expanded', 'true');
+    fireEvent.click(chat);
+    expect(opened).toHaveBeenCalledTimes(1);
     dockBar.remove();
   });
 
