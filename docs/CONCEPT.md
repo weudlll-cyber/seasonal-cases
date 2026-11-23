@@ -14,6 +14,7 @@
 | 1.9 | 2026-11-23 | Day chain SC-D5: registration confirmed by the mail's link, a proposal (§10). |
 | 1.10 | 2026-11-23 | Night chain SC-N6, from the owner's decisions of 2026-11-23: the case and its opening (§7); registration through the mail's link decided (§10). |
 | 1.11 | 2026-11-23 | Task SC-P7, from the owner's decisions of 2026-11-23: the artifact rises straight up from the case's centre (§7); release candidate 1.0.0-rc.4 (§12). |
+| 1.12 | 2026-11-23 | Task SC-R1: version 1.0.0, merged into master and tagged `v1.0.0` (§12). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -310,7 +311,7 @@ injected ports) ← `application` ← `apps/server`; the client renders, the ser
 | **P1 Prototype** | Development sign-in, dev admin, registration board with case conflicts, sealing with commitment, the live stage with the reveal steps, direction bar with hand-over, result screen, bots, Quick Test seed, light/dark, fit to the check sizes. Silent. | The owner plays it and says it is fun. | Built on `proto/cases-v1`; the gate waits for the owner. |
 | **P2 Foundation** | Accounts, 2FA, roles, lobby, website mode, chat dock, call slot, ranks (website / manual), PostgreSQL, admin area with the settings catalogue. | Owner's acceptance. | Built on `proto/cases-v1`; the call slot stays hidden (no call yet). |
 | **P3 Show polish** | Sound, chronicle, "My matches", viewer participation (applause button, tips on the main-prize owner, next-case suggestions), seasonal theming of the stage. | Owner's acceptance per item. | Built; viewer participation starts with the applause button (decided 2026-11-22): anyone watching a live show applauds from the game bar, the stage counts it and the confetti on a prize or in the ceremony grows with the last 10 s, with no effect on the show (§1). Tips and next-case suggestions wait (BACKLOG 10). |
-| **P4 Release** | Installer, security review, first show on the VPS. | Security pass green. | Installer and four security reviews built; release candidate 1.0.0-rc.4; the first show on the VPS waits for the merge. |
+| **P4 Release** | Installer, security review, first show on the VPS. | Security pass green. | Installer and four security reviews built; version 1.0.0 (tag `v1.0.0`); the first show on the VPS is next. |
 
 ## 13. Deliberately not built
 

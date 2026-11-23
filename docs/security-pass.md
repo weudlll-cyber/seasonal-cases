@@ -658,8 +658,11 @@ Not changed:
   name or e-mail alike; a login no account has under its normalised form), with a brake of the
   game's own that looks before it counts (`auth/failureBrake.ts`; the kit's RateLimiter only
   takes, BACKLOG 49). A room of players behind one address signs in freely again; the cap of 20
-  a minute is the outer limit. Left for the owner: 20 failures lock an account out for up to
-  15 minutes from every address, its owner included (the brake answers before the password).
+  a minute is the outer limit. The lock-out question (20 failures locking an account out from
+  every address) is closed by the owner's D55 (task SC-R1): 20 failures brake the account at
+  that address only; the account is braked everywhere only from 100 failures in 15 minutes, and
+  an address from 20 across all accounts (`SignInBrake`, `failureBrake.test.ts`,
+  `signInBrake.test.ts`).
 - **8:** the task asks for both the `verify` line and the CI step; one extra `git ls-remote`
   per CI run.
 

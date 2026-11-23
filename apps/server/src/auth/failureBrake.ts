@@ -1,17 +1,21 @@
 /**
  * @file   apps/server/src/auth/failureBrake.ts
- * @brief  The brake against guessing: failed sign-ins per key in a sliding window; a success is
- *         not counted (DECISIONS D51).
+ * @brief  The brake against guessing: failed sign-ins per key in a sliding window, and sign-in's
+ *         three keys over it; a success is not counted (DECISIONS D51, D55).
  *
- * Responsibility: `braked(key)` looks without counting, so the route can refuse before the
- *                 password check; `failed(key)` counts one failure once the password was wrong. A
- *                 key holds at most `limit` failure times, each forgotten `windowMs` after it
- *                 happened, so the (limit + 1)th try within the window is refused before its
- *                 password is checked and the brake lifts as the oldest failure ages out. Nothing
- *                 resets on a success. Keys are an account or an address range (./../addressKey.ts),
- *                 never a raw login; the map holds at most `maxKeys`, pruned of keys with no
- *                 failure in the window, then the oldest key goes. Built here because the kit's
- *                 RateLimiter only takes and never looks first (BACKLOG 49).
+ * Responsibility: `FailureBrake`: `braked(key)` looks without counting, so the route can refuse
+ *                 before the password check; `failed(key)` counts one failure once the password
+ *                 was wrong. A key holds at most `limit` failure times, each forgotten `windowMs`
+ *                 after it happened, so the (limit + 1)th try within the window is refused before
+ *                 its password is checked and the brake lifts as the oldest failure ages out.
+ *                 Nothing resets on a success. The map holds at most `maxKeys`, pruned of keys
+ *                 with no failure in the window, then the oldest key goes.
+ *                 `SignInBrake` (D55), each 15 minutes: 20 failures brake one account at one
+ *                 address only; 100 failures brake the account at every address; 20 failures brake
+ *                 the address for every account. Keys are an account and an address range
+ *                 (./../addressKey.ts), never a raw login.
+ *                 Built here because the kit's RateLimiter only takes and never looks first
+ *                 (BACKLOG 49).
  * Depends on:     nothing; the clock is passed in.
  */
 
@@ -63,5 +67,40 @@ export class FailureBrake {
     if (this.failures.size >= this.maxKeys && oldest.done !== true) {
       this.failures.delete(oldest.value);
     }
+  }
+}
+
+const WINDOW_MS = 15 * 60_000;
+
+/** Sign-in's brake (D55): failures per account-and-address pair, per account, per address. */
+export const SIGN_IN_BRAKE = { pair: 20, account: 100, address: 20, windowMs: WINDOW_MS } as const;
+
+export class SignInBrake {
+  private readonly pairs: FailureBrake;
+  private readonly accounts: FailureBrake;
+  private readonly addresses: FailureBrake;
+
+  constructor(now: () => number = Date.now) {
+    const { windowMs } = SIGN_IN_BRAKE;
+    this.pairs = new FailureBrake({ limit: SIGN_IN_BRAKE.pair, windowMs }, now);
+    this.accounts = new FailureBrake({ limit: SIGN_IN_BRAKE.account, windowMs }, now);
+    this.addresses = new FailureBrake({ limit: SIGN_IN_BRAKE.address, windowMs }, now);
+  }
+
+  /** The address across all accounts: asked first, before the body is read. */
+  addressBraked(address: string): boolean {
+    return this.addresses.braked(address);
+  }
+
+  /** The account at this address, or the account everywhere. */
+  accountBraked(account: string, address: string): boolean {
+    return this.pairs.braked(`${account}|${address}`) || this.accounts.braked(account);
+  }
+
+  /** One wrong sign-in counts on all three keys. */
+  failed(account: string, address: string): void {
+    this.pairs.failed(`${account}|${address}`);
+    this.accounts.failed(account);
+    this.addresses.failed(address);
   }
 }

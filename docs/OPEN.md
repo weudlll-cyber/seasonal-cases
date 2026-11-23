@@ -2,8 +2,8 @@
 
 A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
 
-- **Now:** release candidate `1.0.0-rc.4` on `proto/cases-v1` (chains SC-N1 to SC-N6 and SC-P7, not
-  merged); the owner plays it and decides the merge (docs/RELEASING.md).
+- **Now:** version `1.0.0` on master, tag `v1.0.0` (chains SC-N1 to SC-N6, SC-P7 and SC-R1);
+  the first show on a server is next (docs/RELEASING.md §4).
   Built: website mode, the docked chat, PostgreSQL, standalone accounts with 2FA, roles, ranks,
   lobby, "My matches", the settings catalogue, the chronicle (BACKLOG 1, 2, 3, 5, 6, 8, 9, 17, 18,
   21, 28, closed).
@@ -11,6 +11,7 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
 - **The owner's word:** viewer participation beyond the applause (BACKLOG 10); `e2e` is a
   required check since 2026-11-22 (BACKLOG 22, closed); the security review's questions are decided and built (BACKLOG 29, 30, 37, closed). Decided 2026-11-22: the gem, the logo
   per theme, the phone menu and the website-mode rank (BACKLOG 12, 38, 39, 4, closed).
+- **Sign-in's brake:** per account and address (D55, BACKLOG 54, closed).
 - **Show polish:** the applause button is built (D39); tips and next-case suggestions wait
   (BACKLOG 10); sound is built (BACKLOG 7, closed).
 - **Release:** the installer is built (BACKLOG 11, closed); a first run on a real VPS (BACKLOG

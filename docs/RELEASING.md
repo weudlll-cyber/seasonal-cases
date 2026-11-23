@@ -8,7 +8,7 @@ owner's word (CLAUDE.md "Git").
 - `pnpm verify` green, the journeys green in Chromium (`pnpm e2e --project=chromium`), CI green
   on the branch's last commit (`gh run list --branch <branch>`).
 - [CHANGELOG.md](../CHANGELOG.md) names the release; every `package.json` carries its version
-  (`1.0.0-rc.4` now, then `1.0.0`).
+  (`1.0.0` since 2026-11-23).
 - [security-pass.md](security-pass.md) has no open confirmed finding.
 
 ## 2. Merge (with the owner's word)
@@ -21,13 +21,16 @@ gh run list --branch master           # the merge commit's CI, reported
 
 ## 3. Tag (with the owner's word)
 
-An annotated tag on the merge commit, registered in [TAGS.md](TAGS.md) in the same change:
+An annotated tag on the merge commit. Its commit exists only after the merge, so it is
+registered in [TAGS.md](TAGS.md) afterwards, through a small pull request of its own (branch
+`docs/tag-<tag>`), merged once its checks are green:
 
 ```sh
 git switch master
 git pull --ff-only
 git tag -a v1.0.0 -m "Seasonal Cases 1.0.0" <merge commit>
 git push origin v1.0.0
+git switch -c docs/tag-v1.0.0          # TAGS.md gets the tag's row; then a PR as in step 2
 ```
 
 After green CI on master the merged branch is deleted on origin (`git push origin --delete

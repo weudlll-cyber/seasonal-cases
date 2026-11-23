@@ -11,8 +11,9 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
 
 ## Where things stand
 
-- **Phase:** P0 bootstrap done on `master` (night chain SC-N1, piece 1). The P1 prototype is
-  complete on `proto/cases-v1` (pieces 2–4), not merged: the owner plays it first.
+- **Phase:** version 1.0.0 on `master`, tag `v1.0.0` (task SC-R1, 2026-11-23): P0 to P3
+  built, P4 (installer, security reviews) built; the first show on a server is next. The work
+  branch `proto/cases-v1` is merged and deleted; the chains below ran on it.
 - **Repository:** `weudlll-cyber/seasonal-cases` (public). Master is protected (checks `verify`,
   `security`, `docs` and, since 2026-11-22, `e2e` (D38); a pull request; no force push, no
   deletion). Kit `v0.5.0` on master
@@ -114,6 +115,11 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   (`auth/failureBrake.ts`); a visually hidden polite live region says the opened artifact at the
   Open step; the inner row at 1280 × 720 stays as it is. Version `1.0.0-rc.4`.
 
+- **Task SC-R1 (2026-11-23):** the brake per account and address (D55: 20 failures brake one
+  account at one address, 100 the account everywhere, 20 an address); version `1.0.0`; master's
+  "Working cheaply" (D54) brought in; `proto/cases-v1` merged into master and tagged `v1.0.0`
+  ([TAGS.md](TAGS.md)); the branches deleted.
+
 - **Kit:** `kit: pinned v0.11.1, newest v0.11.1, current` (`pnpm kit:check`, 2026-11-23, SC-N6
   piece 1). v0.11.1 widens the kit's peer ranges and changes its own Renovate rules; nothing in
   Cases changed with it. The pin moves only on the owner's word.
@@ -128,7 +134,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   has a rule for the kit's tags once the app is enabled.
 - `pnpm dev`: server 127.0.0.1:3970, client 0.0.0.0:5470 (http://localhost:5470; the phone at
   http://192.168.0.66:5470 on the home Wi-Fi). Left running hidden for the owner at the end of
-  SC-P7 (rc.4), on PostgreSQL; the development database holds three accounts the chains did not make
+  SC-R1 (1.0.0, on master), on PostgreSQL; the development database holds three accounts the chains did not make
   ("Plan-Claude", "Walter", "walter"), left as they are; the play-through steps are in
   [NIGHT-RUN.md](NIGHT-RUN.md) "Final report" (Quick Test seed `sc-n1-01`).
 - The development services: `docker compose --env-file ops/compose.dev.env -f
@@ -194,10 +200,8 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   - separate address budgets: sign-ins 20 a minute, claims 300 a minute; in front of the
     sign-ins' cap the brake against guessing (D51): 20 failed sign-ins per 15 minutes per
     address and per account, a success not counted.
-  - Open with D51: 20 failed sign-ins lock an account out for up to 15 minutes from every
-    address, its owner included, since the brake answers before the password is checked.
-    Whether that is wanted, or the per-account brake should look at the address too, is the
-    owner's word.
+  - The lock-out question of D51 is closed by D55: 20 failures brake an account at one address
+    only; 100 brake it everywhere; an address is braked from 20 across all accounts.
 
 - **Where this repository departs from the kit's HANDBOOK (v0.11.0)**, read once on
   2026-11-23; nothing changed for them:

@@ -68,17 +68,18 @@ name), then the account signs in with the new name.
 
 Fixed in the code, not settings. A refusal is 429 with one sentence.
 
-| What                                         | Limit                                                   | Where              |
-| -------------------------------------------- | ------------------------------------------------------- | ------------------ |
-| Failed sign-ins per address (the brake)      | 20 per 15 minutes, failures only (D51)                  | `localRoutes.ts`   |
-| Failed sign-ins per account (the brake)      | 20 per 15 minutes, failures only, name or e-mail (D51)  | `localRoutes.ts`   |
-| Sign-ins per address (IPv6 /64), behind both | 20 a minute (D45)                                       | `addressLimit.ts`  |
-| Claims per address                           | 300 a minute (D45)                                      | `addressLimit.ts`  |
-| Claims per player                            | 20 a minute (D37)                                       | `showRoutes.ts`    |
-| Registrations per address                    | 5 an hour; mails per e-mail 3 an hour, again 1 a minute | `registerRoute.ts` |
-| Confirmations per address                    | 10 per 15 minutes                                       | `registerRoute.ts` |
-| Watches per socket                           | 10 in 10 s (D37)                                        | `realtime.ts`      |
-| Applause per account, or per address (guest) | 5 a second (D44)                                        | `applause.ts`      |
+| What                                          | Limit                                                   | Where              |
+| --------------------------------------------- | ------------------------------------------------------- | ------------------ |
+| Failed sign-ins of one account at one address | 20 per 15 minutes, that pair only (D55)                 | `failureBrake.ts`  |
+| Failed sign-ins of one account, all addresses | 100 per 15 minutes, name or e-mail alike (D55)          | `failureBrake.ts`  |
+| Failed sign-ins at one address, all accounts  | 20 per 15 minutes (D55)                                 | `failureBrake.ts`  |
+| Sign-ins per address (IPv6 /64), behind both  | 20 a minute (D45)                                       | `addressLimit.ts`  |
+| Claims per address                            | 300 a minute (D45)                                      | `addressLimit.ts`  |
+| Claims per player                             | 20 a minute (D37)                                       | `showRoutes.ts`    |
+| Registrations per address                     | 5 an hour; mails per e-mail 3 an hour, again 1 a minute | `registerRoute.ts` |
+| Confirmations per address                     | 10 per 15 minutes                                       | `registerRoute.ts` |
+| Watches per socket                            | 10 in 10 s (D37)                                        | `realtime.ts`      |
+| Applause per account, or per address (guest)  | 5 a second (D44)                                        | `applause.ts`      |
 
 ## Tests only
 

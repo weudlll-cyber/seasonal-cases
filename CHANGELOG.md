@@ -3,7 +3,25 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
-## 1.0.0-rc.4 (not tagged; the tag follows the merge with the owner's word)
+## 1.0.0 (2026-11-23, tag `v1.0.0`)
+
+The first release: the release candidates below, merged into master with the owner's word
+(DECISIONS, 2026-11-23).
+
+- **The show** (rc.1–rc.4): a moderated live show of numbered cases with sealed artifacts and a
+  public commitment; the click and three steps, the moving case that really opens (D49, D50),
+  the opening and the ceremony, the scoreboard, sound, applause, the result with its proof.
+- **Accounts and security** (rc.1–rc.4): website mode on the kit's checks; standalone accounts
+  with a confirmation link, two-factor sign-in for admins with keyed recovery codes; five
+  independent reviews and their fixes.
+- **Toward production** (rc.1): PostgreSQL, `pnpm build` and `pnpm start`, the installer for
+  Debian and Ubuntu, health and ready, the member summary and the open rounds for the website.
+- **The kit:** `@seasonal/kit` v0.11.1, with `pnpm kit:check` watching for new tags.
+- **This release:** sign-in's brake per account and address (D55): 20 failed sign-ins in 15
+  minutes brake one account at one address, 100 brake the account everywhere, 20 brake an
+  address across accounts; a success counts nothing. Master's "Working cheaply" (D54) is in.
+
+## 1.0.0-rc.4 (not tagged; merged as 1.0.0)
 
 Branch `proto/cases-v1`, night chain SC-N6 and task SC-P7: the owner's decisions of 2026-11-23
 (D46–D53).
@@ -32,7 +50,7 @@ Branch `proto/cases-v1`, night chain SC-N6 and task SC-P7: the owner's decisions
   opened cases on the stage stand open, and the ceremony opens each winner's case.
 - **`/dev/opening`:** the opening on its own, with replay, speed and season, in development only.
 
-## 1.0.0-rc.3 (not tagged; the tag follows the merge with the owner's word)
+## 1.0.0-rc.3 (not tagged; merged as 1.0.0)
 
 Branch `proto/cases-v1`, day chain SC-D5: the owner's decisions of 2026-11-23 (D40, D41) and the
 proposals D42–D45, standing until the owner says otherwise.
@@ -70,7 +88,7 @@ proposals D42–D45, standing until the owner says otherwise.
   admin per project (`52dc6ef`).
 - **The pictures:** `proto-v5`, with the registration's pending page.
 
-## 1.0.0-rc.2 (not tagged; the tag follows the merge with the owner's word)
+## 1.0.0-rc.2 (not tagged; merged as 1.0.0)
 
 Branch `proto/cases-v1`, night chain SC-N4 (the owner's decisions of 2026-11-22, D27–D39).
 
@@ -99,7 +117,7 @@ Branch `proto/cases-v1`, night chain SC-N4 (the owner's decisions of 2026-11-22,
 - The journeys in Chromium, Firefox and WebKit at desktop and phone sizes (nightly); WebKit's
   phone journeys pass; the admin's setup form keeps what was typed.
 
-## 1.0.0-rc.1 (not tagged; the tag follows the merge with the owner's word)
+## 1.0.0-rc.1 (not tagged; merged as 1.0.0)
 
 Branch `proto/cases-v1`, from `master` (the bootstrap of night chain SC-N1, piece 1).
 

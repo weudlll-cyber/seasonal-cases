@@ -172,3 +172,12 @@ the owner confirmed them on 2026-11-23 (D46).
   independent of the picture's timing.
 - **D53 — The inner row on a wide, short window.** At 1280 × 720 and 1536 × 768 the risen
   artifact may cover the two dimmed middle cases; no change.
+
+## 2026-11-23, task SC-R1: the owner's decision D55 and the release
+
+- **D55 — The brake per account and address.** The sign-in brake counts failed attempts per
+  account-and-address pair: 20 per 15 minutes brake that pair only. Per account across all
+  addresses the brake starts at 100 failures per 15 minutes. Per address across all accounts it
+  stays at 20 failures per 15 minutes. A success counts nothing and resets nothing. The cap of 20
+  sign-ins a minute per address stays. This replaces the per-account 20 of D51.
+- **Release 1.0.0.** The merge of `proto/cases-v1` into master and the tag `v1.0.0` are approved.

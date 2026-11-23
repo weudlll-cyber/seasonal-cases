@@ -1,8 +1,9 @@
 /**
  * @file   apps/server/src/signInBrake.test.ts
- * @brief  Tests sign-in's two limits (DECISIONS D45, D51): the brake against guessing counts
- *         failed sign-ins only, 20 per 15 minutes per address and per account; the cap of 20
- *         sign-ins a minute per address behind it; the brake answers before the cap counts.
+ * @brief  Tests sign-in's two limits (DECISIONS D45, D51, D55): the brake against guessing counts
+ *         failed sign-ins only, per 15 minutes 20 for an account at one address, 100 for the
+ *         account everywhere, 20 for an address across accounts; the cap of 20 sign-ins a minute
+ *         per address behind it; the brake answers before the cap counts.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -20,6 +21,11 @@ const BRAKE_TEXT = 'too many tries, wait a few minutes';
 // These tests check about 20 passwords each with the production argon2id (64 MiB, three passes):
 // real work, which beside the other test files takes longer than the default 20 s.
 const HASHES = { timeout: 90_000 };
+// 100 such checks.
+const LONG = { timeout: 300_000 };
+// Two visitors' addresses.
+const A = '10.1.0.1';
+const B = '10.2.0.1';
 const CAP_TEXT = 'too many requests from your network, wait a minute';
 const PASSWORD = 'a long enough secret';
 const ADA = { name: 'Ada', email: 'ada@example.org', password: PASSWORD };
@@ -44,7 +50,7 @@ async function failures(h: Harness, count: number, from = 0) {
   return answers;
 }
 
-describe('the brake against guessing counts failures only (D51)', () => {
+describe('the brake against guessing counts failures only (D51, D55)', () => {
   it('lets 21 successful sign-ins from one address pass within 15 minutes', HASHES, async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     const h = await startHarness();
@@ -76,24 +82,34 @@ describe('the brake against guessing counts failures only (D51)', () => {
   );
 
   it(
-    'brakes an account after 20 failures from any addresses, its right password too',
+    'brakes account X at address A after 20 failures there, but not at address B',
     HASHES,
     async () => {
       vi.useFakeTimers({ toFake: ['Date'] });
       const h = await startHarness();
       harness = h;
       await h.register(ADA);
-      // By name and by e-mail alike, each from an address of its own.
+      // By name and by e-mail alike: one account.
       for (let i = 0; i < 20; i += 1) {
         const login = i % 2 === 0 ? 'ada' : 'ADA@example.org';
-        expect((await signIn(h, login, 'wrong', `10.0.${String(i)}.1`)).code).toBe(401);
+        expect((await signIn(h, login, 'wrong', A)).code).toBe(401);
       }
-      expect(await signIn(h, 'ada', PASSWORD, '10.9.9.1')).toEqual({
-        code: 429,
-        error: BRAKE_TEXT,
-      });
+      expect(await signIn(h, 'ada', PASSWORD, A)).toEqual({ code: 429, error: BRAKE_TEXT });
+      expect((await signIn(h, 'ada', PASSWORD, B)).code).toBe(200);
     },
   );
+
+  it('brakes account X everywhere after 100 failures from many addresses', LONG, async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    const h = await startHarness();
+    harness = h;
+    await h.register(ADA);
+    // One failure from each of 100 addresses: no pair and no address reaches its 20.
+    for (let i = 0; i < 100; i += 1) {
+      expect((await signIn(h, 'ada', 'wrong', `10.3.${String(i)}.1`)).code).toBe(401);
+    }
+    expect(await signIn(h, 'ada', PASSWORD, B)).toEqual({ code: 429, error: BRAKE_TEXT });
+  });
 
   it(
     'forgets nothing on a success: 19 failures, a success, one failure, then the brake',
@@ -103,10 +119,16 @@ describe('the brake against guessing counts failures only (D51)', () => {
       const h = await startHarness();
       harness = h;
       await h.register(ADA);
-      for (let i = 0; i < 19; i += 1) await signIn(h, 'ada', 'wrong', `10.1.${String(i)}.1`);
-      expect((await signIn(h, 'ada', PASSWORD, '10.2.0.1')).code).toBe(200);
-      expect((await signIn(h, 'ada', 'wrong', '10.2.0.2')).code).toBe(401);
-      expect((await signIn(h, 'ada', PASSWORD, '10.2.0.3')).code).toBe(429);
+      // 4 s apart, so the cap of 20 a minute at A never answers in their place.
+      for (let i = 0; i < 19; i += 1) {
+        await signIn(h, 'ada', 'wrong', A);
+        vi.setSystemTime(Date.now() + 4_000);
+      }
+      expect((await signIn(h, 'ada', PASSWORD, A)).code).toBe(200);
+      expect((await signIn(h, 'ada', 'wrong', A)).code).toBe(401);
+      expect((await signIn(h, 'ada', PASSWORD, A)).code).toBe(429);
+      // The pair only: the account still signs in elsewhere.
+      expect((await signIn(h, 'ada', PASSWORD, B)).code).toBe(200);
     },
   );
 });
