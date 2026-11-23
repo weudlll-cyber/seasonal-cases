@@ -210,6 +210,10 @@
     translate: none;
   }
 
+  .case-token .case-picture {
+    --cw: 80px;
+  }
+
   .centre,
   .lower-third {
     position: relative;

@@ -45,7 +45,8 @@ export type Route =
   | { readonly name: 'matches' }
   | { readonly name: 'chronicle' }
   | { readonly name: 'reset' }
-  | { readonly name: 'confirm' };
+  | { readonly name: 'confirm' }
+  | { readonly name: 'opening' };
 
 export function routeOf(path: string): Route {
   if (path === '/show') return { name: 'stage' };
@@ -54,6 +55,7 @@ export function routeOf(path: string): Route {
   if (path === '/chronicle') return { name: 'chronicle' };
   if (path === '/reset') return { name: 'reset' };
   if (path === '/confirm') return { name: 'confirm' };
+  if (path === '/dev/opening') return { name: 'opening' };
   const results = /^\/results\/([A-Za-z0-9_-]+)$/.exec(path);
   if (results?.[1] !== undefined) return { name: 'results', showId: results[1] };
   return { name: 'start' };

@@ -26,7 +26,7 @@ async function revealCase(page: Page, caseNumber: number): Promise<void> {
   await place.click();
   await expect(stage).toHaveAttribute('data-step', 'selected');
   const front = page.locator(`.centre-case[data-case="${String(caseNumber)}"]`);
-  await expect(front.locator('.centre-number')).toHaveText(String(caseNumber));
+  await expect(front.locator('.cp-number')).toHaveText(String(caseNumber));
   // The case travelled from its place to the front, and shows nothing before "Open".
   await page.waitForTimeout(900);
   const atFront = await front.boundingBox();

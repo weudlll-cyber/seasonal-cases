@@ -165,7 +165,24 @@ describe('the built client', () => {
       expect(await (await fetch(`${address}${base}chronicle`)).text()).toContain('Seasonal Cases');
       expect((await fetch(`${address}${base}api/nothing`)).status).toBe(404);
       expect((await fetch(`${address}${base}api/health`)).status).toBe(200);
+      // The opening's showcase is a development page: not there outside development.
+      expect((await fetch(`${address}${base}dev/opening`)).status).toBe(404);
       await server.app.close();
     });
   }
+
+  it('answers the development pages with the page in development', async () => {
+    const config = configFrom({
+      NODE_ENV: 'development',
+      SC_DEV: '1',
+      SC_CLIENT_DIR: dir,
+      SC_COOKIE_SECRET: 'x'.repeat(32),
+    });
+    const server = await buildServer(config, { events: memoryStore() });
+    const address = await server.app.listen({ host: '127.0.0.1', port: 0 });
+    const page = await fetch(`${address}/dev/opening`);
+    expect(page.status).toBe(200);
+    expect(await page.text()).toContain('Seasonal Cases');
+    await server.app.close();
+  });
 });

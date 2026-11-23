@@ -10,6 +10,11 @@ reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
   login and address, in front of the password check and before the 20-a-minute cap counts.
 - **The phone's cases:** "Unclaimed" is whole at 360 and 390 px (88 px columns).
 - **D42–D45 confirmed (D46).**
+- **The case that really opens (D49):** every case is a case with a handle, latches and a lid
+  hinged at its back edge. At "Open" the latches flip, the lid swings open towards the viewer, the
+  lining glows in the season's colour, the artifact rises out of it and the meaning comes last;
+  opened cases on the stage stand open, and the ceremony opens each winner's case.
+- **`/dev/opening`:** the opening on its own, with replay, speed and season, in development only.
 
 ## 1.0.0-rc.3 (not tagged; the tag follows the merge with the owner's word)
 

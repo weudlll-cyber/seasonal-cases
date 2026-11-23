@@ -22,11 +22,14 @@ import './shell/shell.css';
 import './stage/artifact.css';
 import './stage/stage.css';
 import './stage/front.css';
+import './stage/case.css';
+import './stage/caseOpening.css';
 import './stage/stageParts.css';
 import './stage/scoreboard.css';
 import './stage/moments.css';
 import './board/board.css';
 import './screens/screens.css';
+import './screens/showcase.css';
 import './screens/result.css';
 
 import { StrictMode } from 'react';

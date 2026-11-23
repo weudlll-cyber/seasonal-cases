@@ -1,17 +1,21 @@
 /**
  * @file   apps/web/src/stage/CaseToken.tsx
- * @brief  One case on the stage: its number, its owner's name and a soft season glow.
+ * @brief  One case on the stage: the case's picture with its number, its owner's name and a
+ *         soft season glow.
  *
  * Responsibility: render a case as the view says: closed, selected (it is on the centre
- *                 stage), or opened (its artifact small beside the number). For the direction
- *                 holder it is a button that selects the case; for everyone else plain content.
- * Depends on:     react, @sc/contracts (types), ./ArtifactEmblem.js, ./arc.js
+ *                 stage), or opened (the lid standing open, the artifact's small emblem inside;
+ *                 ./CasePicture.tsx). For the direction holder it is a
+ *                 button that selects the case; for everyone else plain content.
+ * Depends on:     react, @sc/contracts (types), ./ArtifactEmblem.js, ./Badges.js,
+ *                 ./CasePicture.js, ./arc.js
  */
 import { ownerText, type CaseView } from '@sc/contracts';
 import type { CSSProperties } from 'react';
 
 import { ArtifactEmblem } from './ArtifactEmblem.js';
 import { Badges } from './Badges.js';
+import { CasePicture } from './CasePicture.js';
 import type { Spot } from './arc.js';
 
 export interface CaseTokenProps {
@@ -34,12 +38,13 @@ export function CaseToken({ view, spot, away, onSelect }: CaseTokenProps) {
   } as CSSProperties;
   const body = (
     <>
-      <span className="case-number show-font">{view.number}</span>
+      <CasePicture state={view.opened ? 'open' : 'closed'} number={view.number}>
+        {view.artifact !== null ? <ArtifactEmblem artifact={view.artifact} /> : undefined}
+      </CasePicture>
       <span className="case-owner" title={owner}>
         <Badges badges={view.ownerBadges} />
         {owner}
       </span>
-      {view.artifact !== null && <ArtifactEmblem artifact={view.artifact} />}
     </>
   );
   const className = `case-token${away ? ' is-away' : ''}${view.opened ? ' is-opened' : ''}`;

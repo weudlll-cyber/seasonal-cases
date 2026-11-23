@@ -154,8 +154,20 @@ html[data-sk-focus] {
   animation: sc-emerge 700ms var(--ease-out);
 }
 
+/* The current winner: its case opening, the artifact rising out of it (./CasePicture.tsx). */
 .ceremony-shown li.is-now {
-  box-shadow: 0 0 40px rgb(249 168 37 / 55%);
+  background: none;
+}
+
+.ceremony .case-picture {
+  --cw: max(130px, calc(var(--fit, 1) * 190px));
+}
+
+@keyframes sc-emerge {
+  from {
+    opacity: 0;
+    transform: translateY(30%) scale(0.6);
+  }
 }
 
 .ceremony-slot {

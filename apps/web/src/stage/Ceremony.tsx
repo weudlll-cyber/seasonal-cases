@@ -6,10 +6,12 @@
  * Responsibility: a client-only sequence over the ended view's result, which the server does not
  *                 change: the winners one after another, from the lowest prize (the highest slot)
  *                 up to the main prize, 2.5 s apart (the chain's decision rule), each with its
- *                 artifact and the lower third; confetti on the main prize; then the link to the
- *                 result. Under reduced motion the steps still follow each other, without motion.
+ *                 case opening and its artifact rising out of it (./CasePicture.tsx, D49) and
+ *                 the lower third; the winners before it keep their small artifact; confetti on
+ *                 the main prize; then the link to the result. Under reduced motion the steps
+ *                 still follow each other, without motion.
  * Depends on:     react, @sc/contracts (types), ../lib/router.js, ./applause.js (types),
- *                 ./ArtifactEmblem.js, ./LowerThird.js
+ *                 ./ArtifactEmblem.js, ./CasePicture.js, ./LowerThird.js
  */
 import { prizeName, winnerText, type FoundPrize, type ShowResult } from '@sc/contracts';
 import { useEffect, useState } from 'react';
@@ -17,6 +19,7 @@ import { useEffect, useState } from 'react';
 import { Link } from '../lib/router.js';
 import type { ApplauseStep } from './applause.js';
 import { ArtifactEmblem } from './ArtifactEmblem.js';
+import { CasePicture } from './CasePicture.js';
 import { ConfettiPieces } from './LowerThird.js';
 
 export const CEREMONY_STEP_MS = 2500;
@@ -62,10 +65,13 @@ export function Ceremony({ showId, result, confetti = true, applause = 1 }: Cere
         {order.slice(0, Math.min(count, order.length)).map((w) => (
           <li key={w.slot} className={w === current && !done ? 'is-now' : ''}>
             <span className="ceremony-slot">Prize {w.slot}</span>
-            <ArtifactEmblem
-              artifact={w.artifact}
-              size={w === current && !done ? 'large' : 'small'}
-            />
+            {w === current && !done ? (
+              <CasePicture state="opening" risen>
+                <ArtifactEmblem artifact={w.artifact} size="large" />
+              </CasePicture>
+            ) : (
+              <ArtifactEmblem artifact={w.artifact} />
+            )}
           </li>
         ))}
       </ol>

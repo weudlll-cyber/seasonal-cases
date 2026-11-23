@@ -12,6 +12,7 @@
 | 1.7 | 2026-11-22 | Night chain SC-N4: unclaimed cases and no bots in real shows (§3.2), "not won" (§3.4, §3.5), the early-end question (§3.5), the ceremony's reveal and pace decided (§3.5). |
 | 1.8 | 2026-11-23 | Night chain SC-N4: the applause button (§12 P3). |
 | 1.9 | 2026-11-23 | Day chain SC-D5: registration confirmed by the mail's link, a proposal (§10). |
+| 1.10 | 2026-11-23 | Night chain SC-N6, from the owner's decisions of 2026-11-23: the case and its opening (§7); registration through the mail's link decided (§10). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -189,10 +190,16 @@ Target: a TV-studio feel with small means — SVG, icons, gradients, glow, CSS a
   it is struck through with its owner's name, so everyone sees which prizes are taken and which
   are still open. The commitment stays visible beside it.
 - **Open:** the artifact appears with its meaning under it (§3.4).
-- **The moving case** (decided 2026-11-21): after the click the case travels from its place on the
-  half circle to the front in one continuous motion while the others dim; at Open its lid lifts
-  slowly, the artifact rises with its glow and the meaning appears last. After Back to stage it
-  closes, travels home and stays there marked opened (durations: settings, §9).
+- **The case** (decided 2026-11-23): every case is a real case, seen a little from above and in
+  front: a body with a season-coloured trim, a handle on its lid, two latches at the front, and a
+  lid hinged at the body's back edge. At Open the latches flip, the lid swings slowly open towards
+  the viewer in perspective and shows the dark lining with the season's glow, then the artifact
+  rises out of the case and the meaning appears last, over the opening's duration (a setting,
+  §9). On the stage an opened case stands with its lid open and the artifact's small gem inside.
+- **The moving case** (decided 2026-11-21): after the click the closed case travels from its place
+  on the half circle to the front in one continuous motion while the others dim, and opens there
+  at Open. After Back to stage it travels home with its lid open and stays there opened
+  (decided 2026-11-23; durations: settings, §9).
 - **Lower third:** owner's name and Discord badge at the "Owner" step.
 - **Confetti** only on the main prize.
 - **The main prize's gem** (the four seasons) turns only in the centre case and in the ceremony;
@@ -247,9 +254,8 @@ Both are required (ecosystem principle, confirmed for this game 2026-11-21).
   (GAME-INTEGRATION §2–§4, AUTH.md), rights per game, website admins are game admins, guests watch,
   the website's chat embedded (room `cases`), the call slot reserved, the "← Seasonal Entertainment"
   link top left, deleted accounts shown as "deleted player" plus short id.
-- **Standalone:** own accounts (register, made only once the mail's confirmation link is used:
-  a proposal of 2026-11-23 until the owner says otherwise; sign in; forgotten password by
-  e-mail), 2FA for admins,
+- **Standalone:** own accounts (register, made only once the mail's confirmation link is used,
+  decided 2026-11-23; sign in; forgotten password by e-mail), 2FA for admins,
   roles player / organiser / admin, super admin by server command, manual ranks (§4), no website
   link, no chat and no call.
 - **Installer:** one call on a VPS for both modes, asking what it needs; general instructions.

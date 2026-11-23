@@ -11,7 +11,9 @@
  *     strict-origin`, which the chat needs to know its parent.
  *   - `serveClient`: the built client (`pnpm build`) under the base path; assets cached for a
  *     year (their names carry a hash), the page itself never; any other GET under the base path
- *     that is not the API answers the page, so the client's routes load from a link.
+ *     that is not the API answers the page, so the client's routes load from a link. The
+ *     development pages under `dev/` (the opening's showcase, `/dev/opening`) answer 404 unless
+ *     the server runs in development (`SC_DEV`).
  * Depends on:     node:fs, node:path, fastify (types), @fastify/helmet (types), @fastify/static,
  *                 ./config.js (types)
  */
@@ -50,6 +52,8 @@ export function helmetOptions(config: ServerConfig): FastifyHelmetOptions {
 
 // The server's own paths under the base path: never answered with the page.
 const OWN = ['api/', 'socket.io/', 'auth/'];
+// The development pages: the page only in development, 404 everywhere else.
+const DEV_PAGES = 'dev/';
 
 export async function serveClient(app: FastifyInstance, config: ServerConfig): Promise<void> {
   const dir = config.clientDir;
@@ -66,11 +70,12 @@ export async function serveClient(app: FastifyInstance, config: ServerConfig): P
       void res.header('cache-control', asset ? 'public, max-age=31536000, immutable' : 'no-cache');
     },
   });
+  const notPages = config.dev ? OWN : [...OWN, DEV_PAGES];
   app.setNotFoundHandler((request, reply) => {
     const inner = request.url.startsWith(config.basePath)
       ? request.url.slice(config.basePath.length)
       : null;
-    if (request.method !== 'GET' || inner === null || OWN.some((p) => inner.startsWith(p))) {
+    if (request.method !== 'GET' || inner === null || notPages.some((p) => inner.startsWith(p))) {
       return reply.code(404).send({ error: 'not found' });
     }
     return reply.header('cache-control', 'no-cache').sendFile('index.html');

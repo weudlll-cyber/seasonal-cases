@@ -14,15 +14,16 @@ The chain is running; this report is written at its end.
 
 ### State
 
-| Done                                                      | Running                             | Open                                               | Needs the owner's word                                      |
-| --------------------------------------------------------- | ----------------------------------- | -------------------------------------------------- | ----------------------------------------------------------- |
-| Piece 1: kit v0.11.1, the brake, "Unclaimed" on the phone | Piece 2: the case that really opens | Piece 3: `/dev/opening`; piece 4: pictures, review | D48's brake makes the cap redundant for one address (below) |
+| Done                                                                                                                    | Running                                 | Open | Needs the owner's word                                      |
+| ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ---- | ----------------------------------------------------------- |
+| Piece 1: kit v0.11.1, the brake, "Unclaimed" on the phone; piece 2: the case that really opens; piece 3: `/dev/opening` | Piece 4: the opening's frames, a review | —    | D48's brake makes the cap redundant for one address (below) |
 
 ### Pieces
 
-| Piece | What                                                                               | Commit        | CI run       |
-| ----- | ---------------------------------------------------------------------------------- | ------------- | ------------ |
-| 1     | Kit v0.11.1 (D47); sign-in's brake (D48); "Unclaimed" whole at 360 and 390 px; D46 | (this commit) | (next entry) |
+| Piece | What                                                                                                                                                                                                                             | Commit        | CI run             |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------ |
+| 1     | Kit v0.11.1 (D47); sign-in's brake (D48); "Unclaimed" whole at 360 and 390 px; D46                                                                                                                                               | `1c9e32a`     | 45242757137, green |
+| 2, 3  | The case that really opens (D49): `CasePicture.tsx`, `case.css`, `caseOpening.css`, the phases in `motion.ts`, centre, stage and ceremony; `/dev/opening` (404 outside development); one commit, as both are wired in `main.tsx` | (this commit) | (next entry)       |
 
 ### Choices made without the owner
 
@@ -46,6 +47,25 @@ The chain is running; this report is written at its end.
   `checks.json`. It found two others, never measured before: an opened case's artifact name
   ("Halving Stone", all sizes; piece 2 redraws the opened cases) and the kit bar's "3 prizes
   left" on the phone (the kit's `GameBar`, reported, not changed).
+- **Corrected in piece 2:** the artifact name was the stage's text kept for screen readers only
+  (a 1 px clipped box), not a cut; the check now skips such boxes. Only the kit bar's "3 prizes
+  left" stays.
+- **"The artifact emblem stays the kit's":** the emblem is this game's own `ArtifactEmblem`, not a
+  kit part; read as "the emblem stays as it is", and it is used unchanged in the case.
+- **The case is drawn as CSS 3D faces with SVG art,** not one SVG drawing: SVG elements take no 3D
+  transforms, and the lid has to turn about its back edge in perspective. Back, sides and floor
+  are lined dark; the front carries the SVG trim, the latches and the number; the lid has its
+  outer face with the handle, a lined inner face and a lip.
+- **The 300 ms beat after "Back to stage" stays** (`closeMs`) as the pause before the opened case
+  travels home with its lid open; the lid no longer closes, so the way home takes as long as
+  before.
+- **The cases on the stage lost their card** (border and background): the case itself is the
+  token now, its number on the front, the owner's name below.
+- **The ceremony** opens each winner's case as it comes (the same opening); the winners before
+  keep their small gem.
+- **On a wide, short PC window (1280 × 720, 1536 × 768)** the front case is smaller (`--cw` 160 at
+  fit 1), but the risen artifact still covers part of the inner row's two middle cases, which are
+  dimmed at that moment. Left as it is for the owner to see in the pictures.
 
 ## Day chain SC-D5 (2026-11-23)
 

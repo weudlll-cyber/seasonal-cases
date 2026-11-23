@@ -1,13 +1,14 @@
 /**
  * @file   apps/web/src/stage/motion.test.tsx
- * @brief  Tests the stage's motion: the settings as CSS variables, the travel's inverse
- *         transform, the case on its way home, and no artifact while the view has none.
+ * @brief  Tests the stage's motion: the settings and the opening's phases as CSS variables,
+ *         the phases' order and bounds, the travel's inverse transform, the case on its way home
+ *         with its lid open, and no artifact while the view has none.
  */
 import { act, cleanup, render, renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { ANA, liveView } from '../testing/views.js';
-import { motionVars, STAGE_MOTION } from './motion.js';
+import { LID_OPEN_DEG, motionVars, OPEN_PHASES, phaseVars, STAGE_MOTION } from './motion.js';
 import { Stage } from './Stage.js';
 import { inverse, useReturn } from './travel.js';
 
@@ -26,17 +27,57 @@ describe('the motion settings', () => {
       openMs: 1600,
       closeMs: 300,
     });
-    expect(motionVars()).toEqual({
+    expect(motionVars()).toMatchObject({
       '--travel-ms': '800ms',
       '--travel-ease': 'ease-in-out',
       '--open-ms': '1600ms',
       '--close-ms': '300ms',
+      '--lid-open-deg': '105deg',
+      '--lid-delay': '160ms',
+      '--lid-ms': '960ms',
     });
     const { container } = render(
       <Stage show={liveView('idle')} organiser={null} me={ANA} direct={direct} />,
     );
     const root = container.querySelector<HTMLElement>('.stage-screen');
     expect(root?.style.getPropertyValue('--open-ms')).toBe('1600ms');
+  });
+});
+
+describe('the opening’s phases (D49)', () => {
+  const phases = Object.values(OPEN_PHASES);
+
+  it('stay within the opening, each a real span', () => {
+    for (const phase of phases) {
+      expect(phase.from).toBeGreaterThanOrEqual(0);
+      expect(phase.to).toBeLessThanOrEqual(1);
+      expect(phase.to).toBeGreaterThan(phase.from);
+    }
+  });
+
+  it('flip the latches first, then swing the lid, and let nothing of the artifact out before 55 %', () => {
+    const { latches, lid, glow, artifact } = OPEN_PHASES;
+    expect(latches).toEqual({ from: 0, to: 0.1 });
+    expect(lid).toEqual({ from: 0.1, to: 0.7 });
+    expect(glow.from).toBe(0.3);
+    expect(artifact.from).toBe(0.55);
+    expect(artifact.from).toBeGreaterThan(lid.from);
+    expect(LID_OPEN_DEG).toBe(105);
+  });
+
+  it('show the meaning last: it starts after every other phase and ends with the opening', () => {
+    const { meaning, ...others } = OPEN_PHASES;
+    for (const phase of Object.values(others)) expect(meaning.from).toBeGreaterThan(phase.from);
+    expect(meaning).toEqual({ from: 0.85, to: 1 });
+  });
+
+  it('scale with the show’s opening: a slower opening stretches every phase alike', () => {
+    expect(phaseVars(3200)).toMatchObject({
+      '--artifact-delay': '1760ms',
+      '--artifact-ms': '1440ms',
+      '--meaning-delay': '2720ms',
+      '--meaning-ms': '480ms',
+    });
   });
 });
 
@@ -84,5 +125,8 @@ describe('the front case', () => {
       <Stage show={liveView('open')} organiser={null} me={ANA} direct={direct} />,
     );
     expect(open.container.querySelector('.centre-case.is-open .artifact')).not.toBeNull();
+    expect(open.container.querySelector('.centre .case-picture')?.getAttribute('data-state')).toBe(
+      'opening',
+    );
   });
 });

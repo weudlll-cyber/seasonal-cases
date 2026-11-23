@@ -103,8 +103,9 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
 
 - **Night chain SC-N6 (running, 2026-11-23):** piece 1 done: kit v0.11.1 (D47), sign-in's
   brake against guessing back in front of the cap (D48), "Unclaimed" whole on the phone, D42–D45
-  confirmed (D46). Next: the case that really opens (D49), the showcase page `/dev/opening`, the
-  pictures, a review. State per piece in [NIGHT-RUN.md](NIGHT-RUN.md).
+  confirmed (D46). Pieces 2 and 3 done: the case that really opens (D49, `stage/CasePicture.tsx`,
+  the phases in `stage/motion.ts`) and the showcase page `/dev/opening` (development only). Next:
+  the opening's frames as pictures, a review. State per piece in [NIGHT-RUN.md](NIGHT-RUN.md).
 
 - **Kit:** `kit: pinned v0.11.1, newest v0.11.1, current` (`pnpm kit:check`, 2026-11-23, SC-N6
   piece 1). v0.11.1 widens the kit's peer ranges and changes its own Renovate rules; nothing in

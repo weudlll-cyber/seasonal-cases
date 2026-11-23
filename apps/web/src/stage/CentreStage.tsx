@@ -3,18 +3,22 @@
  * @brief  The case at the front, through the steps (CONCEPT §3.4, v1.1), with its travel.
  *
  * Responsibility: show what the current step reveals and nothing more: after the click the
- *                 closed case travels from its place to the front (./travel.ts) while the lights
- *                 go down; at "Open" the lid lifts slowly, the artifact rises in its season
- *                 colour and its meaning appears last ("Prize 1 · Gold", "Prize 1" without a
- *                 label, or "No prize"); at "Owner" it stays while the lower third names the
- *                 owner; after "Back to stage" it closes and travels home. The artifact is drawn
- *                 only once the view carries it (CONCEPT §8). Everything comes from the view.
- * Depends on:     react, @sc/contracts (types), ./ArtifactEmblem.js, ./travel.js
+ *                 closed case (./CasePicture.tsx) travels from its place to the front
+ *                 (./travel.ts) while the lights go down; at "Open" the latches flip, the lid
+ *                 swings open towards the viewer, the artifact rises out of the case in its
+ *                 season colour and its meaning appears last ("Prize 1 · Gold", "Prize 1"
+ *                 without a label, or "No prize"), in the phases of ./motion.ts; at "Owner" it
+ *                 stays while the lower third names the owner; after "Back to stage" it travels
+ *                 home with its lid open (D49). The artifact is drawn only once the view carries
+ *                 it (CONCEPT §8). Everything comes from the view.
+ * Depends on:     react, @sc/contracts (types), ./ArtifactEmblem.js, ./CasePicture.js,
+ *                 ./travel.js
  */
 import { prizeTitle, type CaseView, type PublicShowView } from '@sc/contracts';
 import { useRef } from 'react';
 
 import { ArtifactEmblem } from './ArtifactEmblem.js';
+import { CasePicture } from './CasePicture.js';
 import { useArrival, useHomeward } from './travel.js';
 
 /** The meaning shown with an opened artifact. */
@@ -34,22 +38,21 @@ function FrontCase({ show, view, phase }: FrontCaseProps) {
   const ref = useRef<HTMLDivElement>(null);
   useArrival(ref, view.number, phase === 'front');
   useHomeward(ref, view.number, phase === 'home');
-  const artifact = phase === 'front' ? view.artifact : null;
-  const classes = [
-    'centre-case',
-    artifact !== null ? 'is-open' : '',
-    phase === 'home' ? 'is-closing' : '',
-  ];
+  const { artifact } = view;
+  // At the front the opening plays once the view carries the artifact; home, it stays open.
+  const state = artifact === null ? 'closed' : phase === 'front' ? 'opening' : 'open';
   return (
     <div className="centre" data-phase={phase} aria-live="polite">
-      <div ref={ref} className={classes.filter((c) => c !== '').join(' ')} data-case={view.number}>
-        <span className="centre-glow" aria-hidden="true" />
-        <span className="case-lid">
-          <span className="centre-number show-font">{view.number}</span>
-        </span>
-        {artifact !== null && <ArtifactEmblem artifact={artifact} size="large" />}
+      <div
+        ref={ref}
+        className={`centre-case${artifact !== null ? ' is-open' : ''}`}
+        data-case={view.number}
+      >
+        <CasePicture state={state} number={view.number} risen>
+          {artifact !== null ? <ArtifactEmblem artifact={artifact} size="large" /> : undefined}
+        </CasePicture>
       </div>
-      {artifact !== null && (
+      {artifact !== null && phase === 'front' && (
         <p className={`centre-meaning${artifact.prizeSlot === null ? ' is-blank' : ''}`}>
           {meaningText(show, view)}
         </p>

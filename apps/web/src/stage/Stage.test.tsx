@@ -34,7 +34,8 @@ describe('the step states', () => {
     const { container } = renderStage('selected');
     expect(container.querySelector('.stage-screen')?.getAttribute('data-dimmed')).toBe('true');
     const centre = container.querySelector('.centre');
-    expect(centre?.querySelector('.centre-number')?.textContent).toBe('7');
+    expect(centre?.querySelector('.cp-number')?.textContent).toBe('7');
+    expect(centre?.querySelector('.case-picture')?.getAttribute('data-state')).toBe('closed');
     expect(centre?.querySelector('.artifact')).toBeNull();
     expect(centre?.querySelector('.centre-meaning')).toBeNull();
   });

@@ -151,11 +151,10 @@
   gap: 2px;
   width: 100%;
   min-height: var(--sk-floor-target);
-  padding: 6px 4px;
-  border: 2px solid color-mix(in srgb, var(--glow) 70%, transparent);
+  padding: 2px 4px;
+  border: 0;
   border-radius: var(--radius);
-  background: var(--color-surface);
-  box-shadow: 0 0 calc(var(--fit, 1) * 14px) color-mix(in srgb, var(--glow) 45%, transparent);
+  background: none;
   color: var(--color-text);
   font: inherit;
 }
@@ -170,11 +169,6 @@ button.case-body:focus-visible {
   outline-offset: 2px;
 }
 
-.case-number {
-  font-size: max(var(--sk-floor-display), calc(var(--fit, 1) * var(--token, 80px) * 0.36));
-  line-height: 1;
-}
-
 .case-owner {
   max-width: 100%;
   overflow: hidden;
@@ -183,10 +177,17 @@ button.case-body:focus-visible {
   white-space: nowrap;
 }
 
-.case-token.is-opened .case-body {
-  border-style: dashed;
-  box-shadow: none;
-  background: var(--color-surface-2);
+/* The case's picture (./case.css) fills the token; its glow is the token's season colour. */
+.case-token .case-picture {
+  --cw: calc(max(62px, calc(var(--fit, 1) * var(--token, 80px))) - 8px);
+  filter: drop-shadow(
+    0 0 calc(var(--fit, 1) * 6px) color-mix(in srgb, var(--glow) 55%, transparent)
+  );
+}
+
+/* An opened case: the lid stands open, the artifact's gem sits inside. */
+.case-token .cp-content .artifact {
+  font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
 }
 
 /* An opened case shows its artifact's gem; the name is the gem's tooltip and stays readable to

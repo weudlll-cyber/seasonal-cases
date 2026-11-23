@@ -56,7 +56,8 @@ async function measure(page: Page): Promise<Omit<Check, 'file'>> {
       const parent = node.parentElement;
       if (parent === null || (node.textContent ?? '').trim() === '') continue;
       const box = parent.getBoundingClientRect();
-      if (box.width === 0 || box.height === 0) continue;
+      // Hidden, or kept for screen readers only (a 1 px clipped box), is not on screen.
+      if (box.width <= 1 || box.height <= 1) continue;
       const style = getComputedStyle(parent);
       smallest = Math.min(smallest, parseFloat(style.fontSize));
       if (style.textOverflow === 'ellipsis' && parent.scrollWidth > parent.clientWidth) {
