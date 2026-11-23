@@ -6,7 +6,8 @@
  *                 `two_factor` and `recovery_codes` of migration 0001. The TOTP secret is stored
  *                 encrypted with SC_DATA_KEY and bound to its account (./box.ts); a step moves forward and a recovery code
  *                 is marked used in the statement that checks it, so neither works twice even
- *                 under two requests at once.
+ *                 under two requests at once. Re-issued recovery codes replace the old rows in
+ *                 one transaction.
  * Depends on:     ../auth/twoFactor.js (types), ./box.js, ./pool.js
  */
 import type { TwoFactorStore } from '../auth/twoFactor.js';
@@ -33,6 +34,25 @@ function enableOnce(
       [accountId, step],
     );
     if (updated.rowCount !== 1) return false;
+    await client.query('DELETE FROM recovery_codes WHERE account_id = $1', [accountId]);
+    for (const hash of hashes) {
+      await client.query('INSERT INTO recovery_codes (account_id, code_hash) VALUES ($1, $2)', [
+        accountId,
+        hash,
+      ]);
+    }
+    return true;
+  });
+}
+
+// New recovery codes for an enabled account: the old rows go in the same transaction.
+function replaceCodes(pool: DbPool, accountId: string, hashes: readonly Buffer[]) {
+  return inTransaction(pool, async (client) => {
+    const enabled = await client.query(
+      'SELECT 1 FROM two_factor WHERE account_id = $1 AND enabled_at IS NOT NULL FOR UPDATE',
+      [accountId],
+    );
+    if (enabled.rowCount !== 1) return false;
     await client.query('DELETE FROM recovery_codes WHERE account_id = $1', [accountId]);
     for (const hash of hashes) {
       await client.query('INSERT INTO recovery_codes (account_id, code_hash) VALUES ($1, $2)', [
@@ -72,6 +92,7 @@ export function pgTwoFactor(pool: DbPool, key: Buffer): TwoFactorStore {
       );
     },
     enable: (accountId, step, hashes) => enableOnce(pool, accountId, step, hashes),
+    replaceRecovery: (accountId, hashes) => replaceCodes(pool, accountId, hashes),
     async useStep(accountId, step) {
       const result = await pool.query(
         `UPDATE two_factor SET last_step = $2

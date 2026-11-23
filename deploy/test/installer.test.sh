@@ -157,6 +157,15 @@ case_caddy() {
   check 'grep -q "reverse_proxy 172.17.0.1:3970" "$route"' "the game is not reached on the bridge"
   check 'grep -q "^docker exec caddy123 caddy validate" "$ROOT/calls.log"' "no Caddy check"
   check '[[ $OUT == *"no account-changes feed"* ]]' "the missing feed was not said"
+  # The trusted range: today's default, remembered and named in the route file (D37) …
+  local state="$ROOT/etc/seasonal-cases/install.conf"
+  check 'grep -q "^SC_TRUSTED_PROXIES='"'"'172.16.0.0/12'"'"'" "$state"' "the default range was not remembered"
+  check 'grep -q "^# The game trusts X-Forwarded-For from 172.16.0.0/12" "$route"' "the range is not in the route file"
+  # … or the operator's narrower answer, in the state, the settings and the route file.
+  installer "${WEBSITE[@]}" --proxy caddy --routes-dir "$ROOT/site/deploy/site/routes" --proxies 172.18.0.0/16
+  check 'grep -q "^SC_TRUSTED_PROXIES='"'"'172.18.0.0/16'"'"'" "$state"' "the answer was not remembered"
+  check 'grep -q "^SC_TRUSTED_PROXIES='"'"'172.18.0.0/16'"'"'" "$ROOT/etc/seasonal-cases/cases.env"' "the answer is not in the settings"
+  check 'grep -q "^# The game trusts X-Forwarded-For from 172.18.0.0/16" "$route"' "the answer is not in the route file"
   teardown
 }
 

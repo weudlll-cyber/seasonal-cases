@@ -140,7 +140,8 @@ ask_website() {
   else
     ask SC_ROUTES_DIR "the website checkout's deploy/site/routes folder"
     ask SC_HOST "the Docker bridge address the site's Caddy reaches this machine at" 172.17.0.1
-    ask SC_TRUSTED_PROXIES "the site containers' network" 172.16.0.0/12
+    # The range whose X-Forwarded-For the game trusts: the site's Docker networks (DECISIONS D37).
+    ask SC_TRUSTED_PROXIES "the site containers' network, trusted to name the visitor" 172.16.0.0/12
     check_addresses
   fi
   keep_secret SC_PROXY_SECRET 32

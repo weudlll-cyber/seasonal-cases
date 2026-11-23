@@ -18,6 +18,7 @@ export interface Credential {
 export interface CredentialStore {
   byName(nameKey: string): Promise<Credential | undefined>;
   byEmail(email: string): Promise<Credential | undefined>;
+  byAccount(accountId: string): Promise<Credential | undefined>;
   // Answers false when the name or the e-mail is taken.
   create(credential: Credential): Promise<boolean>;
   setPassword(accountId: string, passwordHash: string): Promise<void>;
@@ -45,6 +46,7 @@ export function memoryCredentials(): CredentialStore {
   return {
     byName: (key) => find((c) => c.nameKey === key),
     byEmail: (email) => find((c) => c.email === email),
+    byAccount: (accountId) => Promise.resolve(all.get(accountId)),
     create: (c) => {
       const taken = [...all.values()].some((o) => o.nameKey === c.nameKey || o.email === c.email);
       if (!taken) all.set(c.accountId, c);

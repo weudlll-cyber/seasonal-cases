@@ -52,6 +52,15 @@ service's environment file), **website** (the website's operator gives it), **de
 | `SC_WEBSITE_LOCAL_ORIGIN` | (none)  | with the token  | website   | the website's local address for the account-changes feed                   |
 | `SC_GAMES_SYNC_TOKEN`     | (none)  | with the origin | website   | the games' sync token for that feed; both or neither                       |
 
+## Account names
+
+New standalone accounts need 3 to 32 Latin letters (with diacritics), digits, `-` and `_`
+(DECISIONS D36). Accounts made before the rule keep their names, and `pnpm sc admin promote`
+refuses one whose name breaks it. There is no rename route: an admin renames such an account by
+hand in the database, in one transaction for its two rows (`accounts.name`, and
+`local_credentials.name_key` as `apps/server/src/auth/names.ts` `nameKey` computes it from the new
+name), then the account signs in with the new name.
+
 ## Tests only
 
 | Variable               | Default | What                                                                                                                                                                                               |

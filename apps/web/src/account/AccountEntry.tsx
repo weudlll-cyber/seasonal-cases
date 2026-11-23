@@ -5,8 +5,9 @@
  * Responsibility: three small forms behind one switch (DECISIONS D24). Sign-in takes the name
  *                 or the e-mail, and asks for the second factor when the server wants it (an
  *                 admin with two-factor sign-in); registration a name, an e-mail and a password,
- *                 with the rules shown before sending; the forgotten password always answers the
- *                 same sentence.
+ *                 with the rules shown before sending, answered alike for every e-mail and
+ *                 signing nobody in: a mail says the rest (D36); the forgotten password always
+ *                 answers the same sentence.
  *                 The server checks everything again and answers each refusal in one sentence.
  * Depends on:     react, @sc/contracts, ../lib/api.js, ../lib/base.js, ../lib/useAction.js,
  *                 ../screens/fields.js
@@ -99,10 +100,12 @@ function SignInForm({ onEnter }: { onEnter: (me: Me) => void }) {
   );
 }
 
-function RegisterForm({ onEnter }: { onEnter: (me: Me) => void }) {
+// Registration signs nobody in and answers alike for every e-mail; the mail says the rest (D36).
+function RegisterForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [sent, setSent] = useState(false);
   const action = useAction();
   const body: RegisterRequest = { name: name.trim(), email: email.trim(), password };
   return (
@@ -111,14 +114,15 @@ function RegisterForm({ onEnter }: { onEnter: (me: Me) => void }) {
       onSubmit={(event) => {
         event.preventDefault();
         action.run(async () => {
-          onEnter(await postJson<Me>(apiPath('/auth/register'), body));
+          await postJson(apiPath('/auth/register'), body);
+          setSent(true);
         });
       }}
     >
       <TextField
         label="Name"
         tip={NAME_TEXT}
-        maxLength={24}
+        maxLength={32}
         required
         autoComplete="username"
         value={name}
@@ -148,12 +152,23 @@ function RegisterForm({ onEnter }: { onEnter: (me: Me) => void }) {
         type="submit"
         className="button button-solid"
         disabled={action.busy}
-        title="Create the account and sign in"
+        title="Create the account; a mail tells you how to go on"
       >
         Create account
       </button>
+      {sent && <RegisterSent />}
       {action.error !== null && <p role="alert">{action.error}</p>}
     </form>
+  );
+}
+
+// The same words for a new and a taken e-mail (D36).
+function RegisterSent() {
+  return (
+    <p role="status">
+      Thank you. A mail to this address tells you how to go on; then sign in with your name and
+      password.
+    </p>
   );
 }
 
@@ -208,7 +223,7 @@ export function AccountEntry({ onEnter }: { onEnter: (me: Me) => void }) {
     <section className="card sign-in account-entry" aria-label={TITLES[form]}>
       <h2>{TITLES[form]}</h2>
       {form === 'sign-in' && <SignInForm onEnter={onEnter} />}
-      {form === 'register' && <RegisterForm onEnter={onEnter} />}
+      {form === 'register' && <RegisterForm />}
       {form === 'forgot' && <ForgotForm />}
       <p className="account-switch">
         {others.map((f) => (

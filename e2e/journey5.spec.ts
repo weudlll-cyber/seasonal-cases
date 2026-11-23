@@ -2,9 +2,10 @@
  * @file   e2e/journey5.spec.ts
  * @brief  Journey 5: a standalone account from registration to a new password (DECISIONS D24).
  *
- * Registers through the start page, signs out, asks for a new password, takes the link from the
- * mail in Mailpit (its API on 127.0.0.1:8570), sets a new password, signs in with it by e-mail,
- * and opens "My matches". The mail is deleted afterwards; the account lives in the e2e server's
+ * Registers through the start page (nobody is signed in; the mail says the account is ready,
+ * D36), signs in by name, signs out, asks for a new password, takes the link from the mail in
+ * Mailpit (its API on 127.0.0.1:8570), sets a new password, signs in with it by e-mail, and
+ * opens "My matches". Both mails are deleted afterwards; the account lives in the e2e server's
  * memory and ends with it.
  */
 import { expect, test, type APIRequestContext } from '@playwright/test';
@@ -15,15 +16,17 @@ interface Summary {
   readonly ID: string;
 }
 
-/** The newest mail to `to`, waiting until it has arrived. */
+/** The newest mail to `to` with this subject, waiting until it has arrived. */
 async function mailTo(
   request: APIRequestContext,
   to: string,
+  subject: string,
 ): Promise<{ id: string; text: string }> {
   let id = '';
+  const query = encodeURIComponent(`to:${to} subject:"${subject}"`);
   await expect
     .poll(async () => {
-      const found = await request.get(`${MAILPIT}/search?query=${encodeURIComponent(`to:${to}`)}`);
+      const found = await request.get(`${MAILPIT}/search?query=${query}`);
       const { messages } = (await found.json()) as { messages: Summary[] };
       id = messages[0]?.ID ?? '';
       return id;
@@ -56,6 +59,19 @@ test('journey 5: register, forget the password, reset it by mail, sign in again'
   );
   await register.getByLabel('Password').fill('the first long password');
   await register.getByRole('button', { name: 'Create account' }).click();
+  // The same answer for every e-mail, nobody signed in; the mail says the account is ready (D36).
+  await expect(register.getByRole('status')).toContainText('A mail to this address');
+  await expect(page.locator('.shell-me')).toHaveCount(0);
+  const ready = await mailTo(request, email, 'Your Seasonal Cases account');
+  expect(ready.text).toContain('account is ready');
+  await page
+    .getByRole('region', { name: 'Create an account' })
+    .getByRole('button', { name: 'Sign in' })
+    .click();
+  const first = page.getByRole('form', { name: 'Sign in' });
+  await first.getByLabel('Name or e-mail').fill(name);
+  await first.getByLabel('Password').fill('the first long password');
+  await first.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.locator('.shell-me')).toContainText(name);
   await page.getByRole('button', { name: 'Sign out' }).click();
 
@@ -68,7 +84,7 @@ test('journey 5: register, forget the password, reset it by mail, sign in again'
   await forgot.getByRole('button', { name: 'Send the link' }).click();
   await expect(forgot.getByRole('status')).toContainText('a link is on its way');
 
-  const mail = await mailTo(request, email);
+  const mail = await mailTo(request, email, 'Your Seasonal Cases password');
   const link = /http\S+\/reset\?token=[\w-]+/.exec(mail.text)?.[0] ?? '';
   expect(link).not.toBe('');
   await page.goto(link);
@@ -93,5 +109,5 @@ test('journey 5: register, forget the password, reset it by mail, sign in again'
   );
 
   // The test's mail goes; Mailpit keeps nothing of this run.
-  await request.delete(`${MAILPIT}/messages`, { data: { IDs: [mail.id] } });
+  await request.delete(`${MAILPIT}/messages`, { data: { IDs: [ready.id, mail.id] } });
 });

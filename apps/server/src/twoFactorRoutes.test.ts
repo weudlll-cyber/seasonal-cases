@@ -2,7 +2,8 @@
  * @file   apps/server/src/twoFactorRoutes.test.ts
  * @brief  Tests two-factor sign-in for standalone admins: the admin area waits for it, setup and
  *         confirmation, sign-in with a TOTP code (each step once) or a recovery code (each once),
- *         and website mode without these routes.
+ *         new recovery codes with the password and a current code (D35), and website mode
+ *         without these routes.
  */
 import { base32Decode, hotp, stepAt } from '@seasonal/kit/server';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -36,13 +37,12 @@ const get = (h: Harness, url: string, cookie = '') =>
 
 /** A registered local account made admin, signed in with its password only. */
 async function localAdmin(h: Harness): Promise<string> {
-  const made = await post(h, '/api/auth/register', {
+  await post(h, '/api/auth/register', {
     name: 'Olga',
     email: 'olga@example.org',
     password: PASSWORD,
   });
-  const { id } = made.json<{ id: string }>();
-  const account = await h.server.auth.accounts.byId(id);
+  const account = (await h.server.auth.accounts.all()).find((a) => a.name === 'Olga');
   if (account === undefined) throw new Error('no account');
   await h.server.auth.accounts.save({ ...account, role: 'admin' });
   return cookieOf(await post(h, '/api/auth/sign-in', LOGIN));
@@ -106,6 +106,42 @@ describe('two-factor sign-in for a standalone admin', () => {
       me: { role: 'admin' },
     });
     expect((await signInFrom(h, recovery, '10.0.0.2')).statusCode).toBe(401);
+  });
+
+  it('re-issues the recovery codes with the password and a current code, voiding the old', async () => {
+    const h = await startHarness(false);
+    harness = h;
+    const cookie = await localAdmin(h);
+    const setup = (await post(h, '/api/me/2fa/setup', {}, cookie)).json<{ secret: string }>();
+    const secret = base32Decode(setup.secret);
+    if (secret === null) throw new Error('not base32');
+    const step = stepAt(Date.now());
+    const old = (
+      await post(h, '/api/me/2fa/confirm', { code: hotp(secret, step - 1) }, cookie)
+    ).json<{ recoveryCodes: string[] }>().recoveryCodes;
+    const signedIn = await post(h, '/api/auth/sign-in', { ...LOGIN, code: hotp(secret, step) });
+    const session = cookieOf(signedIn);
+    const url = '/api/me/2fa/recovery';
+    const wrongPassword = { password: 'not the password', code: hotp(secret, step + 1) };
+    expect((await post(h, url, wrongPassword, session)).statusCode).toBe(401);
+    // A step already used (the sign-in's) is refused like a wrong one.
+    const usedCode = { password: PASSWORD, code: hotp(secret, step) };
+    expect((await post(h, url, usedCode, session)).statusCode).toBe(401);
+    const answer = await post(
+      h,
+      url,
+      { password: PASSWORD, code: hotp(secret, step + 1) },
+      session,
+    );
+    expect(answer.statusCode).toBe(200);
+    const fresh = answer.json<{ recoveryCodes: string[] }>().recoveryCodes;
+    expect(fresh).toHaveLength(10);
+    expect(fresh).not.toContain(old[0]);
+    const withOld = { ...LOGIN, code: old[0] ?? '' };
+    expect((await signInFrom(h, withOld, '10.0.0.3')).statusCode).toBe(401);
+    const withNew = { ...LOGIN, code: fresh[0] ?? '' };
+    expect((await signInFrom(h, withNew, '10.0.0.3')).statusCode).toBe(200);
+    expect((await post(h, url, { password: PASSWORD, code: '123456' })).statusCode).toBe(401);
   });
 
   it('is not asked of a player', async () => {

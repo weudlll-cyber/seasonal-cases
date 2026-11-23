@@ -490,3 +490,27 @@ reported nothing. Line numbers refer to `7ec2336`.
 | 8   | Fixed: `--db` takes only `create` or `url`, the address comes from the answers file or a hidden prompt; `SC_REPO` must be an https://, git@ or /path address; the site port must be `127.0.0.1:<port>`; `SC_HOST` and `SC_TRUSTED_PROXIES` are checked for their form (harness checks). |
 
 The section's points for the owner are in HANDOVER and BACKLOG 35, 37.
+
+## Status after SC-N4 piece 3 (2026-11-22)
+
+The owner decided the open points on 2026-11-22 (DECISIONS D34–D37); built and tested:
+
+- **Recovery codes (D35, BACKLOG 29):** `POST /api/me/2fa/recovery` with the password and a
+  current code from the app (the step used up, so it cannot be replayed) answers ten new codes;
+  the old ones are void in the same transaction (`TwoFactorStore.replaceRecovery`); the log says
+  `recovery-codes-reissued` with the account id, never a code (`twoFactorRoutes.test.ts`,
+  `stores.test.ts`). The admin area offers it once two-factor sign-in is set up. The enrolment
+  window after a promotion stays, as decided.
+- **Names (D36, BACKLOG 30):** 3 to 32 Latin letters (with diacritics), digits, `-` and `_`;
+  compatibility forms refused; so no name mixes scripts (`auth/names.ts` `nameAllowed`, applied
+  at registration and by `pnpm sc admin promote`, tested). Names made before the rule stay; an
+  admin renames them by hand (docs/CONFIG.md, "Account names").
+- **Registration (D36, BACKLOG 30):** one answer for a new and a taken e-mail, no session, at
+  least 1 s after the request on both paths, the password hashed on both; the mail says the rest
+  (the account is ready, or an account exists with the way to sign in). A taken name still answers
+  409: names are public on every board (`localRoutes.test.ts`).
+- **Limits (D37, BACKLOG 37):** 20 claims a minute per player and 10 watches in 10 s per socket
+  stay; new: 60 a minute per address (IPv6 /64) for claims and sign-ins together, after each
+  route's own limits (`addressLimit.ts`, `securityPass2.test.ts`). Bots: development and the
+  Quick Test only (D34, `showRules.test.ts`). The Caddy profile asks for the trusted range with
+  172.16.0.0/12 as the default, remembers it and names it in the route file (installer harness).

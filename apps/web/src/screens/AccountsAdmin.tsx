@@ -3,10 +3,12 @@
  * @brief  The admin's accounts: each account's role and rank (CONCEPT §4, DECISIONS D24).
  *
  * Responsibility: list the accounts and change a role or a rank in place; a standalone admin
- *                 sets up two-factor sign-in first (../account/TwoFactorSetup.tsx). Website accounts take
+ *                 sets up two-factor sign-in first (../account/TwoFactorSetup.tsx), and once it is
+ *                 set up can make new recovery codes (../account/RecoveryReissue.tsx). Website accounts take
  *                 both from the website and show them read-only; the server refuses changes to
  *                 them and to the admin's own admin role, and ends a changed role's sessions.
- * Depends on:     react, @sc/contracts, ../account/TwoFactorSetup.js, ../lib/*, ./SettingsAdmin.js
+ * Depends on:     react, @sc/contracts, ../account/RecoveryReissue.js,
+ *                 ../account/TwoFactorSetup.js, ../lib/*, ./SettingsAdmin.js
  */
 import {
   ACCOUNT_ROLES,
@@ -21,6 +23,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getJson, postJson } from '../lib/api.js';
 import { apiPath } from '../lib/base.js';
 import { useAction } from '../lib/useAction.js';
+import { RecoveryReissue } from '../account/RecoveryReissue.js';
 import { TwoFactorSetup } from '../account/TwoFactorSetup.js';
 import { SettingsAdmin } from './SettingsAdmin.js';
 
@@ -94,6 +97,7 @@ export function AdminAccounts({ me }: { me: Me }) {
     <>
       <SettingsAdmin />
       <AccountsAdmin me={me} />
+      {status.enabled && <RecoveryReissue />}
     </>
   );
 }

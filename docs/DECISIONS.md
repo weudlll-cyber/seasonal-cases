@@ -108,3 +108,11 @@ owner confirms them.
   "unclaimed" and can be opened like any other; a prize in such a case counts as not won: the
   scoreboard, the ceremony, the result, the chronicle and the member summary show it as "not
   won" (CONCEPT §3.2, §3.4, §3.5).
+- **D35 — Recovery codes re-issued.** Recovery codes can be re-issued from the account page with
+  the password and a current code; the enrolment window after a promotion stays.
+- **D36 — Account names and a neutral registration.** Account names are Latin letters including
+  diacritics, digits, `-` and `_`, 3–32 characters, with no mixing of other scripts. Registration
+  answers neutrally whether or not the e-mail has an account and says the rest by mail.
+- **D37 — Limits.** 20 claims a minute per player and 10 watches in 10 s per socket stay; new:
+  60 requests a minute per address on claims and sign-in. Real shows get no bots (D34). The Caddy
+  profile's trusted range is asked by the installer, with 172.16.0.0/12 as the default.

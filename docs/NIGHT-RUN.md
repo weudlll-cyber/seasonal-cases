@@ -15,15 +15,15 @@ a required check, the applause button, a third review, the play-through. Branch
 
 ### Pieces
 
-| Piece | What                                                                    | State   | Commit    | CI run            |
-| ----- | ----------------------------------------------------------------------- | ------- | --------- | ----------------- |
-| 1     | Gem, logo, phone menu, the WebKit causes, journey 4                     | done    | `0b2c8ef` | 45078180392 green |
-| 2     | No bots in real shows, unclaimed cases, early-end question              | running | —         | —                 |
-| 3     | Security items (recovery codes, names, registration, limits, installer) | open    | —         | —                 |
-| 4     | `e2e` as a required check                                               | open    | —         | —                 |
-| 5     | The applause button                                                     | open    | —         | —                 |
-| 6     | Third independent review, 1.0.0-rc.2                                    | open    | —         | —                 |
-| 7     | Play-through, pictures, hand-over                                       | open    | —         | —                 |
+| Piece | What                                                                    | State | Commit             | CI run                                      |
+| ----- | ----------------------------------------------------------------------- | ----- | ------------------ | ------------------------------------------- |
+| 1     | Gem, logo, phone menu, the WebKit causes, journey 4                     | done  | `0b2c8ef`          | 45078180392 green                           |
+| 2     | No bots in real shows, unclaimed cases, early-end question              | done  | `95ab963`          | 45088460771 green (e2e: 6 passed in 36.6 s) |
+| 3     | Security items (recovery codes, names, registration, limits, installer) | done  | see piece 3 report | see piece 3 report                          |
+| 4     | `e2e` as a required check                                               | open  | —                  | —                                           |
+| 5     | The applause button                                                     | open  | —                  | —                                           |
+| 6     | Third independent review, 1.0.0-rc.2                                    | open  | —                  | —                                           |
+| 7     | Play-through, pictures, hand-over                                       | open  | —                  | —                                           |
 
 ### Needs the owner's word (SC-N4)
 
@@ -118,6 +118,46 @@ a required check, the applause button, a third review, the play-through. Branch
 - **Checks:** see the piece's row; the web unit tests could not start on this machine for a time
   (jsdom took about 60 s to set up, over vitest's worker limit, while other projects' sessions ran
   servers and browser tests), so they ran in Playwright's Linux image and in CI.
+
+### Piece 3 report
+
+- **Recovery codes (D35):** `POST /api/me/2fa/recovery` takes the password and a current code
+  from the app (its step used up, so a sign-in's code cannot be replayed), answers ten new codes
+  and voids the old ones in the same store call (`TwoFactorStore.replaceRecovery`, memory and
+  PostgreSQL in one transaction); the log line is `recovery-codes-reissued` with the account id.
+  The admin area shows "New recovery codes" once two-factor sign-in is set up; there is no
+  separate account page, and only admins have two-factor sign-in, so the card sits there (the
+  smallest reading of "the account page").
+- **Names (D36):** `nameAllowed` in `auth/names.ts`: NFC, then 3 to 32 of Latin letters (any
+  diacritic), digits, `-`, `_`, and nothing NFKC would change; registration and the promote tool
+  apply it (promote refuses an old name until it is renamed by hand: docs/CONFIG.md "Account
+  names"). The contracts keep only the shape (trimmed, NFC, at most 64) and the sentence.
+- **Registration (D36):** `registerRoute.ts` (new, 119 lines, out of `localRoutes.ts`): a new
+  and a taken e-mail get the same `{ ok: true }`, no cookie, no sooner than 1 s, the password
+  hashed on both paths; the mail says "your account is ready" or "there already is an account"
+  with the way to sign in or reset. A taken name still answers 409: names are public on every
+  board. The client says "A mail to this address tells you how to go on; then sign in"; journey
+  5 reads the ready mail, signs in by name, and deletes both mails at the end.
+- **Address budget (D37):** `addressLimit.ts` (new): 60 a minute per address (IPv6 /64) for
+  claims and sign-ins together, one per server, checked after each route's own limits; test: four
+  players from one address pass their own 20 but the 61st claim is refused with "too many
+  requests from your network, wait a minute", and a sign-in after it too.
+- **Installer (D37):** the Caddy profile's question says the range is trusted to name the
+  visitor (default 172.16.0.0/12), the answer is remembered and named in `cases.caddy`; harness
+  50 passed (5 new), run in `ubuntu:24.04`.
+- **Lines** (before → after): `localRoutes.ts` 199 → 165, `twoFactorRoutes.ts` 88 → 133,
+  `twoFactorStore.ts` 97 → 118, `names.ts` 26 → 38, `AccountEntry.tsx` 230 → 245,
+  `accounts.ts` (contracts) 114 → 121, `app.ts` 242 → 247, `journey5.spec.ts` 97 → 113;
+  new: `registerRoute.ts`, `addressLimit.ts`, `RecoveryReissue.tsx`. **Extracted:**
+  registration out of `localRoutes.ts`; `RecoveryCodeList` exported from `TwoFactorSetup.tsx`
+  for both cards. **Reused:** the kit's `RateLimiter`, `matchingStep`, `newRecoveryCodes`,
+  `recoveryHash`; `passwordMatches`, `addressKey`. **Removed:** `ACCOUNT_NAME` (contracts), the
+  register's sign-in.
+- **Checks:** lint, typecheck; server 16 files, 81 tests; domain 40, application 10, contracts
+  5; web 12 files, 46 tests (in Playwright's Linux image: on this machine jsdom took over
+  vitest's 60 s worker limit while other projects' sessions ran); the local Chromium journeys
+  ran at a sixth of their speed (2, 5, 6 passed, 1, 3, 4 hit the 90 s limit), so CI's e2e job is
+  the record (piece 2's: 6 passed in 36.6 s).
 
 ## Night chain SC-N3 (2026-11-21)
 

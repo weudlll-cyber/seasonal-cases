@@ -4,17 +4,16 @@
  *         forgotten password, the admin's account list, and a player's matches.
  *
  * Responsibility: what the client and the server send for local accounts (DECISIONS D24). The
- *                 name and password rules are those of seasonal-mini-games: a name of 3 to 24
- *                 letters or digits (also _ . -), unique without regard to case; a password of
- *                 12 to 128 characters, not a common one (checked on the server). Sign-in takes
- *                 the name or the e-mail.
+ *                 name rule is the owner's (DECISIONS D36): 3 to 32 Latin letters (with
+ *                 diacritics), digits, `-` and `_`, checked on the server
+ *                 (apps/server/src/auth/names.ts); a password of 12 to 128 characters, not a
+ *                 common one (checked on the server). Sign-in takes the name or the e-mail.
  * Depends on:     zod, ./show.js
  */
 import { z } from 'zod';
 
 import { RankSchema, ShowStateSchema } from './show.js';
 
-export const ACCOUNT_NAME = /^[\p{L}\p{N}_.-]{3,24}$/u;
 export const EMAIL_MAX = 254;
 export const PASSWORD_LIMIT = 128;
 
@@ -28,10 +27,12 @@ export const PASSWORD_TEXT: Record<PasswordProblem, string> = {
   tooCommon: 'This password is too common. Please choose another.',
 };
 
-export const NAME_TEXT = 'The name needs 3 to 24 letters or digits (also _ . or -), no spaces.';
+export const NAME_TEXT =
+  'The name needs 3 to 32 Latin letters (é and ß too) or digits, also - and _, no spaces.';
 
 export const RegisterRequestSchema = z.object({
-  name: z.string().trim().regex(ACCOUNT_NAME, NAME_TEXT),
+  // The shape only; the rule is the server's (D36). NFC: "é" typed as e + accent is one letter.
+  name: z.string().trim().normalize('NFC').min(1).max(64),
   email: z.email().max(EMAIL_MAX),
   password: z.string().max(PASSWORD_LIMIT),
 });
@@ -69,7 +70,13 @@ export const TwoFactorConfirmSchema = z.object({
 });
 export type TwoFactorConfirm = z.infer<typeof TwoFactorConfirmSchema>;
 
-/** The recovery codes, shown once when two-factor sign-in is enabled. */
+/** New recovery codes: the password and a current code from the app (DECISIONS D35). */
+export const RecoveryReissueSchema = TwoFactorConfirmSchema.extend({
+  password: z.string().min(1).max(PASSWORD_LIMIT),
+});
+export type RecoveryReissue = z.infer<typeof RecoveryReissueSchema>;
+
+/** The recovery codes, shown once when two-factor sign-in is enabled or they are re-issued. */
 export const RecoveryCodesSchema = z.object({ recoveryCodes: z.array(z.string()) });
 export type RecoveryCodes = z.infer<typeof RecoveryCodesSchema>;
 

@@ -16,7 +16,8 @@
  *                 only same-origin requests with a JSON body. ./main.ts listens on 127.0.0.1.
  * Depends on:     node:crypto, node:http (types), fastify, @fastify/cookie, @fastify/helmet,
  *                 socket.io, @seasonal/kit/server, @sc/application, @sc/domain, ./auth/*,
- *                 ./accountRoutes.js, ./config.js, ./devRoutes.js, ./healthRoutes.js,
+ *                 ./accountRoutes.js, ./addressLimit.js, ./config.js, ./devRoutes.js,
+ *                 ./healthRoutes.js,
  *                 ./http.js, ./localRoutes.js, ./mail.js, ./memberSummaryRoutes.js,
  *                 ./openRoundsRoutes.js, ./organiserRoutes.js, ./realtime.js, ./session.js,
  *                 ./settings.js, ./settingsRoutes.js, ./showRoutes.js, ./twoFactorRoutes.js,
@@ -41,6 +42,7 @@ import Fastify, { LogController, type FastifyInstance } from 'fastify';
 import { Server } from 'socket.io';
 
 import { accountRoutes } from './accountRoutes.js';
+import { addressLimit } from './addressLimit.js';
 import { memoryCursor, startFeed, type CursorStore } from './auth/accountFeed.js';
 import { Directory, memoryAccounts, type AccountStore } from './auth/accounts.js';
 import { memoryCredentials, type CredentialStore } from './auth/credentials.js';
@@ -150,8 +152,11 @@ async function authOf(app: FastifyInstance, config: ServerConfig, stores: Stores
 async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Promise<void> {
   const { config } = root;
   const mailer = stores.mailer ?? (config.smtp === null ? null : smtpMailer(config.smtp));
+  // One budget per address for claims and sign-ins together (D37).
+  const perAddress = addressLimit();
   const local = {
     credentials: stores.credentials ?? memoryCredentials(),
+    perAddress,
     mailer,
     publicOrigin: config.publicOrigin,
     log: (error: unknown) => {
@@ -161,7 +166,7 @@ async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Pro
   await root.app.register(
     (scope, _options, done) => {
       const ctx: Ctx = { ...root, app: scope };
-      showRoutes(ctx);
+      showRoutes(ctx, perAddress);
       organiserRoutes(ctx);
       accountRoutes(ctx);
       openRoundsRoutes(ctx);
@@ -170,7 +175,7 @@ async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Pro
       if (config.dev) devRoutes(ctx);
       if (config.website === null) {
         localRoutes(ctx, local);
-        twoFactorRoutes(ctx);
+        twoFactorRoutes(ctx, local.credentials);
       } else {
         websiteRoutes(ctx, config.website);
         // The profile card needs the games' sync token, the same as the feed (§7).

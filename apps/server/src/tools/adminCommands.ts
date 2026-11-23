@@ -4,7 +4,8 @@
  *
  * Responsibility:
  *   - `promote`: the standalone account with that name (the look-alike key, ../auth/names.ts)
- *     becomes an admin; its sessions end, so the next sign-in carries the role.
+ *     becomes an admin; its sessions end, so the next sign-in carries the role. A name that does
+ *     not meet the name rule (D36) is refused until it is renamed by hand.
  *   - `resetTwoFactor`: the account's second factor and every recovery code are removed and its
  *     sessions end (security pass, "2FA recovery"; SC-N3 piece 1). An admin then enrols again
  *     before the admin area opens (../accountRoutes.ts).
@@ -13,7 +14,7 @@
  */
 import type { Account, AccountStore } from '../auth/accounts.js';
 import type { CredentialStore } from '../auth/credentials.js';
-import { nameKey } from '../auth/names.js';
+import { nameAllowed, nameKey } from '../auth/names.js';
 import type { SessionStore } from '../auth/sessions.js';
 import type { TwoFactorStore } from '../auth/twoFactor.js';
 
@@ -33,6 +34,11 @@ async function localAccount(stores: AdminStores, name: string): Promise<Account 
 export async function promote(stores: AdminStores, name: string): Promise<string> {
   const account = await localAccount(stores, name);
   if (account === undefined) return `there is no account named ${name}`;
+  // A name from before the rule (D36) is not changed here: an admin renames it by hand first
+  // (docs/CONFIG.md, "Account names").
+  if (!nameAllowed(account.name)) {
+    return `${account.name} does not meet the name rule; rename it first (docs/CONFIG.md)`;
+  }
   await stores.accounts.save({ ...account, role: 'admin' });
   await stores.sessions.removeForAccount(account.id);
   return `${account.name} is an admin now; they sign in again`;

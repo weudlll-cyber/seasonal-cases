@@ -1,6 +1,6 @@
 /**
  * @file   apps/server/src/tools/adminCommands.test.ts
- * @brief  Tests `pnpm sc admin promote` and `reset-2fa` on memory stores.
+ * @brief  Tests `pnpm sc admin promote` (with the name rule) and `reset-2fa` on memory stores.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -47,6 +47,13 @@ describe('the admin commands', () => {
     expect((await s.accounts.byId(OLGA.id))?.role).toBe('admin');
     expect(await s.sessions.removeForAccount(OLGA.id)).toEqual([]);
     expect(await promote(s, 'nobody')).toMatch(/no account/);
+  });
+
+  it('promote refuses a name from before the name rule until it is renamed (D36)', async () => {
+    const s = await stores();
+    await s.accounts.save({ ...OLGA, name: 'Ol ga' });
+    expect(await promote(s, 'olga')).toMatch(/does not meet the name rule/);
+    expect((await s.accounts.byId(OLGA.id))?.role).toBe('player');
   });
 
   it('reset-2fa removes the second factor, its codes and the sessions', async () => {

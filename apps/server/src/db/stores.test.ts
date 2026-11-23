@@ -207,7 +207,12 @@ describe('the two-factor store', () => {
     expect(await twoFactor.useRecovery('acc-t', hash)).toBe(true);
     expect(await twoFactor.useRecovery('acc-t', hash)).toBe(false);
     expect(await twoFactor.useRecovery('acc-t', Buffer.alloc(32, 3))).toBe(false);
+    // Re-issued codes void the old ones at once (D35).
+    expect(await twoFactor.replaceRecovery('acc-t', [Buffer.alloc(32, 4)])).toBe(true);
+    expect(await twoFactor.useRecovery('acc-t', Buffer.alloc(32, 2))).toBe(false);
+    expect(await twoFactor.useRecovery('acc-t', Buffer.alloc(32, 4))).toBe(true);
     await twoFactor.remove('acc-t');
+    expect(await twoFactor.replaceRecovery('acc-t', [Buffer.alloc(32, 5)])).toBe(false);
     expect(await twoFactor.get('acc-t')).toBeUndefined();
     expect(await twoFactor.useRecovery('acc-t', Buffer.alloc(32, 2))).toBe(false);
   });

@@ -31,6 +31,9 @@ export interface TwoFactorStore {
   useStep(accountId: string, step: number): Promise<boolean>;
   // Marks the recovery code used; answers false if it is unknown or used.
   useRecovery(accountId: string, codeHash: Buffer): Promise<boolean>;
+  // Replaces every recovery code of an enabled account at once, so the old ones are void;
+  // answers false when two-factor sign-in is not enabled (DECISIONS D35).
+  replaceRecovery(accountId: string, codeHashes: readonly Buffer[]): Promise<boolean>;
   // Removes the secret and every recovery code (`pnpm sc admin reset-2fa`).
   remove(accountId: string): Promise<void>;
 }
@@ -88,6 +91,11 @@ export function memoryTwoFactor(): TwoFactorStore {
       const key = hash.toString('hex');
       if (mine?.get(key) !== false) return Promise.resolve(false);
       mine.set(key, true);
+      return Promise.resolve(true);
+    },
+    replaceRecovery: (id, hashes) => {
+      if (all.get(id)?.enabled !== true) return Promise.resolve(false);
+      codes.set(id, new Map(hashes.map((h) => [h.toString('hex'), false])));
       return Promise.resolve(true);
     },
     remove: (id) => {

@@ -13,8 +13,9 @@
 #                 identity headers and the secret cleared and the website's session cookie
 #                 removed; only the sign-in route asks the website's authorize route and passes
 #                 its answer on, then adds the secret; everything else goes to the game. The
-#                 account-changes feed is denied by the website's own files. It never touches a
-#                 website-owned file.
+#                 account-changes feed is denied by the website's own files. The Caddy file names
+#                 the range the game trusts to name the visitor (SC_TRUSTED_PROXIES, D37). It
+#                 never touches a website-owned file.
 # Depends on:     ./common.sh, nginx or docker (the site's Caddy), systemctl
 # shellcheck shell=bash
 
@@ -87,6 +88,7 @@ render_caddy() {
   for h in "${IDENTITY_HEADERS[@]}" "$SECRET_HEADER"; do clear+=$'\t\t'"request_header -$h"$'\n'; done
   cat <<CADDY
 # Seasonal Cases: written by deploy/install.sh of the game; do not edit by hand.
+# The game trusts X-Forwarded-For from $SC_TRUSTED_PROXIES (the installer's answer, SC_TRUSTED_PROXIES).
 redir $BASE $BASE/ 308
 handle $BASE/* {
 	route {

@@ -25,7 +25,7 @@ const credentialOf = (row: Row): Credential => ({
 });
 
 export function pgCredentials(pool: DbPool): CredentialStore {
-  const one = async (column: 'name_key' | 'email', value: string) => {
+  const one = async (column: 'account_id' | 'name_key' | 'email', value: string) => {
     const result = await pool.query<Row>(
       `SELECT account_id, name_key, email, password_hash FROM local_credentials
        WHERE ${column} = $1`,
@@ -37,6 +37,7 @@ export function pgCredentials(pool: DbPool): CredentialStore {
   return {
     byName: (key) => one('name_key', key),
     byEmail: (email) => one('email', email),
+    byAccount: (accountId) => one('account_id', accountId),
     async create(c) {
       const result = await pool.query(
         `INSERT INTO local_credentials (account_id, name_key, email, password_hash)

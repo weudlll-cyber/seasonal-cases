@@ -36,14 +36,20 @@ const me = async (h: Harness, cookie: string) =>
     me: { role: string } | null;
   }>().me;
 
+/** Olga registered (registration signs nobody in, D36) and signed in with her password. */
+async function registered(h: Harness): Promise<Answer> {
+  await post(h, '/api/auth/register', OLGA);
+  return post(h, '/api/auth/sign-in', { login: 'olga', password: PASSWORD });
+}
+
 /** Olga registered and made admin; answers a password-only session cookie. */
 async function localAdmin(h: Harness): Promise<{ id: string; cookie: string }> {
-  const { id } = (await post(h, '/api/auth/register', OLGA)).json<{ id: string }>();
-  const account = await h.server.auth.accounts.byId(id);
+  await post(h, '/api/auth/register', OLGA);
+  const account = (await h.server.auth.accounts.all()).find((a) => a.name === 'Olga');
   if (account === undefined) throw new Error('no account');
   await h.server.auth.accounts.save({ ...account, role: 'admin' });
   return {
-    id,
+    id: account.id,
     cookie: cookieOf(await post(h, '/api/auth/sign-in', { login: 'olga', password: PASSWORD })),
   };
 }
@@ -131,7 +137,7 @@ describe('4 and 9: the public address', () => {
   it('makes the cookie Secure behind https, and is required of a server that mails', async () => {
     const h = await startHarness(false, { SC_PUBLIC_ORIGIN: 'https://cases.example' });
     harness = h;
-    const made = await post(h, '/api/auth/register', OLGA);
+    const made = await registered(h);
     expect(String(made.headers['set-cookie'])).toMatch(/; Secure/);
     expect(() => configFrom({ SC_SMTP_HOST: '127.0.0.1' })).toThrow(/SC_PUBLIC_ORIGIN/);
     expect(
@@ -148,8 +154,9 @@ describe('7: a reset ends the older links', () => {
     await post(h, '/api/auth/register', OLGA);
     await post(h, '/api/auth/forgot', { email: OLGA.email });
     await post(h, '/api/auth/forgot', { email: OLGA.email });
-    await expect.poll(() => box.sent.length).toBe(2);
-    const [first, second] = box.sent.map((m) => /token=([\w-]+)/.exec(m.text)?.[1] ?? '');
+    // The registration's own mail, then the two links.
+    await expect.poll(() => box.sent.length).toBe(3);
+    const [first, second] = box.sent.slice(1).map((m) => /token=([\w-]+)/.exec(m.text)?.[1] ?? '');
     const next = 'another long secret';
     expect((await post(h, '/api/auth/reset', { token: second, password: next })).statusCode).toBe(
       200,
@@ -164,7 +171,7 @@ describe('10: two-factor sign-in is set up only where it is asked', () => {
   it('refuses the setup to a player', async () => {
     const h = await startHarness(false);
     harness = h;
-    const cookie = cookieOf(await post(h, '/api/auth/register', OLGA));
+    const cookie = cookieOf(await registered(h));
     expect((await post(h, '/api/me/2fa/setup', {}, { cookie })).statusCode).toBe(409);
   });
 });

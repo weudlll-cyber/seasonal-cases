@@ -1,10 +1,12 @@
 /**
  * @file   apps/server/src/securityPass2.test.ts
  * @brief  Tests the fixes of docs/security-pass.md's second pass (the numbers are its findings'):
- *         the limits on watching and claiming, and a socket that follows its session.
+ *         the limits on watching and claiming, the address budget of claims and sign-ins (D37),
+ *         and a socket that follows its session.
  */
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { ADDRESS_LIMIT, ADDRESS_LIMIT_TEXT } from './addressLimit.js';
 import { send, startHarness, type Harness } from './testing/harness.js';
 
 let harness: Harness | undefined;
@@ -55,6 +57,52 @@ describe('3: watching and claiming are limited', () => {
     }
     expect(codes.slice(0, 20).every((c) => c === 200)).toBe(true);
     expect(codes[20]).toBe(429);
+  });
+});
+
+describe('the address budget (D37)', () => {
+  it('stops the 61st claim from one address across players, and sign-ins with it', async () => {
+    const h = await startHarness();
+    harness = h;
+    const olga = await h.signIn('Olga', 'organiser');
+    const made = await h.server.app.inject({
+      method: 'POST',
+      url: '/api/shows',
+      payload: { cases: 4, winners: 1, labels: [] },
+      headers: { cookie: olga.cookie },
+    });
+    const { id } = made.json<{ id: string }>();
+    await h.server.app.inject({
+      method: 'POST',
+      url: `/api/shows/${id}/open`,
+      headers: { cookie: olga.cookie },
+    });
+    const players = await Promise.all(['Ana', 'Bo', 'Cy', 'Di'].map((n) => h.signIn(n, 'player')));
+    const answers = [];
+    // Each player stays within their own 20 a minute; together they pass the address's 60.
+    for (const player of players) {
+      for (let i = 0; i < 16; i += 1) {
+        answers.push(
+          await h.server.app.inject({
+            method: 'POST',
+            url: `/api/shows/${id}/claim`,
+            payload: { caseNumber: 1 + (i % 4) },
+            headers: { cookie: player.cookie },
+          }),
+        );
+      }
+    }
+    const codes = answers.map((a) => a.statusCode);
+    expect(codes.slice(0, ADDRESS_LIMIT).every((c) => c === 200)).toBe(true);
+    expect(codes.slice(ADDRESS_LIMIT)).toEqual([429, 429, 429, 429]);
+    expect(answers[ADDRESS_LIMIT]?.json()).toEqual({ error: ADDRESS_LIMIT_TEXT });
+    const signIn = await h.server.app.inject({
+      method: 'POST',
+      url: '/api/auth/sign-in',
+      payload: { login: 'nobody', password: 'whatever it is' },
+    });
+    expect(signIn.statusCode).toBe(429);
+    expect(signIn.json()).toEqual({ error: ADDRESS_LIMIT_TEXT });
   });
 });
 

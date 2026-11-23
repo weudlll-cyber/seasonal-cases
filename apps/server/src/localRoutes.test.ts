@@ -7,6 +7,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { mailbox } from './mail.js';
+import { REGISTER_MIN_MS } from './registerRoute.js';
 import { startHarness, type Harness } from './testing/harness.js';
 
 let harness: Harness | undefined;
@@ -37,16 +38,14 @@ describe('registration and sign-in', () => {
     harness = await startHarness(false);
     const made = await post(harness, '/api/auth/register', ADA);
     expect(made.statusCode).toBe(200);
-    expect(made.json()).toMatchObject({ name: 'Ada', role: 'player', rank: 0 });
+    expect(made.json()).toEqual({ ok: true });
     const again = await post(harness, '/api/auth/register', {
       ...ADA,
       name: 'ADA',
       email: 'other@example.org',
     });
     expect(again.statusCode).toBe(409);
-    expect((await post(harness, '/api/auth/register', { ...ADA, name: 'Bob' })).statusCode).toBe(
-      409,
-    );
+    expect(again.json()).toEqual({ error: 'This name is already taken.' });
     for (const login of ['ada', 'ADA@example.org']) {
       const answer = await post(harness, '/api/auth/sign-in', { login, password: PASSWORD });
       expect(answer.statusCode).toBe(200);
@@ -87,6 +86,42 @@ describe('registration and sign-in', () => {
   });
 });
 
+describe('the neutral registration (D36)', () => {
+  it('answers a new and a taken e-mail alike, without a session, and says the rest by mail', async () => {
+    const box = mailbox();
+    const h = await startHarness(false, {}, { mailer: box });
+    harness = h;
+    const timed = async (payload: object) => {
+      const started = Date.now();
+      const answer = await post(h, '/api/auth/register', payload);
+      return { answer, ms: Date.now() - started };
+    };
+    const fresh = await timed(ADA);
+    const taken = await timed({ ...ADA, name: 'Bob', email: 'ADA@example.org' });
+    for (const { answer, ms } of [fresh, taken]) {
+      expect(answer.statusCode).toBe(200);
+      expect(answer.json()).toEqual({ ok: true });
+      expect(answer.headers['set-cookie']).toBeUndefined();
+      expect(ms).toBeGreaterThanOrEqual(REGISTER_MIN_MS - 5);
+    }
+    await expect.poll(() => box.sent.length).toBe(2);
+    expect(box.sent[0]?.text).toMatch(/account is ready/);
+    expect(box.sent[1]?.text).toMatch(/There already is an account/);
+    // The taken e-mail made no second account: Bob cannot sign in.
+    const bob = await post(h, '/api/auth/sign-in', { login: 'bob', password: PASSWORD });
+    expect(bob.statusCode).toBe(401);
+  });
+
+  it('refuses a name outside the rule, before any work', async () => {
+    harness = await startHarness(false);
+    for (const name of ['Олга', 'ana.lee', 'Ｏｌｇａ']) {
+      const answer = await post(harness, '/api/auth/register', { ...ADA, name });
+      expect(answer.statusCode).toBe(400);
+      expect(answer.json<{ error: string }>().error).toMatch(/3 to 32 Latin letters/);
+    }
+  });
+});
+
 describe('the registration limit', () => {
   it('counts only forms that pass the rules: five an hour per address', async () => {
     const h = await startHarness(false);
@@ -111,7 +146,13 @@ describe('the forgotten password', () => {
   it('mails a link that works once and ends every session', async () => {
     const box = mailbox();
     harness = await startHarness(false, {}, { mailer: box });
-    const first = cookieOf(await post(harness, '/api/auth/register', ADA));
+    await post(harness, '/api/auth/register', ADA);
+    const first = cookieOf(
+      await post(harness, '/api/auth/sign-in', { login: 'ada', password: PASSWORD }),
+    );
+    // The registration's own mail came first.
+    await expect.poll(() => box.sent.length).toBe(1);
+    box.sent.length = 0;
     expect(
       (await post(harness, '/api/auth/forgot', { email: 'nobody@example.org' })).json(),
     ).toEqual({ ok: true });

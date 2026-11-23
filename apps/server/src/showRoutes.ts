@@ -6,9 +6,10 @@
  * Responsibility: what the start page, the registration board and the result page read, and the
  *                 player's one action, the claim (CONCEPT §3.2). Every show leaves the server only
  *                 as its public view, with the players' current names and badges (the directory
- *                 of accounts). Guests read; claiming needs a signed-in player.
- * Depends on:     fastify, @sc/application (types), @sc/contracts, @sc/domain, ./http.js,
- *                 ./session.js
+ *                 of accounts). Guests read; claiming needs a signed-in player, 20 a minute, and
+ *                 the address's budget shared with sign-ins (./addressLimit.ts, D37).
+ * Depends on:     fastify, @sc/application (types), @sc/contracts, @sc/domain,
+ *                 ./addressLimit.js (types), ./http.js, ./session.js
  */
 import { RateLimiter } from '@seasonal/kit/server';
 import type { ShowService } from '@sc/application';
@@ -20,6 +21,7 @@ import {
 } from '@sc/contracts';
 import { publicView, showResult, type People, type ShowModel } from '@sc/domain';
 
+import type { AddressLimit } from './addressLimit.js';
 import { accepted, parseBody, Refusal, signedIn, summary, type Ctx } from './http.js';
 import { sessionOf, signOut } from './session.js';
 
@@ -60,7 +62,7 @@ export function chronicle(shows: ShowService, people: People): ChronicleEntry[] 
   return entries.sort((a, b) => b.endedAt.localeCompare(a.endedAt)).slice(0, CHRONICLE_LENGTH);
 }
 
-export function showRoutes(ctx: Ctx): void {
+export function showRoutes(ctx: Ctx, perAddress: AddressLimit): void {
   const { app, shows, auth, config } = ctx;
   const people = auth.directory.lookup;
 
@@ -101,6 +103,8 @@ export function showRoutes(ctx: Ctx): void {
     const me = await signedIn(ctx, request);
     if (me.role !== 'player') throw new Refusal(403, 'only a player can pick a case');
     if (!claims.take(me.id).allowed) throw new Refusal(429, 'too many picks, wait a minute');
+    // Behind the player's own limit: one budget per address with the sign-ins (D37).
+    perAddress(request.ip);
     const { caseNumber } = parseBody(ClaimRequestSchema, request.body);
     return summary(accepted(shows.claim(request.params.id, me, me.rank, caseNumber)));
   });

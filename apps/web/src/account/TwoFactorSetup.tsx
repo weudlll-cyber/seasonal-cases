@@ -16,7 +16,14 @@ import { apiPath } from '../lib/base.js';
 import { useAction } from '../lib/useAction.js';
 import { TextField } from '../screens/fields.js';
 
-function Codes({ codes, onDone }: { codes: readonly string[]; onDone: () => void }) {
+/** The recovery codes, shown once: after the setup and after a re-issue (./RecoveryReissue.tsx). */
+export function RecoveryCodeList({
+  codes,
+  onDone,
+}: {
+  codes: readonly string[];
+  onDone: () => void;
+}) {
   return (
     <section className="card two-factor" aria-label="Recovery codes">
       <h2>Your recovery codes</h2>
@@ -86,7 +93,7 @@ export function TwoFactorSetup({ onEnabled }: { onEnabled: () => void }) {
   const [setup, setSetup] = useState<Setup | null>(null);
   const [codes, setCodes] = useState<readonly string[] | null>(null);
   const action = useAction();
-  if (codes !== null) return <Codes codes={codes} onDone={onEnabled} />;
+  if (codes !== null) return <RecoveryCodeList codes={codes} onDone={onEnabled} />;
   return (
     <section className="card two-factor" aria-label="Two-factor sign-in">
       <h2>Two-factor sign-in</h2>

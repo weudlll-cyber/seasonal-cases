@@ -80,6 +80,9 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   test-only plain cookie, the admin's setup form no longer loses what was typed. Concept 1.6.
   Piece 2: no bots in real shows (403 outside development), unclaimed cases ("Unclaimed", their
   prizes "not won" everywhere), "End show" asks before an early end (D32–D34). Concept 1.7.
+  Piece 3: recovery codes re-issued with the password and a code (D35); names of Latin letters,
+  digits, `-`, `_` and a registration that answers alike for every e-mail (D36); 60 a minute
+  per address for claims and sign-ins, the installer asks for the trusted range (D37).
 
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
@@ -117,11 +120,9 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
 ## Needs the owner's word
 
 - The merge of `proto/cases-v1` and the tag `v1.0.0` ([RELEASING.md](RELEASING.md)).
-- The standing rules of night chain SC-N3, which kept today's behaviour: the ceremony reveals
-  every prize, found or not; the motion 0.8 s travel, 1.6 s opening, 2.5 s per winner; website
-  mode's rank (the number of valid Discord steps) and badges (their icons).
-- The second security review's questions: the feed behind the site's Caddy (BACKLOG 35); the
-  limits' numbers, bots in real shows, the Caddy profile's trusted range (BACKLOG 37).
+- The second security review's remaining question: the feed behind the site's Caddy (BACKLOG
+  35). Decided 2026-11-22 and built: the limits, no bots in real shows, the asked trusted range
+  (D34, D37), the ceremony and the motion as built (D30, D32), the website-mode rank (D31).
 
 - Whether the show is fun (the P1 gate), after playing it.
 - The proposals of CONCEPT §14 that remain: the artifact names and order, Fredoka as the stage
@@ -130,20 +131,11 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
 - The choices of the night recorded in [NIGHT-RUN.md](NIGHT-RUN.md) "Choices made without the
   owner", among them the separate "Start show" step after sealing.
 - `e2e` as a required check of master (BACKLOG 22).
-- The stage's motion (piece 2 of SC-N2), kept as built and as admin settings (D30): the travel to
-  the front and back 0.8 s ease-in-out, the opening 1.6 s (lid in the first 45 %, the artifact
-  from 40 %, the meaning from 80 %), the closing before the way home 0.3 s. Travel and opening
-  are settings now (D25); the ease and the closing stay in `apps/web/src/stage/motion.ts`.
-- The ceremony's pace and order (piece 3 of SC-N2), kept as built (D30): one winner every
-  2.5 s, from the lowest prize up to the main prize, then "See the result".
 - The website's side for the slug `cases` (BACKLOG 27): it lives in the website repository.
-- The independent review's questions ([security-pass.md](security-pass.md), "Out of scope or for
-  the owner"; BACKLOG 29–31):
-  - the enrolment window: a promoted admin enrols any authenticator with the password alone;
-  - no way to reset another admin's 2FA or re-issue recovery codes;
-  - a longer common-password list than Mini Games' ten (finding 11);
-  - names: any Unicode letters without normalisation, so two names can look alike;
-  - registration's 409 tells whether an e-mail has an account;
+- The independent review's questions that remain ([security-pass.md](security-pass.md), "Out of
+  scope or for the owner"; the enrolment window, recovery codes, names and the registration
+  answer are decided and built, D35, D36):
+  - no way to reset another admin's 2FA from the admin area (only `pnpm sc admin reset-2fa`);
   - website mode shares one origin with the website and the other games;
   - plain SMTP and an `http://` feed origin belong on a trusted network or behind TLS;
   - the TOTP brute-force rate under Mini Games' 10 per 15 minutes.
