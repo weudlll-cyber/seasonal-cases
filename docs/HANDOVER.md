@@ -108,6 +108,12 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   fifth independent review, six of seven low findings fixed. Final report in
   [NIGHT-RUN.md](NIGHT-RUN.md).
 
+- **Task SC-P7 (done, 2026-11-23):** the owner's D50–D53. The artifact rises straight up from
+  the case's centre (it started up to 57 px off and drifted in; measured centred in every frame
+  now); the sign-in brake counts failures only, 20 per 15 minutes per address and per account
+  (`auth/failureBrake.ts`); a visually hidden polite live region says the opened artifact at the
+  Open step; the inner row at 1280 × 720 stays as it is. Version `1.0.0-rc.4`.
+
 - **Kit:** `kit: pinned v0.11.1, newest v0.11.1, current` (`pnpm kit:check`, 2026-11-23, SC-N6
   piece 1). v0.11.1 widens the kit's peer ranges and changes its own Renovate rules; nothing in
   Cases changed with it. The pin moves only on the owner's word.
@@ -122,7 +128,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   has a rule for the kit's tags once the app is enabled.
 - `pnpm dev`: server 127.0.0.1:3970, client 0.0.0.0:5470 (http://localhost:5470; the phone at
   http://192.168.0.66:5470 on the home Wi-Fi). Left running hidden for the owner at the end of
-  SC-D5 (rc.3), on PostgreSQL; the development database holds three accounts the chains did not make
+  SC-P7 (rc.4), on PostgreSQL; the development database holds three accounts the chains did not make
   ("Plan-Claude", "Walter", "walter"), left as they are; the play-through steps are in
   [NIGHT-RUN.md](NIGHT-RUN.md) "Final report" (Quick Test seed `sc-n1-01`).
 - The development services: `docker compose --env-file ops/compose.dev.env -f
@@ -186,16 +192,12 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   - applause is limited per account for signed-in users and per address for guests, and guests
     may applaud;
   - separate address budgets: sign-ins 20 a minute, claims 300 a minute; in front of the
-    sign-ins' cap the brake against guessing is back (D48): 20 tries per 15 minutes per
-    address, 5 per login and address.
-  - A screen reader and the risen artifact (fifth review, finding 6): the artifact is inserted
-    hidden until 55 % of the opening; whether NVDA still announces its name is untested.
-  - Open with D48: for one address the brake (20 per 15 minutes, every try) is always stricter
-    than the cap (20 a minute), so the cap never answers first, and a room of more than 20
-    people behind one address cannot all sign in within 15 minutes (the reason D45 dropped the
-    brake). Counting only failed tries would need a limiter that looks before it takes, which
-    the kit's RateLimiter does not offer. Built as the task says, the effect is the owner's
-    to weigh.
+    sign-ins' cap the brake against guessing (D51): 20 failed sign-ins per 15 minutes per
+    address and per account, a success not counted.
+  - Open with D51: 20 failed sign-ins lock an account out for up to 15 minutes from every
+    address, its owner included, since the brake answers before the password is checked.
+    Whether that is wanted, or the per-account brake should look at the address too, is the
+    owner's word.
 
 - **Where this repository departs from the kit's HANDBOOK (v0.11.0)**, read once on
   2026-11-23; nothing changed for them:

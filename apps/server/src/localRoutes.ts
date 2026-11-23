@@ -8,11 +8,11 @@
  *                 - Sign-in by name or e-mail; a wrong name and a wrong password answer the same
  *                   and take as long (the dummy hash). An admin with two-factor sign-in gets
  *                   `{ twoFactor: true }` until a TOTP or recovery code comes with the password.
- *                   Limits, in this order: the brake against guessing (DECISIONS D48, Mini
- *                   Games' rule with the kit's RateLimiter: 20 tries per 15 minutes per
- *                   address, 5 per login and address), then the sign-ins' cap per address,
- *                   20 a minute (./addressLimit.ts, D45). A try the brake refuses never counts
- *                   on the cap; every try the brake lets through reaches the password check.
+ *                   Limits, in this order: the brake against guessing (./auth/failureBrake.ts,
+ *                   DECISIONS D51), 20 failed sign-ins per 15 minutes per address and per
+ *                   account, counting failures only; then the sign-ins' cap per address, 20 a
+ *                   minute (./addressLimit.ts, D45). A try the brake refuses never counts on the
+ *                   cap; every try the brake lets through reaches the password check.
  *                 - Forgotten password: always the same answer; a known e-mail gets a link with a
  *                   random token, stored as its sha256, valid 1 hour, used once (3 mails an hour
  *                   per address at most). The reset ends every session and every other link of
@@ -37,6 +37,7 @@ import { addressKey } from './addressKey.js';
 import type { AddressLimit } from './addressLimit.js';
 import type { Account } from './auth/accounts.js';
 import { emailKey, type CredentialStore } from './auth/credentials.js';
+import { FailureBrake } from './auth/failureBrake.js';
 import { nameKey } from './auth/names.js';
 import { dummyHash, hashPassword, passwordMatches, passwordProblem } from './auth/passwords.js';
 import type { PendingStore } from './auth/pending.js';
@@ -67,8 +68,10 @@ function newPassword(password: string): void {
   if (problem !== null) throw new Refusal(400, PASSWORD_TEXT[problem]);
 }
 
+const TOO_MANY_TRIES = 'too many tries, wait a few minutes';
+
 function limited(limiter: RateLimiter, key: string): void {
-  if (!limiter.take(key).allowed) throw new Refusal(429, 'too many tries, wait a few minutes');
+  if (!limiter.take(key).allowed) throw new Refusal(429, TOO_MANY_TRIES);
 }
 
 const resetText = (link: string): string =>
@@ -108,27 +111,36 @@ async function secondFactorMissing(
   return false;
 }
 
+function braked(brake: FailureBrake, key: string): void {
+  if (brake.braked(key)) throw new Refusal(429, TOO_MANY_TRIES);
+}
+
 // Sign in.
 function entryRoutes(ctx: Ctx, { credentials, perAddress }: LocalAccounts): void {
   const { app, auth } = ctx;
-  // The brake against guessing (D48): Mini Games' loginIp and loginAccountIp rules.
-  const brakeAddress = new RateLimiter({ limit: 20, windowMs: 15 * MINUTE });
-  const perLogin = new RateLimiter({ limit: 5, windowMs: 15 * MINUTE });
+  // The brake against guessing (D51): failed sign-ins only, per address and per account.
+  const brake = new FailureBrake({ limit: 20, windowMs: 15 * MINUTE });
   const perAccount = new RateLimiter({ limit: 10, windowMs: 15 * MINUTE });
 
   app.post('/api/auth/sign-in', async (request, reply) => {
-    const address = addressKey(request.ip);
-    limited(brakeAddress, address);
+    const address = `address:${addressKey(request.ip)}`;
+    braked(brake, address);
     const { login, password, code } = parseBody(LocalSignInRequestSchema, request.body);
-    limited(perLogin, `${login.toLowerCase()}|${address}`);
+    const normal = login.includes('@') ? emailKey(login) : nameKey(login);
+    const found = login.includes('@')
+      ? await credentials.byEmail(normal)
+      : await credentials.byName(normal);
+    // An account's failures count under its id, by name or by e-mail alike; a login no
+    // account has counts under its normalised form, so it answers exactly like a real one.
+    const accountKey = found === undefined ? `login:${normal}` : `account:${found.accountId}`;
+    braked(brake, accountKey);
     // The outer cap counts only what the brake let through.
     perAddress(request.ip);
-    const found = login.includes('@')
-      ? await credentials.byEmail(emailKey(login))
-      : await credentials.byName(nameKey(login));
     const matches = await passwordMatches(found?.passwordHash ?? (await dummyHash()), password);
     const account = found === undefined ? undefined : await auth.accounts.byId(found.accountId);
     if (!matches || account === undefined || account.deleted) {
+      brake.failed(address);
+      brake.failed(accountKey);
       throw new Refusal(401, SIGN_IN_FAILED);
     }
     if (await secondFactorMissing(ctx, account, code, perAccount)) return { twoFactor: true };

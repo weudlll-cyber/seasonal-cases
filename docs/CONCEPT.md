@@ -13,6 +13,7 @@
 | 1.8 | 2026-11-23 | Night chain SC-N4: the applause button (§12 P3). |
 | 1.9 | 2026-11-23 | Day chain SC-D5: registration confirmed by the mail's link, a proposal (§10). |
 | 1.10 | 2026-11-23 | Night chain SC-N6, from the owner's decisions of 2026-11-23: the case and its opening (§7); registration through the mail's link decided (§10). |
+| 1.11 | 2026-11-23 | Task SC-P7, from the owner's decisions of 2026-11-23: the artifact rises straight up from the case's centre (§7); release candidate 1.0.0-rc.4 (§12). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -194,7 +195,9 @@ Target: a TV-studio feel with small means — SVG, icons, gradients, glow, CSS a
   front: a body with a season-coloured trim, a handle on its lid, two latches at the front, and a
   lid hinged at the body's back edge. At Open the latches flip, the lid swings slowly open towards
   the viewer in perspective and shows the dark lining with the season's glow, then the artifact
-  rises out of the case and the meaning appears last, over the opening's duration (a setting,
+  rises straight up out of the centre of the case (centred from its first visible frame to its
+  last, only its height and size change, its name and the meaning centred under it) and the
+  meaning appears last, over the opening's duration (a setting,
   §9). On the stage an opened case stands with its lid open and the artifact's small gem inside.
 - **The moving case** (decided 2026-11-21): after the click the closed case travels from its place
   on the half circle to the front in one continuous motion while the others dim, and opens there
@@ -307,7 +310,7 @@ injected ports) ← `application` ← `apps/server`; the client renders, the ser
 | **P1 Prototype** | Development sign-in, dev admin, registration board with case conflicts, sealing with commitment, the live stage with the reveal steps, direction bar with hand-over, result screen, bots, Quick Test seed, light/dark, fit to the check sizes. Silent. | The owner plays it and says it is fun. | Built on `proto/cases-v1`; the gate waits for the owner. |
 | **P2 Foundation** | Accounts, 2FA, roles, lobby, website mode, chat dock, call slot, ranks (website / manual), PostgreSQL, admin area with the settings catalogue. | Owner's acceptance. | Built on `proto/cases-v1`; the call slot stays hidden (no call yet). |
 | **P3 Show polish** | Sound, chronicle, "My matches", viewer participation (applause button, tips on the main-prize owner, next-case suggestions), seasonal theming of the stage. | Owner's acceptance per item. | Built; viewer participation starts with the applause button (decided 2026-11-22): anyone watching a live show applauds from the game bar, the stage counts it and the confetti on a prize or in the ceremony grows with the last 10 s, with no effect on the show (§1). Tips and next-case suggestions wait (BACKLOG 10). |
-| **P4 Release** | Installer, security review, first show on the VPS. | Security pass green. | Installer and four security reviews built; release candidate 1.0.0-rc.3; the first show on the VPS waits for the merge. |
+| **P4 Release** | Installer, security review, first show on the VPS. | Security pass green. | Installer and four security reviews built; release candidate 1.0.0-rc.4; the first show on the VPS waits for the merge. |
 
 ## 13. Deliberately not built
 

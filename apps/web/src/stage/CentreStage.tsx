@@ -9,8 +9,11 @@
  *                 season colour and its meaning appears last ("Prize 1 · Gold", "Prize 1"
  *                 without a label, or "No prize"), in the phases of ./motion.ts; at "Owner" it
  *                 stays while the lower third names the owner; after "Back to stage" it travels
- *                 home with its lid open (D49). The artifact is drawn only once the view carries
- *                 it (CONCEPT §8). Everything comes from the view.
+ *                 home with its lid open (D49). The artifact rises straight up from the case's
+ *                 centre (D50). A visually hidden polite live region says the artifact's name and
+ *                 meaning at once at "Open", independent of the picture's timing (D52). The
+ *                 artifact is drawn only once the view carries it (CONCEPT §8). Everything comes
+ *                 from the view.
  * Depends on:     react, @sc/contracts (types), ./ArtifactEmblem.js, ./CasePicture.js,
  *                 ./travel.js
  */
@@ -20,6 +23,12 @@ import { useRef } from 'react';
 import { ArtifactEmblem } from './ArtifactEmblem.js';
 import { CasePicture } from './CasePicture.js';
 import { useArrival, useHomeward } from './travel.js';
+
+/** What a screen reader hears at "Open": the case, the artifact's name and its meaning. */
+export function openedText(show: PublicShowView, view: CaseView): string {
+  if (view.artifact === null) return '';
+  return `Case ${String(view.number)}: ${view.artifact.name}, ${meaningText(show, view)}`;
+}
 
 /** The meaning shown with an opened artifact. */
 export function meaningText(show: PublicShowView, view: CaseView): string {
@@ -42,7 +51,13 @@ function FrontCase({ show, view, phase }: FrontCaseProps) {
   // At the front the opening plays once the view carries the artifact; home, it stays open.
   const state = artifact === null ? 'closed' : phase === 'front' ? 'opening' : 'open';
   return (
-    <div className="centre" data-phase={phase} aria-live="polite">
+    <div className="centre" data-phase={phase}>
+      {/* Heard at once at "Open", whatever the picture's timing (D52). Mounted with the case
+          at "selected", empty until the view carries the artifact, so the change is announced;
+          a live region without the role "status", which stays the lower third's. */}
+      <p className="sk-visually-hidden" aria-live="polite">
+        {phase === 'front' ? openedText(show, view) : ''}
+      </p>
       <div
         ref={ref}
         className={`centre-case${artifact !== null ? ' is-open' : ''}`}

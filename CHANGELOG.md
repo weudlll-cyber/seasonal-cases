@@ -3,11 +3,27 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
-## Unreleased (night chain SC-N6, on `proto/cases-v1`)
+## 1.0.0-rc.4 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `proto/cases-v1`, night chain SC-N6 and task SC-P7: the owner's decisions of 2026-11-23
+(D46–D53).
+
+### Task SC-P7
+
+- **The artifact rises straight up (D50):** it stays on the case's centre from its first visible
+  frame to its last; only its height and size change. It started up to 57 px to the right (its
+  centring offset shrank with the rise's scale). A long name is whole on a narrow case.
+- **The brake counts failures only (D51):** 20 failed sign-ins per 15 minutes per address and per
+  account; a successful sign-in does not count. The cap of 20 a minute stays.
+- **A screen reader hears the opened artifact at once (D52):** its name and meaning, in a
+  visually hidden polite live region, at the Open step.
+
+### Night chain SC-N6
 
 - **Kit v0.11.1 (D47):** its peer ranges are wider; nothing in Cases changes with it.
 - **Sign-in's brake against guessing (D48):** 20 tries per 15 minutes per address and 5 per
-  login and address, in front of the password check and before the 20-a-minute cap counts.
+  login and address, in front of the password check and before the 20-a-minute cap counts
+  (its counting changed by D51 in SC-P7).
 - **The phone's cases:** "Unclaimed" is whole at 360 and 390 px (88 px columns).
 - **D42–D45 confirmed (D46).**
 - **The case that really opens (D49):** every case is a case with a handle, latches and a lid

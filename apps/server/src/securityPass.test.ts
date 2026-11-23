@@ -55,34 +55,43 @@ async function localAdmin(h: Harness): Promise<{ id: string; cookie: string }> {
 }
 
 describe('1: limits count the visitor behind the proxy', () => {
-  it('lets the right password in from another visitor after five wrong ones', async () => {
-    const h = await startHarness(false);
-    harness = h;
-    await h.register(OLGA);
-    const from = (ip: string) => ({ 'x-forwarded-for': ip });
-    for (let i = 0; i < 5; i += 1) {
-      await post(
+  // About 22 argon2id checks (64 MiB, three passes): longer than the default 20 s beside the
+  // other test files.
+  it(
+    'brakes the visitor with 20 failures, and lets the right password in from another',
+    {
+      timeout: 90_000,
+    },
+    async () => {
+      const h = await startHarness(false);
+      harness = h;
+      await h.register(OLGA);
+      const from = (ip: string) => ({ 'x-forwarded-for': ip });
+      // Each with its own unknown login, so only the visitor's address is braked (D51).
+      for (let i = 0; i < 20; i += 1) {
+        await post(
+          h,
+          '/api/auth/sign-in',
+          { login: `nobody${String(i)}`, password: 'wrong one' },
+          from('203.0.113.9'),
+        );
+      }
+      const blocked = await post(
         h,
         '/api/auth/sign-in',
-        { login: 'olga', password: 'wrong one' },
+        { login: 'olga', password: PASSWORD },
         from('203.0.113.9'),
       );
-    }
-    const blocked = await post(
-      h,
-      '/api/auth/sign-in',
-      { login: 'olga', password: PASSWORD },
-      from('203.0.113.9'),
-    );
-    expect(blocked.statusCode).toBe(429);
-    const other = await post(
-      h,
-      '/api/auth/sign-in',
-      { login: 'olga', password: PASSWORD },
-      from('198.51.100.7'),
-    );
-    expect(other.statusCode).toBe(200);
-  });
+      expect(blocked.statusCode).toBe(429);
+      const other = await post(
+        h,
+        '/api/auth/sign-in',
+        { login: 'olga', password: PASSWORD },
+        from('198.51.100.7'),
+      );
+      expect(other.statusCode).toBe(200);
+    },
+  );
 });
 
 describe('2 and 6: confirming two-factor sign-in', () => {

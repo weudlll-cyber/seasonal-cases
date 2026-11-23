@@ -1,8 +1,9 @@
 /**
  * @file   apps/server/src/localRoutes.test.ts
  * @brief  Tests standalone accounts: the password rules, sign-in by name or e-mail, the
- *         rate limit (registration itself: ./registerRoute.test.ts), the forgotten password with its one-time link, website mode without these
- *         routes, the admin's roles and ranks, and "My matches".
+ *         answer to a wrong password (the limits: ./signInBrake.test.ts; registration itself:
+ *         ./registerRoute.test.ts), the forgotten password with its one-time link, website mode
+ *         without these routes, the admin's roles and ranks, and "My matches".
  */
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -66,20 +67,13 @@ describe('registration and sign-in', () => {
     expect(name.statusCode).toBe(400);
   });
 
-  it('answers a wrong password like an unknown name, and limits the tries', async () => {
+  it('answers a wrong password like an unknown name', async () => {
     harness = await startHarness(false);
     await harness.register(ADA);
     const wrong = await post(harness, '/api/auth/sign-in', { login: 'ada', password: 'nope' });
     const unknown = await post(harness, '/api/auth/sign-in', { login: 'zed', password: 'nope' });
     expect(wrong.statusCode).toBe(401);
     expect(unknown.json()).toEqual(wrong.json());
-    const codes: number[] = [];
-    for (let i = 0; i < 5; i += 1) {
-      codes.push(
-        (await post(harness, '/api/auth/sign-in', { login: 'ada', password: 'x' })).statusCode,
-      );
-    }
-    expect(codes).toEqual([401, 401, 401, 401, 429]);
   });
 });
 

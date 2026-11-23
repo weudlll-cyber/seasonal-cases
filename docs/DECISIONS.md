@@ -157,3 +157,18 @@ the owner confirmed them on 2026-11-23 (D46).
   back edge; at "Open" the lid opens slowly towards the viewer in perspective and shows the
   inside before the artifact rises out of it. The opening's duration stays the admin setting
   (1.6 s by default).
+
+## 2026-11-23, task SC-P7: the owner's decisions D50–D53
+
+- **D50 — The case accepted; the artifact rises straight up.** The case's look and opening (D49)
+  are accepted. The artifact rises straight up out of the centre of the case: horizontally
+  centred on the case from its first visible frame to its last; only its vertical position and
+  its scale change. Its name and the meaning stay centred under it.
+- **D51 — The brake counts failures only.** The sign-in brake, 20 per 15 minutes per account and
+  per address, counts failed attempts only; a successful sign-in does not count. The cap of 20
+  sign-ins a minute per address stays. This replaces the counting of D48.
+- **D52 — The opened artifact for a screen reader.** At the Open step a screen reader hears the
+  artifact's name and its meaning at once, through a visually hidden polite live region,
+  independent of the picture's timing.
+- **D53 — The inner row on a wide, short window.** At 1280 × 720 and 1536 × 768 the risen
+  artifact may cover the two dimmed middle cases; no change.

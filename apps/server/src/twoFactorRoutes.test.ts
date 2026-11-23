@@ -26,8 +26,8 @@ const cookieOf = (answer: Answer): string => {
   return raw?.split(';')[0] ?? '';
 };
 
-// The sign-in limit counts per login and address (5 per 15 minutes); a second address gives the
-// recovery part of the test its own allowance.
+// Sign-ins from an address of their own, as from another network; the brake (D51, 20 failures
+// per 15 minutes per address and per account) stays far above what these tests try.
 const post = (h: Harness, url: string, payload: object, cookie = '') =>
   h.server.app.inject({ method: 'POST', url, payload, headers: { cookie } });
 const signInFrom = (h: Harness, payload: object, remoteAddress: string) =>

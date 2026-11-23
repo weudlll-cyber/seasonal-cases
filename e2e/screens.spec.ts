@@ -12,8 +12,9 @@
  *                 nobody claimed a case in (every prize "not won"; also at 360 × 780, where the
  *                 cases' owner labels are tightest) and the admin's settings, at every size in
  *                 both themes. Beside each picture it measures the smallest visible text, whether
- *                 the page overflows sideways and how many labels are cut with an ellipsis, and
- *                 writes all findings to `checks.json`. Runs only as the project `screens`.
+ *                 the page overflows sideways, how many labels are cut with an ellipsis and
+ *                 whether a risen artifact stands off its case's centre (D50), and writes all
+ *                 findings to `checks.json`. Runs only as the project `screens`.
  * Depends on:     @playwright/test, node:fs, ./helpers.ts
  */
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -43,6 +44,8 @@ interface Check {
   // Visible labels cut with an ellipsis (their text wider than their box), and their texts.
   cut: number;
   cutTexts: string[];
+  // Risen artifacts (the front case, the ceremony) whose gem is off their case's centre (D50).
+  offCentre: number;
 }
 const checks: Check[] = [];
 
@@ -65,7 +68,17 @@ async function measure(page: Page): Promise<Omit<Check, 'file'>> {
       }
     }
     const sideways = document.documentElement.scrollWidth > window.innerWidth + 1;
-    return { smallestText: smallest, sideways, cut: cutTexts.length, cutTexts };
+    const middle = (el: Element | null) => {
+      const box = el?.getBoundingClientRect();
+      return box === undefined ? 0 : box.left + box.width / 2;
+    };
+    const offCentre = Array.from(document.querySelectorAll('.case-picture.is-risen')).filter(
+      (c) => {
+        const gem = c.querySelector('.artifact-gem');
+        return gem !== null && Math.abs(middle(gem) - middle(c.querySelector('.cp-front'))) > 1;
+      },
+    ).length;
+    return { smallestText: smallest, sideways, cut: cutTexts.length, cutTexts, offCentre };
   });
 }
 
@@ -264,7 +277,9 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await shoot(page, 'admin-settings', settings);
 
   writeFileSync(`${DIR}checks.json`, JSON.stringify(checks, null, 2));
-  const problems = checks.filter((c) => c.smallestText < FLOOR || c.sideways || c.cut > 0);
+  const problems = checks.filter(
+    (c) => c.smallestText < FLOOR || c.sideways || c.cut > 0 || c.offCentre > 0,
+  );
   console.log(`${String(checks.length)} pictures, ${String(problems.length)} with findings`);
   for (const p of problems) console.log(JSON.stringify(p));
 });

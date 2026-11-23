@@ -69,7 +69,8 @@
   from {
     visibility: hidden;
     opacity: 0;
-    translate: 0 calc(var(--ch) * 0.8);
+    /* The x stays the base's -50% (./case.css): only the height and the size change (D50). */
+    translate: -50% calc(var(--ch) * 0.8);
     scale: 0.4;
   }
 }

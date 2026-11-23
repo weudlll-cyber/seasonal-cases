@@ -108,14 +108,19 @@
   pointer-events: none;
 }
 
-/* The artifact: inside the case, or risen above the rim, facing the viewer. */
+/* The artifact: inside the case, or risen above the rim, facing the viewer, as wide as itself.
+   Its centring is the `translate` property, which the browser applies outside `scale`, so the
+   rise's scale never shrinks it and the artifact stays on the case's centre (D50); the rise
+   animates only translate's y. (A box wider than the artifact is clipped by Chrome on the
+   transformed layer, so the box stays the artifact's own width.) */
 .cp-content {
   position: absolute;
-  left: 50%;
   bottom: calc(var(--ch) * 0.45);
+  left: 50%;
   display: flex;
-  justify-content: center;
-  transform: translateX(-50%) rotateX(calc(var(--tilt) * -1));
+  width: max-content;
+  translate: -50% 0;
+  transform: rotateX(calc(var(--tilt) * -1));
   transform-origin: 50% 100%;
 }
 

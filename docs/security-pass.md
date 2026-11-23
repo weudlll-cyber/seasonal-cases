@@ -653,7 +653,13 @@ Not changed:
 - **3:** this is D45 as written; for the owner. Closed by the owner's D48 (night chain SC-N6
   piece 1): the brake of 20 tries per 15 minutes per address and 5 per login and address is
   back in front of the password check, before the 20-a-minute cap counts
-  (`signInBrake.test.ts`).
+  (`signInBrake.test.ts`). Changed by the owner's D51 (task SC-P7): the brake counts failed
+  sign-ins only, 20 per 15 minutes per address and per account (the account under its id, by
+  name or e-mail alike; a login no account has under its normalised form), with a brake of the
+  game's own that looks before it counts (`auth/failureBrake.ts`; the kit's RateLimiter only
+  takes, BACKLOG 49). A room of players behind one address signs in freely again; the cap of 20
+  a minute is the outer limit. Left for the owner: 20 failures lock an account out for up to
+  15 minutes from every address, its owner included (the brake answers before the password).
 - **8:** the task asks for both the `verify` line and the CI step; one extra `git ls-remote`
   per CI run.
 

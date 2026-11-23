@@ -1,7 +1,8 @@
 /**
  * @file   apps/web/src/stage/Stage.test.tsx
- * @brief  Tests the stage: every step state rendered from a given view, and the direction bar
- *         for the direction holder only (after the end: ./moments.test.tsx).
+ * @brief  Tests the stage: every step state rendered from a given view, the live region that
+ *         says the opened artifact at once (D52), and the direction bar for the direction holder
+ *         only (after the end: ./moments.test.tsx).
  */
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -102,5 +103,21 @@ describe('the direction bar', () => {
       expect(screen.queryByRole('button', { name: /^Select Case/ })).toBeNull();
       cleanup();
     }
+  });
+});
+
+describe('the opened artifact for a screen reader (D52)', () => {
+  it('is said at the open step, in a polite live region already there at "selected"', () => {
+    const view = (step: 'selected' | 'open') => (
+      <Stage show={liveView(step)} organiser={null} me={ANA} direct={direct} />
+    );
+    const { container, rerender } = render(view('selected'));
+    const region = container.querySelector('.centre [aria-live="polite"]');
+    expect(region?.className).toBe('sk-visually-hidden');
+    expect(region?.textContent).toBe('');
+    rerender(view('open'));
+    // The same element, so the change is announced; text at once, not after the picture.
+    expect(container.querySelector('.centre [aria-live="polite"]')).toBe(region);
+    expect(region?.textContent).toBe('Case 7: Halving Stone, Prize 1 · Gold');
   });
 });

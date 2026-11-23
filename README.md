@@ -14,7 +14,7 @@ manually assigned ranks. In development the local mode also has a development si
 and rank, no password) for the Quick Test; it exists only with `NODE_ENV=development` and
 `SC_DEV=1` (`apps/server/dev.env`).
 
-**Status:** release candidate 1.0.0-rc.3 on the branch `proto/cases-v1`, not merged yet:
+**Status:** release candidate 1.0.0-rc.4 on the branch `proto/cases-v1`, not merged yet:
 phases P0 to P3 built, P4 (installer, security reviews) built, the first show on a server
 waits for the merge ([docs/CONCEPT.md](docs/CONCEPT.md) §12, [CHANGELOG.md](CHANGELOG.md),
 [docs/RELEASING.md](docs/RELEASING.md)).

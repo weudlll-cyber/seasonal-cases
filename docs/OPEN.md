@@ -2,7 +2,7 @@
 
 A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
 
-- **Now:** release candidate `1.0.0-rc.3` on `proto/cases-v1` (chains SC-N1 to SC-N4 and SC-D5, not
+- **Now:** release candidate `1.0.0-rc.4` on `proto/cases-v1` (chains SC-N1 to SC-N6 and SC-P7, not
   merged); the owner plays it and decides the merge (docs/RELEASING.md).
   Built: website mode, the docked chat, PostgreSQL, standalone accounts with 2FA, roles, ranks,
   lobby, "My matches", the settings catalogue, the chronicle (BACKLOG 1, 2, 3, 5, 6, 8, 9, 17, 18,
@@ -19,5 +19,6 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   (BACKLOG 33).
 - **Kit:** v0.11.1 since 2026-11-23 (D47; v0.11.0, D40, the same day); its parts replaced four stand-ins and the bar's chat
   count (BACKLOG 13, 19, 20, 23, 24, 32, 36, closed). Open: the bar's press action for "Applaud"
-  (BACKLOG 41) and opening the dock's chat from the game (BACKLOG 43).
+  (BACKLOG 41), opening the dock's chat from the game (BACKLOG 43) and a limiter that looks
+  before it counts (BACKLOG 49).
 - **Browsers:** all six projects pass all six journeys (BACKLOG 40, closed 2026-11-23).
