@@ -17,7 +17,7 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   34); website mode behind the site's Caddy lacks the feed (BACKLOG 35). The open-rounds listing
   and the member summary are built (BACKLOG 25, 26, closed); the website wires the card's origin
   (BACKLOG 33).
-- **Kit:** v0.11.0 since 2026-11-23 (D40); its parts replaced four stand-ins and the bar's chat
+- **Kit:** v0.11.1 since 2026-11-23 (D47; v0.11.0, D40, the same day); its parts replaced four stand-ins and the bar's chat
   count (BACKLOG 13, 19, 20, 23, 24, 32, 36, closed). Open: the bar's press action for "Applaud"
   (BACKLOG 41) and opening the dock's chat from the game (BACKLOG 43).
 - **Browsers:** all six projects pass all six journeys (BACKLOG 40, closed 2026-11-23).

@@ -23,7 +23,9 @@ import { pgTwoFactor } from './twoFactorStore.js';
 
 export interface Database {
   readonly pool: DbPool;
-  readonly stores: Required<Omit<Stores, 'mailer'>> & { readonly events: PgEventStore };
+  readonly stores: Required<Omit<Stores, 'mailer' | 'signInCap'>> & {
+    readonly events: PgEventStore;
+  };
   /** Waits for pending event writes, then ends the pool. */
   close(): Promise<void>;
 }

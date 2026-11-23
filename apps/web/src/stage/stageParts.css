@@ -190,9 +190,11 @@
     overflow-y: hidden;
   }
 
+  /* 88 px columns: "Unclaimed" stays whole at the 14 px text floor (66 px inside a 78 px
+     column cut it); three columns fit a 360 px phone, more scroll sideways as before. */
   .arena {
     display: grid;
-    grid-auto-columns: 78px;
+    grid-auto-columns: 88px;
     grid-auto-flow: column;
     grid-template-rows: repeat(2, auto);
     gap: 8px;

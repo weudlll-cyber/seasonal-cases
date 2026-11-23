@@ -3,6 +3,14 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
+## Unreleased (night chain SC-N6, on `proto/cases-v1`)
+
+- **Kit v0.11.1 (D47):** its peer ranges are wider; nothing in Cases changes with it.
+- **Sign-in's brake against guessing (D48):** 20 tries per 15 minutes per address and 5 per
+  login and address, in front of the password check and before the 20-a-minute cap counts.
+- **The phone's cases:** "Unclaimed" is whole at 360 and 390 px (88 px columns).
+- **D42–D45 confirmed (D46).**
+
 ## 1.0.0-rc.3 (not tagged; the tag follows the merge with the owner's word)
 
 Branch `proto/cases-v1`, day chain SC-D5: the owner's decisions of 2026-11-23 (D40, D41) and the

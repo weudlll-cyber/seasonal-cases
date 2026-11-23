@@ -123,8 +123,8 @@ owner confirms them.
 
 ## 2026-11-23, day chain SC-D5: the owner's decisions D40–D41 and the proposals D42–D45
 
-D42–D45 are the planning chat's proposals, built and standing until the owner says otherwise;
-they are listed in HANDOVER "Needs the owner's word".
+D42–D45 were the planning chat's proposals, built and standing until the owner said otherwise;
+the owner confirmed them on 2026-11-23 (D46).
 
 - **D40 — Kit v0.11.0.** The kit is pinned to v0.11.0; every stand-in under
   `packages/ui/src/pending/` that the kit now has is replaced by the kit's part.
@@ -141,3 +141,19 @@ they are listed in HANDOVER "Needs the owner's word".
 - **D45 — Separate address budgets (proposal, until the owner says otherwise).** Sign-in has 20
   requests a minute per address and claims 300 a minute per address, each its own budget; the
   per-player and per-socket limits stay.
+
+## 2026-11-23, night chain SC-N6: the owner's decisions D46–D49
+
+- **D46 — D42–D45 confirmed.** Registration with a confirmation link, a letter in every name,
+  the applause limits per account or per guest address, and the separate address budgets are
+  decisions, no longer proposals.
+- **D47 — Kit v0.11.1.** The kit is pinned to v0.11.1.
+- **D48 — The brake against guessing at sign-in.** Sign-in keeps the strict brake of before
+  SC-N4, the kit's RateLimiter with Mini Games' rule: 20 tries per 15 minutes per address, and 5
+  per 15 minutes per login and address. It answers in front of the password check, and before
+  the cap of 20 sign-ins a minute per address (D45) counts the try; the cap stays as the outer
+  limit.
+- **D49 — The case on the stage is a real case.** A body with a handle and a lid hinged at its
+  back edge; at "Open" the lid opens slowly towards the viewer in perspective and shows the
+  inside before the artifact rises out of it. The opening's duration stays the admin setting
+  (1.6 s by default).

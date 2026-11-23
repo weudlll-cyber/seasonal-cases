@@ -9,10 +9,11 @@
  *                 Mailpit again), the start page with its registration board, the opening, the
  *                 stage at "selected", "open" and "owner" on the main prize (and the phone's
  *                 direction panel), the early-end question, the result, the ceremony of a show
- *                 nobody claimed a case in (every prize "not won") and the admin's settings, at every
- *                 size in both themes. Beside each picture it measures the smallest visible text
- *                 and whether the page overflows sideways, and writes all findings to
- *                 `checks.json`. Runs only as the project `screens`.
+ *                 nobody claimed a case in (every prize "not won"; also at 360 × 780, where the
+ *                 cases' owner labels are tightest) and the admin's settings, at every size in
+ *                 both themes. Beside each picture it measures the smallest visible text, whether
+ *                 the page overflows sideways and how many labels are cut with an ellipsis, and
+ *                 writes all findings to `checks.json`. Runs only as the project `screens`.
  * Depends on:     @playwright/test, node:fs, ./helpers.ts
  */
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -29,6 +30,9 @@ const SIZES = [
   [1280, 720],
   [390, 844],
 ] as const;
+// The smallest phone of CONCEPT §7, for the pictures whose labels are tightest.
+const SMALL_PHONE = [360, 780] as const;
+type Size = readonly [number, number];
 const THEMES = ['light', 'dark'] as const;
 const FLOOR = 14;
 
@@ -36,12 +40,16 @@ interface Check {
   file: string;
   smallestText: number;
   sideways: boolean;
+  // Visible labels cut with an ellipsis (their text wider than their box), and their texts.
+  cut: number;
+  cutTexts: string[];
 }
 const checks: Check[] = [];
 
-/** The smallest font size of any visible text, and whether the page scrolls sideways. */
-async function measure(page: Page): Promise<{ smallest: number; sideways: boolean }> {
+/** The smallest visible text, whether the page scrolls sideways, and the labels cut short. */
+async function measure(page: Page): Promise<Omit<Check, 'file'>> {
   return page.evaluate(() => {
+    const cutTexts: string[] = [];
     let smallest = Infinity;
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
@@ -49,9 +57,14 @@ async function measure(page: Page): Promise<{ smallest: number; sideways: boolea
       if (parent === null || (node.textContent ?? '').trim() === '') continue;
       const box = parent.getBoundingClientRect();
       if (box.width === 0 || box.height === 0) continue;
-      smallest = Math.min(smallest, parseFloat(getComputedStyle(parent).fontSize));
+      const style = getComputedStyle(parent);
+      smallest = Math.min(smallest, parseFloat(style.fontSize));
+      if (style.textOverflow === 'ellipsis' && parent.scrollWidth > parent.clientWidth) {
+        cutTexts.push(parent.textContent);
+      }
     }
-    return { smallest, sideways: document.documentElement.scrollWidth > window.innerWidth + 1 };
+    const sideways = document.documentElement.scrollWidth > window.innerWidth + 1;
+    return { smallestText: smallest, sideways, cut: cutTexts.length, cutTexts };
   });
 }
 
@@ -72,8 +85,7 @@ async function shootEarlyEnd(page: Page): Promise<void> {
       await expect(bar.getByRole('group', { name: 'End the show early?' })).toBeVisible();
       const file = `early-end-${String(width)}x${String(height)}-${theme}.png`;
       await page.screenshot({ path: `${DIR}${file}`, animations: 'disabled' });
-      const { smallest, sideways } = await measure(page);
-      checks.push({ file, smallestText: smallest, sideways });
+      checks.push({ file, ...(await measure(page)) });
       await bar.getByRole('button', { name: 'Keep playing' }).click();
       if (phone) await page.keyboard.press('Escape');
     }
@@ -97,10 +109,15 @@ async function deleteMailTo(page: Page, to: string): Promise<void> {
     .toBeGreaterThan(0);
 }
 
-async function shoot(page: Page, name: string, scrollTo?: Locator): Promise<void> {
+async function shoot(
+  page: Page,
+  name: string,
+  scrollTo?: Locator,
+  sizes: readonly Size[] = SIZES,
+): Promise<void> {
   for (const theme of THEMES) {
     await page.emulateMedia({ colorScheme: theme });
-    for (const [width, height] of SIZES) {
+    for (const [width, height] of sizes) {
       await page.setViewportSize({ width, height });
       // The fit settles in the next frame after a resize.
       await page.waitForTimeout(350);
@@ -108,8 +125,7 @@ async function shoot(page: Page, name: string, scrollTo?: Locator): Promise<void
       if (scrollTo !== undefined) await scrollTo.scrollIntoViewIfNeeded();
       const file = `${name}-${String(width)}x${String(height)}-${theme}.png`;
       await page.screenshot({ path: `${DIR}${file}`, animations: 'disabled' });
-      const { smallest, sideways } = await measure(page);
-      checks.push({ file, smallestText: smallest, sideways });
+      checks.push({ file, ...(await measure(page)) });
     }
   }
   // Back to a desktop in light, so the next steps find the direction bar under the stage.
@@ -225,7 +241,7 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
     expect((await page.request.post(`/api/shows/${empty}/${step}`)).ok()).toBe(true);
   }
   // The page's clock is held, so the ceremony stays on its first prize (one every 2.5 s) for all
-  // twelve pictures; without it the run outlasts the ceremony.
+  // fourteen pictures; without it the run outlasts the ceremony.
   await page.clock.install();
   await page.goto('/show');
   await page.getByRole('button', { name: 'Begin' }).click();
@@ -237,7 +253,7 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   // so nothing moves on. 250 ms, not 10: on a loaded machine more passes between the read and the
   // pause, and a pause in the past is refused.
   await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 250);
-  await shoot(page, 'ceremony');
+  await shoot(page, 'ceremony', undefined, [...SIZES, SMALL_PHONE]);
 
   // The admin area with the settings (a development admin needs no second factor).
   await signInApi(page.request, 'Ada', 'admin');
@@ -247,7 +263,7 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await shoot(page, 'admin-settings', settings);
 
   writeFileSync(`${DIR}checks.json`, JSON.stringify(checks, null, 2));
-  const problems = checks.filter((c) => c.smallestText < FLOOR || c.sideways);
+  const problems = checks.filter((c) => c.smallestText < FLOOR || c.sideways || c.cut > 0);
   console.log(`${String(checks.length)} pictures, ${String(problems.length)} with findings`);
   for (const p of problems) console.log(JSON.stringify(p));
 });

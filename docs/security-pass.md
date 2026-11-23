@@ -650,14 +650,17 @@ Fixed, each with a test:
 
 Not changed:
 
-- **3:** this is D45 as written; for the owner.
+- **3:** this is D45 as written; for the owner. Closed by the owner's D48 (night chain SC-N6
+  piece 1): the brake of 20 tries per 15 minutes per address and 5 per login and address is
+  back in front of the password check, before the 20-a-minute cap counts
+  (`signInBrake.test.ts`).
 - **8:** the task asks for both the `verify` line and the CI step; one extra `git ls-remote`
   per CI run.
 
 ### For the owner
 
-- Finding 3: keep sign-ins at 20 a minute per address, or add a slow bucket for failed tries
-  only?
+- ~~Finding 3: keep sign-ins at 20 a minute per address, or add a slow bucket for failed tries
+  only?~~ Answered: D48.
 - A waiting registration now keeps its first form for 24 hours: someone who mistyped their
   password confirms and then resets it. Is that the wanted trade-off?
 - A stranger can spend an e-mail's 3 mails an hour (and so delay its registration by an hour).

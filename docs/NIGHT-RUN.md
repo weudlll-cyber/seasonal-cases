@@ -2,6 +2,51 @@
 
 The morning sheets of the unattended night chains, newest first.
 
+## Night chain SC-N6 (2026-11-23)
+
+The owner's decisions of 2026-11-23 (D46–D49): D42–D45 confirmed, kit v0.11.1, sign-in's brake
+against guessing, and the case on the stage as a real case that opens. Branch `proto/cases-v1`,
+continued; nothing merged.
+
+### Final report
+
+The chain is running; this report is written at its end.
+
+### State
+
+| Done                                                      | Running                             | Open                                               | Needs the owner's word                                      |
+| --------------------------------------------------------- | ----------------------------------- | -------------------------------------------------- | ----------------------------------------------------------- |
+| Piece 1: kit v0.11.1, the brake, "Unclaimed" on the phone | Piece 2: the case that really opens | Piece 3: `/dev/opening`; piece 4: pictures, review | D48's brake makes the cap redundant for one address (below) |
+
+### Pieces
+
+| Piece | What                                                                               | Commit        | CI run       |
+| ----- | ---------------------------------------------------------------------------------- | ------------- | ------------ |
+| 1     | Kit v0.11.1 (D47); sign-in's brake (D48); "Unclaimed" whole at 360 and 390 px; D46 | (this commit) | (next entry) |
+
+### Choices made without the owner
+
+- **The task text ends inside piece 3** ("…development only (404 otherwise, with a test): the").
+  Piece 4 and anything after it are not in the text. Taken from what is there and the budget
+  rule: piece 3 is the page `/dev/opening` in development only (404 otherwise, with a test), with
+  a replay button and a speed selector; piece 4 is the pictures, the opening's frames first, and
+  a review (the budget rule names "the review" as never dropped).
+- **D48, read as "as it was before SC-N4 piece 3":** every try counts, as Mini Games'
+  `loginIp` (20 per 15 minutes per address) and `loginAccountIp` (5 per 15 minutes per login and
+  address) count them, since the kit's RateLimiter can only take, not look first. The
+  per-account part is the per-login-and-address 5 that never went away; there was no separate
+  20 per account before SC-N4. For your word: with every try counted, the brake (20 per 15
+  minutes) is always stricter than the cap (20 a minute) for one address, so the cap never
+  answers first, and a room of more than 20 behind one address waits up to 15 minutes to sign
+  in.
+- **"Unclaimed" fits by width, not by a smaller label or a second line:** the kit's text floor
+  is 14 px, and "Unclaimed" at 14 px needs about 70 px; the phone's case columns went from 78 to
+  88 px (they scroll sideways already).
+- **A new check in the screens run:** labels cut with an ellipsis are counted and named in
+  `checks.json`. It found two others, never measured before: an opened case's artifact name
+  ("Halving Stone", all sizes; piece 2 redraws the opened cases) and the kit bar's "3 prizes
+  left" on the phone (the kit's `GameBar`, reported, not changed).
+
 ## Day chain SC-D5 (2026-11-23)
 
 The owner's decisions of 2026-11-23 (D40–D45): kit v0.11.0, the kit-version watch, and four

@@ -70,8 +70,9 @@ Fixed in the code, not settings. A refusal is 429 with one sentence.
 
 | What                                         | Limit                                                   | Where              |
 | -------------------------------------------- | ------------------------------------------------------- | ------------------ |
-| Sign-ins per address (IPv6 /64)              | 20 a minute (D45)                                       | `addressLimit.ts`  |
-| Sign-ins per login and address               | 5 per 15 minutes                                        | `localRoutes.ts`   |
+| Sign-in tries per address (the brake, first) | 20 per 15 minutes (D48)                                 | `localRoutes.ts`   |
+| Sign-in tries per login and address (brake)  | 5 per 15 minutes (D48)                                  | `localRoutes.ts`   |
+| Sign-ins per address (IPv6 /64), behind both | 20 a minute (D45)                                       | `addressLimit.ts`  |
 | Claims per address                           | 300 a minute (D45)                                      | `addressLimit.ts`  |
 | Claims per player                            | 20 a minute (D37)                                       | `showRoutes.ts`    |
 | Registrations per address                    | 5 an hour; mails per e-mail 3 an hour, again 1 a minute | `registerRoute.ts` |

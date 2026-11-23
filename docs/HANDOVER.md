@@ -16,7 +16,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
 - **Repository:** `weudlll-cyber/seasonal-cases` (public). Master is protected (checks `verify`,
   `security`, `docs` and, since 2026-11-22, `e2e` (D38); a pull request; no force push, no
   deletion). Kit `v0.5.0` on master
-  (D15), `v0.11.0` on `proto/cases-v1` since 2026-11-23 (D40; `v0.8.0` before, D18).
+  (D15), `v0.11.1` on `proto/cases-v1` since 2026-11-23 (D47; `v0.11.0` earlier that day,
+  D40; `v0.8.0` before, D18).
 - **On `proto/cases-v1`:**
   - the contracts;
   - the domain:
@@ -100,10 +101,14 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   budgets); the six-project browser matrix 36 of 36 under load; a fourth independent review and
   its fixes; 66 pictures in `.local/screens/proto-v5/`; version `1.0.0-rc.3`.
 
-- **Kit:** `kit: pinned v0.11.0, newest v0.11.1, 1 release behind` (`pnpm kit:check`,
-  2026-11-23, SC-D5 piece 2). v0.11.1 (same day) widens the kit's peer ranges and changes its own
-  Renovate rules; its migration note says nothing to do for Cases. The pin moves only on the
-  owner's word.
+- **Night chain SC-N6 (running, 2026-11-23):** piece 1 done: kit v0.11.1 (D47), sign-in's
+  brake against guessing back in front of the cap (D48), "Unclaimed" whole on the phone, D42–D45
+  confirmed (D46). Next: the case that really opens (D49), the showcase page `/dev/opening`, the
+  pictures, a review. State per piece in [NIGHT-RUN.md](NIGHT-RUN.md).
+
+- **Kit:** `kit: pinned v0.11.1, newest v0.11.1, current` (`pnpm kit:check`, 2026-11-23, SC-N6
+  piece 1). v0.11.1 widens the kit's peer ranges and changes its own Renovate rules; nothing in
+  Cases changed with it. The pin moves only on the owner's word.
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
 
@@ -172,14 +177,21 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   `C:\Users\weudl\seasonal-cases-2`) would let future night chains run independent pieces in
   parallel; tonight's permissions cover this folder only.
 
-- **The four proposals of 2026-11-23, built and standing until the owner says otherwise**
-  (D42–D45, answering the third review's questions):
+- **The four decisions of 2026-11-23, proposals until the owner confirmed them** (D42–D45,
+  confirmed by D46):
   - registration makes the account only once the mail's confirmation link is used (24 h, once);
   - an account name contains at least one letter;
   - applause is limited per account for signed-in users and per address for guests, and guests
     may applaud;
-  - separate address budgets: sign-ins 20 a minute, claims 300 a minute. The sign-in's old
-    limit of 20 per 15 minutes per address went with it (a room could not all sign in).
+  - separate address budgets: sign-ins 20 a minute, claims 300 a minute; in front of the
+    sign-ins' cap the brake against guessing is back (D48): 20 tries per 15 minutes per
+    address, 5 per login and address.
+  - Open with D48: for one address the brake (20 per 15 minutes, every try) is always stricter
+    than the cap (20 a minute), so the cap never answers first, and a room of more than 20
+    people behind one address cannot all sign in within 15 minutes (the reason D45 dropped the
+    brake). Counting only failed tries would need a limiter that looks before it takes, which
+    the kit's RateLimiter does not offer. Built as the task says, the effect is the owner's
+    to weigh.
 
 - **Where this repository departs from the kit's HANDBOOK (v0.11.0)**, read once on
   2026-11-23; nothing changed for them:

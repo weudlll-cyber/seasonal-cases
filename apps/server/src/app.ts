@@ -42,7 +42,12 @@ import Fastify, { LogController, type FastifyInstance } from 'fastify';
 import { Server } from 'socket.io';
 
 import { accountRoutes } from './accountRoutes.js';
-import { addressLimit, CLAIM_ADDRESS_LIMIT, SIGN_IN_ADDRESS_LIMIT } from './addressLimit.js';
+import {
+  addressLimit,
+  CLAIM_ADDRESS_LIMIT,
+  SIGN_IN_ADDRESS_LIMIT,
+  type AddressLimit,
+} from './addressLimit.js';
 import { memoryCursor, startFeed, type CursorStore } from './auth/accountFeed.js';
 import { Directory, memoryAccounts, type AccountStore } from './auth/accounts.js';
 import { memoryCredentials, type CredentialStore } from './auth/credentials.js';
@@ -89,6 +94,8 @@ export interface Stores {
   readonly probe?: Probe;
   // The outgoing mail; by default SMTP from the settings, or none.
   readonly mailer?: Mailer | null;
+  // The sign-ins' cap per address; by default 20 a minute (D45). Tests count what reaches it.
+  readonly signInCap?: AddressLimit;
 }
 
 export interface BuiltServer {
@@ -156,7 +163,7 @@ async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Pro
   const { config } = root;
   const mailer = stores.mailer ?? (config.smtp === null ? null : smtpMailer(config.smtp));
   // A budget per address for sign-ins and one for claims, each its own (D45).
-  const signIns = addressLimit(SIGN_IN_ADDRESS_LIMIT);
+  const signIns = stores.signInCap ?? addressLimit(SIGN_IN_ADDRESS_LIMIT);
   const claims = addressLimit(CLAIM_ADDRESS_LIMIT);
   const local = {
     credentials: stores.credentials ?? memoryCredentials(),

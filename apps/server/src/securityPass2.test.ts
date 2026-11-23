@@ -1,12 +1,12 @@
 /**
  * @file   apps/server/src/securityPass2.test.ts
  * @brief  Tests the fixes of docs/security-pass.md's second pass (the numbers are its findings'):
- *         the limits on watching and claiming, the address budget of claims and sign-ins (D37),
- *         and a socket that follows its session.
+ *         the limits on watching and claiming, the address budget of claims beside sign-ins'
+ *         (D45; sign-in's own limits: ./signInBrake.test.ts), and a socket that follows its session.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { CLAIM_ADDRESS_LIMIT, SIGN_IN_ADDRESS_LIMIT } from './addressLimit.js';
+import { CLAIM_ADDRESS_LIMIT } from './addressLimit.js';
 import { send, startHarness, type Harness } from './testing/harness.js';
 
 let harness: Harness | undefined;
@@ -103,24 +103,6 @@ describe('the address budgets (D45)', () => {
       payload: { login: 'nobody', password: 'whatever it is' },
     });
     expect(signIn.statusCode).toBe(401);
-    vi.useRealTimers();
-  });
-
-  it('stops the 21st sign-in in a minute from one address, whatever the login', async () => {
-    vi.useFakeTimers({ toFake: ['Date'] });
-    const h = await startHarness();
-    harness = h;
-    const codes: number[] = [];
-    for (let i = 0; i <= SIGN_IN_ADDRESS_LIMIT; i += 1) {
-      const answer = await h.server.app.inject({
-        method: 'POST',
-        url: '/api/auth/sign-in',
-        payload: { login: `nobody${String(i)}`, password: 'whatever it is' },
-      });
-      codes.push(answer.statusCode);
-    }
-    expect(codes.slice(0, SIGN_IN_ADDRESS_LIMIT).every((c) => c === 401)).toBe(true);
-    expect(codes[SIGN_IN_ADDRESS_LIMIT]).toBe(429);
     vi.useRealTimers();
   });
 });
