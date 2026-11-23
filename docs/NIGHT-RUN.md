@@ -10,20 +10,62 @@ continued; nothing merged.
 
 ### Final report
 
-The chain is running; this report is written at its end.
+All four pieces are done and pushed on `proto/cases-v1`; nothing is merged. The version stays
+`1.0.0-rc.3`.
+
+**Done:**
+
+1. **Kit v0.11.1, the brake, the phone label** (D46–D48):
+   - the kit is on v0.11.1 and `pnpm kit:check` says current; no part Cases uses changed;
+   - the brake against guessing is back in front of the password check and before the cap counts
+     (`signInBrake.test.ts`);
+   - "Unclaimed" is whole at 360 and 390 px (88 px phone columns);
+   - D42–D45 are decisions now.
+2. **The case that really opens** (D49): `stage/CasePicture.tsx` draws the case in CSS 3D with SVG
+   art (trim, handle, latches, lid on a back hinge, dark lining in the season's colour). It is
+   used by the centre case, the cases on the stage and the ceremony. The opening's phases are
+   named in `motion.ts`. Under reduced motion the open end state shows at once. CONCEPT 1.10 §7.
+3. **`/dev/opening`:** the opening alone, with replay, speed (normal, half, quarter) and season;
+   404 outside development.
+4. **Pictures and review:**
+   - 68 stage pictures in `.local/screens/proto-v5/` (0 findings, now also counting cut labels);
+   - 54 frames of the opening and one under reduced motion in `.local/screens/opening-frames/`,
+     with the phase checks;
+   - a fifth independent review: seven findings, all low; six fixed, one for the owner.
+
+**Checks:** `pnpm verify` green (48 files, 244 tests, kit current); journeys 1–6 in Chromium
+passed; CI green for every pushed commit (ids below).
+
+**Look at first:**
+
+- `.local/screens/opening-frames/` (000 → 100, PC and phones, both themes);
+- `open-*` and `ceremony-*` in `proto-v5`;
+- `/dev/opening` on the running dev server (quarter speed shows each phase).
+
+**Needs your word:**
+
+- D48 as built: every try counts, so for one address the brake is always stricter than the cap,
+  and a room of more than 20 behind one address waits up to 15 minutes to sign in.
+- The review's finding 6: whether a screen reader still announces the risen artifact's name. It
+  is inserted hidden until 55 % and only shown later; not tested with NVDA here.
+- On 1280 × 720 and 1536 × 768 the risen artifact covers part of the inner row's two middle,
+  dimmed cases.
+
+**Left alone:** the kit bar's "3 prizes left" is cut on a 390 px phone (the kit's `GameBar`).
 
 ### State
 
-| Done                                                                                                                    | Running                                 | Open | Needs the owner's word                                      |
-| ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ---- | ----------------------------------------------------------- |
-| Piece 1: kit v0.11.1, the brake, "Unclaimed" on the phone; piece 2: the case that really opens; piece 3: `/dev/opening` | Piece 4: the opening's frames, a review | —    | D48's brake makes the cap redundant for one address (below) |
+| Done       | Running | Open | Needs the owner's word                                                                         |
+| ---------- | ------- | ---- | ---------------------------------------------------------------------------------------------- |
+| Pieces 1–4 | —       | —    | D48's effect on a room behind one address; the review's finding 6; the inner row at 1280 × 720 |
 
 ### Pieces
 
 | Piece | What                                                                                                                                                                                                                             | Commit        | CI run             |
 | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------ |
 | 1     | Kit v0.11.1 (D47); sign-in's brake (D48); "Unclaimed" whole at 360 and 390 px; D46                                                                                                                                               | `1c9e32a`     | 45242757137, green |
-| 2, 3  | The case that really opens (D49): `CasePicture.tsx`, `case.css`, `caseOpening.css`, the phases in `motion.ts`, centre, stage and ceremony; `/dev/opening` (404 outside development); one commit, as both are wired in `main.tsx` | (this commit) | (next entry)       |
+| 2, 3  | The case that really opens (D49): `CasePicture.tsx`, `case.css`, `caseOpening.css`, the phases in `motion.ts`, centre, stage and ceremony; `/dev/opening` (404 outside development); one commit, as both are wired in `main.tsx` | `d78d230`     | 45252285613, green |
+| 4     | The opening's frames (`e2e/openingFrames.spec.ts`); the fifth review's fixes                                                                                                                                                     | (this commit) | (next entry)       |
 
 ### Choices made without the owner
 
@@ -63,6 +105,12 @@ The chain is running; this report is written at its end.
   token now, its number on the front, the owner's name below.
 - **The ceremony** opens each winner's case as it comes (the same opening); the winners before
   keep their small gem.
+- **The fifth review (piece 4):** seven low findings. Fixed: D48 cited in place of D46 in the
+  sign-in code; a test comment about the refill; the reduced-motion check now proves the lid is
+  open (its matrix); the unused `--open-ms` and `--close-ms` variables removed; the open-state
+  selectors scoped to `.case-picture`; the cases on the stage keep the same room above closed
+  and open, so an opened case no longer sits lower on the arc. For the owner: finding 6 (a
+  screen reader and the risen artifact).
 - **On a wide, short PC window (1280 × 720, 1536 × 768)** the front case is smaller (`--cw` 160 at
   fit 1), but the risen artifact still covers part of the inner row's two middle cases, which are
   dimmed at that moment. Left as it is for the owner to see in the pictures.

@@ -6,7 +6,7 @@
  * Responsibility: DECISIONS D45 (in place of D37's one shared 60). The kit's RateLimiter, keyed
  *                 by ./addressKey.ts (IPv4 address, IPv6 /64), checked beside each route's own
  *                 limits (20 claims a minute per player; sign-in's brake against guessing in
- *                 front of its cap, D46, ./localRoutes.ts), so many accounts from one network
+ *                 front of its cap, D48, ./localRoutes.ts), so many accounts from one network
  *                 cannot add their allowances up. Claims and sign-ins each have their own
  *                 budget, and the one never uses up the other. One of each per server
  *                 (./app.ts); a refusal is 429 with one sentence.

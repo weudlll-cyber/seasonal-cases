@@ -13,35 +13,35 @@
  */
 
 /* Opened: the end state. The opening's keyframes start from the closed case. */
-.is-opening .cp-latch,
-.is-open .cp-latch {
+.case-picture.is-opening .cp-latch,
+.case-picture.is-open .cp-latch {
   transform: rotateX(-150deg);
 }
 
-.is-opening .cp-lid,
-.is-open .cp-lid {
+.case-picture.is-opening .cp-lid,
+.case-picture.is-open .cp-lid {
   transform: translateZ(calc(var(--cd) / -2)) rotateX(calc(90deg + var(--lid-open-deg, 105deg)));
 }
 
-.is-opening .cp-glow,
-.is-open .cp-glow {
+.case-picture.is-opening .cp-glow,
+.case-picture.is-open .cp-glow {
   opacity: 1;
 }
 
-.is-opening .cp-latch {
+.case-picture.is-opening .cp-latch {
   animation: cp-latch var(--latches-ms, 160ms) ease-in var(--latches-delay, 0ms) backwards;
 }
 
-.is-opening .cp-lid {
+.case-picture.is-opening .cp-lid {
   animation: cp-lid-open var(--lid-ms, 960ms) var(--ease-out) var(--lid-delay, 160ms) backwards;
 }
 
-.is-opening .cp-glow {
+.case-picture.is-opening .cp-glow {
   animation: cp-glow var(--glow-ms, 1120ms) var(--ease-out) var(--glow-delay, 480ms) backwards;
 }
 
 /* Nothing of the artifact shows before its phase begins (55 %). */
-.is-opening .cp-content {
+.case-picture.is-opening .cp-content {
   animation: cp-rise var(--artifact-ms, 720ms) var(--ease-out) var(--artifact-delay, 880ms)
     backwards;
 }

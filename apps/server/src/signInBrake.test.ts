@@ -1,6 +1,6 @@
 /**
  * @file   apps/server/src/signInBrake.test.ts
- * @brief  Tests sign-in's two limits (DECISIONS D45, D46): the brake against guessing, 20 tries
+ * @brief  Tests sign-in's two limits (DECISIONS D45, D48): the brake against guessing, 20 tries
  *         per 15 minutes per address, and the cap of 20 a minute per address behind it; the
  *         brake answers before the cap counts.
  */
@@ -33,7 +33,7 @@ async function tries(h: Harness, count: number, from = 0) {
   return answers;
 }
 
-describe('the brake against guessing (D46)', () => {
+describe('the brake against guessing (D48)', () => {
   it('refuses the 21st try from one address in 15 minutes, whatever the login', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     const h = await startHarness();
@@ -41,7 +41,7 @@ describe('the brake against guessing (D46)', () => {
     const first = await tries(h, 21);
     expect(first.slice(0, 20).every((a) => a.code === 401)).toBe(true);
     expect(first[20]).toEqual({ code: 429, error: BRAKE_TEXT });
-    // A minute refills the cap but not the brake: a guesser waits, not just for the minute.
+    // A minute refills the cap fully, the brake by one try only (it refills evenly over 15).
     vi.setSystemTime(Date.now() + 60_000);
     expect((await tries(h, 2, 21)).map((a) => a.code)).toEqual([401, 429]);
     // After its whole window the brake is full again.

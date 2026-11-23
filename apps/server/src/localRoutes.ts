@@ -8,7 +8,7 @@
  *                 - Sign-in by name or e-mail; a wrong name and a wrong password answer the same
  *                   and take as long (the dummy hash). An admin with two-factor sign-in gets
  *                   `{ twoFactor: true }` until a TOTP or recovery code comes with the password.
- *                   Limits, in this order: the brake against guessing (DECISIONS D46, Mini
+ *                   Limits, in this order: the brake against guessing (DECISIONS D48, Mini
  *                   Games' rule with the kit's RateLimiter: 20 tries per 15 minutes per
  *                   address, 5 per login and address), then the sign-ins' cap per address,
  *                   20 a minute (./addressLimit.ts, D45). A try the brake refuses never counts
@@ -111,7 +111,7 @@ async function secondFactorMissing(
 // Sign in.
 function entryRoutes(ctx: Ctx, { credentials, perAddress }: LocalAccounts): void {
   const { app, auth } = ctx;
-  // The brake against guessing (D46): Mini Games' loginIp and loginAccountIp rules.
+  // The brake against guessing (D48): Mini Games' loginIp and loginAccountIp rules.
   const brakeAddress = new RateLimiter({ limit: 20, windowMs: 15 * MINUTE });
   const perLogin = new RateLimiter({ limit: 5, windowMs: 15 * MINUTE });
   const perAccount = new RateLimiter({ limit: 10, windowMs: 15 * MINUTE });

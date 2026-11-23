@@ -101,11 +101,12 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   budgets); the six-project browser matrix 36 of 36 under load; a fourth independent review and
   its fixes; 66 pictures in `.local/screens/proto-v5/`; version `1.0.0-rc.3`.
 
-- **Night chain SC-N6 (running, 2026-11-23):** piece 1 done: kit v0.11.1 (D47), sign-in's
-  brake against guessing back in front of the cap (D48), "Unclaimed" whole on the phone, D42–D45
-  confirmed (D46). Pieces 2 and 3 done: the case that really opens (D49, `stage/CasePicture.tsx`,
-  the phases in `stage/motion.ts`) and the showcase page `/dev/opening` (development only). Next:
-  the opening's frames as pictures, a review. State per piece in [NIGHT-RUN.md](NIGHT-RUN.md).
+- **Night chain SC-N6 (done, 2026-11-23):** kit v0.11.1 (D47), sign-in's brake against
+  guessing in front of the cap (D48), "Unclaimed" whole on the phone, D42–D45 confirmed (D46);
+  the case that really opens (D49, `stage/CasePicture.tsx`, the phases in `stage/motion.ts`);
+  `/dev/opening` (development only); the opening's frames in `.local/screens/opening-frames/`; a
+  fifth independent review, six of seven low findings fixed. Final report in
+  [NIGHT-RUN.md](NIGHT-RUN.md).
 
 - **Kit:** `kit: pinned v0.11.1, newest v0.11.1, current` (`pnpm kit:check`, 2026-11-23, SC-N6
   piece 1). v0.11.1 widens the kit's peer ranges and changes its own Renovate rules; nothing in
@@ -187,6 +188,8 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   - separate address budgets: sign-ins 20 a minute, claims 300 a minute; in front of the
     sign-ins' cap the brake against guessing is back (D48): 20 tries per 15 minutes per
     address, 5 per login and address.
+  - A screen reader and the risen artifact (fifth review, finding 6): the artifact is inserted
+    hidden until 55 % of the opening; whether NVDA still announces its name is untested.
   - Open with D48: for one address the brake (20 per 15 minutes, every try) is always stricter
     than the cap (20 a minute), so the cap never answers first, and a room of more than 20
     people behind one address cannot all sign in within 15 minutes (the reason D45 dropped the

@@ -81,8 +81,6 @@ export function motionVars(motion: StageMotion = STAGE_MOTION): CSSProperties {
   return {
     '--travel-ms': ms(motion.travelMs),
     '--travel-ease': motion.travelEase,
-    '--open-ms': ms(motion.openMs),
-    '--close-ms': ms(motion.closeMs),
     '--lid-open-deg': `${String(LID_OPEN_DEG)}deg`,
     ...phaseVars(motion.openMs),
   } as CSSProperties;

@@ -30,8 +30,6 @@ describe('the motion settings', () => {
     expect(motionVars()).toMatchObject({
       '--travel-ms': '800ms',
       '--travel-ease': 'ease-in-out',
-      '--open-ms': '1600ms',
-      '--close-ms': '300ms',
       '--lid-open-deg': '105deg',
       '--lid-delay': '160ms',
       '--lid-ms': '960ms',
@@ -40,7 +38,7 @@ describe('the motion settings', () => {
       <Stage show={liveView('idle')} organiser={null} me={ANA} direct={direct} />,
     );
     const root = container.querySelector<HTMLElement>('.stage-screen');
-    expect(root?.style.getPropertyValue('--open-ms')).toBe('1600ms');
+    expect(root?.style.getPropertyValue('--lid-ms')).toBe('960ms');
   });
 });
 

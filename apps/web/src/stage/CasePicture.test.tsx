@@ -82,11 +82,10 @@ describe('reduced motion (the kit switches every animation off)', () => {
 
   it('leaves the end state as the base style, so the open case shows at once', () => {
     for (const [part, keyframes, property] of PARTS) {
-      const end = new RegExp(
-        `\\.is-opening \\.${part},\\s*\\.is-open \\.${part} \\{[^}]*${property}:`,
-      );
-      expect(CSS).toMatch(end);
-      expect(CSS).toMatch(new RegExp(`\\.is-opening \\.${part} \\{\\s*animation: ${keyframes} `));
+      const opening = `\\.case-picture\\.is-opening \\.${part}`;
+      const open = `\\.case-picture\\.is-open \\.${part}`;
+      expect(CSS).toMatch(new RegExp(`${opening},\\s*${open} \\{[^}]*${property}:`));
+      expect(CSS).toMatch(new RegExp(`${opening} \\{\\s*animation: ${keyframes} `));
     }
   });
 

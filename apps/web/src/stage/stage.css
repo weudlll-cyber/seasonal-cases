@@ -177,12 +177,19 @@ button.case-body:focus-visible {
   white-space: nowrap;
 }
 
-/* The case's picture (./case.css) fills the token; its glow is the token's season colour. */
+/* The case's picture (./case.css) fills the token; its glow is the token's season colour. The
+   room above is the same closed and open, so opening a case does not move it on the arc. */
 .case-token .case-picture {
   --cw: calc(max(62px, calc(var(--fit, 1) * var(--token, 80px))) - 8px);
   filter: drop-shadow(
     0 0 calc(var(--fit, 1) * 6px) color-mix(in srgb, var(--glow) 55%, transparent)
   );
+}
+
+/* Named with the open state, so it outranks ./case.css's own room for an open case. */
+.case-token .case-picture,
+.case-token .case-picture.is-open {
+  --above: calc(var(--cw) * 0.44);
 }
 
 /* An opened case: the lid stands open, the artifact's gem sits inside. */

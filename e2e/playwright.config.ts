@@ -10,7 +10,8 @@
  *                 (`chromium-mobile`, `firefox`, `firefox-mobile`, `webkit`, `webkit-mobile`,
  *                 nightly in browsers.yml). The project
  *                 `screens` takes the pictures of CONCEPT §7's check sizes into
- *                 .local/screens/proto-v4/ and runs only when named.
+ *                 .local/screens/proto-v5/ and the opening's frames into
+ *                 .local/screens/opening-frames/, and runs only when named.
  * Depends on:     @playwright/test, ./server.ts, ./websiteServer.ts, ./websiteStub.ts, apps/web
  */
 import { defineConfig, devices } from '@playwright/test';
@@ -98,7 +99,7 @@ export default defineConfig({
     },
     {
       name: 'screens',
-      testMatch: /screens\.spec\.ts/,
+      testMatch: /(screens|openingFrames)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
   ],
