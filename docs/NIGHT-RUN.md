@@ -10,7 +10,41 @@ and the largest text, privacy, the four kit parts, the production bundle and the
 
 ### Final report
 
-The chain is running; this report is written at its end.
+**Done (2026-11-25):** pieces 1 to 5b on `kit/v0.17-adoption`, draft PR #5, version `1.1.0-rc.1`,
+nothing merged, nothing tagged. Code head `34de4cd` (this report's commit follows it). Health of the
+dev server on this branch: `{"ok":true,"mode":"local","version":"1.1.0-rc.1","db":"ok"}`, client 200
+(migration 0004 applied).
+
+Raw `gh pr checks 5` (the last row, `docs pending 6s`, is a stale roll-up entry: that job's run is
+`completed success`, see the run list):
+
+```
+CodeQL pass / analyze pass / deploy pass / docs pass / e2e pass / security pass x2 / verify pass x2
+docs pending (stale, run 45511413660 is completed success) / deploy pass / e2e pass
+```
+
+Raw `gh run list --branch kit/v0.17-adoption --limit 10` (newest first): 45511425913 CodeQL success,
+45511426705 CI success (PR, head), 45511413660 CI success (push, head), 45508491954 CI success,
+45508491959 CodeQL success, 45508479589 CI success, 45507612630 CodeQL success, **45507612540 CI
+failure** (piece 5, journey 4: the e2e stand-in's crash, fixed in `cbd9804`), 45507603521 CI success,
+45506313824 CodeQL success. The two earlier reds of this chain (piece 3's installer `write_state`,
+piece 5's stand-in) were each fixed at their cause before the next piece.
+
+**Needs the owner's hand:** the GitHub settings (RELEASING.md has the read-back and the six commands;
+every write was refused in this session). **Needs the owner's word:** the real privacy contact text
+(`SC_PRIVACY_CONTACT`) and a legal look at the privacy page before real players; BACKLOG 67 (the
+opening showcase page still ships in the production bundle); BACKLOG 64 (waits for the VPS).
+**Noticed, left:** the Menu button over the brand at 360 px / 200 % font (piece 5b); the task text
+broke off in piece 5, so no later piece was built.
+
+Lines before to after, per piece, in `git diff --numstat 173131d HEAD`: 96 files, +2727 -374. Biggest
+new: `AccountPage.tsx` 182, `accountDataRoutes.ts` 127, `PrivacyPage.tsx` 96, `erasure.ts` 67,
+`seasonSource.ts` 63, `guardedFetch.ts` 75, `headerSteps.spec.ts` 113; changed: `App.tsx` 160 to
+about 200, `Admin.tsx` 165 to 178, `SetupForm.tsx` 190 to 163, `screens.css` 308 to 291, `shell.css`
++23. Removed: the `docked` helper and `data-docked`, `Session.signIn`, the seed and button from
+`SetupForm`. Moved to the kit: the back link, the season feed reader, `afterFonts`, `withoutChat`, the
+header's step badges. Reused: `RateLimiter`, `useAction`, `TextField`, `DevBoundary`, the kit's
+`seasonFeedReader`, `AppHeader`.
 
 ### State
 
@@ -27,7 +61,7 @@ The chain is running; this report is written at its end.
 | 3     | Privacy (D61): `/account` (download, delete), `/privacy`, the erasure (`auth/erasure.ts`, `domain/redact.ts`, `ShowService.forget`), `SC_PRIVACY_CONTACT`, 14 days of logs in the installer           | `b226479`, `855a394` | 45504335501 (red: the installer's `write_state`), 45504821858 green                        |
 | 4     | The four kit parts (D62): `back` in `FocusBar`, `seasonSource.ts` + `guardedFetch.ts`, `afterFonts` on the stage and the board, `DockedScreen` `withoutChat`                                          | `60990cf`            | 45506301454, 45506313843 green                                                             |
 | 5     | The production bundle and the mail links (D63): the dev form, "Dev sign-in" menu, Quick Test and "Fill with bots" behind the build-time flag; `pnpm bundle:check`; tokens after `#`                   | `283b298`, `cbd9804` | 45507603521 push green, 45507612540 PR e2e red (stub), then 45508479589, 45508491954 green |
-| 5b    | Kit v0.19.0 and the header's step badges (D65): the pin, `Account.steps` / `Me.steps` (migration 0004), `account.steps` in `ShellBar`, the chip wrapped in the folded menu, `e2e/headerSteps.spec.ts` | (this commit)        | (next entry)                                                                               |
+| 5b    | Kit v0.19.0 and the header's step badges (D65): the pin, `Account.steps` / `Me.steps` (migration 0004), `account.steps` in `ShellBar`, the chip wrapped in the folded menu, `e2e/headerSteps.spec.ts` | `34de4cd`            | 45511413660 push, 45511426705 PR, both green                                               |
 
 ### Choices made without the owner
 
