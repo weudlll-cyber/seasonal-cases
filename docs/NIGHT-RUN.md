@@ -11,21 +11,49 @@ the kit's handbook. Branch `kit/v0.17-adoption` from master `073f9ad` (v1.0.0), 
 
 ### Final report
 
-The chain is running; this report is written at its end.
+All four pieces are done and pushed on `kit/v0.17-adoption`; the draft PR is #5; nothing is
+merged and nothing is tagged. Version `1.1.0-rc.1`. The raw `gh pr checks` and `gh run list`
+output is in the chat report of the chain.
+
+**Done:**
+
+1. **Kit v0.17.0 and the migrations of 0.12.0–0.17.0** (D56, D57): the 49 tokens are `--sk-…`;
+   "Applaud" is the kit's press button and the Chat button the kit's hook (through a bridge, since
+   the bar sits above the dock); the kit's `FailureBrake` under sign-in's three keys; the
+   stand-ins and `packages/ui/src/pending/` are gone; BACKLOG 41, 43 and 49 closed.
+2. **The kit's `AppHeader`** (D58) with its folded Menu in place of the wrapping one, the dev
+   tools in a development build only.
+3. **The game against the kit's handbook:** the replacements that keep the look, and the rest as
+   an open list (BACKLOG 58–65).
+4. **The checks, the play-through and the pictures:** `verify`, `security`, `docs` and `e2e` green
+   on the draft PR after one fix (below); a whole show played on the dev stack; 132 pictures.
+
+**A correction of my own:** "3 prizes left" on the phone was never cut (BACKLOG 57), and the
+merge of the release left a stray `|||||||` block in HANDOVER and DECISIONS on master (removed
+here).
+
+**Running for the owner:** the dev server (127.0.0.1:3970) and client (http://localhost:5470, the
+phone http://192.168.0.66:5470) on this branch, PostgreSQL and Mailpit; Quick Test seed
+`sc-n1-01`.
+
+**Look at first:** the header (the Menu on a phone), the game bar's Applaud and Chat buttons, the
+two rows of the phone bar with the chat button (BACKLOG 65), and `.local/screens/sc-n7/` with the
+`-font200` pictures (BACKLOG 66).
 
 ### State
 
-| Done                                                                          | Running                                    | Open   | Needs the owner's word                                                                                                                                                              |
-| ----------------------------------------------------------------------------- | ------------------------------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Pieces 1–3: kit v0.17.0; the kit's `AppHeader`; the game against the handbook | Piece 4: play-through, pictures, hand-over | (none) | BACKLOG 58–65: privacy, the GitHub settings, kit parts with a visible change, dev tools in the bundle, link tokens, coverage, before production, the phone bar; the header's badges |
+| Done       | Running | Open   | Needs the owner's word                                                                                                                                                                                                             |
+| ---------- | ------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pieces 1–4 | (none)  | (none) | BACKLOG 58–66: privacy, the GitHub settings, kit parts with a visible change, dev tools in the bundle, link tokens, coverage, before production, the phone bar, the phone at its largest text; the header's missing website badges |
 
 ### Pieces
 
-| Piece | What                                                                                                                                  | Commit        | CI run       |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ |
-| 1     | Kit v0.17.0 (D56): tokens `--sk-…`, `presses`, `useOpenDockChat`, the kit's `FailureBrake` (D57), `pending/` gone, version 1.1.0-rc.1 | `dfdfbc1`     | (below)      |
-| 2     | The kit's `AppHeader` (D56, D58): `ShellBar.tsx`, `DevTools.tsx`, header.css, the Menu fold; journeys on the kit's test ids           | `d3b2b33`     | (below)      |
-| 3     | The game against the kit's handbook: the replacements that keep the look, the list (BACKLOG 58–65)                                    | (this commit) | (next entry) |
+| Piece | What                                                                                                                                  | Commit                            | CI run                                                                                |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------- |
+| 1     | Kit v0.17.0 (D56): tokens `--sk-…`, `presses`, `useOpenDockChat`, the kit's `FailureBrake` (D57), `pending/` gone, version 1.1.0-rc.1 | `dfdfbc1`                         | (below)                                                                               |
+| 2     | The kit's `AppHeader` (D56, D58): `ShellBar.tsx`, `DevTools.tsx`, header.css, the Menu fold; journeys on the kit's test ids           | `d3b2b33`                         | (below)                                                                               |
+| 3     | The game against the kit's handbook: the replacements that keep the look, the list (BACKLOG 58–65)                                    | `9c4770e`                         | 45477786449 push, 45477801145 pull request: `e2e` red (below)                         |
+| 4     | The e2e fix (`DevBoundary`, the Vite cache and `optimizeDeps`); the play-through; the pictures; the final report                      | `01a9c28` and the commit after it | 45480501571 push, 45480514499 pull request: `verify`, `security`, `docs`, `e2e` green |
 
 ### Choices made without the owner
 
@@ -91,6 +119,19 @@ The chain is running; this report is written at its end.
   hid it, and a cold start with a shared cache did not reproduce it here. Fixed three ways: the
   quick tools sit in an error boundary (`DevBoundary`), `optimizeDeps.include` names the kit's
   dev module, and each mode's dev server has its own cache folder. The next run is the check.
+- **The play-through** (a script of assertions, `.local/tools/playthrough.ts`, not a picture
+  review): Quick Test seed `sc-n1-01`, Begin, three openings (the main prize and two cases without
+  a prize: Open, Owner, Back to stage), "End show" early with its question naming two hidden
+  prizes, the ceremony, the result page with the commitment verified, a local account registered
+  through Mailpit's confirmation link and signed in. It found nothing in the game. Two things of
+  mine: my bar probe had left two live Quick Test shows in the dev database (with them live the
+  stage prefers them to a show that has ended), and the first run of the script had a locator
+  that the dock's chat made ambiguous. Both fixed; **everything this session made on the dev
+  stack was deleted again** (ten accounts, five shows' events, two mails), each by an explicit id
+  or time window, after listing it; the older shows and accounts are as they were.
+- **The pictures** (`.local/screens/sc-n7/`, not opened): four sizes in both themes, the phone
+  sizes again at a 200 % root font. The measurements: none at the four normal sizes; at 200 %
+  the sideways overflow and the cut labels of BACKLOG 66.
 - **The eviction test** of sign-in's brake now covers the kit's rule (a full map refuses a new key
   and keeps every held count): D57.
 

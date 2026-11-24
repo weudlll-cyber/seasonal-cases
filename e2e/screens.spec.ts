@@ -1,17 +1,17 @@
 /**
  * @file   e2e/screens.spec.ts
  * @brief  The pictures for the owner and the planning chat: ten screens at 1536 × 768,
- *         1280 × 720 and 390 × 844, light and dark, into .local/screens/proto-v5/ (never into
- *         git).
+ *         1280 × 720, 390 × 844 and 360 × 780, light and dark, and the phone sizes again with a
+ *         200 % root font (a phone set to its largest text), into .local/screens/sc-n7/ (never
+ *         into git).
  *
  * Responsibility: delete the topic's previous pictures, then shoot the sign-in (the start page
  *                 for a guest), the registration's pending page (its mail is deleted from
  *                 Mailpit again), the start page with its registration board, the opening, the
  *                 stage at "selected", "open" and "owner" on the main prize (and the phone's
  *                 direction panel), the early-end question, the result, the ceremony of a show
- *                 nobody claimed a case in (every prize "not won"; also at 360 × 780, where the
- *                 cases' owner labels are tightest) and the admin's settings, at every size in
- *                 both themes. Beside each picture it measures the smallest visible text, whether
+ *                 nobody claimed a case in (every prize "not won") and the admin's settings, at
+ *                 every size in both themes. Beside each picture it measures the smallest visible text, whether
  *                 the page overflows sideways, how many labels are cut with an ellipsis and
  *                 whether a risen artifact stands off its case's centre (D50), and writes all
  *                 findings to `checks.json`. Runs only as the project `screens`.
@@ -24,15 +24,16 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import { boardCase, openShow, quickTestSealing, signInApi } from './helpers.js';
 
-const DIR = fileURLToPath(new URL('../.local/screens/proto-v5/', import.meta.url));
-// The sizes of night chains SC-N3 piece 8 and SC-N4 piece 7: two PCs and a phone.
+const DIR = fileURLToPath(new URL('../.local/screens/sc-n7/', import.meta.url));
+// The sizes of CONCEPT §7: two PCs and two phones, the smaller one the tightest for labels.
 const SIZES = [
   [1536, 768],
   [1280, 720],
   [390, 844],
+  [360, 780],
 ] as const;
-// The smallest phone of CONCEPT §7, for the pictures whose labels are tightest.
-const SMALL_PHONE = [360, 780] as const;
+// Under this width a size is a phone, and is shot again with a large root font.
+const PHONE_WIDTH = 700;
 type Size = readonly [number, number];
 const THEMES = ['light', 'dark'] as const;
 const FLOOR = 14;
@@ -92,20 +93,38 @@ async function shootEarlyEnd(page: Page): Promise<void> {
     for (const [width, height] of SIZES) {
       await page.setViewportSize({ width, height });
       await page.waitForTimeout(350);
-      const phone = width < 700;
+      const phone = width < PHONE_WIDTH;
       if (phone) await page.getByRole('button', { name: 'Direction', exact: true }).click();
       const bar = page.getByRole('navigation', { name: 'Direction' });
       await bar.getByRole('button', { name: 'End show' }).click();
       await expect(bar.getByRole('group', { name: 'End the show early?' })).toBeVisible();
-      const file = `early-end-${String(width)}x${String(height)}-${theme}.png`;
-      await page.screenshot({ path: `${DIR}${file}`, animations: 'disabled' });
-      checks.push({ file, ...(await measure(page)) });
+      const file = `early-end-${String(width)}x${String(height)}-${theme}`;
+      await capture(page, `${file}.png`);
+      if (phone) {
+        await rootFont(page, true);
+        await capture(page, `${file}-font200.png`);
+        await rootFont(page, false);
+      }
       await bar.getByRole('button', { name: 'Keep playing' }).click();
       if (phone) await page.keyboard.press('Escape');
     }
   }
   await page.emulateMedia({ colorScheme: 'light' });
   await page.setViewportSize({ width: 1280, height: 720 });
+}
+
+/** The root font at 200 %, as a phone set to its largest text size shows it; and back. */
+async function rootFont(page: Page, large: boolean): Promise<void> {
+  await page.evaluate((on) => {
+    document.documentElement.style.fontSize = on ? '200%' : '';
+  }, large);
+  await page.waitForTimeout(350);
+}
+
+/** One picture, and its measurements into `checks.json`. */
+async function capture(page: Page, file: string): Promise<void> {
+  await page.screenshot({ path: `${DIR}${file}`, animations: 'disabled' });
+  checks.push({ file, ...(await measure(page)) });
 }
 
 /** Deletes the mails Mailpit holds for this address (its API on 127.0.0.1:8570). */
@@ -137,9 +156,14 @@ async function shoot(
       await page.waitForTimeout(350);
       // A part below the fold (the admin's settings) is scrolled into view at every size.
       if (scrollTo !== undefined) await scrollTo.scrollIntoViewIfNeeded();
-      const file = `${name}-${String(width)}x${String(height)}-${theme}.png`;
-      await page.screenshot({ path: `${DIR}${file}`, animations: 'disabled' });
-      checks.push({ file, ...(await measure(page)) });
+      const file = `${name}-${String(width)}x${String(height)}-${theme}`;
+      await capture(page, `${file}.png`);
+      if (width < PHONE_WIDTH) {
+        await rootFont(page, true);
+        if (scrollTo !== undefined) await scrollTo.scrollIntoViewIfNeeded();
+        await capture(page, `${file}-font200.png`);
+        await rootFont(page, false);
+      }
     }
   }
   // Back to a desktop in light, so the next steps find the direction bar under the stage.
@@ -267,7 +291,7 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   // so nothing moves on. 250 ms, not 10: on a loaded machine more passes between the read and the
   // pause, and a pause in the past is refused.
   await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 250);
-  await shoot(page, 'ceremony', undefined, [...SIZES, SMALL_PHONE]);
+  await shoot(page, 'ceremony');
 
   // The admin area with the settings (a development admin needs no second factor).
   await signInApi(page.request, 'Ada', 'admin');

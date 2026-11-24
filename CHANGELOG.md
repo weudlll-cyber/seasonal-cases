@@ -18,6 +18,8 @@ Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before t
   development, "Quick Test" and "Dev sign-in"; on a narrow screen the pages and the account fold
   into one "Menu" button in place of the wrapping menu. The website step badges no longer show in
   the header (they stay on the board, the lower third and the players panel).
+- **The pictures:** `.local/screens/sc-n7/` has four sizes in both themes and the phone sizes again
+  with a 200 % root font; the 200 % ones show sideways overflow on four screens (BACKLOG 66).
 - **A dev tool can no longer take the game down:** the header's lazily loaded quick tools sit in an
   error boundary, the kit's dev menu is named in the dev server's `optimizeDeps`, and each mode's
   dev server has its own dependency cache (the first browser-test run in CI crashed the page: the

@@ -117,12 +117,14 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   (`auth/failureBrake.ts`); a visually hidden polite live region says the opened artifact at the
   Open step; the inner row at 1280 × 720 stays as it is. Version `1.0.0-rc.4`.
 
-- **Night chain SC-N7 (running, 2026-11-24):** branch `kit/v0.17-adoption`, draft PR, version
+- **Night chain SC-N7 (done, 2026-11-24):** branch `kit/v0.17-adoption`, draft PR, version
   `1.1.0-rc.1`, nothing merged or tagged. Piece 1 done: kit v0.17.0 with the migrations of
   0.12.0–0.17.0 (D56, D57), no stand-in left in `packages/ui`. Piece 2 done: the kit's
   `AppHeader` with its folded Menu (D58). Piece 3 done: the game read against the handbook,
   the replacements that keep the look (season colours as the kit's tokens, `sk-visually-hidden`,
-  arena tones as own tokens) and the rest listed (BACKLOG 58–65). Next: the play-through. State per piece in
+  arena tones as own tokens) and the rest listed (BACKLOG 58–65). Piece 4 done: the draft PR's
+  four required checks green, a whole show played, the pictures in `.local/screens/sc-n7/`
+  (BACKLOG 66). State per piece in
   [NIGHT-RUN.md](NIGHT-RUN.md).
 
 - **Task SC-R1 (2026-11-23):** the brake per account and address (D55: 20 failures brake one
@@ -130,8 +132,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   "Working cheaply" (D54) brought in; `proto/cases-v1` merged into master and tagged `v1.0.0`
   ([TAGS.md](TAGS.md)); the branches deleted.
 
-- **Kit:** `kit: pinned v0.17.0, newest v0.17.0, current` (`pnpm kit:check`, 2026-11-24, SC-N7
-  piece 1; master pins v0.11.1 until the merge). The pin moves only on the owner's word.
+- **Kit:** `kit: pinned v0.17.0, newest v0.17.0, current` (`pnpm kit:check`, 2026-11-24, end of
+  SC-N7; master pins v0.11.1 until the merge). The pin moves only on the owner's word.
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
 
@@ -143,7 +145,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   has a rule for the kit's tags once the app is enabled.
 - `pnpm dev`: server 127.0.0.1:3970, client 0.0.0.0:5470 (http://localhost:5470; the phone at
   http://192.168.0.66:5470 on the home Wi-Fi). Left running hidden for the owner at the end of
-  SC-R1 (1.0.0, on master), on PostgreSQL; the development database holds three accounts the chains did not make
+  SC-N7 (1.1.0-rc.1, on `kit/v0.17-adoption`), on PostgreSQL; the development database holds three accounts the chains did not make
   ("Plan-Claude", "Walter", "walter"), left as they are; the play-through steps are in
   [NIGHT-RUN.md](NIGHT-RUN.md) "Final report" (Quick Test seed `sc-n1-01`).
 - The development services: `docker compose --env-file ops/compose.dev.env -f
