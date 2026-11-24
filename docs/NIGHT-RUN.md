@@ -82,6 +82,15 @@ The chain is running; this report is written at its end.
 - **The GitHub settings were only read** (GET), not changed.
 - **A production build was made once** (a few seconds) to run the kit's own bundle check; the
   kit's three dev markers are absent and so are the new header's dev parts.
+- **The first CI run of the branch failed `e2e` (5 of 6 journeys in Chromium),** and the cause was
+  mine: the new header loads the kit's `DevSignIn` lazily in a development build, the e2e client
+  is Vite's dev server on a cold cache (two of them start at once, on one dependency cache), and
+  the trace shows Vite discovering the module late, building a second optimisation with its own
+  copy of React; the kit's hook threw ("Invalid hook call") and, with no error boundary, the page
+  unmounted. Journey 4 (website mode, where the menu is not rendered) passed. My warm local cache
+  hid it, and a cold start with a shared cache did not reproduce it here. Fixed three ways: the
+  quick tools sit in an error boundary (`DevBoundary`), `optimizeDeps.include` names the kit's
+  dev module, and each mode's dev server has its own cache folder. The next run is the check.
 - **The eviction test** of sign-in's brake now covers the kit's rule (a full map refuses a new key
   and keeps every held count): D57.
 

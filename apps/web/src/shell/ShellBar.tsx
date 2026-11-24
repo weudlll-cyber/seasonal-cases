@@ -9,7 +9,8 @@
  *                 the account chip "name (role)" with "Sign out" (a guest: "Sign in", which in
  *                 website mode goes through the website with the kit's `websiteLoginHref` to the
  *                 game's login hop), in development the Quick Test link and the "Dev sign-in"
- *                 menu (./DevTools.tsx, loaded only by a development build), and the theme toggle
+ *                 menu (./DevTools.tsx, loaded only by a development build, each inside an error
+ *                 boundary: ./DevBoundary.tsx), and the theme toggle
  *                 at the far right. When the items do not fit one row, the kit folds the pages and
  *                 the account into one "Menu" button. The kit renders plain anchors; a click on
  *                 one of this game's own pages moves without a reload (the delegated handler
@@ -18,7 +19,7 @@
  *                 takes its place (./FocusBar.tsx).
  * Depends on:     react, @seasonal/kit, @seasonal/kit/react, @sc/contracts (types),
  *                 assets/brand/emblem.webp, ../lib/base.js, ../lib/router.js,
- *                 ./DevTools.js (lazy, development only), ./useShellHeight.js
+ *                 ./DevBoundary.js, ./DevTools.js (lazy, development only), ./useShellHeight.js
  */
 import { websiteLoginHref } from '@seasonal/kit';
 import { AppHeader, type HeaderAccount, type HeaderLink } from '@seasonal/kit/react';
@@ -28,6 +29,7 @@ import { lazy, Suspense, useRef, type MouseEvent, type ReactElement } from 'reac
 import emblem from '../../../../assets/brand/emblem.webp';
 import { appPathOf, BASE, pagePath } from '../lib/base.js';
 import { navigate, type Route } from '../lib/router.js';
+import { DevBoundary } from './DevBoundary.js';
 import { useShellHeight } from './useShellHeight.js';
 
 // Development tools load on demand. A production build replaces import.meta.env.DEV with false,
@@ -127,9 +129,11 @@ export function ShellBar({ route, me, website, dev, onSignOut, onDevSignIn }: Sh
 function QuickTestSlot(): ReactElement | null {
   if (QuickTestLink === null) return null;
   return (
-    <Suspense fallback={null}>
-      <QuickTestLink />
-    </Suspense>
+    <DevBoundary>
+      <Suspense fallback={null}>
+        <QuickTestLink />
+      </Suspense>
+    </DevBoundary>
   );
 }
 
@@ -138,8 +142,10 @@ function DevSignInSlot(props: {
 }): ReactElement | null {
   if (DevSignIn === null) return null;
   return (
-    <Suspense fallback={null}>
-      <DevSignIn onSignIn={props.onSignIn} />
-    </Suspense>
+    <DevBoundary>
+      <Suspense fallback={null}>
+        <DevSignIn onSignIn={props.onSignIn} />
+      </Suspense>
+    </DevBoundary>
   );
 }

@@ -18,6 +18,10 @@ Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before t
   development, "Quick Test" and "Dev sign-in"; on a narrow screen the pages and the account fold
   into one "Menu" button in place of the wrapping menu. The website step badges no longer show in
   the header (they stay on the board, the lower third and the players panel).
+- **A dev tool can no longer take the game down:** the header's lazily loaded quick tools sit in an
+  error boundary, the kit's dev menu is named in the dev server's `optimizeDeps`, and each mode's
+  dev server has its own dependency cache (the first browser-test run in CI crashed the page: the
+  dev module had run on a second copy of React).
 - **The game against the kit's handbook:** no visible change: the season colours in the stage's
   and the scoreboard's CSS are the kit's tokens, an opened case's artifact name is hidden with the
   kit's `sk-visually-hidden`, and the stage's, the gem's and the case's own tones are named arena
