@@ -56,7 +56,7 @@
 /* Lit: its case is open at the front now. */
 .score-row.is-lit {
   border-color: var(--sk-color-autumn);
-  box-shadow: 0 0 18px rgb(249 168 37 / 45%);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--sk-color-autumn) 45%, transparent);
 }
 
 .score-row.is-lit .score-meaning {

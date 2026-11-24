@@ -120,8 +120,9 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
 - **Night chain SC-N7 (running, 2026-11-24):** branch `kit/v0.17-adoption`, draft PR, version
   `1.1.0-rc.1`, nothing merged or tagged. Piece 1 done: kit v0.17.0 with the migrations of
   0.12.0–0.17.0 (D56, D57), no stand-in left in `packages/ui`. Piece 2 done: the kit's
-  `AppHeader` with its folded Menu (D58). Next: the game against the kit's handbook, the
-  play-through. State per piece in
+  `AppHeader` with its folded Menu (D58). Piece 3 done: the game read against the handbook,
+  the replacements that keep the look (season colours as the kit's tokens, `sk-visually-hidden`,
+  arena tones as own tokens) and the rest listed (BACKLOG 58–65). Next: the play-through. State per piece in
   [NIGHT-RUN.md](NIGHT-RUN.md).
 
 - **Task SC-R1 (2026-11-23):** the brake per account and address (D55: 20 failures brake one
@@ -211,13 +212,22 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   - The lock-out question of D51 is closed by D55: 20 failures brake an account at one address
     only; 100 brake it everywhere; an address is braked from 20 across all accounts.
 
-- **Where this repository departs from the kit's HANDBOOK (v0.11.0)**, read once on
-  2026-11-23; nothing changed for them:
+- **Where this repository departs from the kit's HANDBOOK (v0.17.0)**, read against the game on
+  2026-11-24 (night chain SC-N7, piece 3; the open items are BACKLOG 58–65):
   - coverage thresholds are the domain's 90 % lines / 85 % branches and the application's
     80 / 75 (CLAUDE.md "game logic 85 % branches"), not 95 % of lines, branches and functions
-    everywhere;
+    everywhere (63);
   - the season of a show comes from its date (UTC month, `packages/application/src/season.ts`),
-    not from the website's season feed (`seasonFeedReader`);
+    not from the website's season feed (`seasonFeedReader`, 60);
+  - the game bar has no `back` link in website mode, `afterFonts` is not set on the stage's fit
+    and a local install without a chat is not wrapped in `DockedScreen withoutChat` (60);
+  - no privacy document, no account deletion and no data export (58);
+  - the repository's GitHub settings differ from the handbook's list (59);
+  - the start page's dev sign-in form and the admin's Quick Test ship in the production bundle,
+    gated by the server's dev flag (61); the reset and confirmation tokens are in the link's
+    query (62);
+  - the steps "before production" are not done (64); `.gitleaksignore`, a `Dockerfile` and
+    Mini Games' `ops/` are not rules for every game and are not added;
   - the morning sheet is one file, `docs/NIGHT-RUN.md`, with a section per chain, not
     `docs/NIGHT-<date>.md`;
   - some browser tests wait on the clock (`waitForTimeout` in journey 1 for the case's

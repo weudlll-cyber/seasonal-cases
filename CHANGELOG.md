@@ -18,6 +18,11 @@ Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before t
   development, "Quick Test" and "Dev sign-in"; on a narrow screen the pages and the account fold
   into one "Menu" button in place of the wrapping menu. The website step badges no longer show in
   the header (they stay on the board, the lower third and the players panel).
+- **The game against the kit's handbook:** no visible change: the season colours in the stage's
+  and the scoreboard's CSS are the kit's tokens, an opened case's artifact name is hidden with the
+  kit's `sk-visually-hidden`, and the stage's, the gem's and the case's own tones are named arena
+  tokens. What differs from the handbook and would change something is listed for the owner
+  (docs/BACKLOG.md 58–65).
 
 ## 1.0.0 (2026-11-23, tag `v1.0.0`)
 

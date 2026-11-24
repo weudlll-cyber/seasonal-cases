@@ -643,7 +643,8 @@ Fixed, each with a test:
   addresses or CIDRs only (`socketAddress.test.ts`).
 - **5:** `SC_RECOVERY_KEY` equal to `SC_DATA_KEY` stops the start (`production.test.ts`).
 - **6:** a dropped open round is logged once per show.
-- **7:** the hand-over moved to `packages/ui/src/pending/useChatHandOver.ts` (BACKLOG 43); an
+- **7:** the hand-over moved to `packages/ui/src/pending/useChatHandOver.ts` (BACKLOG 43; replaced
+  by the kit's `useOpenDockChat` in night chain SC-N7); an
   open sheet is not pressed again (`FocusBar.test.tsx`).
 - **9:** the decisions heading names D42–D45 proposals; the `names.ts` sentence; the confirm
   page drops the spent token from the address.
@@ -657,7 +658,8 @@ Not changed:
   sign-ins only, 20 per 15 minutes per address and per account (the account under its id, by
   name or e-mail alike; a login no account has under its normalised form), with a brake of the
   game's own that looks before it counts (`auth/failureBrake.ts`; the kit's RateLimiter only
-  takes, BACKLOG 49). A room of players behind one address signs in freely again; the cap of 20
+  takes, BACKLOG 49; since night chain SC-N7 the counting is the kit's `FailureBrake`, v0.15.0,
+  D57). A room of players behind one address signs in freely again; the cap of 20
   a minute is the outer limit. The lock-out question (20 failures locking an account out from
   every address) is closed by the owner's D55 (task SC-R1): 20 failures brake the account at
   that address only; the account is braked everywhere only from 100 failures in 15 minutes, and

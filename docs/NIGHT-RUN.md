@@ -15,16 +15,17 @@ The chain is running; this report is written at its end.
 
 ### State
 
-| Done                                                                                     | Running                                | Open                                       | Needs the owner's word                                                                         |
-| ---------------------------------------------------------------------------------------- | -------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| Piece 1: kit v0.17.0 and the migrations of 0.12.0–0.17.0; piece 2: the kit's `AppHeader` | Piece 3: the game against the handbook | Piece 4: play-through, pictures, hand-over | The header no longer shows the website step badges; the game bar's two rows on a phone (below) |
+| Done                                                                          | Running                                    | Open   | Needs the owner's word                                                                                                                                                              |
+| ----------------------------------------------------------------------------- | ------------------------------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pieces 1–3: kit v0.17.0; the kit's `AppHeader`; the game against the handbook | Piece 4: play-through, pictures, hand-over | (none) | BACKLOG 58–65: privacy, the GitHub settings, kit parts with a visible change, dev tools in the bundle, link tokens, coverage, before production, the phone bar; the header's badges |
 
 ### Pieces
 
 | Piece | What                                                                                                                                  | Commit        | CI run       |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ |
 | 1     | Kit v0.17.0 (D56): tokens `--sk-…`, `presses`, `useOpenDockChat`, the kit's `FailureBrake` (D57), `pending/` gone, version 1.1.0-rc.1 | `dfdfbc1`     | (below)      |
-| 2     | The kit's `AppHeader` (D56, D58): `ShellBar.tsx`, `DevTools.tsx`, header.css, the Menu fold; journeys on the kit's test ids           | (this commit) | (next entry) |
+| 2     | The kit's `AppHeader` (D56, D58): `ShellBar.tsx`, `DevTools.tsx`, header.css, the Menu fold; journeys on the kit's test ids           | `d3b2b33`     | (below)      |
+| 3     | The game against the kit's handbook: the replacements that keep the look, the list (BACKLOG 58–65)                                    | (this commit) | (next entry) |
 
 ### Choices made without the owner
 
@@ -64,6 +65,23 @@ The chain is running; this report is written at its end.
   buttons and a fact, wraps to two rows (92 px) at 390 and 360 px, and so the owner's phone
   shows two rows. Cases can fix it without the kit (a smaller gutter, a shorter fact, one button
   less in the bar); each changes what the owner sees, so none is built: for the owner's word.
+- **Piece 3, the audit.** The handbook's rules read against Cases; replaced, same look and
+  behaviour: the season colours (`rgb(249 168 37 / 45%)` and two more) as the kit's tokens through
+  `color-mix`; an opened case's hidden artifact name as `sk-visually-hidden` (a `nameHidden` prop
+  on `ArtifactEmblem`); the stage's night, dusk and spotlight, the gem's gloss and shade and the
+  case's lining as named arena tokens in their own files. Not replaced, because each would change
+  what the owner sees or settings only he holds: BACKLOG 58–65 (privacy, GitHub settings, the
+  back link in the game bar, the season feed, `afterFonts`, `withoutChat`, dev tools in the
+  bundle, link tokens, coverage, before production, the phone bar).
+- **Files from Mini Games** (`.gitleaksignore`, `Dockerfile`, `ops/`): the handbook names them as
+  where a game that lacks them finds the later pins, not as a rule for every game, so none is
+  added. Cases has the template's own files (workflows, lefthook, Renovate, ESLint, Prettier,
+  tsconfigs, LICENSE with `AGPL-3.0-or-later` in every `package.json`, CONTRIBUTING, SECURITY).
+- **No privacy document written:** the handbook asks for one with "how long" and "deleted when"
+  for each item, and Cases has no deletion at all; writing those lines would invent a rule.
+- **The GitHub settings were only read** (GET), not changed.
+- **A production build was made once** (a few seconds) to run the kit's own bundle check; the
+  kit's three dev markers are absent and so are the new header's dev parts.
 - **The eviction test** of sign-in's brake now covers the kit's rule (a full map refuses a new key
   and keeps every held count): D57.
 

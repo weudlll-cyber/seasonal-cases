@@ -24,6 +24,11 @@
 /* The show's season tints the studio's floor glow (SC-N2 piece 8); autumn without a season. */
 .stage-screen {
   --season-tint: var(--sk-color-autumn);
+  /* The studio's own tones (arena tokens, the kit has none): night over the stage, a warm dusk
+     that multiplies on cream, and the spotlight's cream. */
+  --stage-night: rgb(5 8 30);
+  --stage-dusk: rgb(92 58 24);
+  --stage-spot: rgb(255 248 220);
 }
 
 .stage-screen[data-season='winter'] {
@@ -51,8 +56,17 @@
       color-mix(in srgb, var(--season-tint) 30%, transparent),
       transparent 55%
     ),
-    radial-gradient(ellipse at 10% 0%, rgb(4 170 247 / 16%), transparent 45%),
-    radial-gradient(ellipse at 90% 0%, rgb(224 110 34 / 14%), transparent 45%), var(--sk-color-card);
+    radial-gradient(
+      ellipse at 10% 0%,
+      color-mix(in srgb, var(--sk-color-winter) 16%, transparent),
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse at 90% 0%,
+      color-mix(in srgb, var(--sk-color-summer) 14%, transparent),
+      transparent 45%
+    ),
+    var(--sk-color-card);
   overflow: hidden;
 }
 
@@ -62,18 +76,18 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: rgb(5 8 30 / 0%);
+  background: transparent;
   pointer-events: none;
   transition: background var(--sk-duration-slow) var(--sk-ease-out);
 }
 
 .stage-screen[data-dimmed='true'] .stage::after {
-  background: rgb(5 8 30 / 38%);
+  background: color-mix(in srgb, var(--stage-night) 38%, transparent);
 }
 
 /* On cream a dark overlay only greys; a warm multiply darkens it like a studio (piece 8). */
 :root:not([data-theme='dark']) .stage-screen[data-dimmed='true'] .stage::after {
-  background: rgb(92 58 24 / 42%);
+  background: color-mix(in srgb, var(--stage-dusk) 42%, transparent);
   mix-blend-mode: multiply;
 }
 
@@ -85,7 +99,10 @@
   position: absolute;
   inset: 0 20%;
   z-index: 2;
-  background: linear-gradient(rgb(255 248 220 / 42%), rgb(255 248 220 / 4%) 85%);
+  background: linear-gradient(
+    color-mix(in srgb, var(--stage-spot) 42%, transparent),
+    color-mix(in srgb, var(--stage-spot) 4%, transparent) 85%
+  );
   clip-path: polygon(44% 0, 56% 0, 86% 100%, 14% 100%);
   opacity: 0;
   visibility: hidden;
@@ -195,17 +212,6 @@ button.case-body:focus-visible {
 /* An opened case: the lid stands open, the artifact's gem sits inside. */
 .case-token .cp-content .artifact {
   font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
-}
-
-/* An opened case shows its artifact's gem; the name is the gem's tooltip and stays readable to
-   screen readers, so the small case never overflows. */
-.case-token .artifact-name {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 }
 
 /* The rest dims while a case is at the front. The case at the front (or on its way back) is

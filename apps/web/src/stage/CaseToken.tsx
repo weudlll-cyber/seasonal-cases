@@ -39,7 +39,9 @@ export function CaseToken({ view, spot, away, onSelect }: CaseTokenProps) {
   const body = (
     <>
       <CasePicture state={view.opened ? 'open' : 'closed'} number={view.number}>
-        {view.artifact !== null ? <ArtifactEmblem artifact={view.artifact} /> : undefined}
+        {view.artifact !== null ? (
+          <ArtifactEmblem artifact={view.artifact} nameHidden />
+        ) : undefined}
       </CasePicture>
       <span className="case-owner" title={owner}>
         <Badges badges={view.ownerBadges} />
