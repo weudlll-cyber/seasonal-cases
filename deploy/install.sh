@@ -169,7 +169,8 @@ website_feed() {
 write_state() {
   local key
   for key in "${ANSWERS[@]}"; do
-    [[ -n ${!key:-} ]] && quoted "$key" "${!key}"
+    # An `if`, not `&&`: an empty last answer must not make the loop (and under pipefail the install) fail.
+    if [[ -n ${!key:-} ]]; then quoted "$key" "${!key}"; fi
   done | put_file "$STATE_FILE" 0600
 }
 
