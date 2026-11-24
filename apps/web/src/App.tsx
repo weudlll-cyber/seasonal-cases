@@ -23,7 +23,7 @@ import {
   useTheme,
   WebsiteChatFrame,
 } from '@seasonal/kit/react';
-import { useRef, useState, type ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 
 import { ConfirmPage } from './account/ConfirmPage.js';
 import { Matches } from './account/Matches.js';
@@ -37,6 +37,7 @@ import { Chronicle } from './screens/Chronicle.js';
 import { OpeningShowcase } from './screens/OpeningShowcase.js';
 import { Result } from './screens/Result.js';
 import { StartPage } from './screens/StartPage.js';
+import { DockChatBridge, useDockChat } from './shell/DockChatBridge.js';
 import { FocusBar } from './shell/FocusBar.js';
 import { ShellBar } from './shell/ShellBar.js';
 import { useSound } from './stage/sound.js';
@@ -65,7 +66,7 @@ export function App() {
   const show = feed.show;
   const focus = route.name === 'stage' && show?.state === 'live';
   const isDocked = docked(mode);
-  const [unread, setUnread] = useState(0);
+  const dock = useDockChat();
   const content = (
     <Routes
       route={route}
@@ -87,7 +88,7 @@ export function App() {
           direct={feed.direct}
           target={shellRef}
           sound={sound}
-          chat={isDocked ? { unread } : undefined}
+          chat={isDocked ? dock.chat : undefined}
         />
       ) : (
         <ShellBar
@@ -99,7 +100,8 @@ export function App() {
         />
       )}
       {isDocked ? (
-        <DockedScreen chat={chatOf(mode)} bar="line" callId={null} onUnread={setUnread}>
+        <DockedScreen chat={chatOf(mode)} bar="line" callId={null} onUnread={dock.onUnread}>
+          <DockChatBridge into={dock.into} />
           {content}
         </DockedScreen>
       ) : (

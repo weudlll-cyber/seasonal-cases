@@ -2,8 +2,9 @@
 
 A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
 
-- **Now:** version `1.0.0` on master, tag `v1.0.0` (chains SC-N1 to SC-N6, SC-P7 and SC-R1);
-  the first show on a server is next (docs/RELEASING.md §4).
+- **Now:** version `1.0.0` on master, tag `v1.0.0`; `1.1.0-rc.1` on `kit/v0.17-adoption` (night chain
+  SC-N7: the whole kit, v0.17.0), not merged; the first show on a server is next after it
+  (docs/RELEASING.md §4).
   Built: website mode, the docked chat, PostgreSQL, standalone accounts with 2FA, roles, ranks,
   lobby, "My matches", the settings catalogue, the chronicle (BACKLOG 1, 2, 3, 5, 6, 8, 9, 17, 18,
   21, 28, closed).
@@ -18,8 +19,7 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   34); website mode behind the site's Caddy lacks the feed (BACKLOG 35). The open-rounds listing
   and the member summary are built (BACKLOG 25, 26, closed); the website wires the card's origin
   (BACKLOG 33).
-- **Kit:** v0.11.1 since 2026-11-23 (D47; v0.11.0, D40, the same day); its parts replaced four stand-ins and the bar's chat
-  count (BACKLOG 13, 19, 20, 23, 24, 32, 36, closed). Open: the bar's press action for "Applaud"
-  (BACKLOG 41), opening the dock's chat from the game (BACKLOG 43) and a limiter that looks
-  before it counts (BACKLOG 49).
+- **Kit:** v0.17.0 on `kit/v0.17-adoption` (D56; v0.11.1 on master). Nothing is pending any more:
+  the press action, the chat hand-over and the failure brake are the kit's (BACKLOG 41, 43, 49,
+  closed); `packages/ui/src/pending/` is gone.
 - **Browsers:** all six projects pass all six journeys (BACKLOG 40, closed 2026-11-23).

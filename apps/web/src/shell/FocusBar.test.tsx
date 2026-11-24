@@ -49,24 +49,32 @@ describe('the focus bar panels', () => {
   });
 
   it("shows the dock's unread count on its chat button and opens the dock's chat", () => {
-    // The kit's phone chat bar, as the dock renders it below the screens.
-    const dockBar = document.createElement('button');
-    dockBar.className = 'sk-chat-bar';
-    const opened = vi.fn();
-    dockBar.addEventListener('click', opened);
-    document.body.append(dockBar);
-    render(bar({ chat: { unread: 3 } }));
+    const open = vi.fn();
+    render(bar({ chat: { unread: 3, open } }));
     const chat = screen.getByRole('button', { name: /Chat/ });
     expect(chat.textContent).toContain('3');
     fireEvent.click(chat);
-    expect(opened).toHaveBeenCalledTimes(1);
-    // No second chat in a panel of the bar.
+    expect(open).toHaveBeenCalledTimes(1);
+    // No second chat in a panel of the bar: the panel is closed again at once.
     expect(screen.queryByRole('complementary', { name: 'chat' })).toBeNull();
-    // An open sheet stays open: the dock's bar toggles, so it is not pressed again.
-    dockBar.setAttribute('aria-expanded', 'true');
-    fireEvent.click(chat);
-    expect(opened).toHaveBeenCalledTimes(1);
-    dockBar.remove();
+    // A second press opens it again (the kit's function keeps an open sheet open).
+    fireEvent.click(screen.getByRole('button', { name: /Chat/ }));
+    expect(open).toHaveBeenCalledTimes(2);
+  });
+
+  it('sends the applause with the kit press button, which opens no panel', () => {
+    const sent: string[] = [];
+    const direct: FocusBarProps['direct'] = (event) => {
+      sent.push(event);
+      return Promise.resolve({ ok: true as const });
+    };
+    render(bar({ direct }));
+    const applaud = screen.getByRole('button', { name: /Applaud/ });
+    expect(applaud.getAttribute('aria-pressed')).toBeNull();
+    expect(applaud.getAttribute('aria-expanded')).toBeNull();
+    fireEvent.click(applaud);
+    expect(sent).toEqual(['show:applaud']);
+    expect(screen.queryByRole('complementary')).toBeNull();
   });
 
   it('has no chat button where the screens are not docked', () => {

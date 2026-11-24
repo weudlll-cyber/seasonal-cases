@@ -21,27 +21,27 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px var(--space-2);
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-card);
+  gap: 4px var(--sk-space-2);
+  padding: var(--sk-space-1) var(--sk-space-2);
+  border: 1px solid var(--sk-color-border);
+  border-radius: var(--sk-radius);
+  background: var(--sk-color-card);
   font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 18px));
 }
 
 .result-slot,
 .result-owner {
-  font-weight: var(--font-weight-strong);
+  font-weight: var(--sk-font-weight-strong);
 }
 
 .result-case,
 .result-case-owner {
-  color: var(--color-text-muted);
+  color: var(--sk-color-text-muted);
 }
 
 .result-seal {
   margin: 0;
-  color: var(--color-text-muted);
+  color: var(--sk-color-text-muted);
   font-size: max(var(--sk-floor-text), 14px);
 }
 
@@ -63,13 +63,13 @@
   align-items: center;
   gap: 2px;
   padding: 6px;
-  border-radius: var(--radius);
-  background: var(--color-surface-2);
+  border-radius: var(--sk-radius);
+  background: var(--sk-color-surface-2);
 }
 
 .result-reveal li.is-prize {
-  background: var(--color-surface);
-  box-shadow: 0 0 0 2px var(--color-autumn);
+  background: var(--sk-color-surface);
+  box-shadow: 0 0 0 2px var(--sk-color-autumn);
 }
 
 .result-reveal .artifact-name {
@@ -101,10 +101,10 @@
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
-  gap: 2px var(--space-1);
-  padding: 6px var(--space-1);
-  border-radius: var(--radius);
-  background: var(--color-surface);
+  gap: 2px var(--sk-space-1);
+  padding: 6px var(--sk-space-1);
+  border-radius: var(--sk-radius);
+  background: var(--sk-color-surface);
   font-size: max(var(--sk-floor-text), 15px);
 }
 

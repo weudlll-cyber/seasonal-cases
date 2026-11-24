@@ -189,5 +189,14 @@ the owner confirmed them on 2026-11-23 (D46).
   stays at 20 failures per 15 minutes. A success counts nothing and resets nothing. The cap of 20
   sign-ins a minute per address stays. This replaces the per-account 20 of D51.
 - **Release 1.0.0.** The merge of `proto/cases-v1` into master and the tag `v1.0.0` are approved.
-  ||||||| 2bf720c
-  lines on start. PostgreSQL comes with the full build (CONCEPT §11).
+
+## 2026-11-24, night chain SC-N7: the owner's decision D56 and what follows from it
+
+- **D56 — The whole kit before the VPS.** Cases takes the whole kit now, before the first
+  server: `@seasonal/kit` is pinned to v0.17.0; the kit's `AppHeader` replaces the game's own
+  header; the whole game is checked against the kit's `docs/HANDBOOK.md`.
+- **D57 — Sign-in's brake counts with the kit's `FailureBrake`.** With a full map (100 000 keys,
+  every one active in the window) the kit refuses a new key and keeps every held key's count; the
+  game's own class, which the kit's grew out of, evicted the oldest key. D55's keys and limits are
+  unchanged. A flood of fresh addresses can therefore shut out new addresses until the window
+  passes, as the kit documents; the test that covered eviction covers the kit's rule now.

@@ -2,6 +2,48 @@
 
 The morning sheets of the unattended night chains, newest first.
 
+## Night chain SC-N7 (2026-11-24)
+
+The owner's decision of 2026-11-24 (D56): Cases takes the whole kit now, before the VPS: kit
+v0.17.0, the kit's `AppHeader` in place of the game's own header, the whole game checked against
+the kit's handbook. Branch `kit/v0.17-adoption` from master `073f9ad` (v1.0.0), draft PR, version
+`1.1.0-rc.1`; nothing merged, nothing tagged.
+
+### Final report
+
+The chain is running; this report is written at its end.
+
+### State
+
+| Done                                                     | Running                        | Open                                                                               | Needs the owner's word |
+| -------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------- | ---------------------- |
+| Piece 1: kit v0.17.0 and the migrations of 0.12.0–0.17.0 | Piece 2: the kit's `AppHeader` | Piece 3: the game against the handbook; piece 4: play-through, pictures, hand-over | (none yet)             |
+
+### Pieces
+
+| Piece | What                                                                                                                                  | Commit        | CI run       |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ |
+| 1     | Kit v0.17.0 (D56): tokens `--sk-…`, `presses`, `useOpenDockChat`, the kit's `FailureBrake` (D57), `pending/` gone, version 1.1.0-rc.1 | (this commit) | (next entry) |
+
+### Choices made without the owner
+
+- **The chat button's hand-over goes through a bridge.** `useOpenDockChat()` works only inside
+  `DockedScreen`'s children; Cases' game bar is a sibling above the dock. Moving the bar into the
+  dock's scrolling area would change the stage's height (the stage fills that area), and this
+  piece keeps today's behaviour. So `shell/DockChatBridge.tsx` renders nothing inside the dock and
+  hands the kit's function to the bar through a ref. Left for the kit's planning chat: a bar
+  outside the dock cannot use the hook without such a bridge.
+- **"Applaud" moved from the bar's lead to the kit's `presses`,** which the kit places after the
+  toggles and before the panel buttons. Its function is unchanged; its place in the bar is the
+  kit's.
+- **A mistake of the release step, found and fixed in this piece:** merging `docs/working-cheaply`
+  into the release branch left git's three-way marker line `|||||||` and the old base text in
+  `docs/HANDOVER.md` and `docs/DECISIONS.md` on master (v1.0.0). My check looked for the other
+  markers, and Prettier had indented this one. Both stray blocks are removed here; master carries
+  them until this branch is merged.
+- **The eviction test** of sign-in's brake now covers the kit's rule (a full map refuses a new key
+  and keeps every held count): D57.
+
 ## Night chain SC-N6 (2026-11-23)
 
 The owner's decisions of 2026-11-23 (D46–D49): D42–D45 confirmed, kit v0.11.1, sign-in's brake

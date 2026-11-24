@@ -117,22 +117,21 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   (`auth/failureBrake.ts`); a visually hidden polite live region says the opened artifact at the
   Open step; the inner row at 1280 × 720 stays as it is. Version `1.0.0-rc.4`.
 
+- **Night chain SC-N7 (running, 2026-11-24):** branch `kit/v0.17-adoption`, draft PR, version
+  `1.1.0-rc.1`, nothing merged or tagged. Piece 1 done: kit v0.17.0 with the migrations of
+  0.12.0–0.17.0 (D56, D57), no stand-in left in `packages/ui`. Next: the kit's `AppHeader`, the
+  game against the kit's handbook, the play-through. State per piece in
+  [NIGHT-RUN.md](NIGHT-RUN.md).
+
 - **Task SC-R1 (2026-11-23):** the brake per account and address (D55: 20 failures brake one
   account at one address, 100 the account everywhere, 20 an address); version `1.0.0`; master's
   "Working cheaply" (D54) brought in; `proto/cases-v1` merged into master and tagged `v1.0.0`
   ([TAGS.md](TAGS.md)); the branches deleted.
 
-- **Kit:** `kit: pinned v0.11.1, newest v0.11.1, current` (`pnpm kit:check`, 2026-11-23, SC-N6
-  piece 1). v0.11.1 widens the kit's peer ranges and changes its own Renovate rules; nothing in
-  Cases changed with it. The pin moves only on the owner's word.
+- **Kit:** `kit: pinned v0.17.0, newest v0.17.0, current` (`pnpm kit:check`, 2026-11-24, SC-N7
+  piece 1; master pins v0.11.1 until the merge). The pin moves only on the owner's word.
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
-  ||||||| 2bf720c
-- **Phase:** P0 bootstrap done on `master` (night chain SC-N1, piece 1); P1 prototype in progress
-  on `proto/cases-v1`.
-- **Repository:** `weudlll-cyber/seasonal-cases` (public). Standards, skeleton, CI (verify,
-  security, docs; CodeQL; nightly browsers), kit `v0.5.0` pinned (DECISIONS D15).
-- **Morning sheet of the running chain:** [NIGHT-RUN.md](NIGHT-RUN.md).
 
 ## What runs
 

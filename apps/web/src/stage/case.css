@@ -21,10 +21,10 @@
   /* The front comes towards the viewer under the tilt and reaches below the scene's box. */
   --below: calc(var(--cw) * 0.09);
   --tilt: -14deg;
-  --tint: var(--season-tint, var(--color-autumn));
-  --cp-body: color-mix(in srgb, var(--color-surface) 88%, var(--tint));
-  --cp-edge: color-mix(in srgb, var(--color-text) 35%, var(--color-surface));
-  --cp-metal: color-mix(in srgb, var(--color-text) 55%, var(--color-surface));
+  --tint: var(--season-tint, var(--sk-color-autumn));
+  --cp-body: color-mix(in srgb, var(--sk-color-surface) 88%, var(--tint));
+  --cp-edge: color-mix(in srgb, var(--sk-color-text) 35%, var(--sk-color-surface));
+  --cp-metal: color-mix(in srgb, var(--sk-color-text) 55%, var(--sk-color-surface));
   --cp-lining: color-mix(in srgb, var(--tint) 20%, #15110d);
   position: relative;
   display: block;
@@ -179,7 +179,7 @@
 .cp-number {
   position: relative;
   margin-top: calc(var(--ct) * 0.8);
-  color: var(--color-text);
+  color: var(--sk-color-text);
   font-size: max(var(--sk-floor-display), calc(var(--cw) * 0.22));
   line-height: 1;
 }

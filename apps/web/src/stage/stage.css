@@ -15,27 +15,27 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   height: calc(100dvh - var(--shell-height) - var(--dock-reserve, 0px));
-  padding: var(--space-1) var(--gutter);
+  padding: var(--sk-space-1) var(--sk-gutter);
   overflow: hidden;
 }
 
 /* The show's season tints the studio's floor glow (SC-N2 piece 8); autumn without a season. */
 .stage-screen {
-  --season-tint: var(--color-autumn);
+  --season-tint: var(--sk-color-autumn);
 }
 
 .stage-screen[data-season='winter'] {
-  --season-tint: var(--color-winter);
+  --season-tint: var(--sk-color-winter);
 }
 
 .stage-screen[data-season='spring'] {
-  --season-tint: var(--color-spring);
+  --season-tint: var(--sk-color-spring);
 }
 
 .stage-screen[data-season='summer'] {
-  --season-tint: var(--color-summer);
+  --season-tint: var(--sk-color-summer);
 }
 
 /* The studio: a card over the page's season glows, never flat black or white (CONCEPT §7). */
@@ -43,8 +43,8 @@
   position: relative;
   flex: 1;
   min-height: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
+  border: 1px solid var(--sk-color-border);
+  border-radius: var(--sk-radius-card);
   background:
     radial-gradient(
       ellipse at 50% 105%,
@@ -52,7 +52,7 @@
       transparent 55%
     ),
     radial-gradient(ellipse at 10% 0%, rgb(4 170 247 / 16%), transparent 45%),
-    radial-gradient(ellipse at 90% 0%, rgb(224 110 34 / 14%), transparent 45%), var(--color-card);
+    radial-gradient(ellipse at 90% 0%, rgb(224 110 34 / 14%), transparent 45%), var(--sk-color-card);
   overflow: hidden;
 }
 
@@ -64,7 +64,7 @@
   z-index: 1;
   background: rgb(5 8 30 / 0%);
   pointer-events: none;
-  transition: background var(--duration-slow) var(--ease-out);
+  transition: background var(--sk-duration-slow) var(--sk-ease-out);
 }
 
 .stage-screen[data-dimmed='true'] .stage::after {
@@ -92,15 +92,15 @@
   pointer-events: none;
   will-change: opacity;
   transition:
-    opacity var(--duration-slow) var(--ease-out),
-    visibility 0s linear var(--duration-slow);
+    opacity var(--sk-duration-slow) var(--sk-ease-out),
+    visibility 0s linear var(--sk-duration-slow);
 }
 
 .stage-screen[data-dimmed='true'] .spotlight {
   opacity: 1;
   visibility: visible;
   transition:
-    opacity var(--duration-slow) var(--ease-out),
+    opacity var(--sk-duration-slow) var(--sk-ease-out),
     visibility 0s;
 }
 
@@ -122,7 +122,7 @@
 
 /* One case on the half circle; --x, --y from src/stage/arc.ts, --token from the count. */
 .case-token {
-  --glow: var(--color-winter);
+  --glow: var(--sk-color-winter);
   position: absolute;
   left: var(--x);
   top: var(--y);
@@ -130,18 +130,18 @@
   width: max(62px, calc(var(--fit, 1) * var(--token, 80px)));
   translate: -50% -50%;
   transition:
-    opacity var(--duration-base) var(--ease-out),
-    filter var(--duration-base) var(--ease-out);
+    opacity var(--sk-duration-base) var(--sk-ease-out),
+    filter var(--sk-duration-base) var(--sk-ease-out);
 }
 
 .case-token:nth-child(4n + 2) {
-  --glow: var(--color-spring);
+  --glow: var(--sk-color-spring);
 }
 .case-token:nth-child(4n + 3) {
-  --glow: var(--color-summer);
+  --glow: var(--sk-color-summer);
 }
 .case-token:nth-child(4n + 4) {
-  --glow: var(--color-autumn);
+  --glow: var(--sk-color-autumn);
 }
 
 .case-body {
@@ -153,9 +153,9 @@
   min-height: var(--sk-floor-target);
   padding: 2px 4px;
   border: 0;
-  border-radius: var(--radius);
+  border-radius: var(--sk-radius);
   background: none;
-  color: var(--color-text);
+  color: var(--sk-color-text);
   font: inherit;
 }
 
@@ -165,7 +165,7 @@ button.case-body {
 
 button.case-body:hover,
 button.case-body:focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 3px solid var(--sk-color-accent);
   outline-offset: 2px;
 }
 

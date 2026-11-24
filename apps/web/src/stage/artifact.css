@@ -10,7 +10,7 @@
  */
 
 .artifact {
-  --season: var(--color-border-strong);
+  --season: var(--sk-color-border-strong);
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
@@ -19,19 +19,19 @@
 }
 
 .season-winter {
-  --season: var(--color-winter);
+  --season: var(--sk-color-winter);
 }
 .season-spring {
-  --season: var(--color-spring);
+  --season: var(--sk-color-spring);
 }
 .season-summer {
-  --season: var(--color-summer);
+  --season: var(--sk-color-summer);
 }
 .season-autumn {
-  --season: var(--color-autumn);
+  --season: var(--sk-color-autumn);
 }
 .season-all {
-  --season: var(--color-autumn);
+  --season: var(--sk-color-autumn);
 }
 
 .artifact-gem {
@@ -53,11 +53,11 @@
   background:
     radial-gradient(circle at 35% 30%, rgb(255 255 255 / 85%) 0 12%, transparent 30%),
     conic-gradient(
-      var(--color-winter),
-      var(--color-spring),
-      var(--color-summer),
-      var(--color-autumn),
-      var(--color-winter)
+      var(--sk-color-winter),
+      var(--sk-color-spring),
+      var(--sk-color-summer),
+      var(--sk-color-autumn),
+      var(--sk-color-winter)
     );
 }
 

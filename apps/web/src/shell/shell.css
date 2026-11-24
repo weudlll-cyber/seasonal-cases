@@ -3,7 +3,7 @@
  * @brief  The page and the shell: the background, the top bar, buttons, cards and fields.
  *
  * Responsibility: the frame around every screen, from the kit's tokens only: the page's season
- *                 glows (`--page-background`, night blue in dark, warm white in light, never flat
+ *                 glows (`--sk-page-background`, night blue in dark, warm white in light, never flat
  *                 black or white), Luxora Grotesk, 44 px targets, 14 px text at least.
  *                 `--shell-height` is the bar's height the stage screens subtract.
  * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/fonts.css, @seasonal/kit/shell.css,
@@ -27,22 +27,22 @@ body {
 }
 
 body {
-  background: var(--page-background);
+  background: var(--sk-page-background);
   background-attachment: fixed;
-  color: var(--color-text);
-  font-family: var(--font-family);
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-body);
+  color: var(--sk-color-text);
+  font-family: var(--sk-font-family);
+  font-size: var(--sk-font-size-body);
+  font-weight: var(--sk-font-weight-body);
 }
 
 h1,
 h2 {
-  margin: 0 0 var(--space-1);
-  font-weight: var(--font-weight-heading);
+  margin: 0 0 var(--sk-space-1);
+  font-weight: var(--sk-font-weight-heading);
 }
 
 h1 {
-  font-size: var(--font-size-title);
+  font-size: var(--sk-font-size-title);
 }
 
 h2 {
@@ -50,61 +50,61 @@ h2 {
 }
 
 a {
-  color: var(--color-text);
+  color: var(--sk-color-text);
 }
 
 .shell-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1) var(--space-2);
+  gap: var(--sk-space-1) var(--sk-space-2);
   /* 64 px, not --shell-height: that is this bar's measured height (./useShellHeight.ts), and as
      its own floor it would keep the bar as tall as it ever was (a phone's 153 px on a desktop). */
   min-height: 64px;
-  padding: 8px var(--gutter);
-  background: var(--sidebar-background);
-  border-bottom: 1px solid var(--color-border);
+  padding: 8px var(--sk-gutter);
+  background: var(--sk-sidebar-background);
+  border-bottom: 1px solid var(--sk-color-border);
 }
 
 .shell-title {
-  font-weight: var(--font-weight-heading);
+  font-weight: var(--sk-font-weight-heading);
   font-size: 1.15rem;
   text-decoration: none;
 }
 
 .shell-nav {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
   flex: 1;
 }
 
 .shell-nav a {
   display: inline-flex;
   align-items: center;
-  min-height: var(--hit-target);
+  min-height: var(--sk-hit-target);
 }
 
 .shell-me {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   font-size: 0.95rem;
 }
 
 .button {
-  min-height: var(--hit-target);
-  padding: 0 var(--space-2);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-pill);
-  background: var(--color-glass);
-  color: var(--color-text);
+  min-height: var(--sk-hit-target);
+  padding: 0 var(--sk-space-2);
+  border: 1px solid var(--sk-color-border-strong);
+  border-radius: var(--sk-radius-pill);
+  background: var(--sk-color-glass);
+  color: var(--sk-color-text);
   font: inherit;
   font-size: max(var(--sk-floor-text), 15px);
   cursor: pointer;
 }
 
 .button:hover:not(:disabled) {
-  background: var(--color-active-bg);
+  background: var(--sk-color-active-bg);
 }
 
 .button:disabled {
@@ -114,46 +114,46 @@ a {
 
 .button-solid {
   border-color: transparent;
-  background: var(--color-solid);
-  color: var(--color-on-solid);
+  background: var(--sk-color-solid);
+  color: var(--sk-color-on-solid);
 }
 
 .button-solid:hover:not(:disabled) {
-  background: var(--color-solid);
+  background: var(--sk-color-solid);
   opacity: 0.9;
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 3px solid var(--sk-color-accent);
   outline-offset: 2px;
 }
 
 input,
 select {
-  min-height: var(--hit-target);
-  padding: 0 var(--space-1);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-  color: var(--color-text);
+  min-height: var(--sk-hit-target);
+  padding: 0 var(--sk-space-1);
+  border: 1px solid var(--sk-color-border-strong);
+  border-radius: var(--sk-radius);
+  background: var(--sk-color-surface);
+  color: var(--sk-color-text);
   font: inherit;
 }
 
 .card {
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  background: var(--color-card);
+  padding: var(--sk-space-2) var(--sk-space-3);
+  border: 1px solid var(--sk-color-border);
+  border-radius: var(--sk-radius-card);
+  background: var(--sk-color-card);
 }
 
 /* The normal pages (lobby, admin) scroll; the stage screens fit (CONCEPT §7). */
 .page {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  max-width: var(--content-width);
+  gap: var(--sk-space-2);
+  max-width: var(--sk-content-width);
   margin: 0 auto;
-  padding: var(--space-2) var(--gutter);
+  padding: var(--sk-space-2) var(--sk-gutter);
 }
 
 .commitment {
@@ -176,8 +176,8 @@ select {
       'nav me';
     grid-template-columns: 1fr auto;
     min-height: 0;
-    padding: 6px var(--gutter);
-    gap: 4px var(--space-1);
+    padding: 6px var(--sk-gutter);
+    gap: 4px var(--sk-space-1);
   }
 
   .shell-title {
@@ -188,7 +188,7 @@ select {
   .shell-nav {
     grid-area: nav;
     flex-wrap: wrap;
-    gap: 0 var(--space-1);
+    gap: 0 var(--sk-space-1);
     min-width: 0;
     white-space: nowrap;
   }
@@ -265,32 +265,4 @@ select {
 .badge-icon {
   width: 16px;
   height: 16px;
-}
-
-/* The game bar's "Applaud" (@sc/ui pending/BarPress.tsx), shaped like the kit's toggles: icon
-   and words on a desktop, the icon alone on a phone, a 44 px target. */
-.sc-bar-press {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-width: var(--hit-target);
-  min-height: var(--hit-target);
-  margin-left: var(--space-1);
-}
-
-@media (max-width: 899px), (orientation: portrait) {
-  .sc-bar-press {
-    justify-content: center;
-    width: var(--hit-target);
-    padding: 0;
-  }
-
-  .sc-bar-press-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
 }

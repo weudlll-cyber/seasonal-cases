@@ -15,6 +15,7 @@
 | 1.10 | 2026-11-23 | Night chain SC-N6, from the owner's decisions of 2026-11-23: the case and its opening (§7); registration through the mail's link decided (§10). |
 | 1.11 | 2026-11-23 | Task SC-P7, from the owner's decisions of 2026-11-23: the artifact rises straight up from the case's centre (§7); release candidate 1.0.0-rc.4 (§12). |
 | 1.12 | 2026-11-23 | Task SC-R1: version 1.0.0, merged into master and tagged `v1.0.0` (§12). |
+| 1.13 | 2026-11-24 | Night chain SC-N7, from the owner's decision of 2026-11-24: the whole kit, v0.17.0, before the VPS (§11); release candidate 1.1.0-rc.1 (§12). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -286,7 +287,7 @@ server, React 19 + Vite on the client, Vitest, Playwright (Chromium at merge, Fi
 ESLint, Prettier, lefthook. Layers as in Mini Games: `domain` (no I/O, no clock, no randomness except
 injected ports) ← `application` ← `apps/server`; the client renders, the server decides.
 
-- **Kit:** `@seasonal/kit` pinned to the newest tag at bootstrap (v0.4.1 on 2026-11-21): tokens,
+- **Kit:** `@seasonal/kit` pinned to one tag (v0.4.1 at bootstrap on 2026-11-21, v0.17.0 since 2026-11-24): tokens,
   fonts, motion, theme, fit floors, `DockedScreen`, `ChatDock`, `BackLink`, `ThemeToggle`, website
   sign-in helpers, chat embed, call slot. A game switches kit version only on the owner's word.
   Nothing the kit has is rebuilt in the game.

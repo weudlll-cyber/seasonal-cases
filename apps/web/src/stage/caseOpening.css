@@ -9,7 +9,7 @@
  *                 `is-open` are the end state and each keyframe starts closed, so under reduced
  *                 motion (the kit's motion.css switches animations off) the end state shows at
  *                 once.
- * Depends on:     @seasonal/kit/tokens.css (`--ease-out`), ./case.css, ./motion.ts (the variables)
+ * Depends on:     @seasonal/kit/tokens.css (`--sk-ease-out`), ./case.css, ./motion.ts (the variables)
  */
 
 /* Opened: the end state. The opening's keyframes start from the closed case. */
@@ -33,16 +33,16 @@
 }
 
 .case-picture.is-opening .cp-lid {
-  animation: cp-lid-open var(--lid-ms, 960ms) var(--ease-out) var(--lid-delay, 160ms) backwards;
+  animation: cp-lid-open var(--lid-ms, 960ms) var(--sk-ease-out) var(--lid-delay, 160ms) backwards;
 }
 
 .case-picture.is-opening .cp-glow {
-  animation: cp-glow var(--glow-ms, 1120ms) var(--ease-out) var(--glow-delay, 480ms) backwards;
+  animation: cp-glow var(--glow-ms, 1120ms) var(--sk-ease-out) var(--glow-delay, 480ms) backwards;
 }
 
 /* Nothing of the artifact shows before its phase begins (55 %). */
 .case-picture.is-opening .cp-content {
-  animation: cp-rise var(--artifact-ms, 720ms) var(--ease-out) var(--artifact-delay, 880ms)
+  animation: cp-rise var(--artifact-ms, 720ms) var(--sk-ease-out) var(--artifact-delay, 880ms)
     backwards;
 }
 

@@ -3,6 +3,18 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
+## 1.1.0-rc.1 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before the first server
+(DECISIONS D56).
+
+- **Kit v0.17.0** (from v0.11.1, the migrations of 0.12.0 to 0.17.0):
+  - the 49 shared custom properties are `--sk-…` (0.14.0);
+  - "Applaud" is the game bar's press button and the Chat button opens the dock's chat through the
+    kit's hook (0.13.0): `packages/ui/src/pending/` is gone;
+  - sign-in's failure counting is the kit's `FailureBrake` (0.15.0; D57);
+  - the open phone chat sheet is never taller than the space left above the bar (0.17.0).
+
 ## 1.0.0 (2026-11-23, tag `v1.0.0`)
 
 The first release: the release candidates below, merged into master with the owner's word

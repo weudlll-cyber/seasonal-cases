@@ -13,11 +13,11 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px var(--space-2);
-  padding: 6px var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--sidebar-background);
+  gap: 6px var(--sk-space-2);
+  padding: 6px var(--sk-space-2);
+  border: 1px solid var(--sk-color-border);
+  border-radius: var(--sk-radius);
+  background: var(--sk-sidebar-background);
   font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
 }
 
@@ -37,36 +37,36 @@
   min-height: var(--sk-floor-row);
   padding: 3px 12px;
   border: 2px solid transparent;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
+  border-radius: var(--sk-radius-pill);
+  background: var(--sk-color-surface);
   transition:
-    background var(--duration-base) var(--ease-out),
-    border-color var(--duration-base) var(--ease-out),
-    opacity var(--duration-base) var(--ease-out);
+    background var(--sk-duration-base) var(--sk-ease-out),
+    border-color var(--sk-duration-base) var(--sk-ease-out),
+    opacity var(--sk-duration-base) var(--sk-ease-out);
 }
 
 .score-meaning {
-  color: var(--color-text-muted);
+  color: var(--sk-color-text-muted);
 }
 
 .score-owner {
-  font-weight: var(--font-weight-strong);
+  font-weight: var(--sk-font-weight-strong);
 }
 
 /* Lit: its case is open at the front now. */
 .score-row.is-lit {
-  border-color: var(--color-autumn);
+  border-color: var(--sk-color-autumn);
   box-shadow: 0 0 18px rgb(249 168 37 / 45%);
 }
 
 .score-row.is-lit .score-meaning {
-  color: var(--color-text);
-  font-weight: var(--font-weight-strong);
+  color: var(--sk-color-text);
+  font-weight: var(--sk-font-weight-strong);
 }
 
 /* Taken: its case has left the front. Struck through, the owner kept. */
 .score-row.is-taken {
-  background: var(--color-surface-2);
+  background: var(--sk-color-surface-2);
 }
 
 .score-row.is-taken .artifact-name,

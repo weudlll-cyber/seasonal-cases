@@ -13,7 +13,7 @@
 .start-brand {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
 }
 
 .start-brand h1 {
@@ -44,15 +44,15 @@
 
 .start-badge {
   padding: 2px 12px;
-  border-radius: var(--radius-pill);
-  background: var(--color-solid);
-  color: var(--color-on-solid);
+  border-radius: var(--sk-radius-pill);
+  background: var(--sk-color-solid);
+  color: var(--sk-color-on-solid);
   font-size: max(var(--sk-floor-text), 14px);
 }
 
 .start-links {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
   margin: 0;
 }
 
@@ -61,7 +61,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
 }
 
 .sign-in h2 {
@@ -79,28 +79,28 @@
 .admin-labels {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   margin: 0;
-  padding: var(--space-1);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  padding: var(--sk-space-1);
+  border: 1px solid var(--sk-color-border);
+  border-radius: var(--sk-radius);
 }
 
 .admin-buttons {
   display: flex;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
 }
 
 .admin-error {
   margin: 0;
-  color: var(--color-danger);
-  font-weight: var(--font-weight-strong);
+  color: var(--sk-color-danger);
+  font-weight: var(--sk-font-weight-strong);
 }
 
 .admin-shows {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -113,7 +113,7 @@
 }
 
 .admin-show-id {
-  font-weight: var(--font-weight-strong);
+  font-weight: var(--sk-font-weight-strong);
 }
 
 .admin-steps {
@@ -141,7 +141,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
 }
 
 .account-entry label {
@@ -157,7 +157,7 @@
 .account-switch {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
   margin: 0;
 }
 
@@ -165,7 +165,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--color-accent);
+  color: var(--sk-color-accent);
   font: inherit;
   text-decoration: underline;
   cursor: pointer;
@@ -177,7 +177,7 @@
 .admin-accounts {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -189,9 +189,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1) var(--space-2);
-  padding-bottom: var(--space-1);
-  border-bottom: 1px solid var(--color-border);
+  gap: var(--sk-space-1) var(--sk-space-2);
+  padding-bottom: var(--sk-space-1);
+  border-bottom: 1px solid var(--sk-color-border);
 }
 
 /* Two-factor setup (../account/TwoFactorSetup.tsx): the key and the codes in a fixed font. */
@@ -199,7 +199,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
 }
 
 .two-factor form p {
@@ -217,7 +217,7 @@
 .recovery-codes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   padding: 0;
   list-style: none;
 }
@@ -226,7 +226,7 @@
 .chronicle {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
 }
 
 .chronicle-entry h2 {
@@ -236,7 +236,7 @@
 .chronicle-winners {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   padding: 0;
   list-style: none;
 }
@@ -245,12 +245,12 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1) var(--space-2);
+  gap: var(--sk-space-1) var(--sk-space-2);
 }
 
 .chronicle-proof {
   margin: 0;
-  color: var(--color-text-muted);
+  color: var(--sk-color-text-muted);
 }
 
 /* The settings (./SettingsAdmin.tsx): each value with its description and warning under it, at
@@ -258,7 +258,7 @@
 .settings-admin {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
 }
 
 .setting {
@@ -269,17 +269,17 @@
 
 .setting small {
   font-size: max(var(--sk-floor-text), 14px);
-  color: var(--color-text-muted);
+  color: var(--sk-color-text-muted);
 }
 
 .setting .setting-warning {
-  color: var(--color-danger);
+  color: var(--sk-color-danger);
 }
 
 .setting-artifact {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
 }
 
 .setting label {
@@ -291,5 +291,5 @@
 label.setting-check {
   flex-direction: row;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
 }

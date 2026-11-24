@@ -12,16 +12,16 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
+  gap: var(--sk-space-2);
+  margin-bottom: var(--sk-space-2);
 }
 
 .showcase-stage {
   height: auto;
   min-height: 420px;
-  padding: var(--space-3);
-  border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--season-tint) 18%, var(--color-surface-2));
+  padding: var(--sk-space-3);
+  border-radius: var(--sk-radius-card);
+  background: color-mix(in srgb, var(--season-tint) 18%, var(--sk-color-surface-2));
 }
 
 .showcase-stage .centre {
@@ -32,8 +32,8 @@
 .showcase-states {
   display: flex;
   justify-content: center;
-  gap: var(--space-3);
-  margin: var(--space-3) 0 0;
+  gap: var(--sk-space-3);
+  margin: var(--sk-space-3) 0 0;
   padding: 0;
   list-style: none;
 }
