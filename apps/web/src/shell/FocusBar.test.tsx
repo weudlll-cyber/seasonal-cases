@@ -2,7 +2,8 @@
  * @file   apps/web/src/shell/FocusBar.test.tsx
  * @brief  Tests the focus bar's panels: a bar button opens its panel, Escape from anywhere on
  *         the page closes it and hands the focus back to the button; the sound is the kit's
- *         toggle; the chat button carries the dock's unread count and opens the dock's chat.
+ *         toggle; the chat button carries the dock's unread count and opens the dock's chat; in
+ *         website mode the way back to Seasonal Entertainment stays in the bar (D62).
  */
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { createRef } from 'react';
@@ -21,6 +22,7 @@ const bar = (more: Partial<FocusBarProps> = {}) => (
     direct={vi.fn(() => Promise.resolve({ ok: true as const }))}
     target={createRef<HTMLElement>()}
     sound={{ on: false, toggle: vi.fn() }}
+    website={false}
     {...more}
   />
 );
@@ -80,5 +82,15 @@ describe('the focus bar panels', () => {
   it('has no chat button where the screens are not docked', () => {
     render(bar());
     expect(screen.queryByRole('button', { name: /Chat/ })).toBeNull();
+  });
+});
+
+describe('the way back', () => {
+  it('stays in the bar in website mode and is not there otherwise', () => {
+    const { unmount } = render(bar({ website: true }));
+    expect(screen.getByTestId('back-link').getAttribute('href')).toBe('/games');
+    unmount();
+    render(bar());
+    expect(screen.queryByTestId('back-link')).toBeNull();
   });
 });

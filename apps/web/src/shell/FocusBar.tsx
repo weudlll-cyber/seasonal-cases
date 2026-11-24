@@ -3,7 +3,8 @@
  * @brief  Focus mode during a live show: the kit's game bar in place of the app header, and its
  *         panels (CONCEPT §7).
  *
- * Responsibility: the bar's lead "Seasonal Cases", its facts "cases left" and "prizes left"
+ * Responsibility: the way back to Seasonal Entertainment in website mode (the kit's `back`, so the
+ *                 focus mode does not lose it), the bar's lead "Seasonal Cases", its facts "cases left" and "prizes left"
  *                 (counted from the received view), full screen where the browser offers it, and
  *                 the panel buttons: players (the owners), and for the direction holder on a
  *                 phone the direction panel, so the bar's buttons are never below the fold. The
@@ -44,6 +45,8 @@ export interface FocusBarProps {
   // The docked chat, wherever the screens are docked (absent otherwise): its unread count for
   // the button's badge, and the function that opens it (./DockChatBridge.tsx).
   readonly chat?: { readonly unread: number; readonly open: () => void } | undefined;
+  // Website mode: the bar keeps the way back to Seasonal Entertainment (the kit's `back`).
+  readonly website: boolean;
   // The stage's sound, on or off for this viewer (../stage/sound.ts).
   readonly sound: { readonly on: boolean; readonly toggle: () => void };
 }
@@ -89,7 +92,27 @@ function useChatHandOver({ open, close }: OpenPanel, openChat: (() => void) | un
   }, [open, close, openChat]);
 }
 
-export function FocusBar({ show, organiser, me, direct, target, chat, sound }: FocusBarProps) {
+/** The bar's panel buttons: the dock's chat where there is one, the players, the direction. */
+function actionsOf(chat: FocusBarProps['chat'], direction: boolean): BarAction<PanelId>[] {
+  return [
+    ...(chat === undefined
+      ? []
+      : [{ id: 'chat' as const, icon: 'chat' as const, label: 'Chat', badge: chat.unread }]),
+    { id: 'players', icon: 'players', label: 'Players' },
+    ...(direction ? [{ id: 'direction' as const, icon: 'host' as const, label: 'Direction' }] : []),
+  ];
+}
+
+export function FocusBar({
+  show,
+  organiser,
+  me,
+  direct,
+  target,
+  chat,
+  sound,
+  website,
+}: FocusBarProps) {
   useFocusMode(true);
   const panels = usePanels<PanelId>();
   useEscapeCloses(panels);
@@ -98,18 +121,11 @@ export function FocusBar({ show, organiser, me, direct, target, chat, sound }: F
   const view = useDockView();
   const holder = holderView(show, organiser, me);
   const { casesLeft, prizesLeft } = showFacts(show);
-  const actions: BarAction<PanelId>[] = [
-    ...(chat === undefined
-      ? []
-      : [{ id: 'chat' as const, icon: 'chat' as const, label: 'Chat', badge: chat.unread }]),
-    { id: 'players', icon: 'players', label: 'Players' },
-    ...(holder !== null && view === 'phone'
-      ? [{ id: 'direction' as const, icon: 'host' as const, label: 'Direction' }]
-      : []),
-  ];
+  const actions = actionsOf(chat, holder !== null && view === 'phone');
   return (
     <>
       <GameBar
+        back={{ websiteMode: website }}
         lead={<span className="focus-lead">Seasonal Cases</span>}
         facts={[
           { text: `${String(casesLeft)} cases left` },

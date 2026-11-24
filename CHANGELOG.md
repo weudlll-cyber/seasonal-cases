@@ -31,6 +31,13 @@ Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before t
   and registration forms) says what is stored, why, for how long and whom to ask
   (`SC_PRIVACY_CONTACT`). The installer keeps the game's server logs 14 days, in a journal
   namespace of their own (`journalctl --namespace=seasonal-cases -u seasonal-cases`).
+- **The kit's four parts (D62):** the way back to Seasonal Entertainment stays in the game bar
+  during a live show (website mode); a new show in website mode takes the website's season (its
+  public season feed, read by the kit's `seasonFeedReader` through a guarded fetch: https only,
+  public addresses only, no redirect), and the date's season while the feed has not answered or
+  is stale; the stage and the registration board fit again once the show font has loaded;
+  without a chat the screens sit in the kit's `DockedScreen` `withoutChat`, so the page follows
+  the phone's keyboard.
 - **The pictures:** `.local/screens/sc-n7/` has four sizes in both themes and the phone sizes again
   with a 200 % root font; the 200 % ones show sideways overflow on four screens (BACKLOG 66).
 - **A dev tool can no longer take the game down:** the header's lazily loaded quick tools sit in an

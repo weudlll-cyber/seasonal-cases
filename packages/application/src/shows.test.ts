@@ -152,3 +152,22 @@ describe('forget', () => {
     expect(changed).toEqual(['show-1']);
   });
 });
+
+describe('the season of a new show', () => {
+  const made = (seasonAt?: (at: string) => 'spring' | 'summer' | 'autumn' | 'winter') => {
+    const shows = createShowService({
+      clock: { now: () => '2026-11-21T20:00:00.000Z' },
+      ids: { showId: () => 'show-1' },
+      random,
+      store: memoryStore(),
+      ...(seasonAt === undefined ? {} : { seasonAt }),
+    });
+    shows.createShow(MOD, setup);
+    return shows.get('show-1')?.blank.season;
+  };
+
+  it("is the date's by default and the given one when the service is handed a source", () => {
+    expect(made()).toBe('autumn');
+    expect(made(() => 'spring')).toBe('spring');
+  });
+});

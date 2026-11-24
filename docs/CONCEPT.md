@@ -17,6 +17,7 @@
 | 1.12 | 2026-11-23 | Task SC-R1: version 1.0.0, merged into master and tagged `v1.0.0` (§12). |
 | 1.13 | 2026-11-24 | Night chain SC-N7, from the owner's decision of 2026-11-24: the whole kit, v0.17.0, before the VPS (§11); the kit's app header with its folded Menu in place of the wrapping one (§7); release candidate 1.1.0-rc.1 (§12). |
 | 1.14 | 2026-11-24 | Night chain SC-N8, from the owner's decisions of 2026-11-24: privacy (§10): accounts stay until deleted, deletion and export, the privacy page, 14 days of server logs. |
+| 1.15 | 2026-11-24 | Night chain SC-N8, from the owner's decisions of 2026-11-24: the current season of a new show (§6) and the way back in focus mode (§7, §10): the kit parts of D62. |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -164,6 +165,8 @@ adopted as the proposal below). Before the show, the table says which artifact m
 | 6 | Ancient Leaf | Autumn `#F9A825` |
 | 7… | Relic #n | the current season |
 | no prize | Fallen Leaf | muted, the current season |
+
+The current season of a new show is the date's (meteorological, by the UTC month); in website mode it is the website's season (its public season feed, read server to server), and the date's while the feed has not answered or is stale (decided 2026-11-24, D62).
 
 Artifact names and their order are settings, not code (§9). The halving is the ecosystem's high
 point, so the main prize is the Halving Stone.

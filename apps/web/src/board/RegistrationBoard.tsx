@@ -135,7 +135,9 @@ function owners(show: PublicShowView): BoardCase[] {
 
 export function RegistrationBoard({ show, personal, onClaim, error }: BoardProps) {
   const reserve = useDockReserve();
-  const fitRef = useFitScale<HTMLElement>('cases', `${show.id}:${String(show.caseCount)}`, true);
+  const fitRef = useFitScale<HTMLElement>('cases', `${show.id}:${String(show.caseCount)}`, true, {
+    afterFonts: true,
+  });
   const standings = new Map(personal?.standings.map((s) => [s.number, s.standing]) ?? []);
   const entries = show.board ?? owners(show);
   const style = { '--dock-reserve': `${String(reserve)}px` } as CSSProperties;

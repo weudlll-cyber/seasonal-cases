@@ -151,26 +151,27 @@ label {
   font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
-/* The docked chat (website mode, or a local chat origin): the shell is one screen high, the
-   kit's DockedScreen takes what the header leaves, the screens fill its upper part and keep no
-   reserve of their own (the dock is there). On a phone the kit publishes the visible height. */
-.shell[data-docked='true'] {
+/* Every screen sits in the kit's DockedScreen: the shell is one screen high, the DockedScreen takes
+   what the header leaves, the screens fill its upper part and keep no reserve of their own (the
+   dock is there, or `withoutChat` has none). On a phone the kit publishes the visible height, so
+   the page follows the keyboard (D62). */
+.shell {
   display: flex;
   flex-direction: column;
   height: var(--sk-visible-height, 100dvh);
 }
 
-.shell[data-docked='true'] > .sk-docked {
+.shell > .sk-docked {
   flex: 1;
   min-height: 0;
 }
 
-.shell[data-docked='true'] .sk-docked-main {
+.shell .sk-docked-main {
   overflow-y: auto;
 }
 
-.shell[data-docked='true'] .stage-screen,
-.shell[data-docked='true'] .board-screen {
+.shell .stage-screen,
+.shell .board-screen {
   --dock-reserve: 0px !important;
   height: 100%;
 }

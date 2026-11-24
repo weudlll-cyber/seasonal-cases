@@ -18,7 +18,7 @@
  *                 socket.io, @seasonal/kit/server, @sc/application, @sc/domain, ./auth/*,
  *                 ./accountDataRoutes.js, ./accountRoutes.js, ./addressLimit.js, ./config.js,
  *                 ./devRoutes.js,
- *                 ./healthRoutes.js,
+ *                 ./healthRoutes.js, ./seasonSource.js,
  *                 ./http.js, ./localRoutes.js, ./mail.js, ./memberSummaryRoutes.js,
  *                 ./openRoundsRoutes.js, ./organiserRoutes.js, ./realtime.js, ./session.js,
  *                 ./settings.js, ./settingsRoutes.js, ./showRoutes.js, ./twoFactorRoutes.js,
@@ -66,6 +66,7 @@ import { smtpMailer, type Mailer } from './mail.js';
 import { openRoundsRoutes } from './openRoundsRoutes.js';
 import { organiserRoutes } from './organiserRoutes.js';
 import { attachRealtime } from './realtime.js';
+import { seasonSource } from './seasonSource.js';
 import type { Auth } from './session.js';
 import { CurrentSettings, memorySettings, type SettingsStore } from './settings.js';
 import { settingsRoutes } from './settingsRoutes.js';
@@ -252,11 +253,16 @@ export async function buildServer(config: ServerConfig, stores: Stores = {}): Pr
   const { proxies } = config;
   const realtime = attachRealtime({ app, auth, io, shows: () => shows, proxies });
   const settings = await CurrentSettings.load(stores.settings ?? memorySettings());
+  // Website mode: new shows take the website's season (./seasonSource.ts).
+  const season = seasonSource(config.website, (e) => {
+    app.log.error(e);
+  });
   const shows: ShowService = createShowService({
     clock: { now: () => new Date().toISOString() },
     ids: { showId: () => `show-${randomUUID().slice(0, 8)}` },
     random: RANDOM,
     settings: settings.now,
+    seasonAt: season.seasonAt,
     store: stores.events ?? jsonlStore(config.dataDir),
     onChange: (model) => {
       realtime.push(model);
@@ -268,6 +274,7 @@ export async function buildServer(config: ServerConfig, stores: Stores = {}): Pr
   const stopFeed = launchFeed({ app, auth, shows, config }, stores);
   app.addHook('onClose', async () => {
     stopFeed();
+    season.stop();
     realtime.stop();
     await io.close();
   });

@@ -34,7 +34,3 @@ export function useServerMode(): ServerMode {
   }, []);
   return mode;
 }
-
-/** Whether the screens sit in the docked chat. */
-export const docked = (mode: ServerMode): boolean =>
-  mode.mode === 'website' || mode.chatOrigin !== null;

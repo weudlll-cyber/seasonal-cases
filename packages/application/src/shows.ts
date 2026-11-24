@@ -22,7 +22,7 @@ import {
   type ShowSettings,
 } from '@sc/domain';
 
-import type { DirectionStep } from '@sc/contracts';
+import type { DirectionStep, Season } from '@sc/contracts';
 
 import type { Clock, EventStore, IdSource, RandomSource } from './ports.js';
 import { seasonOf } from './season.js';
@@ -46,6 +46,8 @@ export interface ShowDeps {
   readonly store: EventStore;
   // The settings at this moment: read at every creation, so a change applies to new shows only.
   readonly settings?: () => ShowSettings;
+  // The season of a show created at this time; the date's season by default (./season.ts).
+  readonly seasonAt?: (at: string) => Season;
   /** Called after every accepted use case with the show's new state. */
   readonly onChange?: (model: ShowModel) => void;
 }
@@ -140,7 +142,7 @@ export function createShowService(deps: ShowDeps): ShowService {
     createShow(by, setup) {
       const at = clock.now();
       const showId = ids.showId();
-      const season = seasonOf(at);
+      const season = (deps.seasonAt ?? seasonOf)(at);
       return commit(
         showId,
         decideCreate({ type: 'create', at, showId, by, ...setup, season, settings: settingsNow() }),

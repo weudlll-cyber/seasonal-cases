@@ -14,20 +14,35 @@ The chain is running; this report is written at its end.
 
 ### State
 
-| Done                                                                                                                         | Running                     | Open    | Needs the owner's hand / word                                    |
-| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------- | ------- | ---------------------------------------------------------------- |
-| Piece 1: the settings read back and the commands written down; piece 2: the phone bar and the largest text; piece 3: privacy | Piece 4: the four kit parts | Piece 5 | The GitHub settings (below); the task text breaks off in piece 5 |
+| Done                                                                                                                                                    | Running                                           | Open     | Needs the owner's hand / word                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | -------- | ---------------------------------------------------------------- |
+| Piece 1: the settings read back and the commands written down; piece 2: the phone bar and the largest text; pieces 3 and 4: privacy, the four kit parts | Piece 5: the production bundle and the mail links | Piece 5b | The GitHub settings (below); the task text breaks off in piece 5 |
 
 ### Pieces
 
-| Piece | What                                                                                                                                                                                        | Commit        | CI run                         |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------ |
-| 1     | GitHub settings: read back, the target and the commands in RELEASING.md; D59–D64                                                                                                            | `fa74f60`     | 45493564174, 45493572118 green |
-| 2     | The phone bar and the largest text (D60): the screens run asserts it; CSS in `moments.css`, `shell.css`, `screens.css`, `stage.css`, `stageParts.css`, `artifact.css`; `e2e/measure.ts`     | `173131d`     | 45498058970, 45498069518 green |
-| 3     | Privacy (D61): `/account` (download, delete), `/privacy`, the erasure (`auth/erasure.ts`, `domain/redact.ts`, `ShowService.forget`), `SC_PRIVACY_CONTACT`, 14 days of logs in the installer | (this commit) | (next entry)                   |
+| Piece | What                                                                                                                                                                                        | Commit               | CI run                                                              |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------- |
+| 1     | GitHub settings: read back, the target and the commands in RELEASING.md; D59–D64                                                                                                            | `fa74f60`            | 45493564174, 45493572118 green                                      |
+| 2     | The phone bar and the largest text (D60): the screens run asserts it; CSS in `moments.css`, `shell.css`, `screens.css`, `stage.css`, `stageParts.css`, `artifact.css`; `e2e/measure.ts`     | `173131d`            | 45498058970, 45498069518 green                                      |
+| 3     | Privacy (D61): `/account` (download, delete), `/privacy`, the erasure (`auth/erasure.ts`, `domain/redact.ts`, `ShowService.forget`), `SC_PRIVACY_CONTACT`, 14 days of logs in the installer | `b226479`, `855a394` | 45504335501 (red: the installer's `write_state`), 45504821858 green |
+| 4     | The four kit parts (D62): `back` in `FocusBar`, `seasonSource.ts` + `guardedFetch.ts`, `afterFonts` on the stage and the board, `DockedScreen` `withoutChat`                                | (this commit)        | (next entry)                                                        |
 
 ### Choices made without the owner
 
+- **Piece 3's first push was red** (the `deploy` job): `SC_PRIVACY_CONTACT`, empty by default, became
+  the last answer in the installer's list, and `write_state`'s `[[ -n ... ]] && quoted` ended the loop
+  with status 1, which under `pipefail` stopped the install. Fixed with an `if` (`855a394`); the
+  installer harness runs only in CI, so it was found there.
+- **Piece 4, the season.** The kit's reader reads https only and takes the game's own guarded
+  fetch, so the game has one (`guardedFetch.ts`: only the website's origin, every resolved address
+  public, no redirect). A website origin that is not https (development) keeps the date's
+  season. New shows take the feed's season while its last answer is fresh (the kit's default
+  limit); shows already created keep the season they were made in. The address is checked before
+  the request, not in it (a name that changes in between is not caught): the origin is the
+  operator's own setting, never a visitor's.
+- **Piece 4, `withoutChat`.** Every route now sits in `DockedScreen` (`withoutChat` with no chat),
+  so a standalone install's pages scroll inside the kit's main area and follow the phone's
+  keyboard, as in website mode. The `docked` helper and the `data-docked` attribute are gone.
 - **Piece 3, how deletion works.** The account row stays as a tombstone (id, "deleted player"
   plus six characters of the id, role player, rank 0, no badges, deleted); everything that could
   sign the person in again goes first (sign-in data, e-mail, two-factor secret and recovery codes,

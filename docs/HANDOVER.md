@@ -127,7 +127,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   Night chain SC-N8 (running): the phone bar and the largest text are fixed and asserted in the
   screens run (D60, BACKLOG 65, 66 closed). Privacy is built (D61, BACKLOG 58 closed): `/account`
   (download and delete), `/privacy`, the erasure (tombstone, event log redacted, shows folded
-  again), `SC_PRIVACY_CONTACT`, 14 days of logs from the installer. State per piece in
+  again), `SC_PRIVACY_CONTACT`, 14 days of logs from the installer. The four kit parts are built (D62, BACKLOG 60 closed): the back link in focus mode,
+  the website's season feed, `afterFonts`, `withoutChat`. State per piece in
   [NIGHT-RUN.md](NIGHT-RUN.md).
 
 - **Task SC-R1 (2026-11-23):** the brake per account and address (D55: 20 failures brake one

@@ -9,10 +9,12 @@
  *                 the chronicle (`/chronicle`), the forgotten password's page (`/reset`), the
  *                 registration's confirmation (`/confirm`) and, in development only, the
  *                 opening's showcase (`/dev/opening`). While a live show is on the
- *                 stage the kit's game bar replaces the header (focus mode); on a phone the
- *                 direction bar then lives in the bar's panel. In website mode, or locally with a
- *                 chat origin, every screen sits in the kit's `DockedScreen` with the website's
- *                 chat, mounted once (GAME-INTEGRATION §5); the call slot stays hidden. The
+ *                 stage the kit's game bar replaces the header (focus mode), keeping the way back
+ *                 to Seasonal Entertainment in website mode; on a phone the direction bar then
+ *                 lives in the bar's panel. Every screen sits in the kit's `DockedScreen`: in
+ *                 website mode, or locally with a chat origin, with the chat, mounted once
+ *                 (GAME-INTEGRATION §5), the call slot hidden; with no chat as `withoutChat`,
+ *                 which still keeps the page above the phone's keyboard (D62). The
  *                 dock's unread count (the kit's `onUnread`) is the game bar's chat badge. The kit's
  *                 theme hook sets <html data-theme> and follows the system while nothing is stored.
  * Depends on:     react, @seasonal/kit/react, ./account/*, ./lib/*, ./screens/*, ./shell/*,
@@ -32,7 +34,7 @@ import { ConfirmPage } from './account/ConfirmPage.js';
 import { Matches } from './account/Matches.js';
 import { ResetPage } from './account/ResetPage.js';
 import { useCurrentShow, useShowFeed } from './lib/feed.js';
-import { docked, useServerMode, type ServerMode } from './lib/mode.js';
+import { useServerMode, type ServerMode } from './lib/mode.js';
 import { routeOf, usePath, type Route } from './lib/router.js';
 import { useSession } from './lib/session.js';
 import { Admin } from './screens/Admin.js';
@@ -54,6 +56,25 @@ function chatOf(mode: ServerMode): ReactNode {
   return mode.chatOrigin === null ? null : <OriginChatFrame origin={mode.chatOrigin} room={ROOM} />;
 }
 
+/**
+ * Every route sits in the kit's DockedScreen: with the chat where there is one, otherwise
+ * `withoutChat` (a standalone install): no dock, and the page still follows the phone's keyboard.
+ */
+function Screen(props: {
+  chat: ReactNode;
+  dock: ReturnType<typeof useDockChat>;
+  children: ReactNode;
+}) {
+  const { chat, dock, children } = props;
+  if (chat === null) return <DockedScreen withoutChat>{children}</DockedScreen>;
+  return (
+    <DockedScreen chat={chat} bar="line" callId={null} onUnread={dock.onUnread}>
+      <DockChatBridge into={dock.into} />
+      {children}
+    </DockedScreen>
+  );
+}
+
 export function App() {
   useTheme();
   const route = routeOf(usePath());
@@ -68,8 +89,8 @@ export function App() {
   const view = useDockView();
   const show = feed.show;
   const focus = route.name === 'stage' && show?.state === 'live';
-  const isDocked = docked(mode);
   const dock = useDockChat();
+  const chat = chatOf(mode);
   const content = (
     <Routes
       route={route}
@@ -82,7 +103,7 @@ export function App() {
     />
   );
   return (
-    <div className="shell" ref={shellRef} data-docked={isDocked}>
+    <div className="shell" ref={shellRef}>
       {focus ? (
         <FocusBar
           show={show}
@@ -91,7 +112,8 @@ export function App() {
           direct={feed.direct}
           target={shellRef}
           sound={sound}
-          chat={isDocked ? dock.chat : undefined}
+          website={mode.mode === 'website'}
+          chat={chat === null ? undefined : dock.chat}
         />
       ) : (
         <ShellBar
@@ -103,14 +125,9 @@ export function App() {
           onDevSignIn={session.signIn}
         />
       )}
-      {isDocked ? (
-        <DockedScreen chat={chatOf(mode)} bar="line" callId={null} onUnread={dock.onUnread}>
-          <DockChatBridge into={dock.into} />
-          {content}
-        </DockedScreen>
-      ) : (
-        content
-      )}
+      <Screen chat={chat} dock={dock}>
+        {content}
+      </Screen>
     </div>
   );
 }
