@@ -188,10 +188,10 @@ button.case-body:focus-visible {
 
 .case-owner {
   max-width: 100%;
-  overflow: hidden;
   font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* A long owner's name wraps to a second line; it is never cut with an ellipsis (D60). */
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 
 /* The case's picture (./case.css) fills the token; its glow is the token's season colour. The

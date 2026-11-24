@@ -145,7 +145,8 @@
 }
 
 .account-entry label {
-  flex: 1 1 14rem;
+  /* 14rem at most, and never wider than the form: a phone at its largest text is 360 px or less. */
+  flex: 1 1 min(14rem, 100%);
 }
 
 .account-entry [role='status'],
@@ -276,10 +277,22 @@
   color: var(--sk-color-danger);
 }
 
+.setting,
+.setting-artifact {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .setting-artifact {
   display: flex;
   flex-wrap: wrap;
   gap: var(--sk-space-1);
+}
+
+/* The name and the season share a row where there is room and take a row each where not, at the
+   largest text size too (D60). */
+.setting-artifact label {
+  flex: 1 1 10rem;
 }
 
 .setting label {

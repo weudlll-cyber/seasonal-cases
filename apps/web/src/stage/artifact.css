@@ -94,9 +94,8 @@
 
 .artifact-name {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* A long name wraps; it is never cut with an ellipsis (D60). */
+  overflow-wrap: anywhere;
 }
 
 .artifact-large {

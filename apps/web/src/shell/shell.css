@@ -108,6 +108,28 @@ select {
   font: inherit;
 }
 
+/* Nothing makes a page wider than the window, whatever the text size (D60, BACKLOG 66): a field, a
+   label and a fieldset may shrink below their content's width, and a long word breaks. */
+fieldset,
+label,
+input,
+select,
+textarea {
+  min-width: 0;
+}
+
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+h1,
+h2,
+label {
+  overflow-wrap: anywhere;
+}
+
 .card {
   padding: var(--sk-space-2) var(--sk-space-3);
   border: 1px solid var(--sk-color-border);

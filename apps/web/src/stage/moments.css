@@ -34,6 +34,28 @@ html[data-sk-focus] {
   }
 }
 
+/* A 360 px phone, the organiser with the dock's chat: six 44 px buttons and the fact's widest word
+   fill the row to the pixel, and rounding wraps the last button; a narrower gutter gives room. */
+@media (max-width: 400px) {
+  .shell > .sk-game-bar {
+    padding-inline: 0.25rem;
+  }
+}
+
+/* A phone's bar (the kit's own phone breakpoint): a fact gives way first, and wraps to a second
+   line instead of ending in "…"; it keeps its widest word, so the buttons stay in one row until
+   even that has no room left, and only then wrap (D60, BACKLOG 65). */
+@media (max-width: 899px), (orientation: portrait) {
+  .shell > .sk-game-bar .sk-bar-fact {
+    flex-shrink: 1000000;
+    min-width: min-content;
+    overflow: visible;
+    line-height: 1.2;
+    text-overflow: clip;
+    white-space: normal;
+  }
+}
+
 .focus-lead {
   font-weight: var(--sk-font-weight-heading);
 }

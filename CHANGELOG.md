@@ -18,6 +18,10 @@ Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before t
   development, "Quick Test" and "Dev sign-in"; on a narrow screen the pages and the account fold
   into one "Menu" button in place of the wrapping menu. The website step badges no longer show in
   the header (they stay on the board, the lower third and the players panel).
+- **The phone bar and the largest text (D60):** on a phone the game bar's fact wraps instead of
+  ending in "…" and the buttons keep one row; no page scrolls sideways at a 200 % root font; an
+  owner's name, a lower third and an artifact's name wrap instead of being cut. The screens run
+  asserts it (overflow, ellipsis, the text floor, the bar's height) at four sizes in both themes.
 - **The pictures:** `.local/screens/sc-n7/` has four sizes in both themes and the phone sizes again
   with a 200 % root font; the 200 % ones show sideways overflow on four screens (BACKLOG 66).
 - **A dev tool can no longer take the game down:** the header's lazily loaded quick tools sit in an

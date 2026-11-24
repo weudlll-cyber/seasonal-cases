@@ -68,11 +68,10 @@
 }
 
 .lower-third-name {
-  overflow: hidden;
   font-size: max(var(--sk-floor-display), calc(var(--fit, 1) * 32px));
   font-weight: var(--sk-font-weight-heading);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* A long name wraps to a second line; it is never cut with an ellipsis (D60). */
+  overflow-wrap: anywhere;
 }
 
 .rank-badge {

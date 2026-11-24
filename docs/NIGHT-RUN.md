@@ -14,15 +14,16 @@ The chain is running; this report is written at its end.
 
 ### State
 
-| Done                                                          | Running                                     | Open       | Needs the owner's hand / word                                    |
-| ------------------------------------------------------------- | ------------------------------------------- | ---------- | ---------------------------------------------------------------- |
-| Piece 1: the settings read back and the commands written down | Piece 2: the phone bar and the largest text | Pieces 3–5 | The GitHub settings (below); the task text breaks off in piece 5 |
+| Done                                                                                                       | Running          | Open           | Needs the owner's hand / word                                    |
+| ---------------------------------------------------------------------------------------------------------- | ---------------- | -------------- | ---------------------------------------------------------------- |
+| Piece 1: the settings read back and the commands written down; piece 2: the phone bar and the largest text | Piece 3: privacy | Pieces 4 and 5 | The GitHub settings (below); the task text breaks off in piece 5 |
 
 ### Pieces
 
-| Piece | What                                                                             | Commit        | CI run       |
-| ----- | -------------------------------------------------------------------------------- | ------------- | ------------ |
-| 1     | GitHub settings: read back, the target and the commands in RELEASING.md; D59–D64 | (this commit) | (next entry) |
+| Piece | What                                                                                                                                                                                    | Commit        | CI run                         |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------ |
+| 1     | GitHub settings: read back, the target and the commands in RELEASING.md; D59–D64                                                                                                        | `fa74f60`     | 45493564174, 45493572118 green |
+| 2     | The phone bar and the largest text (D60): the screens run asserts it; CSS in `moments.css`, `shell.css`, `screens.css`, `stage.css`, `stageParts.css`, `artifact.css`; `e2e/measure.ts` | (this commit) | (next entry)                   |
 
 ### Choices made without the owner
 
@@ -30,6 +31,17 @@ The chain is running; this report is written at its end.
   files for their identifying strings; the check"). Piece 5 is built as far as it reads: 61 with
   the proof, and 62 (the tokens after `#`) from the opening summary. No piece after it is in the
   text, so none is built; the final play-through and pictures of SC-N7 are not repeated.
+- **Piece 2, how it was found and fixed:** the screens run now fails on its own findings
+  (`e2e/measure.ts`, with the elements that reach past the window's edge named). Four runs: 36
+  findings (all at the 200 % font) → 14 (the bar and the names fixed) → 4 (the forms) → 0. The
+  fixes: the fact in the kit's bar wraps and shrinks first (props cannot do that, the game's CSS
+  can: `flex-shrink` and `min-width: min-content` on the kit's `.sk-bar-fact` in the phone
+  breakpoint), a narrower gutter on 400 px phones (the organiser with the dock's chat has six
+  buttons and the row fills to the pixel), owner names and artifact names wrap, fields and labels
+  may shrink. The dock's case (six buttons) is not in the screens run, which has no chat; a probe
+  on the dev stack measured it: 44 px at 390 and at 360 px. **Nothing was needed from the kit.**
+  The probes wrote to the dev database again and were deleted again, by explicit criteria after
+  listing (15 accounts, 7 shows, 5 pending registrations, 5 mails).
 - **Piece 1 could not be applied.** Every write call to the repository's settings (`gh api -X
 PATCH`, `PUT`, `POST`) was refused by this session's permission layer, though the task asks for
   them. The task says a setting the API refuses is left and listed, so: nothing was changed; the

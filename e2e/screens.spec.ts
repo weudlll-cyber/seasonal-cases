@@ -15,7 +15,7 @@
  *                 the page overflows sideways, how many labels are cut with an ellipsis and
  *                 whether a risen artifact stands off its case's centre (D50), and writes all
  *                 findings to `checks.json`. Runs only as the project `screens`.
- * Depends on:     @playwright/test, node:fs, ./helpers.ts
+ * Depends on:     @playwright/test, node:fs, ./helpers.ts, ./measure.ts
  */
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -23,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import { boardCase, openShow, quickTestSealing, signInApi } from './helpers.js';
+import { measure, type Measures } from './measure.js';
 
 const DIR = fileURLToPath(new URL('../.local/screens/sc-n7/', import.meta.url));
 // The sizes of CONCEPT §7: two PCs and two phones, the smaller one the tightest for labels.
@@ -37,51 +38,13 @@ const PHONE_WIDTH = 700;
 type Size = readonly [number, number];
 const THEMES = ['light', 'dark'] as const;
 const FLOOR = 14;
+// The game bar of a phone is one row: its 44 px buttons and a little room.
+const BAR_ONE_ROW = 52;
 
-interface Check {
+interface Check extends Measures {
   file: string;
-  smallestText: number;
-  sideways: boolean;
-  // Visible labels cut with an ellipsis (their text wider than their box), and their texts.
-  cut: number;
-  cutTexts: string[];
-  // Risen artifacts (the front case, the ceremony) whose gem is off their case's centre (D50).
-  offCentre: number;
 }
 const checks: Check[] = [];
-
-/** The smallest visible text, whether the page scrolls sideways, and the labels cut short. */
-async function measure(page: Page): Promise<Omit<Check, 'file'>> {
-  return page.evaluate(() => {
-    const cutTexts: string[] = [];
-    let smallest = Infinity;
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
-      const parent = node.parentElement;
-      if (parent === null || (node.textContent ?? '').trim() === '') continue;
-      const box = parent.getBoundingClientRect();
-      // Hidden, or kept for screen readers only (a 1 px clipped box), is not on screen.
-      if (box.width <= 1 || box.height <= 1) continue;
-      const style = getComputedStyle(parent);
-      smallest = Math.min(smallest, parseFloat(style.fontSize));
-      if (style.textOverflow === 'ellipsis' && parent.scrollWidth > parent.clientWidth) {
-        cutTexts.push(parent.textContent);
-      }
-    }
-    const sideways = document.documentElement.scrollWidth > window.innerWidth + 1;
-    const middle = (el: Element | null) => {
-      const box = el?.getBoundingClientRect();
-      return box === undefined ? 0 : box.left + box.width / 2;
-    };
-    const offCentre = Array.from(document.querySelectorAll('.case-picture.is-risen')).filter(
-      (c) => {
-        const gem = c.querySelector('.artifact-gem');
-        return gem !== null && Math.abs(middle(gem) - middle(c.querySelector('.cp-front'))) > 1;
-      },
-    ).length;
-    return { smallestText: smallest, sideways, cut: cutTexts.length, cutTexts, offCentre };
-  });
-}
 
 /**
  * "End show" asking before an early end, at every size and theme: under the stage on a PC, in
@@ -301,9 +264,20 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await shoot(page, 'admin-settings', settings);
 
   writeFileSync(`${DIR}checks.json`, JSON.stringify(checks, null, 2));
+  // The findings are assertions: nothing under the text floor, nothing scrolling sideways, nothing
+  // cut with an ellipsis, no artifact off its case's centre, and on a phone at the normal font the
+  // game bar in one row (D60), at every size, in both themes, at the large font too.
+  const oneRow = (c: Check) => c.barHeight > BAR_ONE_ROW && !c.file.includes('font200');
+  const phone = (c: Check) => Number(/-(\d+)x\d+-/.exec(c.file)?.[1]) < PHONE_WIDTH;
   const problems = checks.filter(
-    (c) => c.smallestText < FLOOR || c.sideways || c.cut > 0 || c.offCentre > 0,
+    (c) =>
+      c.smallestText < FLOOR ||
+      c.sideways ||
+      c.cut > 0 ||
+      c.offCentre > 0 ||
+      (phone(c) && oneRow(c)),
   );
   console.log(`${String(checks.length)} pictures, ${String(problems.length)} with findings`);
   for (const p of problems) console.log(JSON.stringify(p));
+  expect(problems.map((c) => c.file)).toEqual([]);
 });
