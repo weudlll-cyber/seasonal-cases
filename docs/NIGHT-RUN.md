@@ -30,6 +30,13 @@ The chain is running; this report is written at its end.
 
 ### Choices made without the owner
 
+- **Piece 5's PR run had one red e2e (journey 4), and it was not the game.** The trace shows the
+  page's own module requests failing at the moment the stand-in website logged `Unhandled 'error'
+event ... write EPIPE`: the stand-in (`e2e/websiteStub.ts`) pipes the socket upgrade between the
+  browser and the game with no `error` listener, so a socket reset at the end of journey 3 threw
+  and took the whole stand-in down; journey 4 then waited 90 s for a page that never loaded. The
+  same commit's push run passed (the race is timing). Fixed at its cause (both ends close on an
+  error), not re-run. It has been there since SC-N2.
 - **Piece 5, the proof.** The client was built for production and every built file searched for
   `dev/sign-in`, `dev/quick-test`, `Dev sign-in`, `Development sign-in`, `Sign in as organiser`,
   `Quick Test` and `Fill with bots`: the earlier build held six of them, this one none. The search is

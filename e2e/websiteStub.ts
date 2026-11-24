@@ -131,6 +131,8 @@ const server = httpServer((req, res) => {
 
 // The socket's upgrade goes to the game as it came, without the website's cookie.
 server.on('upgrade', (req: IncomingMessage, socket: Socket, head: Buffer) => {
+  // A reset before the game has answered: nothing to close but this end.
+  socket.on('error', () => socket.destroy());
   const upstream = request({
     host: '127.0.0.1',
     port: GAME_PORT,
@@ -144,6 +146,15 @@ server.on('upgrade', (req: IncomingMessage, socket: Socket, head: Buffer) => {
     // come as \`gameHead\` and must reach the browser, or the client waits for them forever.
     if (gameHead.length > 0) socket.write(gameHead);
     game.write(head);
+    // Either end may reset while the other still writes (a journey ends and closes its pages): an
+    // `error` without a listener would throw and take the whole stand-in down, and with it the
+    // next journey (the CI run of SC-N8 piece 5, `write EPIPE`). Close both ends instead.
+    const close = () => {
+      socket.destroy();
+      game.destroy();
+    };
+    socket.on('error', close);
+    game.on('error', close);
     game.pipe(socket).pipe(game);
   });
   // A refused upgrade is answered as it came, so the client retries at once instead of waiting
