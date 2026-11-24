@@ -128,7 +128,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   screens run (D60, BACKLOG 65, 66 closed). Privacy is built (D61, BACKLOG 58 closed): `/account`
   (download and delete), `/privacy`, the erasure (tombstone, event log redacted, shows folded
   again), `SC_PRIVACY_CONTACT`, 14 days of logs from the installer. The four kit parts are built (D62, BACKLOG 60 closed): the back link in focus mode,
-  the website's season feed, `afterFonts`, `withoutChat`. State per piece in
+  the website's season feed, `afterFonts`, `withoutChat`. The production bundle holds no development tool and the mail
+  tokens travel after `#` (D63, BACKLOG 61, 62 closed; `pnpm bundle:check`). State per piece in
   [NIGHT-RUN.md](NIGHT-RUN.md).
 
 - **Task SC-R1 (2026-11-23):** the brake per account and address (D55: 20 failures brake one

@@ -76,7 +76,7 @@ test('journey 5: register, forget the password, reset it by mail, sign in again'
   await expect(early.getByRole('alert')).toHaveText('Wrong name, e-mail or password.');
 
   const ready = await mailTo(request, email, 'Confirm your Seasonal Cases account');
-  const confirmLink = /http\S+\/confirm\?token=[\w-]+/.exec(ready.text)?.[0] ?? '';
+  const confirmLink = /http\S+\/confirm#token=[\w-]+/.exec(ready.text)?.[0] ?? '';
   expect(confirmLink).not.toBe('');
   await page.goto(confirmLink);
   await page
@@ -103,7 +103,7 @@ test('journey 5: register, forget the password, reset it by mail, sign in again'
   await expect(forgot.getByRole('status')).toContainText('a link is on its way');
 
   const mail = await mailTo(request, email, 'Your Seasonal Cases password');
-  const link = /http\S+\/reset\?token=[\w-]+/.exec(mail.text)?.[0] ?? '';
+  const link = /http\S+\/reset#token=[\w-]+/.exec(mail.text)?.[0] ?? '';
   expect(link).not.toBe('');
   await page.goto(link);
   const reset = page.getByRole('form', { name: 'Choose a new password' });

@@ -17,6 +17,7 @@ import type { SignInRequest } from '@sc/contracts';
 import type { ReactElement } from 'react';
 
 import { pagePath } from '../lib/base.js';
+import type { DevSignInFn } from '../lib/devSignIn.js';
 
 const IDENTITIES: readonly { as: string; label: string; request: SignInRequest }[] = [
   {
@@ -50,11 +51,7 @@ export function QuickTestLink(): ReactElement {
 }
 
 /** One compact menu instead of five buttons in the bar: the kit's, with this game's identities. */
-export function DevSignIn({
-  onSignIn,
-}: {
-  onSignIn: (request: SignInRequest) => Promise<void>;
-}): ReactElement {
+export function DevSignIn({ onSignIn }: { onSignIn: DevSignInFn }): ReactElement {
   return (
     <KitDevSignIn
       identities={IDENTITIES}

@@ -22,10 +22,8 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
 - **Kit:** v0.17.0 on `kit/v0.17-adoption` (D56; v0.11.1 on master). Nothing is pending any more:
   the press action, the chat hand-over and the failure brake are the kit's (BACKLOG 41, 43, 49,
   closed); `packages/ui/src/pending/` is gone.
-- **The kit's handbook (v0.17.0), read against the game on 2026-11-24:** the owner's word is open
-  the GitHub settings (59), dev
-  tools in the production bundle (61), link tokens (62), the steps before
-  production (64, waits for the VPS; coverage (63) is decided: no target, D64). Replaced without a visible change: the season
+- **The kit's handbook (v0.17.0), read against the game on 2026-11-24:** the owner's hand is needed for
+  the GitHub settings (59, RELEASING.md); the steps before production (64, waits for the VPS; coverage (63) is decided: no target, D64). Replaced without a visible change: the season
   colours as the kit's tokens, an opened case's hidden name as `sk-visually-hidden`, the arena
   tones as own tokens.
 - **Browsers:** all six projects pass all six journeys (BACKLOG 40, closed 2026-11-23).

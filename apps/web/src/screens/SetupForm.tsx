@@ -1,16 +1,18 @@
 /**
  * @file   apps/web/src/screens/SetupForm.tsx
- * @brief  The admin area's setup form: N cases, W winners, one label per prize, the Quick Test
- *         seed (development), and the buttons Quick Test and Create show.
+ * @brief  The admin area's setup form: N cases, W winners, one label per prize, a slot for the
+ *         development-only Quick Test (./QuickTestParts.tsx), and the button Create show.
  *
  * Responsibility: collect a setup; the server checks its limits (2 ≤ N ≤ 99, 1 ≤ W ≤ N). It
  *                 starts from the settings' defaults (D25; the catalogue's are the concept's
  *                 proposal N = 24, W = 3, CONCEPT §3.1, §14). "Show on the website" lists the
- *                 open registration among the website's open sign-ups (OPEN-ROUNDS.md).
+ *                 open registration among the website's open sign-ups (OPEN-ROUNDS.md). The Quick
+ *                 Test is not part of this file: the admin hands in `quick`, a development build's
+ *                 parts, so a production bundle has none of its words (D63).
  * Depends on:     react, @sc/contracts, ./fields.js
  */
 import { DEFAULT_SETTINGS } from '@sc/contracts';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 import { NumberField, TextField } from './fields.js';
 
@@ -18,16 +20,15 @@ export interface Setup {
   readonly cases: number;
   readonly winners: number;
   readonly labels: string[];
-  readonly seed: string;
   // Listed on the website's open sign-ups while registration is open (OPEN-ROUNDS.md).
   readonly listed: boolean;
 }
 
 export interface SetupFormProps {
   readonly busy: boolean;
-  // Present in development only: without it there is no seed field and no Quick Test.
-  readonly onQuickTest?: (setup: Setup) => void;
-  readonly onCreate: (setup: Omit<Setup, 'seed'>) => void;
+  // The Quick Test's seed field and button, in a development build only (absent otherwise).
+  readonly quick?: (setup: Setup) => ReactNode;
+  readonly onCreate: (setup: Setup) => void;
   // The settings' default N and W.
   readonly defaults?: { readonly cases: number; readonly winners: number };
 }
@@ -65,11 +66,10 @@ function PrizeLabels({
   );
 }
 
-export function SetupForm({ busy, onQuickTest, onCreate, defaults = START }: SetupFormProps) {
+export function SetupForm({ busy, quick, onCreate, defaults = START }: SetupFormProps) {
   const [cases, setCases] = useState(defaults.cases);
   const [winners, setWinners] = useState(defaults.winners);
   const [labels, setLabels] = useState<string[]>([]);
-  const [seed, setSeed] = useState('sc-n1-01');
   const [listed, setListed] = useState(false);
   const slots = Math.max(0, Math.min(winners, 99));
   const current = Array.from({ length: slots }, (_, i) => labels[i] ?? '');
@@ -85,8 +85,7 @@ export function SetupForm({ busy, onQuickTest, onCreate, defaults = START }: Set
       aria-label="Show setup"
       onSubmit={(event) => {
         event.preventDefault();
-        if (onQuickTest === undefined) onCreate(setup);
-        else onQuickTest({ ...setup, seed });
+        onCreate(setup);
       }}
     >
       <NumberField
@@ -107,29 +106,14 @@ export function SetupForm({ busy, onQuickTest, onCreate, defaults = START }: Set
       />
       <PrizeLabels labels={current} onChange={setLabel} />
       <ListedField listed={listed} onChange={setListed} />
-      {onQuickTest !== undefined && <SeedField seed={seed} onChange={setSeed} />}
+      {quick?.(setup)}
       <SetupButtons
         busy={busy}
-        quickTest={onQuickTest !== undefined}
         onCreate={() => {
           onCreate(setup);
         }}
       />
     </form>
-  );
-}
-
-/** The Quick Test's seed (development only). */
-function SeedField({ seed, onChange }: { seed: string; onChange: (v: string) => void }) {
-  return (
-    <TextField
-      label="Quick Test seed"
-      tip="The same seed gives the same bots and the same sealing"
-      maxLength={64}
-      required
-      value={seed}
-      onChange={onChange}
-    />
   );
 }
 
@@ -150,21 +134,10 @@ function ListedField({ listed, onChange }: { listed: boolean; onChange: (v: bool
   );
 }
 
-/** "Quick Test" (development) submits the form; "Create show" only creates. */
-function SetupButtons(props: { busy: boolean; quickTest: boolean; onCreate: () => void }) {
-  const { busy, quickTest, onCreate } = props;
+/** "Create show" creates a show in setup; the Quick Test (development) has its own button. */
+function SetupButtons({ busy, onCreate }: { busy: boolean; onCreate: () => void }) {
   return (
     <span className="admin-buttons">
-      {quickTest && (
-        <button
-          type="submit"
-          className="button button-solid"
-          disabled={busy}
-          title="Create, fill with bots, seal and start a show from the seed; you hold the direction"
-        >
-          Quick Test
-        </button>
-      )}
       <button
         type="button"
         className="button"

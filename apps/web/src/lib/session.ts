@@ -4,10 +4,11 @@
  *
  * Responsibility: one hook for the whole page; `undefined` while loading, `null` when nobody
  *                 is signed in (a guest watches, CONCEPT §2). `enter` takes the user a
- *                 standalone sign-in or registration answered with (../account/AccountEntry.tsx).
+ *                 standalone sign-in or registration answered with (../account/AccountEntry.tsx),
+ *                 or a development sign-in (./devSignIn.ts, development builds only).
  * Depends on:     react, @sc/contracts (types), ./api.js, ./base.js
  */
-import type { Me, SignInRequest } from '@sc/contracts';
+import type { Me } from '@sc/contracts';
 import { useCallback, useEffect, useState } from 'react';
 
 import { getJson, postJson } from './api.js';
@@ -15,7 +16,6 @@ import { apiPath } from './base.js';
 
 export interface Session {
   readonly me: Me | null | undefined;
-  readonly signIn: (request: SignInRequest) => Promise<void>;
   readonly enter: (me: Me) => void;
   readonly signOut: () => Promise<void>;
 }
@@ -31,12 +31,9 @@ export function useSession(): Session {
         setMe(null);
       });
   }, []);
-  const signIn = useCallback(async (request: SignInRequest) => {
-    setMe(await postJson<Me>(apiPath('/dev/sign-in'), request));
-  }, []);
   const signOut = useCallback(async () => {
     await postJson(apiPath('/sign-out'));
     setMe(null);
   }, []);
-  return { me, signIn, enter: setMe, signOut };
+  return { me, enter: setMe, signOut };
 }

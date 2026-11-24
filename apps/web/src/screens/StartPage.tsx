@@ -15,10 +15,12 @@
  *                 ../board/*, ./BrandLogo.js, ./Lobby.js, ./SignIn.js
  */
 import { StartCard } from '@seasonal/kit/react';
-import type { Me, PublicShowView, SignInRequest } from '@sc/contracts';
+import type { Me, PublicShowView } from '@sc/contracts';
+import { lazy, Suspense } from 'react';
 
 import { AccountEntry } from '../account/AccountEntry.js';
 import { RegistrationBoard } from '../board/RegistrationBoard.js';
+import type { DevSignInFn } from '../lib/devSignIn.js';
 import { postJson } from '../lib/api.js';
 import { apiPath } from '../lib/base.js';
 import type { ShowFeed } from '../lib/feed.js';
@@ -27,7 +29,24 @@ import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
 import { BrandLogo } from './BrandLogo.js';
 import { Lobby } from './Lobby.js';
-import { SignIn } from './SignIn.js';
+import { DevBoundary } from '../shell/DevBoundary.js';
+
+// The development form loads on demand, in a development build only: a production build replaces
+// import.meta.env.DEV with false, so neither the form nor its text is in the bundle (D63).
+const DevForm = import.meta.env.DEV
+  ? lazy(() => import('./SignIn.js').then((m) => ({ default: m.SignIn })))
+  : null;
+
+function DevSignInForm({ onSignIn }: { onSignIn: DevSignInFn }) {
+  if (DevForm === null) return null;
+  return (
+    <DevBoundary>
+      <Suspense fallback={null}>
+        <DevForm onSignIn={onSignIn} />
+      </Suspense>
+    </DevBoundary>
+  );
+}
 
 const STATE_TEXT = {
   setup: 'Being prepared',
@@ -42,7 +61,8 @@ export interface StartPageProps {
   readonly mode: ServerMode;
   readonly feed: ShowFeed;
   readonly showId: string | null | undefined;
-  readonly onSignIn: (request: SignInRequest) => Promise<void>;
+  // The development sign-in: absent in a production build (../lib/devSignIn.ts).
+  readonly onSignIn?: DevSignInFn | undefined;
   readonly onEnter: (me: Me) => void;
 }
 
@@ -112,7 +132,7 @@ export function StartPage({ me, mode, feed, showId, onSignIn, onEnter }: StartPa
       {/* Website mode signs in through the website (the header's link); local mode has its own
           accounts, and the development sign-in too in development (DECISIONS D24). */}
       {localGuest && <AccountEntry onEnter={onEnter} />}
-      {localGuest && mode.dev && <SignIn onSignIn={onSignIn} />}
+      {localGuest && mode.dev && onSignIn !== undefined && <DevSignInForm onSignIn={onSignIn} />}
       {showId === null && <p className="card">There is no show yet.</p>}
       {show !== null && (
         <>

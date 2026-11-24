@@ -1,6 +1,7 @@
 /**
  * @file   apps/web/src/account/ConfirmPage.tsx
- * @brief  `/confirm?token=…`: the page the registration mail links to (DECISIONS D42).
+ * @brief  `/confirm#token=…`: the page the registration mail links to (DECISIONS D42; the
+ *         token after the `#`, D63).
  *
  * Responsibility: one button makes the account from the token in the address; the server takes
  *                 the token once. A press, not the page's load, so a mail program that opens
@@ -15,11 +16,12 @@ import { useState } from 'react';
 
 import { postJson } from '../lib/api.js';
 import { apiPath } from '../lib/base.js';
+import { linkToken, spendToken } from '../lib/linkToken.js';
 import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
 
 export function ConfirmPage() {
-  const token = new URLSearchParams(window.location.search).get('token') ?? '';
+  const [token] = useState(linkToken);
   const [made, setMade] = useState<string | null>(null);
   const action = useAction();
   const body: ConfirmRequest = { token };
@@ -47,7 +49,7 @@ export function ConfirmPage() {
             action.run(async () => {
               const result = await postJson<ConfirmResult>(apiPath('/auth/confirm'), body);
               // The token is spent: off the address, so a reload shows no dead button.
-              window.history.replaceState(null, '', window.location.pathname);
+              spendToken();
               setMade(result.name);
             });
           }}

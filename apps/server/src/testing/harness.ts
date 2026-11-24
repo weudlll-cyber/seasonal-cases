@@ -110,7 +110,7 @@ async function registerThrough(
 async function linkOf(box: { readonly sent: { to: string; text: string }[] }, email: string) {
   for (let i = 0; i < 100; i += 1) {
     const mail = box.sent.filter((m) => m.to === email).at(-1);
-    const token = mail === undefined ? undefined : /confirm\?token=([\w-]+)/.exec(mail.text)?.[1];
+    const token = mail === undefined ? undefined : /confirm#token=([\w-]+)/.exec(mail.text)?.[1];
     if (token !== undefined) return token;
     await new Promise((resolve) => setTimeout(resolve, 10));
   }

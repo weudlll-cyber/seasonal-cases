@@ -24,11 +24,12 @@
  */
 import { websiteLoginHref } from '@seasonal/kit';
 import { AppHeader, type HeaderAccount, type HeaderLink } from '@seasonal/kit/react';
-import type { Me, SignInRequest } from '@sc/contracts';
+import type { Me } from '@sc/contracts';
 import { lazy, Suspense, useRef, type MouseEvent, type ReactElement } from 'react';
 
 import emblem from '../../../../assets/brand/emblem.webp';
 import { appPathOf, BASE, pagePath } from '../lib/base.js';
+import type { DevSignInFn } from '../lib/devSignIn.js';
 import { navigate, type Route } from '../lib/router.js';
 import { DevBoundary } from './DevBoundary.js';
 import { useShellHeight } from './useShellHeight.js';
@@ -49,7 +50,8 @@ export interface ShellBarProps {
   // Development: the server's dev features are on (the quick tools show only in a dev build too).
   readonly dev: boolean;
   readonly onSignOut: () => Promise<void>;
-  readonly onDevSignIn: (request: SignInRequest) => Promise<void>;
+  // Absent in a production build (../lib/devSignIn.ts).
+  readonly onDevSignIn?: DevSignInFn | undefined;
 }
 
 /** The pages of the bar; the server checks every call behind them. */
@@ -118,7 +120,9 @@ export function ShellBar({ route, me, website, dev, onSignOut, onDevSignIn }: Sh
         })}
         signIn={{ href: website ? websiteLoginHref(`${BASE}auth/website`) : pagePath('/') }}
         devTools={
-          dev && DevSignIn !== null && !website ? <DevSignInSlot onSignIn={onDevSignIn} /> : null
+          dev && DevSignIn !== null && !website && onDevSignIn !== undefined ? (
+            <DevSignInSlot onSignIn={onDevSignIn} />
+          ) : null
         }
         // A new page or another account: the folded menu has done its job.
         closeKey={`${route} ${me?.name ?? ''}`}
@@ -139,9 +143,7 @@ function QuickTestSlot(): ReactElement | null {
   );
 }
 
-function DevSignInSlot(props: {
-  onSignIn: (request: SignInRequest) => Promise<void>;
-}): ReactElement | null {
+function DevSignInSlot(props: { onSignIn: DevSignInFn }): ReactElement | null {
   if (DevSignIn === null) return null;
   return (
     <DevBoundary>

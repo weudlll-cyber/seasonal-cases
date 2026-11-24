@@ -59,6 +59,8 @@ jobs:
       # The same script developers run locally: format check, lint, typecheck, tests, and the
       # kit-version line last.
       - run: pnpm verify
+      # The production client has none of the development tools (D63): built, then searched.
+      - run: pnpm bundle:check
       # The kit-version watch (DECISIONS D41): the line in the job summary and, when the pin is
       # behind the kit's newest tag, a warning annotation. Never a failure; moving the pin is
       # the owner's word.

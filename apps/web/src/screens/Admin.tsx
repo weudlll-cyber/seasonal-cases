@@ -1,38 +1,49 @@
 /**
  * @file   apps/web/src/screens/Admin.tsx
- * @brief  The admin area: N, W, prize labels, the Quick Test seed, the organiser's steps per
- *         show (CONCEPT §9), and for an admin the accounts' roles and ranks (D24).
+ * @brief  The admin area: N, W, prize labels, the organiser's steps per show (CONCEPT §9), and
+ *         for an admin the accounts' roles and ranks (D24).
  *
- * Responsibility: Quick Test (development only: a live show with bots in one click, the caller
- *                 holding the direction), create, and per show: open registration, fill with
- *                 bots (development only), close, seal, start; the list of shows, the setup starting from the
- *                 settings' defaults; the settings and the accounts (./AccountsAdmin.tsx).
- *                 Every button calls the server, which checks the role and the rules.
+ * Responsibility: create, and per show: open registration, close, seal, start; the list of shows,
+ *                 the setup starting from the settings' defaults; the settings and the accounts
+ *                 (./AccountsAdmin.tsx). Every button calls the server, which checks the role and
+ *                 the rules. The Quick Test (a live show with bots in one click, the caller
+ *                 holding the direction) and "Fill with bots" exist in a development build only
+ *                 (D34, D63): their parts are loaded on demand under Vite's DEV flag, so a
+ *                 production bundle has neither their words nor their paths.
  * Depends on:     react, @sc/contracts, @sc/ui, ../lib/api.js, ../lib/router.js,
- *                 ../lib/useAction.js, ./AccountsAdmin.js, ./SetupForm.js
+ *                 ../lib/useAction.js, ../shell/DevBoundary.js, ./AccountsAdmin.js,
+ *                 ./QuickTestParts.js (lazy, development only), ./SetupForm.js
  */
 import { canDirect, type Me, type Settings, type ShowSummary } from '@sc/contracts';
 import { formatTime } from '@sc/ui';
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 
 import { getJson, postJson } from '../lib/api.js';
 import { apiPath } from '../lib/base.js';
-import { navigate } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
+import { DevBoundary } from '../shell/DevBoundary.js';
 import { AdminAccounts } from './AccountsAdmin.js';
+import type { Act } from './QuickTestParts.js';
 import { SetupForm, type Setup } from './SetupForm.js';
 
-// The organiser's steps per show: path, label, tooltip. "Fill with bots" only in development
-// (DECISIONS D34): the server refuses it anywhere else.
-const STEPS = [
+// The organiser's steps per show: path, label, tooltip.
+const STEPS: readonly (readonly [string, string, string])[] = [
   ['open', 'Open registration', 'Players may pick cases from now on'],
-  ['bots', 'Fill with bots', 'A bot claims every case nobody claimed'],
   ['close', 'Close', 'Close registration: each case goes to its winning claimant'],
   ['seal', 'Seal', 'Draw the contents and publish the commitment'],
   ['start', 'Start show', 'Go live; you hold the direction'],
-] as const;
+];
 
-type Act = (call: () => Promise<unknown>, then?: () => Promise<void> | void) => void;
+// "Fill with bots" follows "Open registration", in a development build only (DECISIONS D34, D63):
+// the server refuses it anywhere else, and a production bundle does not contain it.
+const BOTS: readonly (readonly [string, string, string])[] = import.meta.env.DEV
+  ? [['bots', 'Fill with bots', 'A bot claims every case nobody claimed']]
+  : [];
+
+// The Quick Test's parts, loaded on demand in a development build only.
+const QuickTest = import.meta.env.DEV
+  ? lazy(() => import('./QuickTestParts.js').then((m) => ({ default: m.QuickTestControls })))
+  : null;
 
 interface ShowListProps {
   readonly shows: ShowSummary[];
@@ -42,7 +53,7 @@ interface ShowListProps {
 }
 
 function ShowList({ shows, busy, act, dev }: ShowListProps) {
-  const steps = dev ? STEPS : STEPS.filter(([path]) => path !== 'bots');
+  const steps = dev ? [...STEPS.slice(0, 1), ...BOTS, ...STEPS.slice(1)] : STEPS;
   return (
     <section className="card" aria-label="Shows">
       <h2>Shows</h2>
@@ -128,15 +139,17 @@ export function Admin({ me, onShowChanged, dev }: AdminProps) {
   if (me === null || (me.role !== 'admin' && me.role !== 'organiser')) {
     return <p className="page card">Sign in as an organiser or admin to use the admin area.</p>;
   }
-  const quickTest = (setup: Setup) => {
-    act(
-      () => postJson(apiPath('/dev/quick-test'), setup),
-      () => {
-        navigate('/show');
-      },
-    );
-  };
-  const create = (setup: Omit<Setup, 'seed'>) => {
+  const quick =
+    dev && QuickTest !== null
+      ? (setup: Setup) => (
+          <DevBoundary>
+            <Suspense fallback={null}>
+              <QuickTest busy={action.busy} setup={setup} act={act} />
+            </Suspense>
+          </DevBoundary>
+        )
+      : undefined;
+  const create = (setup: Setup) => {
     act(() => postJson(apiPath('/shows'), setup));
   };
   return (
@@ -149,7 +162,7 @@ export function Admin({ me, onShowChanged, dev }: AdminProps) {
         <SetupForm
           {...(defaults === null ? {} : { defaults })}
           busy={action.busy}
-          {...(dev ? { onQuickTest: quickTest } : {})}
+          {...(quick === undefined ? {} : { quick })}
           onCreate={create}
         />
       )}

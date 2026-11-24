@@ -117,7 +117,7 @@ async function registered(
     mailedAt: now,
   };
   await local.pending.put(pending);
-  const link = `${local.publicOrigin}/confirm?token=${token}`;
+  const link = `${local.publicOrigin}/confirm#token=${token}`;
   return { subject: 'Confirm your Seasonal Cases account', text: confirmText(link, pending.name) };
 }
 

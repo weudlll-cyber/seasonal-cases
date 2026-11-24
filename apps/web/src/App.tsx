@@ -33,6 +33,7 @@ import { AccountPage } from './account/AccountPage.js';
 import { ConfirmPage } from './account/ConfirmPage.js';
 import { Matches } from './account/Matches.js';
 import { ResetPage } from './account/ResetPage.js';
+import { devSignInOf } from './lib/devSignIn.js';
 import { useCurrentShow, useShowFeed } from './lib/feed.js';
 import { useServerMode, type ServerMode } from './lib/mode.js';
 import { routeOf, usePath, type Route } from './lib/router.js';
@@ -122,7 +123,7 @@ export function App() {
           website={mode.mode === 'website'}
           dev={mode.dev}
           onSignOut={session.signOut}
-          onDevSignIn={session.signIn}
+          onDevSignIn={devSignInOf(session.enter)}
         />
       )}
       <Screen chat={chat} dock={dock}>
@@ -191,7 +192,7 @@ function Routes({ route, me, mode, feed, current, session, phone }: RoutesProps)
       mode={mode}
       feed={feed}
       showId={current.id}
-      onSignIn={session.signIn}
+      onSignIn={devSignInOf(session.enter)}
       onEnter={session.enter}
     />
   );

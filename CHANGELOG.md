@@ -38,6 +38,13 @@ Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before t
   is stale; the stage and the registration board fit again once the show font has loaded;
   without a chat the screens sit in the kit's `DockedScreen` `withoutChat`, so the page follows
   the phone's keyboard.
+- **The production bundle (D63):** the start page's development form, the "Dev sign-in" menu, the
+  admin's Quick Test and "Fill with bots" are loaded under Vite's build-time DEV flag, not hidden
+  by a runtime check; `pnpm bundle:check` (also a CI step) builds the client and searches the built
+  files for seven development strings: none is found (the build before held all of them).
+- **Mail links (D63):** a password reset's and a registration's token travel after the link's `#`
+  (`/reset#token=`, `/confirm#token=`), which a browser never sends: not to the server, not in a log,
+  not in a referrer. The page takes the token off the address when it is spent.
 - **The pictures:** `.local/screens/sc-n7/` has four sizes in both themes and the phone sizes again
   with a 200 % root font; the 200 % ones show sideways overflow on four screens (BACKLOG 66).
 - **A dev tool can no longer take the game down:** the header's lazily loaded quick tools sit in an

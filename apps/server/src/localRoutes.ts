@@ -193,6 +193,6 @@ async function sendReset(local: LocalAccounts, mailer: Mailer, email: string, no
   if (found === undefined) return;
   const token = randomBytes(32).toString('base64url');
   await local.credentials.addReset(tokenHash(token), found.accountId, now + RESET_MS);
-  const link = `${local.publicOrigin}/reset?token=${token}`;
+  const link = `${local.publicOrigin}/reset#token=${token}`;
   await mailer.send({ to: email, subject: 'Your Seasonal Cases password', text: resetText(link) });
 }

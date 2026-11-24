@@ -165,7 +165,7 @@ describe('7: a reset ends the older links', () => {
     await post(h, '/api/auth/forgot', { email: OLGA.email });
     // The registration's own mail, then the two links.
     await expect.poll(() => box.sent.length).toBe(3);
-    const [first, second] = box.sent.slice(1).map((m) => /token=([\w-]+)/.exec(m.text)?.[1] ?? '');
+    const [first, second] = box.sent.slice(1).map((m) => /#token=([\w-]+)/.exec(m.text)?.[1] ?? '');
     const next = 'another long secret';
     expect((await post(h, '/api/auth/reset', { token: second, password: next })).statusCode).toBe(
       200,

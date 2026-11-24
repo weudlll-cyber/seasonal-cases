@@ -14,9 +14,9 @@ The chain is running; this report is written at its end.
 
 ### State
 
-| Done                                                                                                                                                    | Running                                           | Open     | Needs the owner's hand / word                                    |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | -------- | ---------------------------------------------------------------- |
-| Piece 1: the settings read back and the commands written down; piece 2: the phone bar and the largest text; pieces 3 and 4: privacy, the four kit parts | Piece 5: the production bundle and the mail links | Piece 5b | The GitHub settings (below); the task text breaks off in piece 5 |
+| Done                                                                                                                                                                                             | Running                                            | Open   | Needs the owner's hand / word                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- | ------ | ---------------------------------------------------------------- |
+| Piece 1: the settings read back and the commands written down; piece 2: the phone bar and the largest text; pieces 3 to 5: privacy, the four kit parts, the production bundle and the mail links | Piece 5b: kit v0.19.0 and the header's step badges | (none) | The GitHub settings (below); the task text breaks off in piece 5 |
 
 ### Pieces
 
@@ -25,10 +25,20 @@ The chain is running; this report is written at its end.
 | 1     | GitHub settings: read back, the target and the commands in RELEASING.md; D59–D64                                                                                                            | `fa74f60`            | 45493564174, 45493572118 green                                      |
 | 2     | The phone bar and the largest text (D60): the screens run asserts it; CSS in `moments.css`, `shell.css`, `screens.css`, `stage.css`, `stageParts.css`, `artifact.css`; `e2e/measure.ts`     | `173131d`            | 45498058970, 45498069518 green                                      |
 | 3     | Privacy (D61): `/account` (download, delete), `/privacy`, the erasure (`auth/erasure.ts`, `domain/redact.ts`, `ShowService.forget`), `SC_PRIVACY_CONTACT`, 14 days of logs in the installer | `b226479`, `855a394` | 45504335501 (red: the installer's `write_state`), 45504821858 green |
-| 4     | The four kit parts (D62): `back` in `FocusBar`, `seasonSource.ts` + `guardedFetch.ts`, `afterFonts` on the stage and the board, `DockedScreen` `withoutChat`                                | (this commit)        | (next entry)                                                        |
+| 4     | The four kit parts (D62): `back` in `FocusBar`, `seasonSource.ts` + `guardedFetch.ts`, `afterFonts` on the stage and the board, `DockedScreen` `withoutChat`                                | `60990cf`            | 45506301454, 45506313843 green                                      |
+| 5     | The production bundle and the mail links (D63): the dev form, "Dev sign-in" menu, Quick Test and "Fill with bots" behind the build-time flag; `pnpm bundle:check`; tokens after `#`         | (this commit)        | (next entry)                                                        |
 
 ### Choices made without the owner
 
+- **Piece 5, the proof.** The client was built for production and every built file searched for
+  `dev/sign-in`, `dev/quick-test`, `Dev sign-in`, `Development sign-in`, `Sign in as organiser`,
+  `Quick Test` and `Fill with bots`: the earlier build held six of them, this one none. The search is
+  now `pnpm bundle:check` (a CI step, with a test that it finds a planted string). Left in the bundle,
+  named: the opening showcase page `/dev/opening` (BACKLOG 67, outside the three tools of D63) and
+  the property name `onDevSignIn` (an identifier, no tool).
+- **Piece 5, what changed for development.** The Quick Test's button now sits in its own row under
+  the seed field (it was beside "Create show") and no longer runs on Enter in the form; both were
+  needed to take its words out of the form that production uses. The journeys use the button.
 - **Piece 3's first push was red** (the `deploy` job): `SC_PRIVACY_CONTACT`, empty by default, became
   the last answer in the installer's list, and `write_state`'s `[[ -n ... ]] && quoted` ended the loop
   with status 1, which under `pipefail` stopped the install. Fixed with an `if` (`855a394`); the
