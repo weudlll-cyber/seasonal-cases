@@ -10,7 +10,7 @@
  */
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 
-import { endEarly } from './helpers.js';
+import { endEarly, openMenu } from './helpers.js';
 import { STEP_ICON, STUB_ORIGIN } from './stubShared.js';
 
 const GAME = `${STUB_ORIGIN}/games/cases/`;
@@ -20,8 +20,10 @@ async function signInThroughWebsite(context: BrowserContext, memberId: number): 
   await context.addCookies([{ name: 'stub-as', value: String(memberId), url: STUB_ORIGIN }]);
   const page = await context.newPage();
   await page.goto(GAME);
+  await openMenu(page);
   await page.getByRole('link', { name: 'Sign in' }).click();
-  await expect(page.locator('.shell-me')).toBeVisible();
+  // On a phone the chip sits in the folded menu: attached, not visible.
+  await expect(page.getByTestId('signed-in-as')).toBeAttached();
   return page;
 }
 
@@ -30,7 +32,7 @@ test('journey 4: website sign-in, back link, docked chat, badges; a guest only w
 }) => {
   const host = await browser.newContext();
   const olga = await signInThroughWebsite(host, 8);
-  await expect(olga.locator('.shell-me')).toContainText('organiser');
+  await expect(olga.getByTestId('signed-in-as')).toContainText('organiser');
   const api = olga.request;
   const created = await api.post(`${GAME}api/shows`, {
     data: { cases: 6, winners: 1, labels: [] },
@@ -45,7 +47,6 @@ test('journey 4: website sign-in, back link, docked chat, badges; a guest only w
   await expect(
     ana.getByRole('link', { name: 'Seasonal Entertainment', exact: true }),
   ).toHaveAttribute('href', '/games');
-  await expect(ana.locator('.shell-me .badge-icon')).toHaveAttribute('src', STEP_ICON);
   const chat = ana.getByTestId('chat-frame');
   await expect(chat).toHaveAttribute('src', /^\/embed\/chat\?room=cases&theme=/);
   // On a phone the kit's dock is a folded bar: open it to see the chat, fold it to play on.
@@ -61,7 +62,11 @@ test('journey 4: website sign-in, back link, docked chat, badges; a guest only w
   }
   await ana.locator('.board-case[data-case="3"]').getByRole('button').click();
   await expect(ana.locator('.board-pick')).toContainText('Your pick: case 3, you hold it');
-  await expect(ana.locator('.board-case[data-case="3"] .badge-icon')).toBeVisible();
+  // The website's step icon reaches the page: on the board, where the header's chip has no slot.
+  await expect(ana.locator('.board-case[data-case="3"] .badge-icon')).toHaveAttribute(
+    'src',
+    STEP_ICON,
+  );
 
   const guest = await browser.newContext();
   const watcher = await guest.newPage();
@@ -69,6 +74,7 @@ test('journey 4: website sign-in, back link, docked chat, badges; a guest only w
   await expect(
     watcher.getByRole('link', { name: 'Seasonal Entertainment', exact: true }),
   ).toBeVisible();
+  await openMenu(watcher);
   await expect(watcher.getByRole('link', { name: 'Sign in' })).toBeVisible();
   await expect(watcher.locator('.board-case[data-case="3"]')).toContainText('Ana');
   await expect(watcher.locator('.board-case button')).toHaveCount(0);

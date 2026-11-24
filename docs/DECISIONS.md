@@ -200,3 +200,11 @@ the owner confirmed them on 2026-11-23 (D46).
   game's own class, which the kit's grew out of, evicted the oldest key. D55's keys and limits are
   unchanged. A flood of fresh addresses can therefore shut out new addresses until the window
   passes, as the kit documents; the test that covered eviction covers the kit's rule now.
+- **D58 — The kit's header and its Menu.** The game's header is the kit's `AppHeader`, in the
+  kit's order: the way back to Seasonal Entertainment (website mode), the brand, the pages, the
+  account chip with its buttons, the theme toggle at the far right; in development only the
+  "Quick Test" link and the "Dev sign-in" menu. On a narrow screen the kit folds the pages and the
+  account into one "Menu" button; this replaces D29's wrapping menu. The chip reads "name (role)"
+  and the website step badges are no longer shown in the header (they stay on the board, the
+  lower third and the players panel). `--shell-height` stays: the stage, the board and the bar's
+  panel subtract the header's measured height.

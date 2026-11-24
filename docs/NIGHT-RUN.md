@@ -15,15 +15,16 @@ The chain is running; this report is written at its end.
 
 ### State
 
-| Done                                                     | Running                        | Open                                                                               | Needs the owner's word |
-| -------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------- | ---------------------- |
-| Piece 1: kit v0.17.0 and the migrations of 0.12.0–0.17.0 | Piece 2: the kit's `AppHeader` | Piece 3: the game against the handbook; piece 4: play-through, pictures, hand-over | (none yet)             |
+| Done                                                                                     | Running                                | Open                                       | Needs the owner's word                                                                         |
+| ---------------------------------------------------------------------------------------- | -------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| Piece 1: kit v0.17.0 and the migrations of 0.12.0–0.17.0; piece 2: the kit's `AppHeader` | Piece 3: the game against the handbook | Piece 4: play-through, pictures, hand-over | The header no longer shows the website step badges; the game bar's two rows on a phone (below) |
 
 ### Pieces
 
 | Piece | What                                                                                                                                  | Commit        | CI run       |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ |
-| 1     | Kit v0.17.0 (D56): tokens `--sk-…`, `presses`, `useOpenDockChat`, the kit's `FailureBrake` (D57), `pending/` gone, version 1.1.0-rc.1 | (this commit) | (next entry) |
+| 1     | Kit v0.17.0 (D56): tokens `--sk-…`, `presses`, `useOpenDockChat`, the kit's `FailureBrake` (D57), `pending/` gone, version 1.1.0-rc.1 | `dfdfbc1`     | (below)      |
+| 2     | The kit's `AppHeader` (D56, D58): `ShellBar.tsx`, `DevTools.tsx`, header.css, the Menu fold; journeys on the kit's test ids           | (this commit) | (next entry) |
 
 ### Choices made without the owner
 
@@ -41,6 +42,28 @@ The chain is running; this report is written at its end.
   `docs/HANDOVER.md` and `docs/DECISIONS.md` on master (v1.0.0). My check looked for the other
   markers, and Prettier had indented this one. Both stray blocks are removed here; master carries
   them until this branch is merged.
+- **The header's pieces:** the pages, the chip "name (role)" (a player's rank in it), "Sign out",
+  "Sign in" for a guest (to the start page, where the sign-in and the registration forms are;
+  no "Register" link, since it is the same page), the Quick Test link (to the admin area, where
+  the Quick Test button is) and the "Dev sign-in" menu with an organiser, an admin and three
+  players of ranks 0, 2 and 5, both only in a development build. No `foldBelow`: the kit's
+  measured fold decides. The start page's own dev sign-in form stays.
+- **Dropped from the header, for the owner's word:** the player's website step badges next to
+  the name (`AppHeader`'s chip has no slot for them). Nothing in the game depends on them: the
+  board, the lower third and the players panel show the badges; journey 4 now checks the icon's
+  source on the board.
+- **`useShellHeight` and `--shell-height` stay:** the stage, the board and the bar's panel read
+  it. The hook measures the kit's `.sk-header` inside a box-less wrapper.
+- **Links without a reload:** the kit renders plain anchors, so one delegated click handler moves
+  between the game's own pages with `navigate` (the website login hop and modified clicks are
+  left to the browser).
+- **"3 prizes left" was never cut** (measured at 390 × 844 and 360 × 780): on a phone it is the
+  kit's read-out (a 1 × 1 px visually hidden box), which my cut counter took for a cut, and I
+  repeated it in the SC-N6 and SC-R1 reports. What is real: at 360 px "24 cases left" is cut,
+  and where the dock's chat button joins (the dev stack, and website mode) the bar holds six
+  buttons and a fact, wraps to two rows (92 px) at 390 and 360 px, and so the owner's phone
+  shows two rows. Cases can fix it without the kit (a smaller gutter, a shorter fact, one button
+  less in the bar); each changes what the owner sees, so none is built: for the owner's word.
 - **The eviction test** of sign-in's brake now covers the kit's rule (a full map refuses a new key
   and keeps every held count): D57.
 

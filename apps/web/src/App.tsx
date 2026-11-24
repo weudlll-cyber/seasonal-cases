@@ -12,7 +12,8 @@
  *                 direction bar then lives in the bar's panel. In website mode, or locally with a
  *                 chat origin, every screen sits in the kit's `DockedScreen` with the website's
  *                 chat, mounted once (GAME-INTEGRATION §5); the call slot stays hidden. The
- *                 dock's unread count (the kit's `onUnread`) is the game bar's chat badge.
+ *                 dock's unread count (the kit's `onUnread`) is the game bar's chat badge. The kit's
+ *                 theme hook sets <html data-theme> and follows the system while nothing is stored.
  * Depends on:     react, @seasonal/kit/react, ./account/*, ./lib/*, ./screens/*, ./shell/*,
  *                 ./stage/Stage.js
  */
@@ -51,7 +52,6 @@ function chatOf(mode: ServerMode): ReactNode {
 }
 
 export function App() {
-  // The kit's theme hook sets <html data-theme> and follows the system while nothing is stored.
   useTheme();
   const route = routeOf(usePath());
   const session = useSession();
@@ -92,11 +92,12 @@ export function App() {
         />
       ) : (
         <ShellBar
+          route={route.name}
           me={me}
           website={mode.mode === 'website'}
-          onSignOut={() => {
-            void session.signOut();
-          }}
+          dev={mode.dev}
+          onSignOut={session.signOut}
+          onDevSignIn={session.signIn}
         />
       )}
       {isDocked ? (

@@ -14,6 +14,7 @@ import '@seasonal/kit/motion.css';
 import '@seasonal/kit/fit.css';
 import '@seasonal/kit/shell.css';
 import '@seasonal/kit/frames.css';
+import '@seasonal/kit/header.css';
 import '@seasonal/kit/bar.css';
 import '@seasonal/kit/dock.css';
 import '@seasonal/kit/call.css';

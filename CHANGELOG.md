@@ -14,6 +14,10 @@ Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before t
     kit's hook (0.13.0): `packages/ui/src/pending/` is gone;
   - sign-in's failure counting is the kit's `FailureBrake` (0.15.0; D57);
   - the open phone chat sheet is never taller than the space left above the bar (0.17.0).
+- **The kit's header (D58):** `AppHeader` in the kit's order, with "name (role)" in the chip and, in
+  development, "Quick Test" and "Dev sign-in"; on a narrow screen the pages and the account fold
+  into one "Menu" button in place of the wrapping menu. The website step badges no longer show in
+  the header (they stay on the board, the lower third and the players panel).
 
 ## 1.0.0 (2026-11-23, tag `v1.0.0`)
 

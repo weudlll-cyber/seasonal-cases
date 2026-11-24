@@ -1,11 +1,12 @@
 /**
  * @file   apps/web/src/shell/shell.css
- * @brief  The page and the shell: the background, the top bar, buttons, cards and fields.
+ * @brief  The page and the shell: the background, buttons, cards and fields.
  *
  * Responsibility: the frame around every screen, from the kit's tokens only: the page's season
  *                 glows (`--sk-page-background`, night blue in dark, warm white in light, never flat
  *                 black or white), Luxora Grotesk, 44 px targets, 14 px text at least.
- *                 `--shell-height` is the bar's height the stage screens subtract.
+ *                 The header is the kit's (@seasonal/kit/header.css, ./ShellBar.tsx);
+ *                 `--shell-height` is its height, which the stage screens subtract.
  * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/fonts.css, @seasonal/kit/shell.css,
  *                 @seasonal/kit/dock.css
  */
@@ -53,42 +54,10 @@ a {
   color: var(--sk-color-text);
 }
 
-.shell-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sk-space-1) var(--sk-space-2);
-  /* 64 px, not --shell-height: that is this bar's measured height (./useShellHeight.ts), and as
-     its own floor it would keep the bar as tall as it ever was (a phone's 153 px on a desktop). */
-  min-height: 64px;
-  padding: 8px var(--sk-gutter);
-  background: var(--sk-sidebar-background);
-  border-bottom: 1px solid var(--sk-color-border);
-}
-
-.shell-title {
-  font-weight: var(--sk-font-weight-heading);
-  font-size: 1.15rem;
-  text-decoration: none;
-}
-
-.shell-nav {
-  display: flex;
-  gap: var(--sk-space-2);
-  flex: 1;
-}
-
-.shell-nav a {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--sk-hit-target);
-}
-
-.shell-me {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sk-space-1);
-  font-size: 0.95rem;
+/* The wrapper around the kit's header (./ShellBar.tsx) has no box of its own: the header stays a
+   child of the page (sticky from 640 px) and, in the docked shell, a flex item above the dock. */
+.shell-header {
+  display: contents;
 }
 
 .button {
@@ -158,76 +127,6 @@ select {
 
 .commitment {
   font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
-}
-
-/* A phone: the title and the toggle, then the menu and the user. The links wrap, nothing
-   scrolls sideways or hides (DECISIONS D29); the header's real height is published as
-   `--shell-height` (./useShellHeight.ts), 108 px only until it is measured. The role is left
-   out there; the name gives way. */
-@media (max-width: 640px) {
-  :root {
-    --shell-height: 108px;
-  }
-
-  .shell-bar {
-    display: grid;
-    grid-template-areas:
-      'title toggle'
-      'nav me';
-    grid-template-columns: 1fr auto;
-    min-height: 0;
-    padding: 6px var(--sk-gutter);
-    gap: 4px var(--sk-space-1);
-  }
-
-  .shell-title {
-    grid-area: title;
-    align-self: center;
-  }
-
-  .shell-nav {
-    grid-area: nav;
-    flex-wrap: wrap;
-    gap: 0 var(--sk-space-1);
-    min-width: 0;
-    white-space: nowrap;
-  }
-
-  .shell-me {
-    grid-area: me;
-  }
-
-  .shell-bar .sk-theme-toggle {
-    grid-area: toggle;
-    justify-self: end;
-  }
-
-  .shell-me-role {
-    display: none;
-  }
-
-  .shell-me-name {
-    max-width: 5.5rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-
-/* Below 480 px the links and the user no longer share a row (360 px leaves 328: the links need
-   305, the user 184): the user stays at the right under the toggle, and the links take a row of
-   their own below, wrapping there if they must (DECISIONS D29). */
-@media (max-width: 480px) {
-  .shell-bar {
-    grid-template-areas:
-      'title toggle'
-      'me me'
-      'nav nav';
-  }
-
-  .shell-me {
-    justify-self: end;
-  }
 }
 
 /* The docked chat (website mode, or a local chat origin): the shell is one screen high, the

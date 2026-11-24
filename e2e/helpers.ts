@@ -6,7 +6,8 @@
  *                 admin API; and learn which case holds which artifact for a Quick Test seed by
  *                 running the same Quick Test in memory: the seed reproduces the sealing
  *                 (CONCEPT §8), so the test can aim at the main prize without reading anything
- *                 the client receives; act on the direction bar on a desktop or a phone.
+ *                 the client receives; act on the direction bar on a desktop or a phone; open the
+ *                 kit header's folded menu on a phone.
  * Depends on:     @playwright/test, @sc/application, @sc/domain
  */
 import { expect, type APIRequestContext, type Locator, type Page } from '@playwright/test';
@@ -23,7 +24,20 @@ export async function signInUi(page: Page, name: string, role: Role, rank = 0): 
   await form.getByLabel('Role').selectOption(role);
   await form.getByLabel('Rank').selectOption(String(rank));
   await form.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.locator('.shell-me')).toContainText(name);
+  await expect(page.getByTestId('signed-in-as')).toContainText(name);
+}
+
+/**
+ * On a phone the kit folds the header's pages and account into its "Menu" button: opens it where
+ * it is closed, so the links and "Sign out" in it can be clicked. A header that is not folded has
+ * no such button visible, and nothing happens.
+ */
+export async function openMenu(page: Page): Promise<void> {
+  await expect(page.getByTestId('app-header')).toBeVisible();
+  const menu = page.getByTestId('menu-button');
+  if ((await menu.isVisible()) && (await menu.getAttribute('aria-expanded')) === 'false') {
+    await menu.click();
+  }
 }
 
 /** Signs in through the dev route; the page's context keeps the cookie. */

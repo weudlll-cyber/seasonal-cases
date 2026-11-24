@@ -15,7 +15,7 @@
 | 1.10 | 2026-11-23 | Night chain SC-N6, from the owner's decisions of 2026-11-23: the case and its opening (§7); registration through the mail's link decided (§10). |
 | 1.11 | 2026-11-23 | Task SC-P7, from the owner's decisions of 2026-11-23: the artifact rises straight up from the case's centre (§7); release candidate 1.0.0-rc.4 (§12). |
 | 1.12 | 2026-11-23 | Task SC-R1: version 1.0.0, merged into master and tagged `v1.0.0` (§12). |
-| 1.13 | 2026-11-24 | Night chain SC-N7, from the owner's decision of 2026-11-24: the whole kit, v0.17.0, before the VPS (§11); release candidate 1.1.0-rc.1 (§12). |
+| 1.13 | 2026-11-24 | Night chain SC-N7, from the owner's decision of 2026-11-24: the whole kit, v0.17.0, before the VPS (§11); the kit's app header with its folded Menu in place of the wrapping one (§7); release candidate 1.1.0-rc.1 (§12). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -177,8 +177,12 @@ Target: a TV-studio feel with small means — SVG, icons, gradients, glow, CSS a
   current or next show on the kit's start card (state, cases, prizes; "Opens in N s" once shows
   have a start time), its registration board below while registration is open, and the sign-in
   where it belongs.
-- **Header on a phone** (decided 2026-11-22): the menu's links wrap to a row of their own;
-  nothing scrolls sideways and nothing is hidden.
+- **Header** (decided 2026-11-24): the kit's app header in the kit's order: in website mode the
+  way back to Seasonal Entertainment, the brand, the pages (Start, Stage, Chronicle, "My matches"
+  once signed in, Admin), the account chip "name (role)" with "Sign out" (a guest: "Sign in"), and
+  the theme toggle at the far right; in development also "Quick Test" and "Dev sign-in". When the
+  items do not fit one row, as on a phone, the pages and the account fold into one "Menu" button
+  (this replaces the wrapping menu of 2026-11-22).
 - **Focus mode:** during a live show the kit's game bar replaces the app header: "Seasonal
   Cases", the cases left and the prizes left, full screen where offered, and panels for the
   players (the owners), the chat (website mode) and, for the direction holder on a phone, the
