@@ -208,3 +208,32 @@ the owner confirmed them on 2026-11-23 (D46).
   and the website step badges are no longer shown in the header (they stay on the board, the
   lower third and the players panel). `--shell-height` stays: the stage, the board and the bar's
   panel subtract the header's measured height.
+
+## 2026-11-24, night chain SC-N8: the owner's decisions D59–D64
+
+- **D59 — The GitHub settings are the kit's.** The repository is set like the kit's: merge commits
+  only, the branch deleted after a merge, conversations resolved on master (its required checks,
+  strict and admins stay), no wiki and no Projects, a ruleset that makes `v*` tags immutable,
+  vulnerability alerts and automated security fixes on, actions required to be pinned to SHAs
+  (docs/RELEASING.md, "Repository settings").
+- **D60 — The phone bar and the largest text.** At 390 × 844 and 360 × 780, at the normal root font
+  and at 200 %, no page scrolls sideways, no text in the game bar, the ceremony or an owner's name
+  is cut, and the game bar is one row at the normal font; the 14 px text floor holds.
+- **D61 — Privacy.** Accounts stay until the player deletes them. On deletion the account and its
+  personal data (name, e-mail, password hash, two-factor secrets, recovery codes, sessions,
+  pending mails) are removed, and every show, chronicle entry, result page and "My matches" row it
+  appears in shows "deleted player"; the show's sealed distribution and commitment stay intact.
+  Server logs are kept 14 days. In standalone mode a player deletes their account (password, and a
+  current code with two-factor sign-in; the last super-admin cannot) and downloads their data as
+  JSON. In website mode the accounts belong to the website, which deletes and exports them. A
+  privacy page says what is stored, why, how long, how to delete and export, and whom to contact.
+- **D62 — The four kit parts.** The game bar's back link to Seasonal Entertainment in website mode
+  (also in focus mode), the website's season feed for the season colours, `afterFonts` on the
+  stage's fit, and `withoutChat` where the game runs without a chat, each with the kit's defaults.
+- **D63 — The production bundle and the mail links.** The start page's dev form, the "Dev sign-in"
+  menu and the admin's Quick Test are not in the production build (a build-time flag, not a runtime
+  check). A password reset's and a registration's token travel after the link's `#`, not in its
+  query.
+- **D64 — Tests and the steps before production.** Tests exist where they guard something real,
+  with no coverage target; the thresholds are not a goal. The steps before production wait for the
+  VPS.

@@ -218,7 +218,8 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   2026-11-24 (night chain SC-N7, piece 3; the open items are BACKLOG 58–65):
   - coverage thresholds are the domain's 90 % lines / 85 % branches and the application's
     80 / 75 (CLAUDE.md "game logic 85 % branches"), not 95 % of lines, branches and functions
-    everywhere (63);
+    everywhere (decided 2026-11-24, D64: no coverage target, tests where they guard something
+    real; BACKLOG 63, closed);
   - the season of a show comes from its date (UTC month, `packages/application/src/season.ts`),
     not from the website's season feed (`seasonFeedReader`, 60);
   - the game bar has no `back` link in website mode, `afterFonts` is not set on the stage's fit

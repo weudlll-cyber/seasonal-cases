@@ -48,3 +48,34 @@ curl http://127.0.0.1:3970/api/health            # {"ok":true,…,"version":"1.0
 ```
 
 In website mode the health path is `/games/cases/api/health`.
+
+## Repository settings (the kit's, DECISIONS D59)
+
+The settings the kit's handbook lists, as read back with GET calls on 2026-11-24, and what they
+are to be. The session that read them could not write them (its permission layer refused every
+`gh api` write), so the owner applies them; after that this table is read back again.
+
+| Setting                         | Read back on 2026-11-24                                               | To be                                                                                             |
+| ------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Merge methods                   | merge commit, squash and rebase all allowed                           | `allow_squash_merge: false`, `allow_rebase_merge: false` (merge commits only)                     |
+| Delete the branch after a merge | `delete_branch_on_merge: false`                                       | `true`                                                                                            |
+| Wiki and Projects               | both on                                                               | `has_wiki: false`, `has_projects: false`                                                          |
+| Conversations on master         | `required_conversation_resolution: false` (checks, strict, admins ok) | `true`; the required checks `verify`, `security`, `docs`, `e2e`, strict and admins stay           |
+| Release tags                    | no ruleset                                                            | a ruleset "Release tags": `target: tag`, `refs/tags/v*`, rules `update` and `deletion`, no bypass |
+| Vulnerability alerts            | off (the GET answers 404)                                             | on                                                                                                |
+| Automated security fixes        | `enabled: false`                                                      | on                                                                                                |
+| Actions pinned to commit SHAs   | `sha_pinning_required: false` (every `uses:` is already a full SHA)   | `true`                                                                                            |
+
+The commands, one at a time (each is an ordinary REST call; or the page under Settings named in
+brackets):
+
+```sh
+gh api -X PATCH repos/weudlll-cyber/seasonal-cases -F allow_squash_merge=false -F allow_rebase_merge=false -F delete_branch_on_merge=true -F has_wiki=false -F has_projects=false   # [General]
+gh api -X POST repos/weudlll-cyber/seasonal-cases/branches/master/protection/required_conversation_resolution   # [Branches, the rule for master]
+gh api -X PUT repos/weudlll-cyber/seasonal-cases/vulnerability-alerts   # [Code security]
+gh api -X PUT repos/weudlll-cyber/seasonal-cases/automated-security-fixes   # [Code security]
+gh api -X PUT repos/weudlll-cyber/seasonal-cases/actions/permissions -F enabled=true -f allowed_actions=all -F sha_pinning_required=true   # [Actions, General]
+gh api -X POST repos/weudlll-cyber/seasonal-cases/rulesets --input release-tags.json   # [Rules, Rulesets]
+```
+
+`release-tags.json`: `{"name":"Release tags","target":"tag","enforcement":"active","conditions":{"ref_name":{"include":["refs/tags/v*"],"exclude":[]}},"rules":[{"type":"update"},{"type":"deletion"}]}`.

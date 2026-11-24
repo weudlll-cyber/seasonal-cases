@@ -2,6 +2,41 @@
 
 The morning sheets of the unattended night chains, newest first.
 
+## Night chain SC-N8 (2026-11-24)
+
+The owner's decisions of 2026-11-24 for BACKLOG 58–66 (D59–D64): the GitHub settings, the phone bar
+and the largest text, privacy, the four kit parts, the production bundle and the mail links. Branch
+`kit/v0.17-adoption`, draft PR #5, version `1.1.0-rc.1`; nothing merged, nothing tagged.
+
+### Final report
+
+The chain is running; this report is written at its end.
+
+### State
+
+| Done                                                          | Running                                     | Open       | Needs the owner's hand / word                                    |
+| ------------------------------------------------------------- | ------------------------------------------- | ---------- | ---------------------------------------------------------------- |
+| Piece 1: the settings read back and the commands written down | Piece 2: the phone bar and the largest text | Pieces 3–5 | The GitHub settings (below); the task text breaks off in piece 5 |
+
+### Pieces
+
+| Piece | What                                                                             | Commit        | CI run       |
+| ----- | -------------------------------------------------------------------------------- | ------------- | ------------ |
+| 1     | GitHub settings: read back, the target and the commands in RELEASING.md; D59–D64 | (this commit) | (next entry) |
+
+### Choices made without the owner
+
+- **The task text breaks off in piece 5** ("Prove it: build for production and search the built
+  files for their identifying strings; the check"). Piece 5 is built as far as it reads: 61 with
+  the proof, and 62 (the tokens after `#`) from the opening summary. No piece after it is in the
+  text, so none is built; the final play-through and pictures of SC-N7 are not repeated.
+- **Piece 1 could not be applied.** Every write call to the repository's settings (`gh api -X
+PATCH`, `PUT`, `POST`) was refused by this session's permission layer, though the task asks for
+  them. The task says a setting the API refuses is left and listed, so: nothing was changed; the
+  state before is read back in RELEASING.md, with the target and the six commands. **Needs the
+  owner's hand:** run those commands (or click Settings, General; Branches; Rules; Code security;
+  Actions, General), and read the table back.
+
 ## Night chain SC-N7 (2026-11-24)
 
 The owner's decision of 2026-11-24 (D56): Cases takes the whole kit now, before the VPS: kit
