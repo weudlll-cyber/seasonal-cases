@@ -51,7 +51,7 @@ two rows of the phone bar with the chat button (BACKLOG 65), and `.local/screens
 | Piece | What                                                                                                                                  | Commit                            | CI run                                                                                |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------- |
 | 1     | Kit v0.17.0 (D56): tokens `--sk-…`, `presses`, `useOpenDockChat`, the kit's `FailureBrake` (D57), `pending/` gone, version 1.1.0-rc.1 | `dfdfbc1`                         | (below)                                                                               |
-| 2     | The kit's `AppHeader` (D56, D58): `ShellBar.tsx`, `DevTools.tsx`, header.css, the Menu fold; journeys on the kit's test ids           | `d3b2b33`                         | (below)                                                                               |
+| 2     | The kit's `AppHeader` (D56, D58): `ShellBar.tsx`, `DevTools.tsx`, header.css, the Menu fold; journeys on the kit's test ids           | `d3b2b33`                         | 45476362886 push, 45476378028 pull request: `e2e` red, the same cause (below)         |
 | 3     | The game against the kit's handbook: the replacements that keep the look, the list (BACKLOG 58–65)                                    | `9c4770e`                         | 45477786449 push, 45477801145 pull request: `e2e` red (below)                         |
 | 4     | The e2e fix (`DevBoundary`, the Vite cache and `optimizeDeps`); the play-through; the pictures; the final report                      | `01a9c28` and the commit after it | 45480501571 push, 45480514499 pull request: `verify`, `security`, `docs`, `e2e` green |
 
@@ -110,8 +110,9 @@ two rows of the phone bar with the chat button (BACKLOG 65), and `.local/screens
 - **The GitHub settings were only read** (GET), not changed.
 - **A production build was made once** (a few seconds) to run the kit's own bundle check; the
   kit's three dev markers are absent and so are the new header's dev parts.
-- **The first CI run of the branch failed `e2e` (5 of 6 journeys in Chromium),** and the cause was
-  mine: the new header loads the kit's `DevSignIn` lazily in a development build, the e2e client
+- **`e2e` went red on piece 2's commit (5 of 6 journeys in Chromium)** and stayed red on piece 3's
+  (I read CI only after piece 3, so the first red was read on `9c4770e`; piece 1 was green), and
+  the cause was mine: the new header loads the kit's `DevSignIn` lazily in a development build, the e2e client
   is Vite's dev server on a cold cache (two of them start at once, on one dependency cache), and
   the trace shows Vite discovering the module late, building a second optimisation with its own
   copy of React; the kit's hook threw ("Invalid hook call") and, with no error boundary, the page
