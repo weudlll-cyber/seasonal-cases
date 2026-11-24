@@ -50,6 +50,9 @@ Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before t
   column, migration 0004) and passes them on unchanged. A standalone account shows none. The
   screens run holds a 32-character name with three steps on three phone sizes in both themes at
   the normal and the largest text.
+- **Smaller fixes (SC-N9):** the opening's showcase page is a development build's only (the
+  production bundle check searches for it too); at 360 px and the largest text the folded header's
+  Menu button no longer covers the brand's name (the header run asserts it).
 - **The pictures:** `.local/screens/sc-n7/` has four sizes in both themes and the phone sizes again
   with a 200 % root font; the 200 % ones show sideways overflow on four screens (BACKLOG 66).
 - **A dev tool can no longer take the game down:** the header's lazily loaded quick tools sit in an

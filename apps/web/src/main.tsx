@@ -30,7 +30,6 @@ import './stage/scoreboard.css';
 import './stage/moments.css';
 import './board/board.css';
 import './screens/screens.css';
-import './screens/showcase.css';
 import './screens/result.css';
 
 import { StrictMode } from 'react';

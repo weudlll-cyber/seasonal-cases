@@ -29,6 +29,9 @@ export const FORBIDDEN = [
   'Sign in as organiser',
   'Quick Test',
   'Fill with bots',
+  // The opening's showcase page (D63).
+  'dev/opening',
+  'Play the opening',
 ] as const;
 
 /** Every file under a folder, as full paths. */

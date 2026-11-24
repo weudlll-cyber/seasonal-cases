@@ -189,6 +189,14 @@ label {
   height: 16px;
 }
 
+/* Folded (D65 follow-up): the kit lets the brand shrink to nothing (`flex: 1 1 0; min-width: 0`), so at
+   360 px and the largest text its two-line name ran under the Menu button. Here the brand keeps the
+   width of its longest word and the Menu button and the toggle move to a row of their own instead. */
+.sk-header[data-sk-folded='true'] .sk-header-brand {
+  flex: 1 1 auto;
+  min-width: min-content;
+}
+
 /* A member's account chip in the folded menu (D65): the name (24 characters at most), the role and
    three steps do not fit one line at 360 px, nor at the largest text. The kit keeps the chip on
    one line (`nowrap`, "the chip whole"); inside the menu the game lets it wrap, so the name breaks

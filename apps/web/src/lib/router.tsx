@@ -50,16 +50,23 @@ export type Route =
   | { readonly name: 'confirm' }
   | { readonly name: 'opening' };
 
+// The plain paths and their routes. The showcase exists in a development build only (D63): its path
+// is written inside the build-time branch, so a production bundle does not contain it.
+const PLAIN: Readonly<Record<string, Route>> = {
+  '/show': { name: 'stage' },
+  '/admin': { name: 'admin' },
+  '/matches': { name: 'matches' },
+  '/account': { name: 'account' },
+  '/privacy': { name: 'privacy' },
+  '/chronicle': { name: 'chronicle' },
+  '/reset': { name: 'reset' },
+  '/confirm': { name: 'confirm' },
+  ...(import.meta.env.DEV ? { '/dev/opening': { name: 'opening' } } : {}),
+};
+
 export function routeOf(path: string): Route {
-  if (path === '/show') return { name: 'stage' };
-  if (path === '/admin') return { name: 'admin' };
-  if (path === '/matches') return { name: 'matches' };
-  if (path === '/account') return { name: 'account' };
-  if (path === '/privacy') return { name: 'privacy' };
-  if (path === '/chronicle') return { name: 'chronicle' };
-  if (path === '/reset') return { name: 'reset' };
-  if (path === '/confirm') return { name: 'confirm' };
-  if (path === '/dev/opening') return { name: 'opening' };
+  const plain = PLAIN[path];
+  if (plain !== undefined) return plain;
   const results = /^\/results\/([A-Za-z0-9_-]+)$/.exec(path);
   if (results?.[1] !== undefined) return { name: 'results', showId: results[1] };
   return { name: 'start' };

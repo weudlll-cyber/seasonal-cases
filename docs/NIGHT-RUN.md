@@ -2,6 +2,37 @@
 
 The morning sheets of the unattended night chains, newest first.
 
+## Night chain SC-N9 (2026-11-25)
+
+Finish SC-N8 and review it: two small fixes, a play-through, an independent security review, the
+pictures. Branch `kit/v0.17-adoption`, draft PR #5, version `1.1.0-rc.1`; nothing merged, nothing
+tagged. Not part of this chain: the GitHub settings (BACKLOG 59) and the real privacy contact text.
+
+### Final report
+
+The chain is running; this report is written at its end.
+
+### State
+
+| Done                                                             | Running               | Open           | Needs the owner's word / hand                           |
+| ---------------------------------------------------------------- | --------------------- | -------------- | ------------------------------------------------------- |
+| Piece 1: the showcase out of the bundle; the Menu over the brand | Piece 2: play-through | Pieces 3 and 4 | GitHub settings (hand); the privacy contact text (word) |
+
+### Pieces
+
+| Piece | What                                                                                                                                                                                           | Commit        | CI run       |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ |
+| 1     | BACKLOG 67: `/dev/opening` behind the DEV flag, 9 strings in `bundle:check`; the folded header's brand keeps its words' width (`shell.css`), an overlap assertion in `e2e/headerSteps.spec.ts` | (this commit) | (next entry) |
+
+### Choices made without the owner
+
+- **Piece 1, the overlap.** The kit lets the folded header's brand shrink to nothing
+  (`flex: 1 1 0; min-width: 0`), so at the largest text its name ran under the Menu button. The game's
+  CSS now gives the brand `flex: 1 1 auto; min-width: min-content`, and the Menu and the toggle go to
+  a row of their own when there is no room. The new assertion (the brand's text boxes against the
+  header's buttons) found 6 overlaps with the old rule (all at 200 %) and none with the new one.
+  Nothing is asked of the kit's chat.
+
 ## Night chain SC-N8 (2026-11-24)
 
 The owner's decisions of 2026-11-24 for BACKLOG 58–66 (D59–D64): the GitHub settings, the phone bar

@@ -27,7 +27,7 @@ import {
   useTheme,
   WebsiteChatFrame,
 } from '@seasonal/kit/react';
-import { useRef, type ReactNode } from 'react';
+import { lazy, Suspense, useRef, type ReactNode } from 'react';
 
 import { AccountPage } from './account/AccountPage.js';
 import { ConfirmPage } from './account/ConfirmPage.js';
@@ -40,10 +40,10 @@ import { routeOf, usePath, type Route } from './lib/router.js';
 import { useSession } from './lib/session.js';
 import { Admin } from './screens/Admin.js';
 import { Chronicle } from './screens/Chronicle.js';
-import { OpeningShowcase } from './screens/OpeningShowcase.js';
 import { PrivacyPage } from './screens/PrivacyPage.js';
 import { Result } from './screens/Result.js';
 import { StartPage } from './screens/StartPage.js';
+import { DevBoundary } from './shell/DevBoundary.js';
 import { DockChatBridge, useDockChat } from './shell/DockChatBridge.js';
 import { FocusBar } from './shell/FocusBar.js';
 import { ShellBar } from './shell/ShellBar.js';
@@ -143,6 +143,23 @@ interface RoutesProps {
   readonly phone: boolean;
 }
 
+// The opening's showcase loads on demand in a development build only (D63): a production bundle has
+// neither the page, its words nor its path.
+const Showcase = import.meta.env.DEV
+  ? lazy(() => import('./screens/OpeningShowcase.js').then((m) => ({ default: m.OpeningShowcase })))
+  : null;
+
+function OpeningPage({ dev }: { dev: boolean }) {
+  if (Showcase === null) return <p className="page">This page does not exist.</p>;
+  return (
+    <DevBoundary>
+      <Suspense fallback={null}>
+        <Showcase dev={dev} />
+      </Suspense>
+    </DevBoundary>
+  );
+}
+
 /** The pages that need no feed: the result, the account area, the chronicle, the mail links. */
 function plainPage(
   route: Route,
@@ -161,7 +178,7 @@ function plainPage(
   if (route.name === 'chronicle') return <Chronicle />;
   if (route.name === 'reset') return <ResetPage />;
   if (route.name === 'confirm') return <ConfirmPage />;
-  if (route.name === 'opening') return <OpeningShowcase dev={mode.dev} />;
+  if (route.name === 'opening') return <OpeningPage dev={mode.dev} />;
   return null;
 }
 

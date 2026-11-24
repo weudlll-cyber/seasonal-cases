@@ -67,6 +67,23 @@ async function problemsOf(page: Page, file: string): Promise<string[]> {
   });
   if (!inside.chip) problems.push(`${file}: the account chip reaches past the window`);
   if (inside.steps > 0) problems.push(`${file}: ${String(inside.steps)} steps past the window`);
+  // The header's own controls (Menu, theme toggle) never cover the brand's text.
+  const covered = await page.evaluate(() => {
+    const header = document.querySelector('[data-testid="app-header"]');
+    const brand = header?.querySelector('.sk-header-brand');
+    if (header === null || brand === null || brand === undefined) return 0;
+    const range = document.createRange();
+    range.selectNodeContents(brand);
+    const words = Array.from(range.getClientRects());
+    const controls = Array.from(header.querySelectorAll('button'))
+      .filter((b) => b.closest('.sk-menu') === null)
+      .map((b) => b.getBoundingClientRect())
+      .filter((r) => r.width > 1);
+    const meets = (a: DOMRect, b: DOMRect) =>
+      a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+    return words.filter((w) => w.width > 1 && controls.some((c) => meets(w, c))).length;
+  });
+  if (covered > 0) problems.push(`${file}: a header control covers the brand's text`);
   for (const name of STEP_NAMES) {
     const named = steps.and(page.locator(`img[alt="${name}"]`));
     if ((await named.count()) !== 1) problems.push(`${file}: no visible step named ${name}`);

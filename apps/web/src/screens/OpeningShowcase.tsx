@@ -11,8 +11,11 @@
  *                 and the opened case as the stage's half circle shows them. Outside development
  *                 the page says it is not there; the server answers its path with 404 too
  *                 (apps/server/src/web.ts).
- * Depends on:     react, @sc/contracts (types), ../stage/*
+ *                 Loaded on demand by ../App.tsx in a development build only, with its own
+ *                 stylesheet, so a production bundle has none of it (D63).
+ * Depends on:     react, @sc/contracts (types), ../stage/*, ./showcase.css
  */
+import './showcase.css';
 import type { Artifact, Season } from '@sc/contracts';
 import { useState } from 'react';
 
