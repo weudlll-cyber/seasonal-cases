@@ -16,8 +16,7 @@ Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before t
   - the open phone chat sheet is never taller than the space left above the bar (0.17.0).
 - **The kit's header (D58):** `AppHeader` in the kit's order, with "name (role)" in the chip and, in
   development, "Quick Test" and "Dev sign-in"; on a narrow screen the pages and the account fold
-  into one "Menu" button in place of the wrapping menu. The website step badges no longer show in
-  the header (they stay on the board, the lower third and the players panel).
+  into one "Menu" button in place of the wrapping menu.
 - **The phone bar and the largest text (D60):** on a phone the game bar's fact wraps instead of
   ending in "…" and the buttons keep one row; no page scrolls sideways at a 200 % root font; an
   owner's name, a lower third and an artifact's name wrap instead of being cut. The screens run
@@ -45,6 +44,12 @@ Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before t
 - **Mail links (D63):** a password reset's and a registration's token travel after the link's `#`
   (`/reset#token=`, `/confirm#token=`), which a browser never sends: not to the server, not in a log,
   not in a referrer. The page takes the token off the address when it is spent.
+- **Kit v0.19.0 and the header's step badges (D65):** a website member's steps (at most three)
+  show beside the name in the header's chip, and in the folded Menu, drawn and checked by the kit's
+  `AppHeader` (`account.steps`); the game keeps them as the website gave them (a new `steps`
+  column, migration 0004) and passes them on unchanged. A standalone account shows none. The
+  screens run holds a 32-character name with three steps on three phone sizes in both themes at
+  the normal and the largest text.
 - **The pictures:** `.local/screens/sc-n7/` has four sizes in both themes and the phone sizes again
   with a 200 % root font; the 200 % ones show sideways overflow on four screens (BACKLOG 66).
 - **A dev tool can no longer take the game down:** the header's lazily loaded quick tools sit in an

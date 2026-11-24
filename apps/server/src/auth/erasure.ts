@@ -46,6 +46,7 @@ export const tombstone = (account: Account): Account => ({
   role: 'player',
   rank: 0,
   badges: [],
+  steps: [],
   deleted: true,
 });
 

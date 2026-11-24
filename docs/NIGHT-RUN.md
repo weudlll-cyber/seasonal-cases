@@ -14,22 +14,44 @@ The chain is running; this report is written at its end.
 
 ### State
 
-| Done                                                                                                                                                                                             | Running                                            | Open   | Needs the owner's hand / word                                    |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- | ------ | ---------------------------------------------------------------- |
-| Piece 1: the settings read back and the commands written down; piece 2: the phone bar and the largest text; pieces 3 to 5: privacy, the four kit parts, the production bundle and the mail links | Piece 5b: kit v0.19.0 and the header's step badges | (none) | The GitHub settings (below); the task text breaks off in piece 5 |
+| Done                                                                                                                                                                                             | Running | Open   | Needs the owner's hand / word                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | ------ | ---------------------------------------------------------------- |
+| Piece 1: the settings read back and the commands written down; piece 2: the phone bar and the largest text; pieces 3 to 5: privacy, the four kit parts, the production bundle and the mail links | (none)  | (none) | The GitHub settings (below); the task text breaks off in piece 5 |
 
 ### Pieces
 
-| Piece | What                                                                                                                                                                                        | Commit               | CI run                                                              |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------- |
-| 1     | GitHub settings: read back, the target and the commands in RELEASING.md; D59–D64                                                                                                            | `fa74f60`            | 45493564174, 45493572118 green                                      |
-| 2     | The phone bar and the largest text (D60): the screens run asserts it; CSS in `moments.css`, `shell.css`, `screens.css`, `stage.css`, `stageParts.css`, `artifact.css`; `e2e/measure.ts`     | `173131d`            | 45498058970, 45498069518 green                                      |
-| 3     | Privacy (D61): `/account` (download, delete), `/privacy`, the erasure (`auth/erasure.ts`, `domain/redact.ts`, `ShowService.forget`), `SC_PRIVACY_CONTACT`, 14 days of logs in the installer | `b226479`, `855a394` | 45504335501 (red: the installer's `write_state`), 45504821858 green |
-| 4     | The four kit parts (D62): `back` in `FocusBar`, `seasonSource.ts` + `guardedFetch.ts`, `afterFonts` on the stage and the board, `DockedScreen` `withoutChat`                                | `60990cf`            | 45506301454, 45506313843 green                                      |
-| 5     | The production bundle and the mail links (D63): the dev form, "Dev sign-in" menu, Quick Test and "Fill with bots" behind the build-time flag; `pnpm bundle:check`; tokens after `#`         | (this commit)        | (next entry)                                                        |
+| Piece | What                                                                                                                                                                                                  | Commit               | CI run                                                                                     |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------ |
+| 1     | GitHub settings: read back, the target and the commands in RELEASING.md; D59–D64                                                                                                                      | `fa74f60`            | 45493564174, 45493572118 green                                                             |
+| 2     | The phone bar and the largest text (D60): the screens run asserts it; CSS in `moments.css`, `shell.css`, `screens.css`, `stage.css`, `stageParts.css`, `artifact.css`; `e2e/measure.ts`               | `173131d`            | 45498058970, 45498069518 green                                                             |
+| 3     | Privacy (D61): `/account` (download, delete), `/privacy`, the erasure (`auth/erasure.ts`, `domain/redact.ts`, `ShowService.forget`), `SC_PRIVACY_CONTACT`, 14 days of logs in the installer           | `b226479`, `855a394` | 45504335501 (red: the installer's `write_state`), 45504821858 green                        |
+| 4     | The four kit parts (D62): `back` in `FocusBar`, `seasonSource.ts` + `guardedFetch.ts`, `afterFonts` on the stage and the board, `DockedScreen` `withoutChat`                                          | `60990cf`            | 45506301454, 45506313843 green                                                             |
+| 5     | The production bundle and the mail links (D63): the dev form, "Dev sign-in" menu, Quick Test and "Fill with bots" behind the build-time flag; `pnpm bundle:check`; tokens after `#`                   | `283b298`, `cbd9804` | 45507603521 push green, 45507612540 PR e2e red (stub), then 45508479589, 45508491954 green |
+| 5b    | Kit v0.19.0 and the header's step badges (D65): the pin, `Account.steps` / `Me.steps` (migration 0004), `account.steps` in `ShellBar`, the chip wrapped in the folded menu, `e2e/headerSteps.spec.ts` | (this commit)        | (next entry)                                                                               |
 
 ### Choices made without the owner
 
+- **Piece 5b, kit v0.19.0.** Pinned at the tag (object `2ab45ba`, commit `19f0208`, lockfile checked);
+  `pnpm kit:check` says current. The 0.18.0 migration names nothing for this game; the 0.19.0 one is
+  the header's `account.steps`. The member's steps travel as the kit's `identityFrom` returns them:
+  stored in a new `steps` column (migration 0004, default `[]`), sent as `Me.steps` (absent for a
+  standalone account), passed to the chip unchanged; no badge type, no filtering of the game's own.
+  The wire schema in `@sc/contracts` mirrors the kit's `Step` shape (it must validate on the wire);
+  `badges` (icons only) stay for the boards.
+- **Piece 5b, what the run found.** The first run of `e2e/headerSteps.spec.ts` (a member with a
+  32-character name and three steps; 3 phone sizes, both themes, normal and 200 % font) found the
+  chip past the window's edge in the folded Menu in all 24 combinations (the kit keeps the chip on
+  one line, `nowrap`). A first version of the check let this pass (a clipped image is still
+  "visible"): it now asserts every step's box and the chip's lie inside the window. **The game's own
+  CSS fixed it** (`shell.css`: inside the folded menu the chip wraps, the steps drop to a second
+  line), so **nothing is asked of the kit's planning chat**. Also found: the kit's `identityFrom`
+  makes the game's name of a website name, 24 characters at most with the spaces as underscores, so
+  a 32-character website name shows as 24 (the run asserts that); and the stand-in website's step
+  icon was one transparent pixel, so the pictures showed blanks: it is now a visible 24 px WebP.
+- **Noticed in the header's pictures, left alone:** at 360 px and the 200 % font the brand
+  "Seasonal Cases" wraps to two lines and the Menu button sits over its first line (already so in
+  the earlier header; the screens run asserts no overlap). The pictures are in
+  `.local/screens/header-steps/`.
 - **Piece 5's PR run had one red e2e (journey 4), and it was not the game.** The trace shows the
   page's own module requests failing at the moment the stand-in website logged `Unhandled 'error'
 event ... write EPIPE`: the stand-in (`e2e/websiteStub.ts`) pipes the socket upgrade between the

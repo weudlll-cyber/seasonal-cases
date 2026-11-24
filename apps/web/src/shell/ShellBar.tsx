@@ -6,8 +6,9 @@
  * Responsibility: the kit's order, on screen and in the DOM: in website mode the way back to
  *                 Seasonal Entertainment, the brand (emblem, "Seasonal Cases"), the pages (Start,
  *                 Stage, Chronicle, "My matches" once signed in, Admin, Privacy; the current one marked),
- *                 the account chip "name (role)", linking to the account page (download and delete
- *                 one's data, D61), with "Sign out" (a guest: "Sign in", which in
+ *                 the account chip "name (role)" and, in website mode, the member's steps as the
+ *                 kit draws them (`account.steps`, D65), linking to the account page (download
+ *                 and delete one's data, D61), with "Sign out" (a guest: "Sign in", which in
  *                 website mode goes through the website with the kit's `websiteLoginHref` to the
  *                 game's login hop), in development the Quick Test link and the "Dev sign-in"
  *                 menu (./DevTools.tsx, loaded only by a development build, each inside an error
@@ -75,7 +76,14 @@ export function linksOf(route: Route['name'], me: Me | null): readonly HeaderLin
 export function accountOf(me: Me | null, onSignOut: () => void): HeaderAccount | null {
   if (me === null) return null;
   const role = me.role === 'player' ? `player · rank ${String(me.rank)}` : me.role;
-  return { name: me.name, role, href: pagePath('/account'), onSignOut };
+  // A website member's steps go to the kit's chip exactly as the server received them (D65).
+  return {
+    name: me.name,
+    role,
+    href: pagePath('/account'),
+    onSignOut,
+    ...(me.steps === undefined ? {} : { steps: me.steps }),
+  };
 }
 
 // A plain left click: no modifier key, which opens a tab or a window in the browser's own way.

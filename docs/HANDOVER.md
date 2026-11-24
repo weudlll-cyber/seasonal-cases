@@ -137,8 +137,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   "Working cheaply" (D54) brought in; `proto/cases-v1` merged into master and tagged `v1.0.0`
   ([TAGS.md](TAGS.md)); the branches deleted.
 
-- **Kit:** `kit: pinned v0.17.0, newest v0.17.0, current` (`pnpm kit:check`, 2026-11-24, end of
-  SC-N7; master pins v0.11.1 until the merge). The pin moves only on the owner's word.
+- **Kit:** `kit: pinned v0.19.0, newest v0.19.0, current` (`pnpm kit:check`, 2026-11-25, end of
+  SC-N8 piece 5b; master pins v0.11.1 until the merge). The pin moves only on the owner's word.
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
 

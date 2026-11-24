@@ -89,8 +89,9 @@ function authorize(req: IncomingMessage): Record<string, string> {
 
 const CHAT_PAGE = `<!doctype html><title>Chat (stand-in)</title><p>Chat (stand-in): room cases</p>
 <script>parent.postMessage({ source: 'seasonal-chat', type: 'ready', room: 'cases', signedIn: true }, location.origin);</script>`;
-// The smallest valid WebP: one transparent pixel.
-const ICON = Buffer.from('UklGRhoAAABXRUJQVlA4TA0AAAAvAAAAEAcQERGIiP4HAA==', 'base64');
+// A valid WebP, 24 x 24 px in the summer orange, so the pictures of the header show the steps (a
+// transparent pixel drew nothing).
+const ICON = Buffer.from('UklGRh4AAABXRUJQVlA4TBEAAAAvF8AFAAdQt35XpP+BiOh/AAA=', 'base64');
 
 function website(req: IncomingMessage, res: ServerResponse): boolean {
   const url = new URL(req.url ?? '/', 'http://stub');

@@ -237,3 +237,13 @@ the owner confirmed them on 2026-11-23 (D46).
 - **D64 — Tests and the steps before production.** Tests exist where they guard something real,
   with no coverage target; the thresholds are not a goal. The steps before production wait for the
   VPS.
+
+## 2026-11-24, night chain SC-N8, kit v0.19.0: D65
+
+- **D65 — The header's step badges are the kit's.** The kit is pinned at v0.19.0 (tag object
+  2ab45ba, commit 19f0208; kit K56). A website member's steps go to the kit's `AppHeader` as
+  `account.steps`, exactly as the kit's `identityFrom` returns them (`ladder`, `name`, `icon`), and
+  the kit draws, limits and checks them (at most three, only the website's own icon files). The
+  game has no badge type, no stand-in and no filtering of its own for the header; a standalone
+  account passes none. The boards, the lower third and the players panel keep their own icons
+  (`badges`). The kit's 0.18.0 migration names no change for this game.

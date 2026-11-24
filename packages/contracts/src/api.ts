@@ -20,12 +20,22 @@ export const SignInRequestSchema = z.object({
 });
 export type SignInRequest = z.infer<typeof SignInRequestSchema>;
 
+// A website member's step, as the kit's `Step` has it (`stepShape.ts`): the account chip of the
+// kit's header draws these as they are, at most three, each icon checked by the header again.
+export const StepSchema = z.object({
+  ladder: z.enum(['holder', 'farmer', 'investor']),
+  name: z.string(),
+  icon: z.string().nullable(),
+});
+
 export const MeSchema = z.object({
   id: z.string(),
   name: z.string(),
   role: RoleSchema,
   rank: RankSchema,
   badges: z.array(BadgeSchema),
+  // A website member's steps for the header's chip; absent for a standalone account (D65).
+  steps: z.array(StepSchema).optional(),
 });
 export type Me = z.infer<typeof MeSchema>;
 

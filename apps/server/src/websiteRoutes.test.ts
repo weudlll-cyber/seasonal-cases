@@ -96,10 +96,19 @@ describe('the website sign-in', () => {
           headers: { cookie },
         })
       )?.json<{
-        me: { id: string; name: string; role: string; rank: number; badges: string[] };
+        me: {
+          id: string;
+          name: string;
+          role: string;
+          rank: number;
+          badges: string[];
+          steps?: unknown;
+        };
       }>().me;
     const ana = await me(cookieOf(first.headers['set-cookie']));
     expect(ana).toMatchObject({ name: 'Ana', role: 'player', rank: 1, badges: [ICON] });
+    // The steps as the kit gave them (ladder, name, icon): the header's chip draws them (D65).
+    expect(ana?.steps).toEqual([{ ladder: 'holder', name: 'Golden', icon: ICON }]);
     // A rename applies at the next sign-in; the account stays the same.
     const again = await signInAs(harness, member(7, 'Anna'));
     expect(await me(cookieOf(again.headers['set-cookie']))).toMatchObject({

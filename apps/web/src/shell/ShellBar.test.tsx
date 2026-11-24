@@ -113,6 +113,31 @@ describe('the dev tools', () => {
   });
 });
 
+describe('the member’s steps', () => {
+  const STEPS = [
+    {
+      ladder: 'holder',
+      name: 'Golden',
+      icon: '/media/step-icons/0123456789abcdef0123456789abcdef.webp',
+    },
+    { ladder: 'farmer', name: 'Sower', icon: null },
+  ] as const;
+
+  it('go to the kit’s account chip as the server gave them, and none where there are none', () => {
+    expect(accountOf({ ...ANA, steps: [...STEPS] }, vi.fn())?.steps).toEqual(STEPS);
+    expect(accountOf(ANA, vi.fn())).not.toHaveProperty('steps');
+  });
+
+  it('are drawn by the kit in website mode: one icon for the step that has one', () => {
+    render(bar({ website: true, me: { ...ANA, steps: [...STEPS] } }));
+    const chip = screen.getByTestId('signed-in-as');
+    expect(chip.querySelectorAll('.sk-header-step')).toHaveLength(1);
+    cleanup();
+    render(bar({ me: ANA }));
+    expect(screen.getByTestId('signed-in-as').querySelector('.sk-header-steps')).toBeNull();
+  });
+});
+
 describe('website mode', () => {
   it('has the way back and one "Sign in" through the website, and no dev menu', () => {
     render(bar({ website: true, dev: true }));

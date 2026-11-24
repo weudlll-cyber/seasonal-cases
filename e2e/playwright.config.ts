@@ -99,7 +99,7 @@ export default defineConfig({
     },
     {
       name: 'screens',
-      testMatch: /(screens|openingFrames)\.spec\.ts/,
+      testMatch: /(screens|openingFrames|headerSteps)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
   ],

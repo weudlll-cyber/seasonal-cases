@@ -18,6 +18,7 @@
 | 1.13 | 2026-11-24 | Night chain SC-N7, from the owner's decision of 2026-11-24: the whole kit, v0.17.0, before the VPS (§11); the kit's app header with its folded Menu in place of the wrapping one (§7); release candidate 1.1.0-rc.1 (§12). |
 | 1.14 | 2026-11-24 | Night chain SC-N8, from the owner's decisions of 2026-11-24: privacy (§10): accounts stay until deleted, deletion and export, the privacy page, 14 days of server logs. |
 | 1.15 | 2026-11-24 | Night chain SC-N8, from the owner's decisions of 2026-11-24: the current season of a new show (§6) and the way back in focus mode (§7, §10): the kit parts of D62. |
+| 1.16 | 2026-11-24 | Night chain SC-N8, kit v0.19.0 (D65): the website member's step badges are drawn by the kit's header beside the name (§4, §10). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -292,7 +293,7 @@ deletion shows "deleted player" plus the short id), 7-day game sessions, the web
 docked under every screen (room `cases`), the call slot reserved and hidden, and the
 "← Seasonal Entertainment" link. The rank in website mode is the number of the member's valid
 Discord steps, at most 5, and the steps' icons are the badges beside the name (§4, decided
-2026-11-22). The role formerly called "moderator" is the **organiser**: they create shows, hold
+2026-11-22), in the header's account chip too, as the kit's header draws them (at most three, decided 2026-11-24). The role formerly called "moderator" is the **organiser**: they create shows, hold
 the direction and hand it to any signed-in organiser or admin.
 
 The **development sign-in** (name, role and rank, no password) stays in local mode with
@@ -306,7 +307,7 @@ server, React 19 + Vite on the client, Vitest, Playwright (Chromium at merge, Fi
 ESLint, Prettier, lefthook. Layers as in Mini Games: `domain` (no I/O, no clock, no randomness except
 injected ports) ← `application` ← `apps/server`; the client renders, the server decides.
 
-- **Kit:** `@seasonal/kit` pinned to one tag (v0.4.1 at bootstrap on 2026-11-21, v0.17.0 since 2026-11-24): tokens,
+- **Kit:** `@seasonal/kit` pinned to one tag (v0.4.1 at bootstrap on 2026-11-21, v0.19.0 since 2026-11-24): tokens,
   fonts, motion, theme, fit floors, `DockedScreen`, `ChatDock`, `BackLink`, `ThemeToggle`, website
   sign-in helpers, chat embed, call slot. A game switches kit version only on the owner's word.
   Nothing the kit has is rebuilt in the game.

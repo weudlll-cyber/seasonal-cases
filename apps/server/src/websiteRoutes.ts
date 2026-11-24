@@ -67,6 +67,8 @@ export async function websiteAccount(
     rank: rankOf(who),
     // Only icons in the contract's exact form ever reach a page (the kit checks each).
     badges: who.steps.flatMap((s) => (s.icon === null ? [] : [s.icon])),
+    // The same steps, as received: the kit's header draws and checks them.
+    steps: who.steps,
     websiteOrigin: origin,
     websiteUserId: who.subject,
     deleted: false,

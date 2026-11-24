@@ -10,8 +10,9 @@
  *                 and shows as "deleted player" plus its short id everywhere (§4). `Directory`
  *                 keeps every account's shown name and badges in memory for the projections,
  *                 which must not wait on a store.
- * Depends on:     @sc/contracts (types), @sc/domain (types)
+ * Depends on:     @seasonal/kit/server (types), @sc/contracts (types), @sc/domain (types)
  */
+import type { Step } from '@seasonal/kit/server';
 import type { Me } from '@sc/contracts';
 import type { Person } from '@sc/domain';
 
@@ -25,6 +26,8 @@ export interface Account {
   readonly role: AccountRole;
   readonly rank: number;
   readonly badges: readonly string[];
+  // A website member's steps as the kit's `identityFrom` gave them; none for any other account.
+  readonly steps?: readonly Step[];
   readonly websiteOrigin: string | null;
   readonly websiteUserId: string | null;
   readonly deleted: boolean;
@@ -72,6 +75,10 @@ export function meOf(account: Account): Me {
     role: account.role,
     rank: account.rank,
     badges: [...account.badges],
+    // The steps exactly as received, for the header's chip: none for a standalone account.
+    ...(account.steps === undefined || account.steps.length === 0
+      ? {}
+      : { steps: account.steps.map((s) => ({ ...s })) }),
   };
 }
 

@@ -175,6 +175,7 @@ describe('the admin area', () => {
       ...ada.me,
       role: 'player' as const,
       id: 'site-1',
+      steps: [],
       kind: 'website' as const,
       websiteOrigin: 'o',
       websiteUserId: '1',
