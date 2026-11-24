@@ -71,6 +71,8 @@ export function showRoutes(ctx: Ctx, perAddress: AddressLimit): void {
     mode: config.mode,
     dev: config.dev,
     chatOrigin: config.chatOrigin,
+    // The privacy page's contact line; empty: the page's placeholder (D61).
+    privacyContact: config.privacyContact,
   }));
 
   app.get('/api/me', async (request) => ({

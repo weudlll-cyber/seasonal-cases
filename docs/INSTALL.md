@@ -68,17 +68,22 @@ terminal). Nothing here is tied to a particular server.
 
 ## Later
 
-| What                               | Command                                                           |
-| ---------------------------------- | ----------------------------------------------------------------- |
-| See what an update would change    | `sudo ./deploy/install.sh --check --ref v1.0.0`                   |
-| Update to a tag or branch          | `sudo ./deploy/install.sh --update --ref v1.0.0`                  |
-| Re-run with the remembered answers | `sudo ./deploy/install.sh --yes`                                  |
-| Status and logs                    | `systemctl status seasonal-cases`, `journalctl -u seasonal-cases` |
-| Health                             | `curl http://127.0.0.1:3970/api/health`                           |
+| What                               | Command                                                                                      |
+| ---------------------------------- | -------------------------------------------------------------------------------------------- |
+| See what an update would change    | `sudo ./deploy/install.sh --check --ref v1.0.0`                                              |
+| Update to a tag or branch          | `sudo ./deploy/install.sh --update --ref v1.0.0`                                             |
+| Re-run with the remembered answers | `sudo ./deploy/install.sh --yes`                                                             |
+| Status and logs                    | `systemctl status seasonal-cases`, `journalctl --namespace=seasonal-cases -u seasonal-cases` |
+| Health                             | `curl http://127.0.0.1:3970/api/health`                                                      |
 
 `--update` fetches the tag or branch, builds, restarts; the server applies new database
 migrations itself on start. The answers live in `/etc/seasonal-cases/install.conf`; change one
 with its flag (`--port 3971`) or by answering again.
+
+**Logs and privacy.** The game's logs go to their own journal namespace, `seasonal-cases`, which
+keeps them for 14 days (`/etc/systemd/journald@seasonal-cases.conf`, `MaxRetentionSec=14day`);
+other services' logs are not touched. The privacy page names the contact from the answer
+`SC_PRIVACY_CONTACT` (a name or an address; empty: "the operator of this site").
 
 ## Unattended
 

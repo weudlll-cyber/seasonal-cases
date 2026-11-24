@@ -99,6 +99,10 @@ case_local() {
   check 'grep -q "^systemctl restart seasonal-cases" "$ROOT/calls.log"' "no restart"
   check '! grep -q "^chown" "$ROOT/calls.log"' "the code was handed to the service user"
   check 'grep -q "^ExecStart=/usr/bin/node --import=tsx src/start.ts" "$ROOT/etc/systemd/system/seasonal-cases.service"' "no unit"
+  # The game's logs sit in a journal of their own and are kept 14 days (DECISIONS D61).
+  check 'grep -q "^LogNamespace=seasonal-cases" "$ROOT/etc/systemd/system/seasonal-cases.service"' "the unit has no log namespace"
+  check 'grep -q "^MaxRetentionSec=14day" "$ROOT/etc/systemd/journald@seasonal-cases.conf"' "the logs are not kept 14 days"
+  check '! grep -q "SC_PRIVACY_CONTACT" "$env"' "a privacy contact nobody gave"
   # A re-run with the same answers changes nothing and keeps the secrets.
   installer "${LOCAL[@]}" --smtp-host 127.0.0.1 --smtp-port 1025
   check '[[ $OUT == *"done (0 change(s))"* ]]' "a re-run changed something: $OUT"

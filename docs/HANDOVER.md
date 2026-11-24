@@ -125,7 +125,9 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   arena tones as own tokens) and the rest listed (BACKLOG 58–65). Piece 4 done: the draft PR's
   four required checks green, a whole show played, the pictures in `.local/screens/sc-n7/`.
   Night chain SC-N8 (running): the phone bar and the largest text are fixed and asserted in the
-  screens run (D60, BACKLOG 65, 66 closed). State per piece in
+  screens run (D60, BACKLOG 65, 66 closed). Privacy is built (D61, BACKLOG 58 closed): `/account`
+  (download and delete), `/privacy`, the erasure (tombstone, event log redacted, shows folded
+  again), `SC_PRIVACY_CONTACT`, 14 days of logs from the installer. State per piece in
   [NIGHT-RUN.md](NIGHT-RUN.md).
 
 - **Task SC-R1 (2026-11-23):** the brake per account and address (D55: 20 failures brake one

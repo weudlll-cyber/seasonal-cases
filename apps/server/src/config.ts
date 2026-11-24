@@ -43,6 +43,9 @@ export interface WebsiteConfig {
   readonly feed: { readonly localOrigin: string; readonly syncToken: string } | null;
 }
 
+// The privacy page's contact line is a sentence or an address, not a page of text.
+const PRIVACY_CONTACT_MAX = 200;
+
 export interface ServerConfig {
   readonly port: number;
   // The address it listens on: 127.0.0.1, or the Docker bridge for a website proxy in a container.
@@ -62,6 +65,8 @@ export interface ServerConfig {
   readonly chatOrigin: string | null;
   readonly smtp: SmtpConfig | null;
   readonly publicOrigin: string;
+  // Whom the privacy page names as the contact (SC_PRIVACY_CONTACT, D61); empty: the placeholder.
+  readonly privacyContact: string;
   // Whose X-Forwarded-For names the visitor, so rate limits count visitors, not the proxy.
   readonly proxies: readonly string[];
   // The built client this process serves under the base path; null: Vite serves it.
@@ -241,6 +246,7 @@ export function configFrom(env: NodeJS.ProcessEnv): ServerConfig {
     cookieSecret: cookieSecretFrom(read, basics.production),
     recoveryKey: recoveryKeyFrom(read, basics.production, database),
     plainCookie: plainCookieFrom(read),
+    privacyContact: read.text('SC_PRIVACY_CONTACT').slice(0, PRIVACY_CONTACT_MAX),
     ...addressesFrom(read, basics),
   };
   read.finish();

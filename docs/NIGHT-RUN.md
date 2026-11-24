@@ -14,19 +14,36 @@ The chain is running; this report is written at its end.
 
 ### State
 
-| Done                                                                                                       | Running          | Open           | Needs the owner's hand / word                                    |
-| ---------------------------------------------------------------------------------------------------------- | ---------------- | -------------- | ---------------------------------------------------------------- |
-| Piece 1: the settings read back and the commands written down; piece 2: the phone bar and the largest text | Piece 3: privacy | Pieces 4 and 5 | The GitHub settings (below); the task text breaks off in piece 5 |
+| Done                                                                                                                         | Running                     | Open    | Needs the owner's hand / word                                    |
+| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------- | ------- | ---------------------------------------------------------------- |
+| Piece 1: the settings read back and the commands written down; piece 2: the phone bar and the largest text; piece 3: privacy | Piece 4: the four kit parts | Piece 5 | The GitHub settings (below); the task text breaks off in piece 5 |
 
 ### Pieces
 
-| Piece | What                                                                                                                                                                                    | Commit        | CI run                         |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------ |
-| 1     | GitHub settings: read back, the target and the commands in RELEASING.md; D59–D64                                                                                                        | `fa74f60`     | 45493564174, 45493572118 green |
-| 2     | The phone bar and the largest text (D60): the screens run asserts it; CSS in `moments.css`, `shell.css`, `screens.css`, `stage.css`, `stageParts.css`, `artifact.css`; `e2e/measure.ts` | (this commit) | (next entry)                   |
+| Piece | What                                                                                                                                                                                        | Commit        | CI run                         |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------ |
+| 1     | GitHub settings: read back, the target and the commands in RELEASING.md; D59–D64                                                                                                            | `fa74f60`     | 45493564174, 45493572118 green |
+| 2     | The phone bar and the largest text (D60): the screens run asserts it; CSS in `moments.css`, `shell.css`, `screens.css`, `stage.css`, `stageParts.css`, `artifact.css`; `e2e/measure.ts`     | `173131d`     | 45498058970, 45498069518 green |
+| 3     | Privacy (D61): `/account` (download, delete), `/privacy`, the erasure (`auth/erasure.ts`, `domain/redact.ts`, `ShowService.forget`), `SC_PRIVACY_CONTACT`, 14 days of logs in the installer | (this commit) | (next entry)                   |
 
 ### Choices made without the owner
 
+- **Piece 3, how deletion works.** The account row stays as a tombstone (id, "deleted player"
+  plus six characters of the id, role player, rank 0, no badges, deleted); everything that could
+  sign the person in again goes first (sign-in data, e-mail, two-factor secret and recovery codes,
+  sessions with their sockets, a registration waiting for its mail), then what only shows the name.
+  The event log is rewritten too (`redactPlayer` in the domain, `redact` on the event store, the
+  PostgreSQL one in a transaction), so no name stays in the database; the shows are folded again
+  and announced. The sealed distribution and the commitment are not touched (a test verifies the
+  commitment after the rewrite). Standalone deletion and the website feed's deletion are one
+  routine. **The feed already signals `deleted`**, so no request to the website's planning chat is
+  needed. The last admin cannot delete the account (409, with the sentence what to do first).
+- **Piece 3, the logs.** 14 days is a journal namespace of the game's own (`LogNamespace=` with
+  `journald@seasonal-cases.conf`), so the host's other logs keep their retention. Development is
+  unchanged. Checked by the installer test, not on a real host (there is none yet).
+- **Piece 3, the contact** is `SC_PRIVACY_CONTACT` (up to 200 characters), asked by the installer
+  as an optional answer; empty shows "the operator of this site". **Needs the owner's word:** the
+  real contact text, and a lawyer's look at the privacy page before the first real players.
 - **The task text breaks off in piece 5** ("Prove it: build for production and search the built
   files for their identifying strings; the check"). Piece 5 is built as far as it reads: 61 with
   the proof, and 62 (the tokens after `#`) from the opening summary. No piece after it is in the

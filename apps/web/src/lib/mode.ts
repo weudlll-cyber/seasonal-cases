@@ -18,9 +18,11 @@ export interface ServerMode {
   readonly mode: 'local' | 'website';
   readonly dev: boolean;
   readonly chatOrigin: string | null;
+  // The privacy page's contact line; empty: the page says "the operator of this site".
+  readonly privacyContact: string;
 }
 
-const UNKNOWN: ServerMode = { mode: 'local', dev: false, chatOrigin: null };
+const UNKNOWN: ServerMode = { mode: 'local', dev: false, chatOrigin: null, privacyContact: '' };
 
 /** The mode; local without development features until the server has answered. */
 export function useServerMode(): ServerMode {

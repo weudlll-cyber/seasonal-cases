@@ -11,8 +11,9 @@
 #                 and `pnpm build` for the mode; the environment file (/etc/seasonal-cases/cases.env,
 #                 root 0600, read by systemd) holds every setting of docs/CONFIG.md and the
 #                 secrets, generated once and kept; the unit runs `node … start.ts` as that user,
-#                 hardened; the server migrates the database on start; the installer waits for
-#                 /api/ready.
+#                 hardened, with its logs in a journald namespace of its own whose retention is
+#                 14 days (DECISIONS D61); the server migrates the database on start; the
+#                 installer waits for /api/ready.
 # Depends on:     ./common.sh, git, pnpm, useradd, systemctl, curl
 # shellcheck shell=bash
 
@@ -71,6 +72,7 @@ write_env() {
     quoted SC_RECOVERY_KEY "$SC_RECOVERY_KEY"
     quoted SC_CLIENT_DIR "/opt/seasonal-cases/app/apps/web/dist"
     quoted SC_TRUSTED_PROXIES "$SC_TRUSTED_PROXIES"
+    [[ -n ${SC_PRIVACY_CONTACT:-} ]] && quoted SC_PRIVACY_CONTACT "$SC_PRIVACY_CONTACT"
     if [[ $SC_INSTALL_MODE == website ]]; then
       quoted SC_WEBSITE_ORIGIN "$SC_WEBSITE_ORIGIN"
       quoted SC_PROXY_SECRET "$SC_PROXY_SECRET"
@@ -108,6 +110,7 @@ Restart=on-failure
 RestartSec=3
 TimeoutStopSec=15
 KillSignal=SIGTERM
+LogNamespace=seasonal-cases
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
@@ -116,6 +119,16 @@ PrivateTmp=true
 [Install]
 WantedBy=multi-user.target
 UNIT
+}
+
+# The game's logs are kept 14 days, in a journal of their own: other services keep what the host
+# keeps for them. Read them with `journalctl --namespace=seasonal-cases -u seasonal-cases`.
+write_journal() {
+  put_file "$JOURNAL_CONF" 0644 <<'JOURNAL'
+# Written by deploy/install.sh (Seasonal Cases): the game's logs are kept 14 days (DECISIONS D61).
+[Journal]
+MaxRetentionSec=14day
+JOURNAL
 }
 
 start_service() {
@@ -141,5 +154,5 @@ wait_ready() {
     fi
     sleep 2
   done
-  die "the game did not become ready within 90 s; see: journalctl -u $SERVICE -n 50"
+  die "the game did not become ready within 90 s; see: journalctl --namespace=$SERVICE -u $SERVICE -n 50"
 }

@@ -24,6 +24,8 @@ ENV_FILE="$ETC_DIR/cases.env"
 OPT_DIR="$SC_ROOT/opt/seasonal-cases"
 APP_DIR="$OPT_DIR/app"
 UNIT_FILE="$SC_ROOT/etc/systemd/system/seasonal-cases.service"
+# The game's own journal (a log namespace): 14 days of logs, whatever the host keeps for others.
+JOURNAL_CONF="$SC_ROOT/etc/systemd/journald@seasonal-cases.conf"
 SERVICE=seasonal-cases
 SERVICE_USER=seasonal-cases
 DRY_RUN=0

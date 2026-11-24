@@ -8,10 +8,11 @@
  *                 secret are stored as one encrypted box bound to the show (./box.ts,
  *                 SC_DATA_KEY); only the commitment stays readable, as the screens already show it. A failed write is
  *                 reported through `onError` and the queue goes on; `flush` waits for every
- *                 pending write (shutdown, tests).
- * Depends on:     @sc/application (types), @sc/domain (types), ./box.js, ./pool.js
+ *                 pending write (shutdown, tests). `redact` rewrites the rows of the events that
+ *                 named a deleted player (D61), the one time an earlier row is changed.
+ * Depends on:     @sc/application, @sc/domain (types), ./box.js, ./pool.js
  */
-import type { EventStore } from '@sc/application';
+import { redactLogs, type EventStore } from '@sc/application';
 import type { ShowEvent } from '@sc/domain';
 
 import { open, seal } from './box.js';
@@ -69,6 +70,8 @@ export async function pgEventStore(
     append(showId, events) {
       const first = next.get(showId) ?? 0;
       next.set(showId, first + events.length);
+      // The copy in memory follows the rows, so `redact` reaches this run's events too.
+      shows.set(showId, [...(shows.get(showId) ?? []), ...events]);
       const rows = events.map((e) => JSON.stringify(toRow(key, showId, e)));
       queue = queue
         .then(async () => {
@@ -83,6 +86,26 @@ export async function pgEventStore(
         .catch(onError);
     },
     loadAll: () => shows,
+    redact(playerId, name) {
+      // The memory is the log the service reads; the rows that differ are rewritten behind it.
+      const changed = redactLogs(shows, playerId, name);
+      for (const [showId, events] of changed) {
+        const before = shows.get(showId) ?? [];
+        shows.set(showId, events);
+        queue = queue
+          .then(async () => {
+            for (const [seq, event] of events.entries()) {
+              if (event === before[seq]) continue;
+              await pool.query(
+                'UPDATE show_events SET event = $1 WHERE show_id = $2 AND seq = $3',
+                [JSON.stringify(toRow(key, showId, event)), showId, seq],
+              );
+            }
+          })
+          .catch(onError);
+      }
+      return [...changed.keys()];
+    },
     flush: () => queue,
   };
 }

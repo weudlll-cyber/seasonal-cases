@@ -55,9 +55,13 @@ export function memoryAccounts(): AccountStore {
   };
 }
 
+/** What a deleted account is shown as: "deleted player" and its short id (DECISIONS D61). */
+export const goneName = (account: Pick<Account, 'id'>): string =>
+  `deleted player ${account.id.slice(0, 6)}`;
+
 /** The name an account is shown with: "deleted player" and its short id once deleted. */
 export function shownName(account: Account): string {
-  return account.deleted ? `deleted player ${account.id.slice(0, 6)}` : account.name;
+  return account.deleted ? goneName(account) : account.name;
 }
 
 /** The signed-in user as the client knows them. */

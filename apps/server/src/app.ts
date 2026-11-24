@@ -16,7 +16,8 @@
  *                 only same-origin requests with a JSON body. ./main.ts listens on 127.0.0.1.
  * Depends on:     node:crypto, node:http (types), fastify, @fastify/cookie, @fastify/helmet,
  *                 socket.io, @seasonal/kit/server, @sc/application, @sc/domain, ./auth/*,
- *                 ./accountRoutes.js, ./addressLimit.js, ./config.js, ./devRoutes.js,
+ *                 ./accountDataRoutes.js, ./accountRoutes.js, ./addressLimit.js, ./config.js,
+ *                 ./devRoutes.js,
  *                 ./healthRoutes.js,
  *                 ./http.js, ./localRoutes.js, ./mail.js, ./memberSummaryRoutes.js,
  *                 ./openRoundsRoutes.js, ./organiserRoutes.js, ./realtime.js, ./session.js,
@@ -41,6 +42,7 @@ import { seededRandom } from '@sc/domain';
 import Fastify, { LogController, type FastifyInstance } from 'fastify';
 import { Server } from 'socket.io';
 
+import { accountDataRoutes } from './accountDataRoutes.js';
 import { accountRoutes } from './accountRoutes.js';
 import {
   addressLimit,
@@ -187,6 +189,7 @@ async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Pro
       if (config.dev) devRoutes(ctx);
       if (config.website === null) {
         localRoutes(ctx, local);
+        accountDataRoutes(ctx, local);
         twoFactorRoutes(ctx, local.credentials);
       } else {
         websiteRoutes(ctx, config.website);
@@ -197,6 +200,28 @@ async function routes(root: Ctx, stores: Stores, settings: CurrentSettings): Pro
       done();
     },
     { prefix: config.basePath.replace(/\/$/, '') },
+  );
+}
+
+/**
+ * Starts the website's account feed (website mode only). A deleted member is erased with the same
+ * routine as a standalone deletion, and the shows forget the name (D61).
+ */
+function launchFeed(ctx: Ctx, stores: Stores): () => void {
+  const { app, auth, shows, config } = ctx;
+  const feed = config.website?.feed;
+  if (feed === null || feed === undefined) return () => undefined;
+  return startFeed(
+    {
+      ...auth,
+      websiteOrigin: config.website?.origin ?? '',
+      forget: (playerId, name) => shows.forget(playerId, name),
+    },
+    feed,
+    stores.cursor ?? memoryCursor(),
+    (e) => {
+      app.log.error(e);
+    },
   );
 }
 
@@ -240,18 +265,7 @@ export async function buildServer(config: ServerConfig, stores: Stores = {}): Pr
   await routes({ app, auth, shows, config }, stores, settings);
   // In production the same process serves the built client (SC-N3 piece 2).
   await serveClient(app, config);
-  const feed = config.website?.feed;
-  const stopFeed =
-    feed === null || feed === undefined
-      ? () => undefined
-      : startFeed(
-          { ...auth, websiteOrigin: config.website?.origin ?? '' },
-          feed,
-          stores.cursor ?? memoryCursor(),
-          (e) => {
-            app.log.error(e);
-          },
-        );
+  const stopFeed = launchFeed({ app, auth, shows, config }, stores);
   app.addHook('onClose', async () => {
     stopFeed();
     realtime.stop();

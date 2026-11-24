@@ -166,7 +166,11 @@ describe('the account feed', () => {
     const answer = await signInAs(harness, member(7, 'Ana'));
     const cookie = cookieOf(answer.headers['set-cookie']);
     const { auth } = harness.server;
-    const deps = { ...auth, websiteOrigin: 'https://site.example' };
+    const deps = {
+      ...auth,
+      websiteOrigin: 'https://site.example',
+      forget: (playerId: string, name: string) => harness?.server.shows.forget(playerId, name) ?? 0,
+    };
     const me = () =>
       harness?.server.app.inject({
         method: 'GET',
@@ -179,6 +183,12 @@ describe('the account feed', () => {
     await applyChange(deps, { id: 7, kind: 'deleted' });
     await applyChange(deps, { id: 7, kind: 'deleted' });
     expect(auth.directory.lookup(id)?.name).toBe(`deleted player ${id.slice(0, 6)}`);
+    // The stored account is erased too: no name, no badges (D61).
+    expect(await auth.accounts.byId(id)).toMatchObject({
+      name: `deleted player ${id.slice(0, 6)}`,
+      badges: [],
+      deleted: true,
+    });
     // A deleted account cannot sign in again.
     expect((await signInAs(harness, member(7, 'Ana'))).statusCode).toBe(403);
   });

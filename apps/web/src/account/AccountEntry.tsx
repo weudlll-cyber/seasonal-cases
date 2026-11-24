@@ -8,8 +8,9 @@
  *                 with the rules shown before sending, answered alike for every e-mail and
  *                 signing nobody in: a mail says the rest (D36); the forgotten password always
  *                 answers the same sentence.
+ *                 A Privacy link sits under every form (D61).
  *                 The server checks everything again and answers each refusal in one sentence.
- * Depends on:     react, @sc/contracts, ../lib/api.js, ../lib/base.js, ../lib/useAction.js,
+ * Depends on:     react, @sc/contracts, ../lib/api.js, ../lib/base.js, ../lib/router.js, ../lib/useAction.js,
  *                 ../screens/fields.js
  */
 import {
@@ -26,8 +27,10 @@ import { useState } from 'react';
 
 import { postJson } from '../lib/api.js';
 import { apiPath } from '../lib/base.js';
+import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
 import { TextField } from '../screens/fields.js';
+import './account.css';
 
 type Form = 'sign-in' | 'register' | 'forgot';
 
@@ -239,6 +242,9 @@ export function AccountEntry({ onEnter }: { onEnter: (me: Me) => void }) {
             {TITLES[f]}
           </button>
         ))}
+      </p>
+      <p className="account-switch">
+        <Link to="/privacy">Privacy</Link>
       </p>
     </section>
   );

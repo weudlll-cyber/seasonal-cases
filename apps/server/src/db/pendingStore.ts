@@ -61,5 +61,8 @@ export function pgPending(pool: DbPool): PendingStore {
     async purge(now) {
       await pool.query('DELETE FROM pending_registrations WHERE expires_at <= $1', [new Date(now)]);
     },
+    async dropEmail(email) {
+      await pool.query('DELETE FROM pending_registrations WHERE email = $1', [email]);
+    },
   };
 }

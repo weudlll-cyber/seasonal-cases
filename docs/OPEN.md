@@ -23,7 +23,7 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   the press action, the chat hand-over and the failure brake are the kit's (BACKLOG 41, 43, 49,
   closed); `packages/ui/src/pending/` is gone.
 - **The kit's handbook (v0.17.0), read against the game on 2026-11-24:** the owner's word is open
-  on privacy (BACKLOG 58), the GitHub settings (59), kit parts with a visible change (60), dev
+  the GitHub settings (59), kit parts with a visible change (60), dev
   tools in the production bundle (61), link tokens (62), the steps before
   production (64, waits for the VPS; coverage (63) is decided: no target, D64). Replaced without a visible change: the season
   colours as the kit's tokens, an opened case's hidden name as `sk-visually-hidden`, the arena

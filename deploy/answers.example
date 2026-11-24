@@ -20,6 +20,9 @@ SC_TRUSTED_PROXIES=127.0.0.1,::1
 # SC_SMTP_PORT=25
 # SC_MAIL_FROM=Seasonal Cases <cases@example.org>
 
+# Whom the privacy page names as the contact (optional; empty: "the operator of this site")
+# SC_PRIVACY_CONTACT=privacy@example.org
+
 # Website mode
 # SC_WEBSITE_ORIGIN=https://example.org
 # SC_PROXY=nginx

@@ -16,6 +16,7 @@
 | 1.11 | 2026-11-23 | Task SC-P7, from the owner's decisions of 2026-11-23: the artifact rises straight up from the case's centre (§7); release candidate 1.0.0-rc.4 (§12). |
 | 1.12 | 2026-11-23 | Task SC-R1: version 1.0.0, merged into master and tagged `v1.0.0` (§12). |
 | 1.13 | 2026-11-24 | Night chain SC-N7, from the owner's decision of 2026-11-24: the whole kit, v0.17.0, before the VPS (§11); the kit's app header with its folded Menu in place of the wrapping one (§7); release candidate 1.1.0-rc.1 (§12). |
+| 1.14 | 2026-11-24 | Night chain SC-N8, from the owner's decisions of 2026-11-24: privacy (§10): accounts stay until deleted, deletion and export, the privacy page, 14 days of server logs. |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -268,6 +269,17 @@ Both are required (ecosystem principle, confirmed for this game 2026-11-21).
   roles player / organiser / admin, super admin by server command, manual ranks (§4), no website
   link, no chat and no call.
 - **Installer:** one call on a VPS for both modes, asking what it needs; general instructions.
+- **Privacy** (decided 2026-11-24, DECISIONS D61): a standalone account stays until its player
+  deletes it ("Delete my account" in the account area: the password, and a current code with a
+  second factor; the last admin is told to make another admin first). Deletion removes the name,
+  e-mail, password hash, second factor, recovery codes, sessions and waiting mails; every show,
+  chronicle entry, result page and "My matches" row then shows "deleted player", and the sealed
+  distribution and its commitment are unchanged. "Download my data" gives the profile, rank, role
+  and the shows joined with their case and result as JSON, with no secret. In website mode the
+  account belongs to the website, which deletes and exports it; the feed's deletion runs the same
+  erasure here. A privacy page (English, in the header and under the sign-in and registration
+  forms) says what is stored, why, for how long, how to delete and export, and whom to ask
+  (`SC_PRIVACY_CONTACT`). Server logs are kept 14 days; the installer sets it.
 
 **What exists (night chain SC-N2):** website mode under `/games/cases/` with the website's
 sign-in route and its login hop, accounts keyed by (website origin, website user id), a website

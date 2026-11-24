@@ -155,23 +155,6 @@
   margin: 0;
 }
 
-.account-switch {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sk-space-2);
-  margin: 0;
-}
-
-.link-button {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--sk-color-accent);
-  font: inherit;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 /* The lobby, "My matches" and the admin's accounts: one line per entry, wrapping on a phone. */
 .lobby-list,
 .match-list,

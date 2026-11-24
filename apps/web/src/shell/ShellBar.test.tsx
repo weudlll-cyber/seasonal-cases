@@ -49,6 +49,7 @@ describe('the pages', () => {
       'Stage',
       'Chronicle',
       'Admin',
+      'Privacy',
     ]);
     const signedIn = linksOf('matches', ANA);
     expect(signedIn.map((l) => l.label)).toEqual([
@@ -57,6 +58,7 @@ describe('the pages', () => {
       'Chronicle',
       'My matches',
       'Admin',
+      'Privacy',
     ]);
     expect(signedIn.filter((l) => l.active).map((l) => l.label)).toEqual(['My matches']);
   });

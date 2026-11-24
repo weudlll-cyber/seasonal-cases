@@ -5,6 +5,7 @@
  * Responsibility: hold the session, the server's mode and the current show's feed once for the
  *                 whole page, and render the route: the start page (`/`), the stage (`/show`),
  *                 the result (`/results/<id>`), the admin (`/admin`), "My matches" (`/matches`),
+ *                 the account (`/account`, download and delete), the privacy page (`/privacy`),
  *                 the chronicle (`/chronicle`), the forgotten password's page (`/reset`), the
  *                 registration's confirmation (`/confirm`) and, in development only, the
  *                 opening's showcase (`/dev/opening`). While a live show is on the
@@ -26,6 +27,7 @@ import {
 } from '@seasonal/kit/react';
 import { useRef, type ReactNode } from 'react';
 
+import { AccountPage } from './account/AccountPage.js';
 import { ConfirmPage } from './account/ConfirmPage.js';
 import { Matches } from './account/Matches.js';
 import { ResetPage } from './account/ResetPage.js';
@@ -36,6 +38,7 @@ import { useSession } from './lib/session.js';
 import { Admin } from './screens/Admin.js';
 import { Chronicle } from './screens/Chronicle.js';
 import { OpeningShowcase } from './screens/OpeningShowcase.js';
+import { PrivacyPage } from './screens/PrivacyPage.js';
 import { Result } from './screens/Result.js';
 import { StartPage } from './screens/StartPage.js';
 import { DockChatBridge, useDockChat } from './shell/DockChatBridge.js';
@@ -122,6 +125,28 @@ interface RoutesProps {
   readonly phone: boolean;
 }
 
+/** The pages that need no feed: the result, the account area, the chronicle, the mail links. */
+function plainPage(
+  route: Route,
+  mode: ServerMode,
+  session: ReturnType<typeof useSession>,
+): ReactNode {
+  const me = session.me ?? null;
+  const website = mode.mode === 'website';
+  if (route.name === 'results') return <Result showId={route.showId} />;
+  if (route.name === 'matches') return <Matches me={me} />;
+  if (route.name === 'account') {
+    return <AccountPage me={me} website={website} onGone={session.signOut} />;
+  }
+  if (route.name === 'privacy')
+    return <PrivacyPage website={website} contact={mode.privacyContact} />;
+  if (route.name === 'chronicle') return <Chronicle />;
+  if (route.name === 'reset') return <ResetPage />;
+  if (route.name === 'confirm') return <ConfirmPage />;
+  if (route.name === 'opening') return <OpeningShowcase dev={mode.dev} />;
+  return null;
+}
+
 function Routes({ route, me, mode, feed, current, session, phone }: RoutesProps) {
   const signedIn = me ?? null;
   const show = feed.show;
@@ -138,12 +163,8 @@ function Routes({ route, me, mode, feed, current, session, phone }: RoutesProps)
       />
     );
   }
-  if (route.name === 'results') return <Result showId={route.showId} />;
-  if (route.name === 'matches') return <Matches me={signedIn} />;
-  if (route.name === 'chronicle') return <Chronicle />;
-  if (route.name === 'reset') return <ResetPage />;
-  if (route.name === 'confirm') return <ConfirmPage />;
-  if (route.name === 'opening') return <OpeningShowcase dev={mode.dev} />;
+  const plain = plainPage(route, mode, session);
+  if (plain !== null) return plain;
   if (route.name === 'admin') {
     return <Admin me={signedIn} onShowChanged={current.refresh} dev={mode.dev} />;
   }

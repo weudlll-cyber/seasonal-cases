@@ -5,8 +5,9 @@
  *
  * Responsibility: the kit's order, on screen and in the DOM: in website mode the way back to
  *                 Seasonal Entertainment, the brand (emblem, "Seasonal Cases"), the pages (Start,
- *                 Stage, Chronicle, "My matches" once signed in, Admin; the current one marked),
- *                 the account chip "name (role)" with "Sign out" (a guest: "Sign in", which in
+ *                 Stage, Chronicle, "My matches" once signed in, Admin, Privacy; the current one marked),
+ *                 the account chip "name (role)", linking to the account page (download and delete
+ *                 one's data, D61), with "Sign out" (a guest: "Sign in", which in
  *                 website mode goes through the website with the kit's `websiteLoginHref` to the
  *                 game's login hop), in development the Quick Test link and the "Dev sign-in"
  *                 menu (./DevTools.tsx, loaded only by a development build, each inside an error
@@ -64,6 +65,7 @@ export function linksOf(route: Route['name'], me: Me | null): readonly HeaderLin
     link('/chronicle', 'Chronicle', route === 'chronicle'),
     ...(me === null ? [] : [link('/matches', 'My matches', route === 'matches')]),
     link('/admin', 'Admin', route === 'admin'),
+    link('/privacy', 'Privacy', route === 'privacy'),
   ];
 }
 
@@ -71,7 +73,7 @@ export function linksOf(route: Route['name'], me: Me | null): readonly HeaderLin
 export function accountOf(me: Me | null, onSignOut: () => void): HeaderAccount | null {
   if (me === null) return null;
   const role = me.role === 'player' ? `player · rank ${String(me.rank)}` : me.role;
-  return { name: me.name, role, href: pagePath('/matches'), onSignOut };
+  return { name: me.name, role, href: pagePath('/account'), onSignOut };
 }
 
 // A plain left click: no modifier key, which opens a tab or a window in the browser's own way.
@@ -97,7 +99,7 @@ export function ShellBar({ route, me, website, dev, onSignOut, onDevSignIn }: Sh
   const wrapper = useRef<HTMLDivElement>(null);
   useShellHeight(wrapper);
   const links = linksOf(route, me);
-  const own = new Set([pagePath('/'), pagePath('/matches'), ...links.map((l) => l.href)]);
+  const own = new Set([pagePath('/'), pagePath('/account'), ...links.map((l) => l.href)]);
   const quick = dev && QuickTestLink !== null;
   return (
     // The wrapper has no box (display: contents): the header stays a child of the page, sticky.

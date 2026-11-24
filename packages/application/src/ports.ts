@@ -31,4 +31,10 @@ export interface EventStore {
   append(showId: string, events: readonly ShowEvent[]): void;
   /** Every show's events, for the rebuild on start. */
   loadAll(): ReadonlyMap<string, readonly ShowEvent[]>;
+  /**
+   * Takes the name of the player with this id out of every stored event, replacing it by `name`,
+   * and answers the ids of the shows whose log changed. The one exception to "never rewrites
+   * earlier ones": a player who deletes their account leaves no name behind (DECISIONS D61).
+   */
+  redact(playerId: string, name: string): readonly string[];
 }

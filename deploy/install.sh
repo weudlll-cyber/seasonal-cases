@@ -28,7 +28,8 @@ HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 # The remembered answers (no secrets: those live in the environment file).
 ANSWERS=(SC_INSTALL_MODE SC_PUBLIC_ORIGIN SC_PORT SC_HOST SC_DB SC_SMTP_HOST SC_SMTP_PORT SC_MAIL_FROM
-  SC_WEBSITE_ORIGIN SC_TRUSTED_PROXIES SC_PROXY SC_ROUTES_DIR SC_SITE_PORT_FILE SC_REF SC_REPO)
+  SC_WEBSITE_ORIGIN SC_TRUSTED_PROXIES SC_PROXY SC_ROUTES_DIR SC_SITE_PORT_FILE SC_REF SC_REPO
+  SC_PRIVACY_CONTACT)
 UPDATE=0
 ANSWERS_FILE=''
 
@@ -184,7 +185,7 @@ next_steps() {
   else
     info "open $SC_WEBSITE_ORIGIN/games/cases/; add the game's card in the website's Admin → Games"
   fi
-  info "status: systemctl status $SERVICE; logs: journalctl -u $SERVICE"
+  info "status: systemctl status $SERVICE; logs: journalctl --namespace=$SERVICE -u $SERVICE"
 }
 
 main() {
@@ -202,6 +203,7 @@ main() {
   build_app
   write_env
   write_unit
+  write_journal
   write_state
   start_service
   wait_ready
