@@ -89,6 +89,11 @@ goes through the kit's guardedFetch with the website's host allowed.
   changed. The kit's own measurement says Cases' bar folds at 1280 and 1536; with the order fixed it
   does not for these names.
 
+- **Piece 6's push run was red** (docs-only commit; the PR run of the same commit passed): the new
+  guard of journey 1 asked for a hidden Menu button on any wide window, but at 1366 px the admin's
+  header may legitimately fold (the kit's measure, font metrics). The guard now states what the fix
+  is about: an unfolded header shows no Menu button. So the header table of piece 4 (measured here on
+  Windows) holds for this machine's rendering; on another it may fold where the items do not fit.
 - **Piece 4, axe.** Without the exclusion axe found exactly the old finding (4 times, the result
   page, `.sk-docked-main`), nothing new from the patches' removal; the exclusion is back as it was.
 - **Piece 4, the download button.** A `GET` form's submit button (the server names the file), so it

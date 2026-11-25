@@ -73,11 +73,12 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
 
   await signInUi(page, 'Ada', 'admin');
   await page.goto('/admin');
-  // On a wide window the header is unfolded, with no "Menu" button beside its links (the order of
-  // the kit's stylesheets, apps/web/src/main.tsx).
-  if ((page.viewportSize()?.width ?? 0) >= 1280) {
-    await expect(page.getByTestId('menu-button')).toBeHidden();
-  }
+  // While the header is unfolded it shows no "Menu" button beside its links (the order of the
+  // kit's stylesheets, apps/web/src/main.tsx). Whether it folds is the kit's measure: an admin's
+  // may fold at this width, depending on the fonts' metrics.
+  await expect(
+    page.locator('.sk-header:not([data-sk-folded="true"]) [data-testid="menu-button"]'),
+  ).toBeHidden();
   const setup = page.getByRole('form', { name: 'Show setup' });
   await setup.getByLabel('Cases (N)').fill('12');
   await setup.getByLabel('Winners (W)').fill('3');
