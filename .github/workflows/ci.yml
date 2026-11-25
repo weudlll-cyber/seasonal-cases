@@ -120,7 +120,7 @@ jobs:
       - name: shellcheck
         run: |
           docker run --rm -v "$PWD:/mnt" -w /mnt "$SHELLCHECK_IMAGE" -x \
-            deploy/install.sh deploy/admin.sh deploy/test/installer.test.sh
+            deploy/install.sh deploy/admin.sh deploy/backup.sh deploy/test/installer.test.sh
       - name: Installer harness
         run: bash deploy/test/installer.test.sh
 

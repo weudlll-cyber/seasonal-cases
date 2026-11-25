@@ -8,12 +8,13 @@
 #                 0600; the secrets only in cases.env, 0600). Then: packages, Node and pnpm,
 #                 PostgreSQL when asked to create it, the system user, the code at the chosen
 #                 ref, the build, the settings, the systemd unit, the start, the readiness check,
-#                 and in website mode the route file in the website's routes folder.
+#                 in website mode the route file in the website's routes folder, and the encrypted
+#                 nightly backup (./lib/backup.sh) once an age public key is given.
 #                 `--update` takes the remembered answers and a new `--ref`; `--check` says what
 #                 would change and changes nothing; `--answers FILE` and `--yes` run unattended.
 #                 A re-run with the same answers changes nothing. After seasonal-mini-games
 #                 ops/install.sh, for a Node service under systemd instead of Docker.
-# Depends on:     ./lib/common.sh, ./lib/host.sh, ./lib/app.sh, ./lib/route.sh
+# Depends on:     ./lib/common.sh, ./lib/host.sh, ./lib/app.sh, ./lib/route.sh, ./lib/backup.sh
 set -euo pipefail
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -25,11 +26,13 @@ HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 . "$HERE/lib/app.sh"
 # shellcheck source=deploy/lib/route.sh
 . "$HERE/lib/route.sh"
+# shellcheck source=deploy/lib/backup.sh
+. "$HERE/lib/backup.sh"
 
 # The remembered answers (no secrets: those live in the environment file).
 ANSWERS=(SC_INSTALL_MODE SC_PUBLIC_ORIGIN SC_PORT SC_HOST SC_DB SC_SMTP_HOST SC_SMTP_PORT SC_MAIL_FROM
   SC_WEBSITE_ORIGIN SC_TRUSTED_PROXIES SC_PROXY SC_ROUTES_DIR SC_SITE_PORT_FILE SC_REF SC_REPO
-  SC_PRIVACY_CONTACT)
+  SC_PRIVACY_CONTACT SC_BACKUP_AGE_RECIPIENT)
 UPDATE=0
 ANSWERS_FILE=''
 
@@ -45,6 +48,8 @@ usage: sudo ./deploy/install.sh [options]
   --website-origin URL     website mode: the website's address
   --proxy nginx|caddy      website mode: the website's proxy (found by itself when possible)
   --routes-dir DIR         website mode: the website's prepared routes folder
+  --backup-recipient KEY   your age public key (age1…) for the encrypted nightly backup;
+                           without one no backup is set up
   --proxies LIST           addresses whose X-Forwarded-For names the visitor
   --ref REF --repo URL     the tag or branch to run, and where to fetch it from
   --answers FILE           KEY=value lines with the answers (deploy/answers.example)
@@ -68,6 +73,7 @@ parse_flags() {
       --proxy) SC_PROXY=$2; shift ;;
       --routes-dir) SC_ROUTES_DIR=$2; shift ;;
       --proxies) SC_TRUSTED_PROXIES=$2; shift ;;
+      --backup-recipient) SC_BACKUP_AGE_RECIPIENT=$2; shift ;;
       --ref) SC_REF=$2; shift ;;
       --repo) SC_REPO=$2; shift ;;
       --answers) ANSWERS_FILE=$2; shift ;;
@@ -109,6 +115,14 @@ ask_common() {
     ask_secret DATABASE_URL "the database address (postgres://user:password@host:port/name)"
     must_match DATABASE_URL '^postgres(ql)?://' "a postgres:// address"
   fi
+  ask_backup
+}
+
+# The operator's age public key; empty (or "none") sets up no backup, which the install says.
+ask_backup() {
+  if ((YES)); then SC_BACKUP_AGE_RECIPIENT=${SC_BACKUP_AGE_RECIPIENT:-}; else ask SC_BACKUP_AGE_RECIPIENT "your age public key for the encrypted backups (age1…; none: no backup)" none; fi
+  [[ ${SC_BACKUP_AGE_RECIPIENT:-} == none ]] && SC_BACKUP_AGE_RECIPIENT=''
+  [[ -z ${SC_BACKUP_AGE_RECIPIENT:-} ]] || must_match SC_BACKUP_AGE_RECIPIENT '^age1[0-9a-z]{58}$' "an age public key (age1… as age-keygen -y prints it)"
 }
 
 ask_local() {
@@ -187,6 +201,9 @@ next_steps() {
     info "open $SC_WEBSITE_ORIGIN/games/cases/; add the game's card in the website's Admin → Games"
   fi
   info "status: systemctl status $SERVICE; logs: journalctl --namespace=$SERVICE -u $SERVICE"
+  if [[ -n ${SC_BACKUP_AGE_RECIPIENT:-} ]]; then
+    info "first backup: sudo ./deploy/backup.sh backup; pull and restore: docs/INSTALL.md"
+  fi
 }
 
 main() {
@@ -209,6 +226,7 @@ main() {
   start_service
   wait_ready
   [[ $SC_INSTALL_MODE == website ]] && install_route
+  write_backup
   next_steps
 }
 

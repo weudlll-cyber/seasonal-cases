@@ -54,6 +54,15 @@ service's environment file), **website** (the website's operator gives it), **de
 | `SC_WEBSITE_LOCAL_ORIGIN` | (none)  | with the token  | website   | the website's local address for the account-changes feed                   |
 | `SC_GAMES_SYNC_TOKEN`     | (none)  | with the origin | website   | the games' sync token for that feed; both or neither                       |
 
+## Backups
+
+Not read by the game: the installer's answer `SC_BACKUP_AGE_RECIPIENT` (your age public key, or
+`--backup-recipient`; none: no backup) becomes `/etc/seasonal-cases/backup.env` (root 0600), whose
+`SK_BACKUP_*` settings are the kit's (`docs/OPERATIONS.md` in the kit). The secrets that must travel
+with a backup are all in `cases.env`: `SC_DATA_KEY`, `SC_COOKIE_SECRET`, `SC_RECOVERY_KEY`,
+`SC_PROXY_SECRET` and `SC_GAMES_SYNC_TOKEN` (website mode), `DATABASE_URL` and `SC_DB_PASSWORD`.
+There are no upload folders.
+
 ## Account names
 
 New standalone accounts need 3 to 32 Latin letters (with diacritics), digits, `-` and `_`, with

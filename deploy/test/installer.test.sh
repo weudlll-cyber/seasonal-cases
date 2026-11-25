@@ -5,7 +5,9 @@
 #
 # Responsibility: each case runs deploy/install.sh against a temporary root (SC_ROOT) with stub
 #                 commands first on PATH (apt-get, dpkg, node, corepack, git, pnpm, useradd, id,
-#                 systemctl, curl, runuser, createdb, nginx, docker, chown) that log their calls.
+#                 systemctl, curl, runuser, createdb, nginx, docker, chown, groupadd) that log their calls;
+#                 the git stub's clone holds a stand-in of the kit's backup script, printing units
+#                 in the real one's shape.
 #                 It checks: the files and their modes (0600 for settings and routes), that no
 #                 secret appears in the output, that a re-run changes nothing, --check, --update,
 #                 both website proxies with their route files, a refused proxy check restoring
@@ -39,7 +41,7 @@ setup() {
   mkdir -p "$STUBS" "$ROOT/etc"
   printf 'ID=ubuntu\nVERSION_ID="24.04"\n' >"$ROOT/etc/os-release"
   local cmd
-  for cmd in apt-get dpkg node corepack git pnpm useradd id systemctl curl runuser createdb nginx docker chown sleep; do
+  for cmd in apt-get dpkg node corepack git pnpm useradd id systemctl curl runuser createdb nginx docker chown groupadd sleep; do
     cat >"$STUBS/$cmd" <<'STUB'
 #!/usr/bin/env bash
 name=$(basename "$0")
@@ -49,7 +51,27 @@ case $name in
   node) [[ $1 == --version ]] && printf 'v22.11.0\n' ;;
   id) [[ -f $SC_ROOT/.user ]] || exit 1 ;;
   useradd) touch "$SC_ROOT/.user" ;;
-  git) [[ $1 == clone ]] && mkdir -p "${*: -1}/.git" ;;
+  git) if [[ $1 == clone ]]; then
+         mkdir -p "${*: -1}/.git" "${*: -1}/node_modules/@seasonal/kit/ops"
+         cat >"${*: -1}/node_modules/@seasonal/kit/ops/backup.sh" <<'KIT'
+[[ $1 == print-units ]] || exit 0
+self=$(readlink -f "${BASH_SOURCE[0]}")
+printf '# ---- /etc/systemd/system/%s-backup@.service
+[Unit]
+After=docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=%s
+ExecStart=%s backup
+
+' "$SK_BACKUP_PREFIX" "$SK_BACKUP_ENV_FILE" "$self"
+printf '# ---- /etc/systemd/system/%s-backup@.timer
+[Timer]
+OnCalendar=*-*-* 03:30:00
+' "$SK_BACKUP_PREFIX"
+KIT
+       fi ;;
   curl) for ((i = 1; i <= $#; i++)); do [[ ${!i} == -o ]] && { j=$((i + 1)); : >"${!j}" 2>/dev/null; }; done
         printf '{"ok":true}' ;;
   runuser)
@@ -103,8 +125,28 @@ case_local() {
   check 'grep -q "^LogNamespace=seasonal-cases" "$ROOT/etc/systemd/system/seasonal-cases.service"' "the unit has no log namespace"
   check 'grep -q "^MaxRetentionSec=14day" "$ROOT/etc/systemd/journald@seasonal-cases.conf"' "the logs are not kept 14 days"
   check '! grep -q "SC_PRIVACY_CONTACT" "$env"' "a privacy contact nobody gave"
+  # No key given: no backup, said loudly.
+  check '[[ $OUT == *"NO BACKUP is set up"* && ! -e "$ROOT/etc/seasonal-cases/backup.env" ]]' "a backup without a key: $OUT"
+  # With the operator's public key: the settings (root only, no password in the address), the
+  # kit's units fitted to this install, the timer enabled (DECISIONS D68).
+  local key_pub
+  key_pub=age1$(printf 'q%.0s' {1..58})
+  installer "${LOCAL[@]}" --smtp-host 127.0.0.1 --smtp-port 1025 --backup-recipient "$key_pub"
+  local backup="$ROOT/etc/seasonal-cases/backup.env" unit="$ROOT/etc/systemd/system/cases-backup@.service"
+  check '[[ $CODE == 0 && $(mode_of "$backup") == 600 ]]' "no backup settings: $OUT"
+  check 'grep -q "^SK_BACKUP_AGE_RECIPIENT='"'"'$key_pub'"'"'" "$backup"' "no recipient"
+  check 'grep -q "^SK_BACKUP_DB_URL='"'"'postgres://seasonal_cases@127.0.0.1:5432/seasonal_cases'"'"'" "$backup"' "a password in the address"
+  check 'grep -q "^PGPASSWORD=" "$backup" && grep -q "^SK_BACKUP_SECRET_FILES='"'"'/etc/seasonal-cases/cases.env'"'"'" "$backup"' "no password or no secret file"
+  check '[[ $OUT != *"$(grep "^PGPASSWORD=" "$backup" | cut -d"'"'"'" -f2)"* ]]' "the database password was printed"
+  check 'grep -q "^After=postgresql.service" "$unit" && ! grep -q docker "$unit"' "the unit waits for docker"
+  check 'grep -q "^ExecStart=/usr/bin/bash /opt/seasonal-cases/app/node_modules/@seasonal/kit/ops/backup.sh backup" "$unit"' "the unit runs another script"
+  check 'grep -q "^systemctl enable --now cases-backup@prod.timer" "$ROOT/calls.log"' "the timer is not enabled"
+  check 'grep -q "^apt-get install .*age" "$ROOT/calls.log" && grep -q "^groupadd .*cases-backup" "$ROOT/calls.log"' "no age or no group"
+  # A wrong key is refused.
+  installer "${LOCAL[@]}" --backup-recipient AGE-SECRET-KEY-1abc
+  check '[[ $CODE != 0 && $OUT == *"age public key"* ]]' "a private key was accepted: $OUT"
   # A re-run with the same answers changes nothing and keeps the secrets.
-  installer "${LOCAL[@]}" --smtp-host 127.0.0.1 --smtp-port 1025
+  installer "${LOCAL[@]}" --smtp-host 127.0.0.1 --smtp-port 1025 --backup-recipient "$key_pub"
   check '[[ $OUT == *"done (0 change(s))"* ]]' "a re-run changed something: $OUT"
   check 'grep -q "$key" "$env"' "the data key changed"
   # --check names a change and makes none.

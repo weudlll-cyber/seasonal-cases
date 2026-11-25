@@ -21,9 +21,22 @@ The chain is running; this report is written at its end.
 
 | Piece | What                                                                                                                                                                                                                                                                              | Commit        | CI run       |
 | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ |
-| 1     | Pinned v0.22.0 (lockfile at `2e8ed41`), `pnpm kit:check` current; the ADOPTION lines: the brake (v0.15.0) and the step badges (v0.19.0) were done before and are unchanged; `aria-controls` on the bar's panel buttons (v0.20.0); the v0.21.0 and v0.22.0 lines are pieces 2 to 4 | (this commit) | (next entry) |
+| 1     | Pinned v0.22.0 (lockfile at `2e8ed41`), `pnpm kit:check` current; the ADOPTION lines: the brake (v0.15.0) and the step badges (v0.19.0) were done before and are unchanged; `aria-controls` on the bar's panel buttons (v0.20.0); the v0.21.0 and v0.22.0 lines are pieces 2 to 4 | `9b7e52d`     | PR run green |
+| 2     | Backups (D68): `deploy/lib/backup.sh`, `deploy/backup.sh`, the installer's answer and flag, harness (66 checks), docs, the dev drill (OPERATIONS-CASES.md)                                                                                                                        | (this commit) | (next entry) |
 
 ### Choices made without the owner
+
+- **Piece 2, a backup without a key.** The installer sets up no backup without the owner's age
+  public key and says so loudly (`NO BACKUP is set up`), rather than refusing to install: with
+  `--yes` an install must still be able to run. The key can be added by running it again.
+- **Piece 2, the kit's units.** They require `docker.service`; Cases' server has no Docker, so the
+  installer rewrites that to `After=postgresql.service` and runs the script with `bash` from the
+  installed code (the printed path is the package store's, which changes with a kit update). For the
+  kit (piece 6).
+- **Piece 2, the drill ran in a Linux container**, because the kit's `backup` command cannot
+  `chmod` in Git Bash on Windows (its `drill` does run there). The secret file was a stand-in: the
+  dev server's own settings file was not read or copied. One empty test schema left in the dev
+  database by an interrupted local test run was dropped.
 
 ## Task SC-A1 (2026-11-25)
 

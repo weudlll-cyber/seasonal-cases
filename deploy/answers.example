@@ -23,6 +23,10 @@ SC_TRUSTED_PROXIES=127.0.0.1,::1
 # Whom the privacy page names as the contact (optional; empty: "the operator of this site")
 # SC_PRIVACY_CONTACT=privacy@example.org
 
+# The encrypted nightly backup: your age public key (age-keygen on your own computer, then
+# age-keygen -y key.txt). Without it no backup is set up.
+# SC_BACKUP_AGE_RECIPIENT=age1...
+
 # Website mode
 # SC_WEBSITE_ORIGIN=https://example.org
 # SC_PROXY=nginx

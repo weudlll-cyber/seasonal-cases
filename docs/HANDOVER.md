@@ -138,6 +138,10 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   "Working cheaply" (D54) brought in; `proto/cases-v1` merged into master and tagged `v1.0.0`
   ([TAGS.md](TAGS.md)); the branches deleted.
 
+- **Backups (D68, BACKLOG 72):** the kit's, set up by the installer with the owner's age public key
+  (INSTALL "Backups"; the drill in [OPERATIONS-CASES.md](OPERATIONS-CASES.md)). **Needs the owner's
+  hand on the VPS:** make the key on the own computer, give the installer the public key, pull the
+  first backup and drill it.
 - **Kit:** `kit: pinned v0.22.0, newest v0.22.0, current` (`pnpm kit:check`, 2026-11-25, end of
   SC-N8 piece 5b; master pins v0.11.1 until the merge). The pin moves only on the owner's word.
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
