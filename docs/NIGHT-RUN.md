@@ -10,7 +10,16 @@ tagged. Not part of this chain: the GitHub settings (BACKLOG 59) and the real pr
 
 ### Final report
 
-The chain is running; this report is written at its end.
+**Done (2026-11-25):** pieces 1 to 4 on `kit/v0.17-adoption`, draft PR #5, not merged, not tagged.
+Piece 1: the opening showcase and its words are out of the production bundle (BACKLOG 67 closed, 9
+strings in `bundle:check`); the folded header's Menu no longer covers the brand at the largest text
+(CSS of the game; the new overlap assertion found 6 with the old rule, none now). Piece 2: a whole
+Quick Test show, the privacy round trip and a password reset played on the dev stack, all passed,
+the session's data deleted again. Piece 3: the sixth security pass, 5 findings, 4 fixed with tests,
+1 for the owner (BACKLOG 69). Piece 4: 168 pictures in `.local/screens/sc-n9/`, 0 findings.
+**Needs the owner's hand:** the GitHub settings (BACKLOG 59). **Needs the owner's word:** the
+real privacy contact text; BACKLOG 69; BACKLOG 64 (waits for the VPS). The raw `gh` output and the
+final head are in the chat report.
 
 ### State
 
@@ -24,7 +33,8 @@ The chain is running; this report is written at its end.
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------------- |
 | 1     | BACKLOG 67: `/dev/opening` behind the DEV flag, 9 strings in `bundle:check`; the folded header's brand keeps its words' width (`shell.css`), an overlap assertion in `e2e/headerSteps.spec.ts`                            | `31dbc3e`     | PR run green (required checks all pass) |
 | 2     | The play-through on the dev stack (a throwaway script, not kept): a Quick Test show, privacy end to end, a reset                                                                                                          | `3b11bfc`     | PR run green                            |
-| 3     | The sixth security pass (docs/security-pass.md): 5 findings, 4 fixed with tests (last-admin race, export caching, a crash between deletion's steps, NAT64/6to4/Teredo in the guarded fetch), 1 for the owner (BACKLOG 69) | (this commit) | (next entry)                            |
+| 3     | The sixth security pass (docs/security-pass.md): 5 findings, 4 fixed with tests (last-admin race, export caching, a crash between deletion's steps, NAT64/6to4/Teredo in the guarded fetch), 1 for the owner (BACKLOG 69) | `8740cc3`     | PR run green                            |
+| 4     | The pictures in `.local/screens/sc-n9/` (168 pictures, 0 findings; privacy, account, account with the delete form, the website header with three steps in `header-steps/`); the stray `https:` folder deleted from disk   | (this commit) | (next entry)                            |
 
 ### Choices made without the owner
 

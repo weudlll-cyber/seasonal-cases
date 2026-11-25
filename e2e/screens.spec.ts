@@ -2,7 +2,7 @@
  * @file   e2e/screens.spec.ts
  * @brief  The pictures for the owner and the planning chat: ten screens at 1536 × 768,
  *         1280 × 720, 390 × 844 and 360 × 780, light and dark, and the phone sizes again with a
- *         200 % root font (a phone set to its largest text), into .local/screens/sc-n7/ (never
+ *         200 % root font (a phone set to its largest text), into .local/screens/sc-n9/ (never
  *         into git).
  *
  * Responsibility: delete the topic's previous pictures, then shoot the sign-in (the start page
@@ -17,7 +17,7 @@
  *                 findings to `checks.json`. Runs only as the project `screens`.
  * Depends on:     @playwright/test, node:fs, ./helpers.ts, ./measure.ts
  */
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 import { expect, test, type Locator, type Page } from '@playwright/test';
@@ -25,7 +25,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 import { boardCase, openShow, quickTestSealing, signInApi } from './helpers.js';
 import { measure, type Measures } from './measure.js';
 
-const DIR = fileURLToPath(new URL('../.local/screens/sc-n7/', import.meta.url));
+const DIR = fileURLToPath(new URL('../.local/screens/sc-n9/', import.meta.url));
 // The sizes of CONCEPT §7: two PCs and two phones, the smaller one the tightest for labels.
 const SIZES = [
   [1536, 768],
@@ -139,8 +139,11 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   browser,
 }) => {
   test.setTimeout(1_500_000);
-  rmSync(DIR, { recursive: true, force: true });
   mkdirSync(DIR, { recursive: true });
+  // The topic's previous state, but for the header run's own folder (./headerSteps.spec.ts).
+  for (const entry of readdirSync(DIR)) {
+    if (entry !== 'header-steps') rmSync(`${DIR}${entry}`, { recursive: true, force: true });
+  }
 
   // The start page for a guest: the account forms (local mode) beside the development sign-in.
   await page.goto('/');
@@ -165,6 +168,18 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   // The registration board: a show with claims and one conflict, seen by a player.
   await page.goto('/');
   await signInApi(page.request, 'Ada', 'admin');
+  // The privacy page and the account area (D61): the account with its download, then the delete
+  // form opened (never sent).
+  await page.goto('/privacy');
+  await expect(page.getByRole('heading', { name: 'Privacy', level: 1 })).toBeVisible();
+  await shoot(page, 'privacy');
+  await page.goto('/account');
+  await expect(page.getByRole('link', { name: 'Download my data' })).toBeVisible();
+  await shoot(page, 'account');
+  await page.getByRole('button', { name: 'Delete my account' }).click();
+  await expect(page.getByRole('form', { name: 'Delete my account' })).toBeVisible();
+  await shoot(page, 'account-delete');
+  await page.goto('/');
   const boardId = await openShow(page.request, 24, 3);
   const players = await browser.newContext();
   const claim = await players.newPage();
