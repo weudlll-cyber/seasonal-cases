@@ -5,7 +5,7 @@
 # Responsibility: run what "pnpm verify" runs and the domain/application coverage, the
 #                 kit-version notice (never a failure), the
 #                 dependency and secret scans, the markdown link check and the Playwright
-#                 journeys on every push to any branch and every pull request against master.
+#                 journeys on every push to master and every pull request against master.
 #                 Any red job blocks a merge.
 #                 After seasonal-mini-games .github/workflows/ci.yml; action SHAs and image
 #                 digests are its own.
@@ -14,7 +14,8 @@ name: CI
 
 on:
   push:
-    branches: ['**']
+    # master only: a push to a branch with an open pull request would start a second identical run.
+    branches: [master]
   pull_request:
     branches: [master]
 
@@ -22,7 +23,7 @@ permissions:
   contents: read
 
 concurrency:
-  # One group per branch and event, so a push and its PR do not cancel each other.
+  # One group per branch and event: a pull request's new commit cancels the run of the one before.
   group: ci-${{ github.event_name }}-${{ github.head_ref || github.ref_name }}
   # Every merge commit on master must get its own finished run.
   cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
@@ -123,8 +124,8 @@ jobs:
         run: bash deploy/test/installer.test.sh
 
   e2e:
-    # The journeys in Chromium on every push and pull request; Firefox and WebKit run
-    # nightly in ./browsers.yml (CLAUDE.md "Tests and checks").
+    # The journeys in Chromium on every pull request and every push to master; Firefox and WebKit
+    # run nightly in ./browsers.yml (CLAUDE.md "Tests and checks").
     runs-on: ubuntu-latest
     # Journey 5 reads the forgotten-password mail from Mailpit's API, as on the dev machine
     # (ops/compose.dev.yml: SMTP 1170, API 8570).
