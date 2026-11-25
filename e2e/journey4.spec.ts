@@ -10,7 +10,7 @@
  */
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 
-import { endEarly, openMenu } from './helpers.js';
+import { endEarly, openMenu, OWN_PAGE } from './helpers.js';
 import { STEP_ICON, STUB_ORIGIN } from './stubShared.js';
 
 const GAME = `${STUB_ORIGIN}/games/cases/`;
@@ -36,10 +36,11 @@ test('journey 4: website sign-in, back link, docked chat, badges; a guest only w
   const api = olga.request;
   const created = await api.post(`${GAME}api/shows`, {
     data: { cases: 6, winners: 1, labels: [] },
+    ...OWN_PAGE,
   });
   expect(created.ok()).toBe(true);
   const { id } = (await created.json()) as { id: string };
-  expect((await api.post(`${GAME}api/shows/${id}/open`)).ok()).toBe(true);
+  expect((await api.post(`${GAME}api/shows/${id}/open`, OWN_PAGE)).ok()).toBe(true);
 
   const member = await browser.newContext();
   const ana = await signInThroughWebsite(member, 7);
@@ -81,7 +82,7 @@ test('journey 4: website sign-in, back link, docked chat, badges; a guest only w
   await expect(watcher.getByRole('form', { name: 'Development sign-in' })).toHaveCount(0);
 
   for (const step of ['close', 'seal', 'start']) {
-    expect((await api.post(`${GAME}api/shows/${id}/${step}`)).ok()).toBe(true);
+    expect((await api.post(`${GAME}api/shows/${id}/${step}`, OWN_PAGE)).ok()).toBe(true);
   }
   await watcher.goto(`${GAME}show`);
   await expect(watcher.getByRole('region', { name: 'Opening' })).toBeVisible();

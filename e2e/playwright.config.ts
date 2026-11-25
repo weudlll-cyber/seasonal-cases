@@ -27,13 +27,7 @@ export default defineConfig({
   timeout: 90_000,
   expect: { timeout: 10_000 },
   reporter: [['list']],
-  // The journeys' API calls stand for the game's own page: they say so, as a browser does
-  // (`Sec-Fetch-Site`), since the server refuses a write that names no origin (D69).
-  use: {
-    baseURL: CLIENT,
-    trace: 'retain-on-failure',
-    extraHTTPHeaders: { 'sec-fetch-site': 'same-origin' },
-  },
+  use: { baseURL: CLIENT, trace: 'retain-on-failure' },
   webServer: [
     {
       command: 'node --import=tsx e2e/server.ts',

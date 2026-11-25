@@ -40,18 +40,31 @@ export async function openMenu(page: Page): Promise<void> {
   }
 }
 
+/**
+ * What a page of the game says on its own requests (`Sec-Fetch-Site`): an API call of a test says
+ * it too, since the server refuses a write that names no origin (D69). Per call, not for the
+ * browser context: Chromium refuses a `sec-` header set on page requests.
+ */
+export const OWN_PAGE = { headers: { 'sec-fetch-site': 'same-origin' } };
+
 /** Signs in through the dev route; the page's context keeps the cookie. */
 export async function signInApi(request: APIRequestContext, name: string, role: Role, rank = 0) {
-  const response = await request.post('/api/dev/sign-in', { data: { name, role, rank } });
+  const response = await request.post('/api/dev/sign-in', {
+    data: { name, role, rank },
+    ...OWN_PAGE,
+  });
   expect(response.ok()).toBe(true);
 }
 
 /** Creates a show and opens its registration; returns its id. */
 export async function openShow(request: APIRequestContext, cases: number, winners: number) {
-  const created = await request.post('/api/shows', { data: { cases, winners, labels: [] } });
+  const created = await request.post('/api/shows', {
+    data: { cases, winners, labels: [] },
+    ...OWN_PAGE,
+  });
   expect(created.ok()).toBe(true);
   const { id } = (await created.json()) as { id: string };
-  expect((await request.post(`/api/shows/${id}/open`)).ok()).toBe(true);
+  expect((await request.post(`/api/shows/${id}/open`, OWN_PAGE)).ok()).toBe(true);
   return id;
 }
 

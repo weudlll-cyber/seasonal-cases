@@ -8,7 +8,7 @@
  */
 import { expect, test, type Browser, type Page } from '@playwright/test';
 
-import { boardCase, openShow, signInApi, signInUi } from './helpers.js';
+import { boardCase, openShow, signInApi, signInUi, OWN_PAGE } from './helpers.js';
 
 async function player(browser: Browser, name: string, rank: number): Promise<Page> {
   const context = await browser.newContext();
@@ -51,7 +51,7 @@ test('journey 2: the higher rank holds, the lower re-picks, the earlier of equal
   );
   await expect(boardCase(ivy, 7)).toContainText('also: Ivy (rank 4');
 
-  expect((await page.request.post(`/api/shows/${id}/close`)).ok()).toBe(true);
+  expect((await page.request.post(`/api/shows/${id}/close`, OWN_PAGE)).ok()).toBe(true);
   await expect(boardCase(lena, 7)).toContainText('Hugo');
   await expect(boardCase(lena, 8)).toContainText('Lena');
   await expect(lena.locator('.board-screen h2')).toHaveText('The cases and their owners');

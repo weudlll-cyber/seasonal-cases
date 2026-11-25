@@ -13,7 +13,7 @@
  */
 import { expect, test, type Page } from '@playwright/test';
 
-import { direct, endEarly, openShow, quickTestSealing, signInUi } from './helpers.js';
+import { direct, endEarly, openShow, quickTestSealing, signInUi, OWN_PAGE } from './helpers.js';
 
 const SEED = 'sc-n1-01';
 const STEPS = ['Open', 'Owner', 'Back to stage'] as const;
@@ -135,7 +135,7 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
 async function unclaimedShow(page: Page): Promise<void> {
   const id = await openShow(page.request, 2, 1);
   for (const step of ['close', 'seal', 'start']) {
-    expect((await page.request.post(`/api/shows/${id}/${step}`)).ok()).toBe(true);
+    expect((await page.request.post(`/api/shows/${id}/${step}`, OWN_PAGE)).ok()).toBe(true);
   }
   await page.goto('/show');
   await page.getByRole('button', { name: 'Begin' }).click();

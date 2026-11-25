@@ -28,6 +28,7 @@ import {
   openShow,
   quickTestSealing,
   signInApi,
+  OWN_PAGE,
 } from './helpers.js';
 
 const SIZES = [
@@ -128,7 +129,10 @@ test('axe finds nothing serious on any screen, light and dark, desktop and phone
     await signInApi(claimant.request, name, 'player', rank);
     expect(
       (
-        await claimant.request.post(`/api/shows/${boardId}/claim`, { data: { caseNumber: n } })
+        await claimant.request.post(`/api/shows/${boardId}/claim`, {
+          data: { caseNumber: n },
+          ...OWN_PAGE,
+        })
       ).ok(),
     ).toBe(true);
   }
@@ -160,6 +164,7 @@ test('axe finds nothing serious on any screen, light and dark, desktop and phone
   const main = quickTestSealing(seed, 24, 3).get('prize-1');
   const created = await page.request.post('/api/dev/quick-test', {
     data: { cases: 24, winners: 3, labels: ['Golden Ticket', '', 'Signed Poster'], seed },
+    ...OWN_PAGE,
   });
   const { id } = (await created.json()) as { id: string };
   await page.goto('/show');

@@ -27,6 +27,11 @@ The chain is running; this report is written at its end.
 
 ### Choices made without the owner
 
+- **Piece 3's first push was red** (every journey and the axe run): to keep the journeys' API calls
+  allowed, `Sec-Fetch-Site` was set for the whole browser context, which Chromium refuses for a
+  `sec-` header (`net::ERR_INVALID_ARGUMENT` on every page load). Cause confirmed by a probe; the
+  header is now on each API call only (`OWN_PAGE` in `e2e/helpers.ts`).
+
 - **Piece 3, the headers in production.** The production client was walked under the kit's headers
   in a browser (start, privacy, account, matches, admin, chronicle, a Quick Test stage with an
   opening): fonts load, the stage's styles apply, no style, image or connect violation. One report

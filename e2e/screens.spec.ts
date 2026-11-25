@@ -22,7 +22,14 @@ import { fileURLToPath } from 'node:url';
 
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-import { boardCase, deleteMailTo, openShow, quickTestSealing, signInApi } from './helpers.js';
+import {
+  boardCase,
+  deleteMailTo,
+  openShow,
+  quickTestSealing,
+  signInApi,
+  OWN_PAGE,
+} from './helpers.js';
 import { measure, type Measures } from './measure.js';
 
 const DIR = fileURLToPath(new URL('../.local/screens/sc-n9/', import.meta.url));
@@ -177,7 +184,12 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   ] as const) {
     await signInApi(claim.request, name, 'player', rank);
     expect(
-      (await claim.request.post(`/api/shows/${boardId}/claim`, { data: { caseNumber: n } })).ok(),
+      (
+        await claim.request.post(`/api/shows/${boardId}/claim`, {
+          data: { caseNumber: n },
+          ...OWN_PAGE,
+        })
+      ).ok(),
     ).toBe(true);
   }
   await signInApi(page.request, 'Lena', 'player', 2);
@@ -193,6 +205,7 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   const main = quickTestSealing(seed, 24, 3).get('prize-1');
   const created = await page.request.post('/api/dev/quick-test', {
     data: { cases: 24, winners: 3, labels: ['Golden Ticket', '', 'Signed Poster'], seed },
+    ...OWN_PAGE,
   });
   const { id } = (await created.json()) as { id: string };
   await page.goto('/show');
@@ -239,7 +252,7 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   // The ceremony of a real show nobody claimed a case in: every prize "not won" (D34).
   const empty = await openShow(page.request, 6, 3);
   for (const step of ['close', 'seal', 'start']) {
-    expect((await page.request.post(`/api/shows/${empty}/${step}`)).ok()).toBe(true);
+    expect((await page.request.post(`/api/shows/${empty}/${step}`, OWN_PAGE)).ok()).toBe(true);
   }
   // The page's clock is held, so the ceremony stays on its first prize (one every 2.5 s) for all
   // fourteen pictures; without it the run outlasts the ceremony.
