@@ -25,7 +25,52 @@ The chain is running; this report is written at its end.
 | 2     | Backups (D68): `deploy/lib/backup.sh`, `deploy/backup.sh`, the installer's answer and flag, harness (66 checks), docs, the dev drill (OPERATIONS-CASES.md)                                                                                                                        | `5aff90d`            | PR run green                                             |
 | 3     | The kit's server parts (D69, D70): `writeCheck`, `securityHeaderSet` + hook (helmet removed), `sessionCookie`, `guardedFetch` (own deleted, BACKLOG 69 closed), `/healthz` `/readyz` (readiness limited)                                                                          | `e54ec31`, `ed80d3c` | 45677780097 red (e2e), 45680848575 and 45680857889 green |
 | 4     | The four patches deleted; the download button; the axe exclusion tried without and put back (BACKLOG 70 open); the header measured, a stylesheet-order bug fixed (BACKLOG 73)                                                                                                     | `4282a6c`            | 45686080403, 45686094769 green                           |
-| 5     | What stays Cases' own: D71 to D74                                                                                                                                                                                                                                                 | (this commit)        | (next entry)                                             |
+| 5     | What stays Cases' own: D71 to D74                                                                                                                                                                                                                                                 | `25f13aa`            | 45687219198, 45687228702 green                           |
+| 6     | The block for the kit's planning chat (below)                                                                                                                                                                                                                                     | (this commit)        | (next entry)                                             |
+
+### For the kit's planning chat
+
+```text
+Seasonal Cases moved to kit v0.22.0 (branch kit/v0.17-adoption, 1.1.0-rc.2, 2026-11-25).
+
+Backup (ops/backup.sh): set up by Cases' installer (prefix cases, native PostgreSQL via
+SK_BACKUP_DB_URL + PGPASSWORD, no volumes, secret file cases.env). Drill on the dev stack: backup
+41160 bytes in 2.1 s; the kit's drill passed (11 tables, row counts equal, 1 secret file, 34 s);
+restore into a wiped copy 1.8 s, row counts equal; the server on the restored copy served the same
+show list and an ended show's view byte-equal, its commitment verifying.
+
+Replaced: Cases' CSRF guard (writeCheck), helmet and its options (securityHeaderSet +
+securityHeadersHook), its session cookie options (sessionCookie), its own guarded fetch
+(guardedFetch, season feed), /api/health and /api/ready (/healthz and /readyz with readiness), and
+the four CSS patches of K65.
+
+Stays Cases' own, with reasons (Cases DECISIONS D71-D74): the account feed's plain fetch of the
+website's own local http address (not an outside address; allowLocal would be needed); address
+limits, stores, the brake's keys, client serving, log and mailer (the kit has no such parts); two
+CSS rules that size the docked screen and the start icon (game layout); the result page's text, date
+and commitment format.
+
+What did not fit:
+1. backup.sh print-units writes After=docker.service and Requires=docker.service: a native install
+   has no Docker, so the units would never start. Cases rewrites them to After=postgresql.service.
+2. print-units writes ExecStart=<resolved path of backup.sh>; under pnpm that is the package store's
+   path, which changes with every kit update. Cases rewrites it to bash + the node_modules path.
+3. backup.sh backup fails in Git Bash on Windows (install -m cannot chmod); drill works there. A
+   dev drill on Windows needs a Linux container.
+4. sessionCookie gives the non-secure (plain http) cookie Path=/ and ignores basePath.
+5. header.css: .sk-menu-button { display: none } has the same specificity as bar.css's
+   .sk-bar-button { display: inline-flex }, so importing header.css before bar.css shows the Menu
+   button while unfolded. Cases had that order since v0.17.0: the button showed beside the links and
+   signed-in users got the folded header at 1280. With the order fixed, Cases' header is unfolded at
+   1280x720, 1536x768 and 1920x1080 for signed out, player, organiser and admin (name "Alexandra"),
+   so the v0.22.0 note "Cases' bar folds at 1280 and 1536" does not hold with it fixed. A more
+   specific selector (.sk-header .sk-menu-button) would remove the order trap.
+6. axe scrollable-region-focusable on .sk-docked-main (Cases' result page, 1536x768 and 390x844,
+   light and dark) is still there on v0.22.0 (Cases BACKLOG 70).
+
+Correction: Cases does have an outward fetch, the website's season feed (since 2026-11-24); it now
+goes through the kit's guardedFetch with the website's host allowed.
+```
 
 ### Choices made without the owner
 
