@@ -191,3 +191,9 @@ the owner confirmed them on 2026-11-23 (D46).
 - **Release 1.0.0.** The merge of `proto/cases-v1` into master and the tag `v1.0.0` are approved.
   ||||||| 2bf720c
   lines on start. PostgreSQL comes with the full build (CONCEPT §11).
+
+## 2026-11-25, task SC-CI1: D75
+
+- **D75 — One CI run per change.** The CI workflow runs on a push to `master` and on a pull
+  request against `master` only, so a push to a branch with an open pull request starts one run,
+  not two identical ones. A branch is checked by its pull request.
