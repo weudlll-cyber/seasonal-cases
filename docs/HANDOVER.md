@@ -11,7 +11,13 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
 
 ## Where things stand
 
-- **Now (2026-11-25, night chain SC-N10):** `1.1.0-rc.2` on `kit/v0.17-adoption` (draft PR #5),
+- **Now (2026-11-25, night chain SC-N11):** `1.1.0-rc.3` on `kit/v0.17-adoption` (draft PR #5),
+  not merged, not tagged: the owner looks at it first. **On a server Cases runs in Docker only**
+  (D76–D78): `Dockerfile`, `ops/compose.yml`, the installer and the backup on them, the native path
+  removed; step by step in [INSTALL.md](INSTALL.md). Proven on the owner's PC with a whole show and
+  a restore drill ([OPERATIONS-CASES.md](OPERATIONS-CASES.md)); not yet on a Linux host (BACKLOG 34,
+  64). CI builds and scans the image (job `image`, not yet a required check).
+- **Night chain SC-N10 (2026-11-25):** `1.1.0-rc.2` on `kit/v0.17-adoption` (draft PR #5),
   kit v0.22.0 with its backup and server parts; not merged: the owner looks at it first. Open: the
   kit's finding BACKLOG 70. Needs the owner's hand: the age key on the VPS, the GitHub settings
   (59). Word: the privacy contact text.
@@ -148,8 +154,10 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
   (INSTALL "Backups"; the drill in [OPERATIONS-CASES.md](OPERATIONS-CASES.md)). **Needs the owner's
   hand on the VPS:** make the key on the own computer, give the installer the public key, pull the
   first backup and drill it.
-- **Kit:** `kit: pinned v0.22.0, newest v0.22.0, current` (`pnpm kit:check`, 2026-11-25, end of
-  SC-N8 piece 5b; master pins v0.11.1 until the merge). The pin moves only on the owner's word.
+- **Kit:** `kit: pinned v0.22.0, newest v0.27.0, 5 releases behind` (`pnpm kit:check`, 2026-11-25,
+  end of night chain SC-N11; master pins v0.11.1 until the merge). The pin moves only on the owner's
+  word. Before it moves: since v0.25 the kit's `ops/backup.sh` loads files from `ops/lib`, and the
+  installer copies only `backup.sh` out of the image (`deploy/lib/backup.sh`).
 - **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
   play-through steps, every choice made without the owner, and the pictures seen and left.
 
@@ -159,9 +167,13 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
   `pnpm test:coverage`. `pnpm kit:check` alone prints the pinned kit tag against the newest; CI's
   `verify` job writes it to the job summary and warns when behind, never failing (D41); Renovate
   has a rule for the kit's tags once the app is enabled.
+- On a server: the compose stack (`ops/compose.yml`: the game and PostgreSQL), installed, updated
+  and checked by `deploy/install.sh`; `deploy/admin.sh` and `deploy/backup.sh` act on it. CI job
+  `deploy` tests the installer, job `image` the image.
 - `pnpm dev`: server 127.0.0.1:3970, client 0.0.0.0:5470 (http://localhost:5470; the phone at
   http://192.168.0.66:5470 on the home Wi-Fi). Left running hidden for the owner at the end of
-  SC-N7 (1.1.0-rc.1, on `kit/v0.17-adoption`), on PostgreSQL; the development database holds three accounts the chains did not make
+  SC-N11 (1.1.0-rc.3, on `kit/v0.17-adoption`), on PostgreSQL; the development database holds three
+  accounts the chains did not make
   ("Plan-Claude", "Walter", "walter"), left as they are; the play-through steps are in
   [NIGHT-RUN.md](NIGHT-RUN.md) "Final report" (Quick Test seed `sc-n1-01`).
 - The development services: `docker compose --env-file ops/compose.dev.env -f
@@ -180,7 +192,7 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
 - The store tests need PostgreSQL: the development database, or `SC_TEST_DATABASE_URL` (CI).
 - Journey 5 needs Mailpit (the development services above; a service in CI).
 - `pnpm dev:sc admin promote <name>` makes a standalone account an admin on the dev database
-  (`pnpm sc …` on a real server, with `DATABASE_URL` and `SC_DATA_KEY` in its shell); that admin
+  (`sudo ./deploy/admin.sh admin …` on a server); that admin
   sets up two-factor sign-in in the admin area before the accounts and settings open.
 - Journey 6 signs in as its browser project's seeded admin (`e2e/rootAdmin.ts`), so it runs
   once per project and e2e server start.
@@ -195,7 +207,7 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
 
 ## Needs the owner's word
 
-- The merge of `proto/cases-v1` and the tag `v1.0.0` ([RELEASING.md](RELEASING.md)).
+- The merge of `kit/v0.17-adoption` (PR #5) and its tag ([RELEASING.md](RELEASING.md)).
 - Decided 2026-11-22 and built: the limits, no bots in real shows, the asked trusted range
   (D34, D37), the ceremony and the motion as built (D30, D32), the website-mode rank (D31).
 
@@ -230,22 +242,13 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
     only; 100 brake it everywhere; an address is braked from 20 across all accounts.
 
 - **Where this repository departs from the kit's HANDBOOK (v0.17.0)**, read against the game on
-  2026-11-24 (night chain SC-N7, piece 3; the open items are BACKLOG 58–65):
+  2026-11-24 (night chain SC-N7, piece 3; the open items are BACKLOG 59 and 64):
   - coverage thresholds are the domain's 90 % lines / 85 % branches and the application's
     80 / 75 (CLAUDE.md "game logic 85 % branches"), not 95 % of lines, branches and functions
     everywhere (decided 2026-11-24, D64: no coverage target, tests where they guard something
     real; BACKLOG 63, closed);
-  - the season of a show comes from its date (UTC month, `packages/application/src/season.ts`),
-    not from the website's season feed (`seasonFeedReader`, 60);
-  - the game bar has no `back` link in website mode, `afterFonts` is not set on the stage's fit
-    and a local install without a chat is not wrapped in `DockedScreen withoutChat` (60);
-  - no privacy document, no account deletion and no data export (58);
   - the repository's GitHub settings differ from the handbook's list (59);
-  - the start page's dev sign-in form and the admin's Quick Test ship in the production bundle,
-    gated by the server's dev flag (61); the reset and confirmation tokens are in the link's
-    query (62);
-  - the steps "before production" are not done (64); `.gitleaksignore`, a `Dockerfile` and
-    Mini Games' `ops/` are not rules for every game and are not added;
+  - the steps "before production" are not all done (64); `.gitleaksignore` is not added;
   - the morning sheet is one file, `docs/NIGHT-RUN.md`, with a section per chain, not
     `docs/NIGHT-<date>.md`;
   - some browser tests wait on the clock (`waitForTimeout` in journey 1 for the case's

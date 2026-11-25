@@ -19,6 +19,7 @@
 | 1.14 | 2026-11-24 | Night chain SC-N8, from the owner's decisions of 2026-11-24: privacy (§10): accounts stay until deleted, deletion and export, the privacy page, 14 days of server logs. |
 | 1.15 | 2026-11-24 | Night chain SC-N8, from the owner's decisions of 2026-11-24: the current season of a new show (§6) and the way back in focus mode (§7, §10): the kit parts of D62. |
 | 1.16 | 2026-11-24 | Night chain SC-N8, kit v0.19.0 (D65): the website member's step badges are drawn by the kit's header beside the name (§4, §10). |
+| 1.17 | 2026-11-25 | Night chain SC-N11, from the owner's decision of 2026-11-25: on a server the game runs in Docker only (§10, §11). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -272,7 +273,8 @@ Both are required (ecosystem principle, confirmed for this game 2026-11-21).
   decided 2026-11-23; sign in; forgotten password by e-mail), 2FA for admins,
   roles player / organiser / admin, super admin by server command, manual ranks (§4), no website
   link, no chat and no call.
-- **Installer:** one call on a VPS for both modes, asking what it needs; general instructions.
+- **Installer:** one call on a VPS for both modes, asking what it needs; general instructions. It
+  installs, updates and checks the Docker stack (§11), and backs up before an update.
 - **Privacy** (decided 2026-11-24, DECISIONS D61): a standalone account stays until its player
   deletes it ("Delete my account" in the account area: the password, and a current code with a
   second factor; the last admin is told to make another admin first). Deletion removes the name,
@@ -318,6 +320,9 @@ injected ports) ← `application` ← `apps/server`; the client renders, the ser
   `.local/` folder — enough for seeds, the commitment and the result screen. **Full build:**
   PostgreSQL as in Mini Games.
 - **Realtime:** event-driven over socket.io; no fixed tick.
+- **Operations** (decided 2026-11-25, DECISIONS D76): on a server Docker is the only path, as in
+  the other games: the game's image and PostgreSQL 17 as one compose stack, an encrypted nightly
+  backup, logs kept 14 days. Development runs on the machine itself.
 - **Security from day one:** CodeQL, osv-scanner, gitleaks (CI and pre-commit), Renovate grouped
   without auto-merge, read-only workflow permissions, actions pinned to full SHAs, exact versions,
   lockfile committed, master protected (PR with green required checks, no force-push, no deletion).

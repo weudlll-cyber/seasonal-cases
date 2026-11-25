@@ -9,13 +9,36 @@ merged, nothing tagged.
 
 ### Final report
 
-The chain is running; this report is written at its end.
+All five pieces are done. On a server Cases now runs in Docker only; nothing is merged or tagged.
+
+- **Image and stack:** `Dockerfile` (77 MB, uid 10001, read-only root, health from `/readyz`),
+  `ops/compose.yml` with PostgreSQL 17, a website overlay and a journal overlay.
+- **Installer and backup:** both modes on the compose stack; `--update` backs up first; the native
+  path is removed; the kit's backup runs against the database container with its units unchanged.
+- **Proof on the PC:** a whole show with five cases; backup, database volume removed, restore: every
+  row count equal, accounts sign in, the result verifies with the same commitment
+  ([OPERATIONS-CASES.md](OPERATIONS-CASES.md)).
+- **Image scan:** CI job `image` (Trivy, and a search for development tools). The first scan found
+  development tools in the image; fixed (BACKLOG 76).
+- **Not proven:** the installer, the backup's timer, the logs into the journal and website mode on a
+  real Linux host (BACKLOG 34, 64).
+- **Kit:** pinned `v0.22.0`, newest `v0.27.0`; not moved. From v0.25 the kit's backup script loads
+  files from `ops/lib`: whoever moves the pin changes `copy_backup_script` in the same step.
+- **Seen and left:** on windows wider than 1440 px the header reads "Signed in asOlga" (the kit's
+  chip; the header was not to be touched).
 
 ### State
 
-| Done          | Running                          | Open | Needs the owner's word / hand |
-| ------------- | -------------------------------- | ---- | ----------------------------- |
-| Pieces 1 to 4 | Piece 5: docs and the image scan | none | (collected per piece)         |
+| Done          | Running | Open | Needs the owner's word / hand |
+| ------------- | ------- | ---- | ----------------------------- |
+| Pieces 1 to 5 | nothing | none | below                         |
+
+**Needs the owner's word:** the merge of PR #5; moving the kit pin; the privacy contact text (from
+earlier chains).
+
+**Needs the owner's hand:** a first install on the VPS ([INSTALL.md](INSTALL.md)); the age key for
+the backup; adding the job `image` to master's required checks after the merge; the GitHub settings
+(BACKLOG 59); deleting the branch `ci/push-master-only` on origin (task SC-CI1).
 
 ### Pieces
 
@@ -24,9 +47,14 @@ The chain is running; this report is written at its end.
 | 1     | `Dockerfile`, `.dockerignore`, version `1.1.0-rc.3`; built and smoke-run locally (healthy, client served, uid 10001, 122 MB, no tests or package managers inside)                                 | `b322262`     | 45709144145 green |
 | 2     | `ops/compose.yml`, `compose.website.yml`, `compose.journal.yml`, `cases.env.example`; CONFIG's compose settings; `docker compose config` passes                                                   | `f0936be`     | 45709761278 green |
 | 3     | The installer on Docker (`deploy/`, D78), the backup on the database container, the harness (69 checks, shellcheck clean), INSTALL rewritten, CONFIG, README, OPERATIONS-CASES; BACKLOG 35 closed | `84f85c3`     | 45711310188 green |
-| 4     | A whole show on the compose stack on the PC, the backup and restore drill (OPERATIONS-CASES); the image fixed: development tools were still in it (122 MB to 77 MB)                               | (this commit) | (next entry)      |
+| 4     | A whole show on the compose stack on the PC, the backup and restore drill (OPERATIONS-CASES); the image fixed: development tools were still in it (122 MB to 77 MB)                               | `2521d78`     | 45714127939 green |
+| 5     | CI job `image` with Trivy (BACKLOG 76, 64), CONCEPT 1.17, HANDOVER, CONFIG, RELEASING                                                                                                             | (this commit) | PR #5's checks    |
 
 ### Choices made without the owner
+
+- **Piece 5.** The scan went into CI (a small step, after Mini Games' job `image`, the same pinned
+  Trivy), without Mini Games' size budget (not asked); instead the job fails when a development tool
+  is in the image, which is what happened here.
 
 - **Piece 4.** The proof used ports 3999 (the game) and 8579 (a throw-away Mailpit) and the network
   `172.30.252.0/24`. Quick Test is development only, so a real show was played by the organiser's

@@ -8,7 +8,7 @@ owner's word (CLAUDE.md "Git").
 - `pnpm verify` green, the journeys green in Chromium (`pnpm e2e --project=chromium`), CI green
   on the branch's last commit (`gh run list --branch <branch>`).
 - [CHANGELOG.md](../CHANGELOG.md) names the release; every `package.json` carries its version
-  (`1.0.0` on master since 2026-11-23, `1.1.0-rc.1` on `kit/v0.17-adoption`).
+  (`1.0.0` on master since 2026-11-23, `1.1.0-rc.3` on `kit/v0.17-adoption`).
 - [security-pass.md](security-pass.md) has no open confirmed finding.
 
 ## 2. Merge (with the owner's word)
@@ -43,7 +43,7 @@ On the server, in the clone the installer runs from (docs/INSTALL.md):
 
 ```sh
 sudo ./deploy/install.sh --check --ref v1.0.0    # what would change
-sudo ./deploy/install.sh --update --ref v1.0.0   # fetch, build, restart; migrations run on start
+sudo ./deploy/install.sh --update --ref v1.0.0   # back up, fetch, build, restart; migrations run on start
 curl http://127.0.0.1:3970/healthz               # {"status":"ok",…,"version":"1.0.0",…}
 ```
 

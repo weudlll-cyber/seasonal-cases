@@ -1,15 +1,16 @@
 # @file   .github/workflows/ci.yml
-# @brief  CI: verify with coverage, security scans, the docs' link check and the browser
-#         journeys in Chromium.
+# @brief  CI: verify with coverage, security scans, the docs' link check, the installer, the
+#         browser journeys in Chromium and the production image's scan.
 #
 # Responsibility: run what "pnpm verify" runs and the domain/application coverage, the
 #                 kit-version notice (never a failure), the
-#                 dependency and secret scans, the markdown link check and the Playwright
-#                 journeys on every push to master and every pull request against master.
+#                 dependency and secret scans, the markdown link check, the Playwright
+#                 journeys, and the production image (built, searched for development tools,
+#                 scanned with Trivy) on every push to master and every pull request against it.
 #                 Any red job blocks a merge.
 #                 After seasonal-mini-games .github/workflows/ci.yml; action SHAs and image
 #                 digests are its own.
-# Depends on:     .github/actions/setup, osv-scanner.toml, e2e/
+# Depends on:     .github/actions/setup, osv-scanner.toml, e2e/, deploy/, Dockerfile
 name: CI
 
 on:
@@ -34,6 +35,7 @@ env:
   GITLEAKS_IMAGE: ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
   SHELLCHECK_IMAGE: koalaman/shellcheck:v0.10.0@sha256:2097951f02e735b613f4a34de20c40f937a6c8f18ecb170612c88c34517221fb
   LYCHEE_IMAGE: lycheeverse/lychee:0.24.2@sha256:e2d19e57cf6ab037026f20b8e449a1f30d9d7f81eef4194763aab2eab20bd28d
+  TRIVY_IMAGE: ghcr.io/aquasecurity/trivy:0.76.0@sha256:2416d1f74045b57274df1a340eee6b510cacd73c66a6ccb8da092b117eb7d222
 
 jobs:
   verify:
@@ -124,6 +126,28 @@ jobs:
             deploy/install.sh deploy/admin.sh deploy/backup.sh deploy/test/installer.test.sh
       - name: Installer harness
         run: bash deploy/test/installer.test.sh
+
+  image:
+    # The production image (Dockerfile), as the installer builds it for a standalone server; the
+    # website mode differs in the client's base path only.
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: seasonal-cases:ci
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: docker build --build-arg SC_MODE=local --build-arg SC_COMMIT="${GITHUB_SHA::7}" -t "$IMAGE" .
+      # Only what runs is shipped: these development tools must not be in the image.
+      - name: No development tools
+        run: |
+          docker run --rm --entrypoint ls "$IMAGE" /app/node_modules/.pnpm > packages.txt
+          if grep -E '^(@playwright\+|eslint@|jsdom@|lefthook|prettier@|typescript@|vite@|vitest@)' packages.txt; then
+            echo "::error::development tools are in the production image"
+            exit 1
+          fi
+      - name: Trivy (HIGH/CRITICAL with a fix available)
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" image \
+            --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress "$IMAGE"
 
   e2e:
     # The journeys in Chromium on every pull request and every push to master; Firefox and WebKit

@@ -17,6 +17,7 @@ Branch `kit/v0.17-adoption`, night chain SC-N11: Cases moves to Docker (DECISION
   `--check`; the native path (a local PostgreSQL role, a systemd service, Node on the server) is
   gone. The kit's backup runs against the database container; `admin.sh` runs inside the game's
   container. The website's account feed now works behind its Caddy too.
+- **The image holds only what runs**, and CI builds it and scans it with Trivy (job `image`).
 
 ## 1.1.0-rc.2 (not tagged; the tag follows the merge with the owner's word)
 
