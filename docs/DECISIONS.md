@@ -271,3 +271,21 @@ the owner confirmed them on 2026-11-23 (D46).
   address) under the base path replace `/api/health` and `/api/ready`. No alias is kept: nothing
   outside this repository is documented to call the old paths (searched here and in the website's
   docs and server).
+
+## 2026-11-25, night chain SC-N10: what stays Cases' own beside kit v0.22.0
+
+- **D71 — The account feed reads with plain `fetch`.** It asks the website's own local address
+  (`SC_WEBSITE_LOCAL_ORIGIN`, plain http on the same host, set by the operator), not an outside one;
+  the kit's `guardedFetch` is made to refuse exactly such addresses unless `allowLocal`. It stays;
+  a later step may pass `allowLocal` and `allowedHosts` to get the kit's time and size limits.
+- **D72 — The address limits, the account and session stores, the sign-in's brake keys (D55), the
+  built client's serving, the log and the mailer stay the game's.** The kit offers the limiter, the
+  brake, the session-end signal, the cookie and the headers they stand on (all used); it offers no
+  store, no client serving, no mailer.
+- **D73 — Two pieces of CSS still name kit classes, as the game's layout, not as patches:** the
+  shell gives the docked screen the height left under the header (`.shell > .sk-docked`,
+  `.sk-docked-main`), and the start card's icon slot sizes the game's own logo. The page takes the
+  visible height as the kit's docs ask of the game.
+- **D74 — The result page's words, the date format and the commitment's short form stay the
+  game's** (`screens/Result.tsx` inside the kit's `ResultFrame`, `packages/ui/src/format.ts`); the kit
+  has no date or commitment format.
