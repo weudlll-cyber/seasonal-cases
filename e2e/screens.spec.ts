@@ -1,8 +1,8 @@
 /**
  * @file   e2e/screens.spec.ts
  * @brief  The pictures for the owner and the planning chat: ten screens at 1536 × 768,
- *         1280 × 720, 390 × 844 and 360 × 780, light and dark, and the phone sizes again with a
- *         200 % root font (a phone set to its largest text), into .local/screens/sc-n9/ (never
+ *         1280 × 720, 390 × 844, 375 × 667 and 360 × 780, light and dark, and the phone sizes again with a
+ *         200 % root font (a phone set to its largest text), into .local/screens/sc-n10/ (never
  *         into git).
  *
  * Responsibility: delete the topic's previous pictures, then shoot the sign-in (the start page
@@ -32,12 +32,13 @@ import {
 } from './helpers.js';
 import { measure, type Measures } from './measure.js';
 
-const DIR = fileURLToPath(new URL('../.local/screens/sc-n9/', import.meta.url));
+const DIR = fileURLToPath(new URL('../.local/screens/sc-n10/', import.meta.url));
 // The sizes of CONCEPT §7: two PCs and two phones, the smaller one the tightest for labels.
 const SIZES = [
   [1536, 768],
   [1280, 720],
   [390, 844],
+  [375, 667],
   [360, 780],
 ] as const;
 // Under this width a size is a phone, and is shot again with a large root font.
@@ -275,6 +276,16 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   const settings = page.getByRole('form', { name: 'Settings' });
   await expect(settings).toBeVisible();
   await shoot(page, 'admin-settings', settings);
+  // The header in each role: signed out is the sign-in, a player the start; these two beside them.
+  for (const [name, role] of [
+    ['Ada', 'admin'],
+    ['Mia', 'organiser'],
+  ] as const) {
+    await signInApi(page.request, name, role);
+    await page.goto('/');
+    await expect(page.getByTestId('app-header')).toBeVisible();
+    await shoot(page, `header-${role}`);
+  }
 
   writeFileSync(`${DIR}checks.json`, JSON.stringify(checks, null, 2));
   // The findings are assertions: nothing under the text floor, nothing scrolling sideways, nothing

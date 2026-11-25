@@ -9,7 +9,18 @@ PR #5; nothing merged, nothing tagged.
 
 ### Final report
 
-The chain is running; this report is written at its end.
+**Done (2026-11-25):** pieces 1 to 7 on `kit/v0.17-adoption`, draft PR #5, version `1.1.0-rc.2`; not
+merged, not tagged. Kit v0.22.0 in; the kit's backup set up by the installer and drilled on the dev
+stack; the kit's CSRF check, headers, cookie, guarded fetch and health routes in place of the game's;
+the four CSS patches gone; the download button reshaped; the header's stylesheet-order bug fixed
+(BACKLOG 73); what stays the game's recorded (D71 to D74); the block for the kit's planning chat
+below. Play-through: the Quick Test show (seed `sc-n1-01`, three openings, "End show" with its
+question, result verified) and the privacy round trip (Mailpit link, download through the button,
+delete, "deleted player", commitment unchanged and verified) passed on the first run with no console
+error; the session's 2 shows, 2 accounts, sessions and mail deleted (counts back to the baseline).
+**Needs the owner's hand:** the age key on the VPS (and the first pull and drill there), the GitHub
+settings (BACKLOG 59). **Needs the owner's word:** the privacy contact text; BACKLOG 64 (the VPS).
+**Open for the kit:** BACKLOG 70. The raw `gh` output and the final head are in the chat report.
 
 ### State
 
@@ -19,14 +30,15 @@ The chain is running; this report is written at its end.
 
 ### Pieces
 
-| Piece | What                                                                                                                                                                                                                                                                              | Commit               | CI run                                                   |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------------------------------------------- |
-| 1     | Pinned v0.22.0 (lockfile at `2e8ed41`), `pnpm kit:check` current; the ADOPTION lines: the brake (v0.15.0) and the step badges (v0.19.0) were done before and are unchanged; `aria-controls` on the bar's panel buttons (v0.20.0); the v0.21.0 and v0.22.0 lines are pieces 2 to 4 | `9b7e52d`            | PR run green                                             |
-| 2     | Backups (D68): `deploy/lib/backup.sh`, `deploy/backup.sh`, the installer's answer and flag, harness (66 checks), docs, the dev drill (OPERATIONS-CASES.md)                                                                                                                        | `5aff90d`            | PR run green                                             |
-| 3     | The kit's server parts (D69, D70): `writeCheck`, `securityHeaderSet` + hook (helmet removed), `sessionCookie`, `guardedFetch` (own deleted, BACKLOG 69 closed), `/healthz` `/readyz` (readiness limited)                                                                          | `e54ec31`, `ed80d3c` | 45677780097 red (e2e), 45680848575 and 45680857889 green |
-| 4     | The four patches deleted; the download button; the axe exclusion tried without and put back (BACKLOG 70 open); the header measured, a stylesheet-order bug fixed (BACKLOG 73)                                                                                                     | `4282a6c`            | 45686080403, 45686094769 green                           |
-| 5     | What stays Cases' own: D71 to D74                                                                                                                                                                                                                                                 | `25f13aa`            | 45687219198, 45687228702 green                           |
-| 6     | The block for the kit's planning chat (below)                                                                                                                                                                                                                                     | (this commit)        | (next entry)                                             |
+| Piece | What                                                                                                                                                                                                                                                                              | Commit                          | CI run                                                                                                           |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 1     | Pinned v0.22.0 (lockfile at `2e8ed41`), `pnpm kit:check` current; the ADOPTION lines: the brake (v0.15.0) and the step badges (v0.19.0) were done before and are unchanged; `aria-controls` on the bar's panel buttons (v0.20.0); the v0.21.0 and v0.22.0 lines are pieces 2 to 4 | `9b7e52d`                       | PR run green                                                                                                     |
+| 2     | Backups (D68): `deploy/lib/backup.sh`, `deploy/backup.sh`, the installer's answer and flag, harness (66 checks), docs, the dev drill (OPERATIONS-CASES.md)                                                                                                                        | `5aff90d`                       | PR run green                                                                                                     |
+| 3     | The kit's server parts (D69, D70): `writeCheck`, `securityHeaderSet` + hook (helmet removed), `sessionCookie`, `guardedFetch` (own deleted, BACKLOG 69 closed), `/healthz` `/readyz` (readiness limited)                                                                          | `e54ec31`, `ed80d3c`            | 45677780097 red (e2e), 45680848575 and 45680857889 green                                                         |
+| 4     | The four patches deleted; the download button; the axe exclusion tried without and put back (BACKLOG 70 open); the header measured, a stylesheet-order bug fixed (BACKLOG 73)                                                                                                     | `4282a6c`                       | 45686080403, 45686094769 green                                                                                   |
+| 5     | What stays Cases' own: D71 to D74                                                                                                                                                                                                                                                 | `25f13aa`                       | 45687219198, 45687228702 green                                                                                   |
+| 6     | The block for the kit's planning chat (below)                                                                                                                                                                                                                                     | `6187960`, `5d77de2`, `b3bb143` | 45687968459 red (journey 1's guard), 45689451778 red (axe spec's resize race), 45691834764 and 45691845079 green |
+| 7     | The play-through on the dev stack; the screens run into `.local/screens/sc-n10/` (five sizes, both themes, 200 % on phones, headers per role): 256 pictures, 0 findings; the header run 0 findings                                                                                | (this commit)                   | (the chat report)                                                                                                |
 
 ### For the kit's planning chat
 
@@ -68,11 +80,19 @@ What did not fit:
 6. axe scrollable-region-focusable on .sk-docked-main (Cases' result page, 1536x768 and 390x844,
    light and dark) is still there on v0.22.0 (Cases BACKLOG 70).
 
+Screens after the move: 256 pictures at five sizes, both themes, 200 % on phones, no finding (text
+floor, sideways scroll, ellipsis, game bar one row).
+
 Correction: Cases does have an outward fetch, the website's season feed (since 2026-11-24); it now
 goes through the kit's guardedFetch with the website's host allowed.
 ```
 
 ### Choices made without the owner
+
+- **Piece 7.** The first screens run stopped because a test web server did not start within 60 s
+  while the machine was busy with another project's tests; run again on an idle machine it passed.
+  The game bar kept one row on every phone picture (D60) with the kit's bar; the six-button bar with
+  a docked chat is not in the screens run (no chat there).
 
 - **Piece 4, the header.** Measured in a production build (no development items), a signed-in user
   named "Alexandra" with their role, standalone, folded = `data-sk-folded`, height 64 px:

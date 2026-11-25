@@ -6,11 +6,15 @@ The state of Seasonal Cases for a new planning chat. Updated at the end of every
 
 A moderated community live show for the Seasonal Entertainment community: players claim numbered
 cases, the server seals an artifact into each case with a public commitment, and a moderator opens
-the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 governs it; the decisions are in
+the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest version) governs it; the decisions are in
 [DECISIONS.md](DECISIONS.md).
 
 ## Where things stand
 
+- **Now (2026-11-25, night chain SC-N10):** `1.1.0-rc.2` on `kit/v0.17-adoption` (draft PR #5),
+  kit v0.22.0 with its backup and server parts; not merged: the owner looks at it first. Open: the
+  kit's finding BACKLOG 70. Needs the owner's hand: the age key on the VPS, the GitHub settings
+  (59). Word: the privacy contact text.
 - **Phase:** version 1.0.0 on `master`, tag `v1.0.0` (task SC-R1, 2026-11-23): P0 to P3
   built, P4 (installer, security reviews) built; the first show on a server is next. The work
   branch `proto/cases-v1` is merged and deleted; the chains below ran on it.
