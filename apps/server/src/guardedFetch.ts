@@ -37,6 +37,10 @@ for (const [net, prefix] of [
   ['fc00::', 7],
   ['fe80::', 10],
   ['ff00::', 8],
+  // Addresses that carry an IPv4 one through a gateway: NAT64, 6to4 and Teredo.
+  ['64:ff9b::', 96],
+  ['2002::', 16],
+  ['2001::', 32],
 ] as const) {
   PRIVATE.addSubnet(net, prefix, 'ipv6');
 }

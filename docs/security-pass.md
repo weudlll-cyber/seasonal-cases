@@ -679,3 +679,58 @@ Not changed:
 - Legacy SHA-256 recovery codes (kit K27): drop the lookup, or re-issue with an end date, if no
   real admin set up two-factor sign-in before v0.11.0.
 - Guests on one network share 5 applause a second.
+
+## Sixth pass: SC-N7 and SC-N8 (2026-11-25)
+
+An independent read of `073f9ad..a5e2bda` (the whole kit at v0.17.0 and v0.19.0, the account deletion
+and export, the tokens after `#`, the step badges and migration 0004, the season feed's fetch, the
+bundle check, the sign-in brake) by a reviewer who had not written it, against CONCEPT §8 and §10,
+CLAUDE.md and the kit's HANDBOOK. Five findings, none high; four fixed in the same piece with a
+test, one needs the owner's word.
+
+### Findings
+
+| #   | Severity | Finding                                                                                                                                                                                                                                                                                             |
+| --- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | medium   | Two admins deleting themselves at the same moment each found the other still there (the check and the erasure are two steps with awaits between them) and the game was left with no admin. Repro: a store that answers `all()` slowly, as PostgreSQL does, and both requests at once: `[200, 200]`. |
+| 2   | low      | The downloaded file (an e-mail address) had no `Cache-Control`: a shared cache or the browser could keep it.                                                                                                                                                                                        |
+| 3   | low      | The tombstone is saved before the logs are rewritten; a crash in between left the name in the event log for good, and a deleted account cannot delete again.                                                                                                                                        |
+| 4   | low      | The guarded fetch's block list let IPv6 addresses that carry an IPv4 one through a gateway pass (NAT64 `64:ff9b::/96`, 6to4 `2002::/16`, Teredo `2001::/32`), among them ones that reach loopback.                                                                                                  |
+| 5   | low      | The guarded fetch checks the resolved addresses before the request, not in it: a name that answers differently between the lookup and the connection is not caught (DNS rebinding). The origin is the operator's own setting, so the window is narrow.                                              |
+
+Checked and found sound: deletion and export for a signed-in standalone account only (a website
+member or a development account answers 403), the password asked, the second factor's code asked,
+the last-admin rule (a development account does not count as an admin), both routes rate limited
+per account; what the export holds (the profile and the account's own matches; no hash, secret,
+recovery code, session or token, checked by a test and in the play-through); the event-log rewrite
+(every place an event names a person, other people's events the same objects, the sealed
+distribution and its commitment unchanged and still verifying, the same routine for the website's
+deletion), a dump of the whole database after a deletion holds none of the account's name or
+e-mail; the tokens after `#` (the fragment never reaches a request line, an access log or a
+`Referer`, which is `strict-origin` anyway; the mailer logs nothing; the pages take the token off
+the address once it is spent); no link with a query exists outside this branch (it was never
+deployed), so none is supported; the step badges (the kit's `identityFrom` keeps at most three
+steps, a name of 1 to 40 characters and only the website's own icon form; the header checks the
+icon again; `Me.steps` goes to its owner only; migration 0004 stores those steps and nothing else,
+`[]` for any other account and for a tombstone); the season feed (https only, the kit's timeout and
+size limit, only the four season names pass, a bad or stale answer leaves the date's season,
+refreshed every ten minutes, never keeps the process alive); the bundle check (the build has no
+source maps, the check reads every built file, a test plants a string); the sign-in brake (an
+account's failures count under its id by name or e-mail alike, an unknown login counts and
+answers like a real one with a dummy hash, the address brake and the cap behind it, only failures
+count).
+
+### Outcome (same day)
+
+Fixed, each with a test:
+
+- **1:** deletions run one at a time in the process (`accountDataRoutes.ts` `oneAtATime`); the test
+  makes the store slow and fires both: one 200 and one 409, one admin left (it fails without the
+  queue with `[200, 200]`).
+- **2:** the export answers `Cache-Control: no-store`.
+- **3:** at start every deleted account's name is taken out of the shows again (`forgetDeleted`);
+  the test seeds a log that still names a deleted account and starts the server.
+- **4:** the three ranges are blocked (`guardedFetch.test.ts`).
+
+For the owner's word: **5**, BACKLOG 69 (pinning the address needs a dependency or an own HTTPS
+request).

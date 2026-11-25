@@ -83,8 +83,24 @@ async function checkSecondFactor(ctx: Ctx, account: Account, code: string | unde
   }
 }
 
+/**
+ * One deletion at a time: "is there another admin" and the erasure are two steps with awaits
+ * between them, and two admins deleting together would each find the other still there and leave
+ * the game without one (security pass 6, finding 1). One process holds every session, so a queue
+ * in this process is enough.
+ */
+function oneAtATime(): <T>(job: () => Promise<T>) => Promise<T> {
+  let turn: Promise<unknown> = Promise.resolve();
+  return (job) => {
+    const run = turn.then(job, job);
+    turn = run.catch(() => undefined);
+    return run;
+  };
+}
+
 export function accountDataRoutes(ctx: Ctx, local: LocalAccounts): void {
   const { app, auth, shows } = ctx;
+  const exclusive = oneAtATime();
   const downloads = new RateLimiter({ limit: 10, windowMs: 15 * MINUTE });
   const deletions = new RateLimiter({ limit: 5, windowMs: 15 * MINUTE });
 
@@ -93,6 +109,8 @@ export function accountDataRoutes(ctx: Ctx, local: LocalAccounts): void {
     if (!downloads.take(me.id).allowed) throw new Refusal(429, TOO_MANY);
     const data = await exportOf(ctx, local, me);
     void reply.header('content-disposition', 'attachment; filename="seasonal-cases-my-data.json"');
+    // The file holds an e-mail address: no cache keeps it (security pass 6, finding 2).
+    void reply.header('cache-control', 'no-store');
     return data;
   });
 
@@ -106,21 +124,23 @@ export function accountDataRoutes(ctx: Ctx, local: LocalAccounts): void {
       throw new Refusal(401, 'Wrong password.');
     }
     await checkSecondFactor(ctx, account, code);
-    if (account.role === 'admin' && !(await otherAdmin(ctx, account))) {
-      throw new Refusal(
-        409,
-        'You are the last admin: make another account an admin first (in the admin area, or with `pnpm sc admin promote <name>`), then delete this one.',
+    await exclusive(async () => {
+      if (account.role === 'admin' && !(await otherAdmin(ctx, account))) {
+        throw new Refusal(
+          409,
+          'You are the last admin: make another account an admin first (in the admin area, or with `pnpm sc admin promote <name>`), then delete this one.',
+        );
+      }
+      await eraseAccount(
+        {
+          ...auth,
+          forget: (playerId, name) => shows.forget(playerId, name),
+          credentials: local.credentials,
+          pending: local.pending,
+        },
+        account,
       );
-    }
-    await eraseAccount(
-      {
-        ...auth,
-        forget: (playerId, name) => shows.forget(playerId, name),
-        credentials: local.credentials,
-        pending: local.pending,
-      },
-      account,
-    );
+    });
     await signOut(app, auth, request, reply);
     return { ok: true };
   });

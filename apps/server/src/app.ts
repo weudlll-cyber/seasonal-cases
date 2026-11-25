@@ -43,6 +43,7 @@ import Fastify, { LogController, type FastifyInstance } from 'fastify';
 import { Server } from 'socket.io';
 
 import { accountDataRoutes } from './accountDataRoutes.js';
+import { forgetDeleted } from './auth/erasure.js';
 import { accountRoutes } from './accountRoutes.js';
 import {
   addressLimit,
@@ -268,6 +269,8 @@ export async function buildServer(config: ServerConfig, stores: Stores = {}): Pr
       realtime.push(model);
     },
   });
+  // A crash between a deletion's two steps leaves a name in the log: do the second again (D61).
+  await forgetDeleted(auth.accounts, (playerId, name) => shows.forget(playerId, name));
   await routes({ app, auth, shows, config }, stores, settings);
   // In production the same process serves the built client (SC-N3 piece 2).
   await serveClient(app, config);

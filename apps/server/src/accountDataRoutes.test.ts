@@ -180,6 +180,70 @@ describe('deleting the account (D61)', () => {
   });
 });
 
+describe('what the security pass 6 found', () => {
+  it('lets two admins delete themselves together only once: one admin always stays', async () => {
+    const { h, stores } = await started();
+    const ada = await member(h, ANA);
+    const bo = await member(h, BO);
+    for (const id of [ada.id, bo.id]) {
+      const found = await stores.accounts.byId(id);
+      if (found !== undefined) await stores.accounts.save({ ...found, role: 'admin' });
+    }
+    // The role is read at sign-in: new sessions carry it.
+    const again = async (form: typeof ANA) => {
+      const r = await call(h, 'POST', '/api/auth/sign-in', '', {
+        login: form.name,
+        password: PASSWORD,
+      });
+      const raw = r.headers['set-cookie'];
+      return (Array.isArray(raw) ? raw[0] : raw)?.split(';')[0] ?? '';
+    };
+    const [adaCookie, boCookie] = [await again(ANA), await again(BO)];
+    // A slow store, as PostgreSQL is: both deletions have asked "is there another admin" before
+    // either has erased anything. Without the queue both would pass.
+    const all = stores.accounts.all.bind(stores.accounts);
+    stores.accounts.all = async () => {
+      const answer = await all();
+      await new Promise((resolve) => setTimeout(resolve, 40));
+      return answer;
+    };
+    const answers = await Promise.all([
+      call(h, 'POST', '/api/me/delete', adaCookie, { password: PASSWORD }),
+      call(h, 'POST', '/api/me/delete', boCookie, { password: PASSWORD }),
+    ]);
+    expect(answers.map((a) => a.statusCode).sort()).toEqual([200, 409]);
+    const left = (await stores.accounts.all()).filter((a) => a.role === 'admin' && !a.deleted);
+    expect(left).toHaveLength(1);
+  });
+
+  it('keeps no cache from holding the downloaded file', async () => {
+    const { h } = await started();
+    const ana = await member(h, ANA);
+    expect((await call(h, 'GET', '/api/me/export', ana.cookie)).headers['cache-control']).toBe(
+      'no-store',
+    );
+  });
+
+  it('takes a deleted name out of the shows at start, after a crash between the two steps', async () => {
+    const { h, stores } = await started();
+    const ana = await member(h, ANA);
+    const showId = showWith(h, { id: ana.id, name: ANA.name });
+    await h.close();
+    // The crash: the tombstone was saved, the log was not rewritten.
+    const found = await stores.accounts.byId(ana.id);
+    if (found !== undefined) await stores.accounts.save({ ...found, deleted: true, name: 'x' });
+    expect(JSON.stringify([...stores.events.loadAll()])).toContain(ANA.name);
+    harness = await startHarness(false, {}, stores);
+    expect(JSON.stringify([...stores.events.loadAll()])).not.toContain(ANA.name);
+    const view = (await call(harness, 'GET', `/api/shows/${showId}`)).json<{
+      cases: { number: number; ownerName: string | null }[];
+    }>();
+    expect(view.cases.find((c) => c.number === 3)?.ownerName).toBe(
+      `deleted player ${ana.id.slice(0, 6)}`,
+    );
+  });
+});
+
 describe('downloading the data (D61)', () => {
   it('gives the account its own data as a file, with no secret in it', async () => {
     const { h } = await started();

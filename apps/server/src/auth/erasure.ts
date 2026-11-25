@@ -15,6 +15,7 @@
  *                 (its sockets are closed) and the registration waiting for the e-mail. The
  *                 stores are separate, so the order is: what could sign in again first, then
  *                 what only shows. Safe to run twice.
+ *                 `forgetDeleted` repeats the last step at start, for a crash in between.
  * Depends on:     @seasonal/kit/server (types), ./accounts.js, ./credentials.js, ./pending.js,
  *                 ./sessions.js, ./twoFactor.js
  */
@@ -49,6 +50,22 @@ export const tombstone = (account: Account): Account => ({
   steps: [],
   deleted: true,
 });
+
+/**
+ * Takes the name of every deleted account out of the shows again, at start: the tombstone is saved
+ * before the logs are rewritten, so a crash in between would leave a name in the log for good, and
+ * a deleted account cannot ask again (security pass 6, finding 3). Answers how many shows changed.
+ */
+export async function forgetDeleted(
+  accounts: AccountStore,
+  forget: ErasureDeps['forget'],
+): Promise<number> {
+  let changed = 0;
+  for (const account of await accounts.all()) {
+    if (account.deleted) changed += forget(account.id, goneName(account));
+  }
+  return changed;
+}
 
 export async function eraseAccount(deps: ErasureDeps, account: Account): Promise<void> {
   const { credentials, pending } = deps;

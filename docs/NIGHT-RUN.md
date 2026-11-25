@@ -20,10 +20,11 @@ The chain is running; this report is written at its end.
 
 ### Pieces
 
-| Piece | What                                                                                                                                                                                           | Commit        | CI run                                  |
-| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------------- |
-| 1     | BACKLOG 67: `/dev/opening` behind the DEV flag, 9 strings in `bundle:check`; the folded header's brand keeps its words' width (`shell.css`), an overlap assertion in `e2e/headerSteps.spec.ts` | `31dbc3e`     | PR run green (required checks all pass) |
-| 2     | The play-through on the dev stack (a throwaway script, not kept): a Quick Test show, privacy end to end, a reset                                                                               | (this commit) | (next entry)                            |
+| Piece | What                                                                                                                                                                                                                      | Commit        | CI run                                  |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------------- |
+| 1     | BACKLOG 67: `/dev/opening` behind the DEV flag, 9 strings in `bundle:check`; the folded header's brand keeps its words' width (`shell.css`), an overlap assertion in `e2e/headerSteps.spec.ts`                            | `31dbc3e`     | PR run green (required checks all pass) |
+| 2     | The play-through on the dev stack (a throwaway script, not kept): a Quick Test show, privacy end to end, a reset                                                                                                          | `3b11bfc`     | PR run green                            |
+| 3     | The sixth security pass (docs/security-pass.md): 5 findings, 4 fixed with tests (last-admin race, export caching, a crash between deletion's steps, NAT64/6to4/Teredo in the guarded fetch), 1 for the owner (BACKLOG 69) | (this commit) | (next entry)                            |
 
 ### Choices made without the owner
 
