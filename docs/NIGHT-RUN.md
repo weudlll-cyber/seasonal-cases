@@ -2,6 +2,26 @@
 
 The morning sheets of the unattended night chains, newest first.
 
+## Task SC-A1 (2026-11-25)
+
+The accessibility check (D66, BACKLOG 71). `e2e/access.spec.ts` (new, Chromium, in the required
+`e2e` job): one pass through the game with one show: sign-in, registration and its pending page,
+privacy, the board, My matches, the account page and its delete form, the chronicle, the stage at the
+opening, selected, open and owner, the early-end question, the ceremony, the result and the admin's
+settings, at 1536 × 768 and 390 × 844 in both themes (about 3 minutes). Reused: the kit's axe
+version and call (`@axe-core/playwright` 4.14.0, the kit names no helper), `helpers.ts` (sign-in,
+shows, the direction bar; `deleteMailTo` moved there from `screens.spec.ts`).
+
+First run: 78 serious and 48 moderate findings, four rules. Fixed in Cases' own code: the case
+buttons' name ("Select Case 3, Ana") did not contain their visible text (a space between the number
+and the owner), the phone scoreboard's sideways scroll had no keyboard stop (`tabIndex`), the stage
+had no landmark or heading (a `main` with a hidden `h1`; 48 moderate). For the kit: `scrollable-region-focusable` on `.sk-docked-main`
+(the result page, every size and theme), excluded exactly, BACKLOG 70. Second run: 0 findings. No
+colour was changed: axe found no contrast failure on any screen. The probe test first failed (a lone
+10 px button has room around it, which WCAG 2.5.8 allows) and now plants two neighbours.
+
+For the kit's planning chat: see the chat report (one copyable block).
+
 ## Night chain SC-N9 (2026-11-25)
 
 Finish SC-N8 and review it: two small fixes, a play-through, an independent security review, the

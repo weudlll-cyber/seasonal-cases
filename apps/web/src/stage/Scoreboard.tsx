@@ -76,7 +76,9 @@ export function Scoreboard({ show }: { show: PublicShowView }) {
   if (show.commitment === null) return null;
   return (
     <header className="scoreboard" data-sk-fit-fixed>
-      <ol className="scoreboard-rows" aria-label="Scoreboard">
+      {/* The row scrolls sideways on a phone: a keyboard reaches it through the tab stop (WCAG 2.1.1,
+          axe `scrollable-region-focusable`). */}
+      <ol className="scoreboard-rows" aria-label="Scoreboard" tabIndex={0}>
         {scoreRows(show).map((row) => (
           <li
             key={row.artifact.id}

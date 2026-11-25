@@ -43,6 +43,8 @@ export function CaseToken({ view, spot, away, onSelect }: CaseTokenProps) {
           <ArtifactEmblem artifact={view.artifact} nameHidden />
         ) : undefined}
       </CasePicture>
+      {/* A space between the number and the owner: the visible text reads "3 Ana", which the button's
+          name "Select Case 3, Ana" then contains (WCAG 2.5.3, axe `label-content-name-mismatch`). */}{' '}
       <span className="case-owner" title={owner}>
         <Badges badges={view.ownerBadges} />
         {owner}

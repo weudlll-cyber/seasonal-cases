@@ -124,3 +124,18 @@ export async function endEarly(page: Page, hidden: number): Promise<void> {
     await question.getByRole('button', { name: 'End now' }).click();
   });
 }
+
+/** Deletes the mails Mailpit holds for this address (its API on 127.0.0.1:8570). */
+export async function deleteMailTo(page: Page, to: string): Promise<void> {
+  const api = 'http://127.0.0.1:8570/api/v1';
+  await expect
+    .poll(async () => {
+      const found = await page.request.get(`${api}/search?query=${encodeURIComponent(`to:${to}`)}`);
+      const { messages } = (await found.json()) as { messages: { ID: string }[] };
+      if (messages.length > 0) {
+        await page.request.delete(`${api}/messages`, { data: { IDs: messages.map((m) => m.ID) } });
+      }
+      return messages.length;
+    })
+    .toBeGreaterThan(0);
+}

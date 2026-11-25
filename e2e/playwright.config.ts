@@ -63,7 +63,8 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      testMatch: /journey.*\.spec\.ts/,
+      // The accessibility check (axe) runs here only: it is the required job's.
+      testMatch: /(journey.*|access)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1366, height: 768 } },
     },
     {

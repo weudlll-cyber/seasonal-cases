@@ -22,7 +22,7 @@ import { fileURLToPath } from 'node:url';
 
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-import { boardCase, openShow, quickTestSealing, signInApi } from './helpers.js';
+import { boardCase, deleteMailTo, openShow, quickTestSealing, signInApi } from './helpers.js';
 import { measure, type Measures } from './measure.js';
 
 const DIR = fileURLToPath(new URL('../.local/screens/sc-n9/', import.meta.url));
@@ -88,21 +88,6 @@ async function rootFont(page: Page, large: boolean): Promise<void> {
 async function capture(page: Page, file: string): Promise<void> {
   await page.screenshot({ path: `${DIR}${file}`, animations: 'disabled' });
   checks.push({ file, ...(await measure(page)) });
-}
-
-/** Deletes the mails Mailpit holds for this address (its API on 127.0.0.1:8570). */
-async function deleteMailTo(page: Page, to: string): Promise<void> {
-  const api = 'http://127.0.0.1:8570/api/v1';
-  await expect
-    .poll(async () => {
-      const found = await page.request.get(`${api}/search?query=${encodeURIComponent(`to:${to}`)}`);
-      const { messages } = (await found.json()) as { messages: { ID: string }[] };
-      if (messages.length > 0) {
-        await page.request.delete(`${api}/messages`, { data: { IDs: messages.map((m) => m.ID) } });
-      }
-      return messages.length;
-    })
-    .toBeGreaterThan(0);
 }
 
 async function shoot(

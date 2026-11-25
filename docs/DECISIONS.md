@@ -247,3 +247,12 @@ the owner confirmed them on 2026-11-23 (D46).
   game has no badge type, no stand-in and no filtering of its own for the header; a standalone
   account passes none. The boards, the lower third and the players panel keep their own icons
   (`badges`). The kit's 0.18.0 migration names no change for this game.
+
+## 2026-11-25, task SC-A1: D66
+
+- **D66 — The accessibility check is part of the required e2e job.** axe with the WCAG 2.0 to 2.2
+  A and AA rules (`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`, `target-size` on) runs on
+  every screen in light and dark at 1536 × 768 and 390 × 844, in Chromium. A finding of impact serious
+  or critical fails the job. A finding in a part of the kit is not fixed here: exactly that rule on
+  exactly that selector is excluded in the spec, with its BACKLOG row, and goes to the kit's
+  planning chat. A real screen-reader run is not part of it.

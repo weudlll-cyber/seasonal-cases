@@ -56,6 +56,10 @@ Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before t
 - **Security pass 6 (SC-N9):** two admins deleting together can no longer leave the game without an
   admin; the downloaded file is not cached; a deletion interrupted by a crash is finished at the
   next start; the season feed's guarded fetch also refuses NAT64, 6to4 and Teredo addresses.
+- **The accessibility check (SC-A1):** axe runs on every screen, light and dark, desktop and phone,
+  in the required e2e job. Fixed in the game: the case buttons' names contain their visible text, the
+  phone scoreboard can be scrolled from the keyboard, the stage is the page's `main` with a hidden
+  `h1`.
 - **The pictures:** `.local/screens/sc-n7/` has four sizes in both themes and the phone sizes again
   with a 200 % root font; the 200 % ones show sideways overflow on four screens (BACKLOG 66).
 - **A dev tool can no longer take the game down:** the header's lazily loaded quick tools sit in an

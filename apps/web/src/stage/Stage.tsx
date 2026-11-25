@@ -4,7 +4,7 @@
  *         front with the lower third, the ceremony after the end, and the direction bar for the
  *         direction holder only (CONCEPT §3.4, §7).
  *
- * Responsibility: render the show's view; the stage is the same for everyone, and only the
+ * Responsibility: a `main` with a hidden heading (axe: one landmark, one h1); render the show's view; the stage is the same for everyone, and only the
  *                 direction holder gets the bar, "Begin" and clickable cases (once begun). The
  *                 screen scales down evenly where there is no room (the kit's `useFitScale`, the
  *                 cases' floors of `data-sk-game="cases"`, fitted again once the show font has
@@ -152,7 +152,7 @@ export function Stage(props: StageProps) {
   const arenaStyle = { '--token': `${String(tokenSize(show.caseCount))}px` } as CSSProperties;
   const opening = show.state === 'live' && !begun;
   return (
-    <section
+    <main
       className="stage-screen"
       data-sk-game="cases"
       data-step={step}
@@ -163,6 +163,7 @@ export function Stage(props: StageProps) {
       style={style}
       aria-label="Stage"
     >
+      <h1 className="sk-visually-hidden">Seasonal Cases: the stage</h1>
       <Scoreboard show={show} />
       <StateNote show={show} />
       <ApplauseCount applause={applause} />
@@ -192,6 +193,6 @@ export function Stage(props: StageProps) {
       {holder !== null && me !== null && begun && barInline && (
         <DirectionBar view={holder} me={me} direct={direct} />
       )}
-    </section>
+    </main>
   );
 }
