@@ -14,18 +14,38 @@ The chain is running; this report is written at its end.
 
 ### State
 
-| Done                                                             | Running               | Open           | Needs the owner's word / hand                           |
-| ---------------------------------------------------------------- | --------------------- | -------------- | ------------------------------------------------------- |
-| Piece 1: the showcase out of the bundle; the Menu over the brand | Piece 2: play-through | Pieces 3 and 4 | GitHub settings (hand); the privacy contact text (word) |
+| Done           | Running                      | Open    | Needs the owner's word / hand                           |
+| -------------- | ---------------------------- | ------- | ------------------------------------------------------- |
+| Pieces 1 and 2 | Piece 3: the security review | Piece 4 | GitHub settings (hand); the privacy contact text (word) |
 
 ### Pieces
 
-| Piece | What                                                                                                                                                                                           | Commit        | CI run       |
-| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ |
-| 1     | BACKLOG 67: `/dev/opening` behind the DEV flag, 9 strings in `bundle:check`; the folded header's brand keeps its words' width (`shell.css`), an overlap assertion in `e2e/headerSteps.spec.ts` | (this commit) | (next entry) |
+| Piece | What                                                                                                                                                                                           | Commit        | CI run                                  |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------------- |
+| 1     | BACKLOG 67: `/dev/opening` behind the DEV flag, 9 strings in `bundle:check`; the folded header's brand keeps its words' width (`shell.css`), an overlap assertion in `e2e/headerSteps.spec.ts` | `31dbc3e`     | PR run green (required checks all pass) |
+| 2     | The play-through on the dev stack (a throwaway script, not kept): a Quick Test show, privacy end to end, a reset                                                                               | (this commit) | (next entry)                            |
 
 ### Choices made without the owner
 
+- **Piece 2, what was played and found (all passed, nothing needed a fix).** Quick Test with seed
+  `sc-n1-01` (12 cases, 3 winners), Begin, three openings (the blank, prize 2, prize 3, each Open,
+  Owner, Back to stage), "End show" with its question ("1 prize is still hidden"), the ceremony,
+  the result page: "verified", and its commitment equal to the stage's. Privacy: a local account
+  registered through Mailpit (the link ends `/confirm#token=...`, no query; the address is clean
+  once the token is spent), claimed case 3 in a show, downloaded its data (269 bytes: profile
+  `{name, email, role, rank}` and the one match; no hash, secret, recovery code, session or token),
+  deleted itself on `/account` with the password: the show shows "deleted player c5bfbf" for
+  case 3, the commitment is unchanged and the result page still verifies, neither the result page
+  nor the chronicle holds the name, the old password no longer signs in (401). A dump of the whole
+  database holds nothing of the deleted accounts (name, e-mail) from the final run. A second
+  account did the password reset (link `/reset#token=...`), signed in with the new password, and was
+  deleted too. No console error in the run. Not checkable the way the task words it: "My matches"
+  of a deleted account (nobody can sign in as it any more) and "deleted player" in the chronicle
+  (it lists the winners of ended shows; the deleted player's case was not a winner).
+- **Cleanup.** Two runs failed on locators of the throwaway script before the third passed; all
+  three left traces, listed first and deleted by explicit show ids and by the accounts created after
+  23:57 (8 accounts, 5 shows with 119 events, 3 sessions) and 7 Mailpit mails by id; the counts are
+  back to the baseline (4 accounts, 71 events, 2 sessions, 1 credential, 0 pending, 0 mails).
 - **Piece 1, the overlap.** The kit lets the folded header's brand shrink to nothing
   (`flex: 1 1 0; min-width: 0`), so at the largest text its name ran under the Menu button. The game's
   CSS now gives the brand `flex: 1 1 auto; min-width: min-content`, and the Menu and the toggle go to
