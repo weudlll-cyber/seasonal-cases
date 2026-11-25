@@ -187,6 +187,14 @@ test('axe finds nothing serious on any screen, light and dark, desktop and phone
     await page.emulateMedia({ colorScheme: theme });
     for (const [width, height] of SIZES) {
       await page.setViewportSize({ width, height });
+      // The layout must have followed the new size before `direct` looks at it: a bar still on
+      // screen from the old size made it press the phone's button on a desktop and wait for ever
+      // (a CI run of SC-N10).
+      await expect(
+        width < 700
+          ? page.getByRole('button', { name: 'Direction', exact: true })
+          : page.locator('.stage-screen').getByRole('navigation', { name: 'Direction' }),
+      ).toBeVisible();
       await page.waitForTimeout(400);
       await direct(page, async (bar) => {
         await bar.getByRole('button', { name: 'End show' }).click();

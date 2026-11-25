@@ -94,6 +94,10 @@ goes through the kit's guardedFetch with the website's host allowed.
   header may legitimately fold (the kit's measure, font metrics). The guard now states what the fix
   is about: an unfolded header shows no Menu button. So the header table of piece 4 (measured here on
   Windows) holds for this machine's rendering; on another it may fold where the items do not fit.
+- **The next push's PR run was red** (its push run passed): the axe spec's early-end loop raced the
+  resize (`direct` saw the old bar, then pressed the phone's "Direction" button on a desktop and
+  waited until the 10-minute timeout); the two journeys after it failed on the live show it left. The
+  loop now waits for the layout the new size must have.
 - **Piece 4, axe.** Without the exclusion axe found exactly the old finding (4 times, the result
   page, `.sk-docked-main`), nothing new from the patches' removal; the exclusion is back as it was.
 - **Piece 4, the download button.** A `GET` form's submit button (the server names the file), so it
