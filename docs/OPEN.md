@@ -28,4 +28,4 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   tones as own tokens.
 - **Browsers:** all six projects pass all six journeys on `kit/v0.17-adoption` (the five nightly
   ones proven on 2026-11-25, run 45702753156); the nightly run on `master` stays red until the merge
-  (BACKLOG 74). PR #5 conflicts with `master` in DECISIONS (BACKLOG 75).
+  (BACKLOG 74).

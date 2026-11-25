@@ -289,3 +289,9 @@ the owner confirmed them on 2026-11-23 (D46).
 - **D74 — The result page's words, the date format and the commitment's short form stay the
   game's** (`screens/Result.tsx` inside the kit's `ResultFrame`, `packages/ui/src/format.ts`); the kit
   has no date or commitment format.
+
+## 2026-11-25, task SC-CI1: D75
+
+- **D75 — One CI run per change.** The CI workflow runs on a push to `master` and on a pull
+  request against `master` only, so a push to a branch with an open pull request starts one run,
+  not two identical ones. A branch is checked by its pull request.
