@@ -2,6 +2,24 @@
 
 The morning sheets of the unattended night chains, newest first.
 
+## Task SC-B1 (2026-11-25)
+
+The nightly Firefox/WebKit run on `master` (45533798067, `073f9ad`): journey 5 failed in all five
+projects (`firefox`, `chromium-mobile`, `firefox-mobile`, `webkit`, `webkit-mobile`), 25 others
+passed. First error each time: `apiRequestContext.get: connect ECONNREFUSED 127.0.0.1:8570`.
+Cause: `browsers.yml` ran no Mailpit service, which journey 5 reads its mails from (`ci.yml` has
+it). A test-setup fault; the game behaves the same in every browser. Also found: the workflow
+checked out `master` whatever ref it was started for, so it could not test a branch.
+
+Fixed on `kit/v0.17-adoption` (`d023360`): the same pinned Mailpit service as in `ci.yml`; the
+checkout takes the ref of the run (the schedule still `master`); the steps that skipped a `master`
+without a browser suite are gone (it has one since 1.0.0). Proof: run 45702753156 on the branch,
+30 passed (6 journeys in each of the five projects), no flaky. The branch had never run this
+workflow; nothing else failed there. Nothing for the kit.
+
+Open: `master`'s nightly stays red until the merge (BACKLOG 74); PR #5 conflicts with `master`
+since SC-CI1 (BACKLOG 75).
+
 ## Night chain SC-N10 (2026-11-25)
 
 Kit v0.22.0, the whole move (D67 to D69), version `1.1.0-rc.2`. Branch `kit/v0.17-adoption`, draft

@@ -26,4 +26,6 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   the GitHub settings (59, RELEASING.md); the steps before production (64, waits for the VPS; coverage (63) is decided: no target, D64). Replaced without a visible change: the season
   colours as the kit's tokens, an opened case's hidden name as `sk-visually-hidden`, the arena
   tones as own tokens.
-- **Browsers:** all six projects pass all six journeys (BACKLOG 40, closed 2026-11-23).
+- **Browsers:** all six projects pass all six journeys on `kit/v0.17-adoption` (the five nightly
+  ones proven on 2026-11-25, run 45702753156); the nightly run on `master` stays red until the merge
+  (BACKLOG 74). PR #5 conflicts with `master` in DECISIONS (BACKLOG 75).
