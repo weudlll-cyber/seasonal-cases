@@ -1,0 +1,22 @@
+# @file   ops/compose.website.yml
+# @brief  Website installs: the game joins the Seasonal Entertainment website's Docker network
+#         (after seasonal-mini-games ops/compose.website.yml).
+#
+# Responsibility: on top of ops/compose.yml: the game joins the website's network (chosen by
+#                 deploy/install.sh, written to SC_WEBSITE_NETWORK) under the name sc-cases. The
+#                 website's Caddy in its container forwards /games/cases there; behind the host's
+#                 nginx the published loopback port is used instead. In both cases the game reads
+#                 the website's account-changes feed at http://site:3800
+#                 (SC_WEBSITE_LOCAL_ORIGIN), which is reachable only on that network.
+# Used by:        deploy/install.sh (website mode)
+services:
+  app:
+    networks:
+      website:
+        aliases:
+          - sc-cases
+
+networks:
+  website:
+    external: true
+    name: ${SC_WEBSITE_NETWORK:?set SC_WEBSITE_NETWORK in the env file}

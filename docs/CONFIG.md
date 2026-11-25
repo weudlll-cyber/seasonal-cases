@@ -91,6 +91,23 @@ Fixed in the code, not settings. A refusal is 429 with one sentence.
 | Watches per socket                            | 10 in 10 s (D37)                                        | `realtime.ts`      |
 | Applause per account, or per address (guest)  | 5 a second (D44)                                        | `applause.ts`      |
 
+## The compose stack
+
+Read by `docker compose` (`ops/compose*.yml`), from the same file as the game's settings
+(`/etc/seasonal-cases/cases.env`, written by the installer; example `ops/cases.env.example`).
+
+| Variable             | Default           | Required in  | From      | What                                                                       |
+| -------------------- | ----------------- | ------------ | --------- | -------------------------------------------------------------------------- |
+| `SC_IMAGE`           | —                 | the stack    | installer | the game's image, built on the server from the chosen ref                  |
+| `SC_ENV_FILE`        | —                 | the stack    | installer | the env file the game's container gets (this file)                         |
+| `SC_HOST_PORT`       | —                 | the stack    | installer | the loopback port the game is published on, for the server's proxy (3970)  |
+| `SC_EDGE_SUBNET`     | `172.30.251.0/24` | —            | installer | the game's network; in local mode its gateway is the trusted proxy address |
+| `SC_WEBSITE_NETWORK` | —                 | website mode | installer | the website's Docker network the game joins                                |
+| `POSTGRES_PASSWORD`  | made once         | the stack    | installer | the database's password; the game's `DATABASE_URL` is built from it        |
+
+Inside the container the game always listens on `0.0.0.0:3970` and reads the database at
+`postgres:5432` (the compose file sets `SC_HOST`, `SC_PORT`, `NODE_ENV` and `DATABASE_URL`).
+
 ## Tests only
 
 | Variable               | Default | What                                                                                                                                                                                               |

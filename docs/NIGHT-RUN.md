@@ -13,17 +13,28 @@ The chain is running; this report is written at its end.
 
 ### State
 
-| Done    | Running          | Open          | Needs the owner's word / hand |
-| ------- | ---------------- | ------------- | ----------------------------- |
-| Piece 1 | Piece 2: compose | Pieces 3 to 5 | (collected per piece)         |
+| Done           | Running                       | Open           | Needs the owner's word / hand |
+| -------------- | ----------------------------- | -------------- | ----------------------------- |
+| Pieces 1 and 2 | Piece 3: installer and backup | Pieces 4 and 5 | (collected per piece)         |
 
 ### Pieces
 
-| Piece | What                                                                                                                                                              | Commit        | CI run       |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ |
-| 1     | `Dockerfile`, `.dockerignore`, version `1.1.0-rc.3`; built and smoke-run locally (healthy, client served, uid 10001, 122 MB, no tests or package managers inside) | (this commit) | (next entry) |
+| Piece | What                                                                                                                                                              | Commit        | CI run            |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ----------------- |
+| 1     | `Dockerfile`, `.dockerignore`, version `1.1.0-rc.3`; built and smoke-run locally (healthy, client served, uid 10001, 122 MB, no tests or package managers inside) | `b322262`     | 45709144145 green |
+| 2     | `ops/compose.yml`, `compose.website.yml`, `compose.journal.yml`, `cases.env.example`; CONFIG's compose settings; `docker compose config` passes                   | (this commit) | (next entry)      |
 
 ### Choices made without the owner
+
+- **Piece 2.** After Mini Games' `compose.yml` and `compose.website.yml`. Differently: no Caddy
+  service (Cases' standalone installs use the server's own proxy, as before); one loopback port in
+  every mode (the installer waits for `/readyz` through it), so no separate nginx overlay; an own
+  journal overlay instead of Docker's size-rotated `local` logs, because the privacy page promises
+  14 days (D61): the syslog driver into the game's journal namespace, Docker's cache off. That
+  logging path is **not rehearsed on a real systemd host** (none here); listed under BACKLOG 64's
+  installer rehearsal.
+- **BACKLOG 35** (the website's account feed behind its Caddy): the game on the website's network
+  reaches `http://site:3800` in both website modes; closed by piece 3, which writes the setting.
 
 - **Piece 1.** After Mini Games' Dockerfile (same pinned base, `pnpm fetch` layer, apk upgrade,
   package managers removed, an unprivileged user, the labels). Differently: no server bundle (the

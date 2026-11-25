@@ -1,0 +1,76 @@
+# @file   ops/compose.yml
+# @brief  The production stack on one server: the game and PostgreSQL 17 (DECISIONS D76; after
+#         seasonal-mini-games ops/compose.yml).
+#
+# Responsibility: the game's image (built on the server from a git ref, deploy/install.sh) runs as
+#                 uid 10001 on a read-only root filesystem with /tmp in memory and no capability,
+#                 published on 127.0.0.1 only (SC_HOST_PORT), for the server's own proxy; it keeps
+#                 nothing on disk. PostgreSQL sits on an internal network without a published port,
+#                 its data in the named volume `pgdata`. The game's network has a fixed subnet
+#                 (SC_EDGE_SUBNET), so the address the published port's connections come from is
+#                 known and can be trusted to name the visitor. Both restart unless stopped and
+#                 both say whether they are healthy (the game through the image's check of
+#                 /readyz). Website installs add ops/compose.website.yml; the installer adds
+#                 ops/compose.journal.yml, which keeps the logs 14 days. CPU and memory are capped.
+#                 Development uses ops/compose.dev.yml, never this file.
+# Depends on:     /etc/seasonal-cases/cases.env (written by deploy/install.sh; ops/cases.env.example)
+#
+# Run:  docker compose -p seasonal-cases --env-file /etc/seasonal-cases/cases.env -f ops/compose.yml up -d
+
+services:
+  app:
+    image: ${SC_IMAGE:?set SC_IMAGE in the env file}
+    env_file: ${SC_ENV_FILE:?set SC_ENV_FILE in the env file}
+    environment:
+      NODE_ENV: production
+      SC_HOST: 0.0.0.0
+      SC_PORT: '3970'
+      DATABASE_URL: postgres://seasonal_cases:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the env file}@postgres:5432/seasonal_cases
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ports:
+      - '127.0.0.1:${SC_HOST_PORT:?set SC_HOST_PORT in the env file}:3970'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - data
+      - edge
+    cpus: 1
+    mem_limit: 768m
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    environment:
+      POSTGRES_USER: seasonal_cases
+      POSTGRES_DB: seasonal_cases
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the env file}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U seasonal_cases -d seasonal_cases']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - data
+    cpus: 1
+    mem_limit: 1g
+    restart: unless-stopped
+
+networks:
+  data:
+    internal: true
+  edge:
+    ipam:
+      config:
+        - subnet: ${SC_EDGE_SUBNET:-172.30.251.0/24}
+
+volumes:
+  pgdata:

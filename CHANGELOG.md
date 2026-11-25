@@ -9,6 +9,9 @@ Branch `kit/v0.17-adoption`, night chain SC-N11: Cases moves to Docker (DECISION
 
 - **A production image** (`Dockerfile`): the game, its production dependencies and the built client,
   as a non-root user, healthy when `/readyz` answers.
+- **The compose stack** (`ops/compose.yml`): the game and PostgreSQL 17, the database not published,
+  the game on a loopback port; a website install joins the website's network; development is
+  unchanged.
 
 ## 1.1.0-rc.2 (not tagged; the tag follows the merge with the owner's word)
 
