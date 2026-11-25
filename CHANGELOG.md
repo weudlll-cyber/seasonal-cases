@@ -3,6 +3,13 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
+## 1.1.0-rc.2 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N10: the whole move to kit v0.22.0 (DECISIONS D67 to
+D69), on top of 1.1.0-rc.1.
+
+- **Kit v0.22.0.** The game bar's panel buttons carry `aria-controls` (kit v0.20.0).
+
 ## 1.1.0-rc.1 (not tagged; the tag follows the merge with the owner's word)
 
 Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before the first server

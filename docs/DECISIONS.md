@@ -256,3 +256,12 @@ the owner confirmed them on 2026-11-23 (D46).
   or critical fails the job. A finding in a part of the kit is not fixed here: exactly that rule on
   exactly that selector is excluded in the spec, with its BACKLOG row, and goes to the kit's
   planning chat. A real screen-reader run is not part of it.
+
+## 2026-11-25, night chain SC-N10: the owner's decisions D67-D69
+
+- **D67 — The kit's newest version on this branch.** Cases takes `@seasonal/kit` v0.22.0 (tag
+  `v0.22.0`, commit `2e8ed41`) in one task, with every line of the kit's `docs/ADOPTION.md` for
+  Cases since v0.15.0. Version `1.1.0-rc.2`.
+- **D68 — Backups come from the kit, first, before production.** Cases uses the kit's
+  `ops/backup.sh` and its pull scripts.
+- **D69 — The CSRF guard is the kit's.** `writeCheck` replaces Cases' own guard.

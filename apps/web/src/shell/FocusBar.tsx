@@ -34,6 +34,9 @@ import { DirectionBar } from '../stage/DirectionBar.js';
 import { showFacts } from '../stage/facts.js';
 import { holderView, type Direct } from '../stage/Stage.js';
 
+// The panel the bar's buttons open (their `aria-controls`, kit v0.20.0).
+const PANEL_ID = 'focus-panel';
+
 export type PanelId = 'players' | 'direction' | 'chat';
 
 export interface FocusBarProps {
@@ -98,8 +101,17 @@ function actionsOf(chat: FocusBarProps['chat'], direction: boolean): BarAction<P
     ...(chat === undefined
       ? []
       : [{ id: 'chat' as const, icon: 'chat' as const, label: 'Chat', badge: chat.unread }]),
-    { id: 'players', icon: 'players', label: 'Players' },
-    ...(direction ? [{ id: 'direction' as const, icon: 'host' as const, label: 'Direction' }] : []),
+    { id: 'players', icon: 'players', label: 'Players', controls: PANEL_ID },
+    ...(direction
+      ? [
+          {
+            id: 'direction' as const,
+            icon: 'host' as const,
+            label: 'Direction',
+            controls: PANEL_ID,
+          },
+        ]
+      : []),
   ];
 }
 
@@ -153,7 +165,7 @@ export function FocusBar({
         buttonClassName="button"
       />
       {panels.open !== null && (
-        <aside className="focus-panel" aria-label={panels.open}>
+        <aside className="focus-panel" id={PANEL_ID} aria-label={panels.open}>
           {panels.open === 'players' && <Players show={show} />}
           {panels.open === 'direction' && holder !== null && me !== null && (
             <DirectionBar view={holder} me={me} direct={direct} />

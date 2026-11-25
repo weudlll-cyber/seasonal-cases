@@ -307,7 +307,7 @@ server, React 19 + Vite on the client, Vitest, Playwright (Chromium at merge, Fi
 ESLint, Prettier, lefthook. Layers as in Mini Games: `domain` (no I/O, no clock, no randomness except
 injected ports) ← `application` ← `apps/server`; the client renders, the server decides.
 
-- **Kit:** `@seasonal/kit` pinned to one tag (v0.4.1 at bootstrap on 2026-11-21, v0.19.0 since 2026-11-24): tokens,
+- **Kit:** `@seasonal/kit` pinned to one tag (v0.4.1 at bootstrap on 2026-11-21, v0.22.0 since 2026-11-25): tokens,
   fonts, motion, theme, fit floors, `DockedScreen`, `ChatDock`, `BackLink`, `ThemeToggle`, website
   sign-in helpers, chat embed, call slot. A game switches kit version only on the owner's word.
   Nothing the kit has is rebuilt in the game.

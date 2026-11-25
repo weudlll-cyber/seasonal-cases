@@ -1,6 +1,6 @@
 {
   "name": "@sc/server",
-  "version": "1.1.0-rc.1",
+  "version": "1.1.0-rc.2",
   "private": true,
   "license": "AGPL-3.0-or-later",
   "type": "module",
@@ -20,7 +20,7 @@
     "@sc/application": "workspace:*",
     "@sc/contracts": "workspace:*",
     "@sc/domain": "workspace:*",
-    "@seasonal/kit": "github:weudlll-cyber/seasonal-kit#v0.19.0",
+    "@seasonal/kit": "github:weudlll-cyber/seasonal-kit#v0.22.0",
     "@zxcvbn-ts/language-common": "4.2.0",
     "fastify": "5.12.7",
     "nodemailer": "10.6.1",

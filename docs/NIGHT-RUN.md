@@ -2,6 +2,29 @@
 
 The morning sheets of the unattended night chains, newest first.
 
+## Night chain SC-N10 (2026-11-25)
+
+Kit v0.22.0, the whole move (D67 to D69), version `1.1.0-rc.2`. Branch `kit/v0.17-adoption`, draft
+PR #5; nothing merged, nothing tagged.
+
+### Final report
+
+The chain is running; this report is written at its end.
+
+### State
+
+| Done    | Running          | Open          | Needs the owner's word / hand |
+| ------- | ---------------- | ------------- | ----------------------------- |
+| Piece 1 | Piece 2: backups | Pieces 3 to 7 | (collected per piece)         |
+
+### Pieces
+
+| Piece | What                                                                                                                                                                                                                                                                              | Commit        | CI run       |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ |
+| 1     | Pinned v0.22.0 (lockfile at `2e8ed41`), `pnpm kit:check` current; the ADOPTION lines: the brake (v0.15.0) and the step badges (v0.19.0) were done before and are unchanged; `aria-controls` on the bar's panel buttons (v0.20.0); the v0.21.0 and v0.22.0 lines are pieces 2 to 4 | (this commit) | (next entry) |
+
+### Choices made without the owner
+
 ## Task SC-A1 (2026-11-25)
 
 The accessibility check (D66, BACKLOG 71). `e2e/access.spec.ts` (new, Chromium, in the required

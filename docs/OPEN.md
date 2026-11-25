@@ -19,7 +19,7 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   34); website mode behind the site's Caddy lacks the feed (BACKLOG 35). The open-rounds listing
   and the member summary are built (BACKLOG 25, 26, closed); the website wires the card's origin
   (BACKLOG 33).
-- **Kit:** v0.19.0 on `kit/v0.17-adoption` (D56, D65; v0.11.1 on master; v0.19.0 brings the header's step badges). Nothing is pending any more:
+- **Kit:** v0.22.0 on `kit/v0.17-adoption` (D56, D65, D67; v0.11.1 on master; v0.19.0 brought the header's step badges). Nothing is pending any more:
   the press action, the chat hand-over and the failure brake are the kit's (BACKLOG 41, 43, 49,
   closed); `packages/ui/src/pending/` is gone.
 - **The kit's handbook (v0.17.0), read against the game on 2026-11-24:** the owner's hand is needed for
