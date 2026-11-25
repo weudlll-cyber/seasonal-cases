@@ -37,11 +37,6 @@
   display: none;
 }
 
-/* No show has a start time yet, so the card's countdown would always say 0. */
-.start-page .sk-start-count {
-  display: none;
-}
-
 .start-badge {
   padding: 2px 12px;
   border-radius: var(--sk-radius-pill);

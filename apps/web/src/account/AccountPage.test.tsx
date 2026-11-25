@@ -46,9 +46,9 @@ describe('the account page', () => {
     const fetcher = stubServer(false, Response.json({ ok: true }));
     const onGone = vi.fn(() => Promise.resolve());
     render(<AccountPage me={ANA} website={false} onGone={onGone} />);
-    expect(screen.getByRole('link', { name: 'Download my data' }).getAttribute('href')).toContain(
-      '/me/export',
-    );
+    const download = screen.getByRole('button', { name: 'Download my data' });
+    expect(download.closest('form')?.getAttribute('action')).toContain('/me/export');
+    expect(download.className).toBe('button');
     fireEvent.change(await openForm(), { target: { value: 'a long enough secret' } });
     expect(screen.queryByLabelText('Code of your second factor')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Delete my account for good' }));
@@ -80,7 +80,7 @@ describe('the account page', () => {
   it('leaves a website member to the website', () => {
     render(<AccountPage me={ANA} website onGone={vi.fn(() => Promise.resolve())} />);
     expect(screen.queryByRole('button', { name: 'Delete my account' })).toBeNull();
-    expect(screen.queryByRole('link', { name: 'Download my data' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Download my data' })).toBeNull();
     expect(screen.getByText(/belongs to the website/)).toBeTruthy();
   });
 

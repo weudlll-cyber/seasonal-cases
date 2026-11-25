@@ -16,6 +16,13 @@ D69), on top of 1.1.0-rc.1.
   a session of a build before this one signs in again), the season feed's guarded fetch, and
   `/healthz` and `/readyz` in place of `/api/health` and `/api/ready` (the installer waits for
   `/readyz`).
+- **The kit's header, game bar and start card (v0.22.0):** the game's four CSS patches are gone; a
+  fact in the game bar wraps instead of ending in "…" and the bar has the kit's own padding; the
+  start card has no countdown because no start time is passed.
+- **Account page:** "Download my data" is a button of the same shape and size as "Delete my
+  account".
+- **Fixed:** the header's Menu button no longer shows beside the links on a wide window, and signed-in
+  users no longer get the folded header at 1280 × 720 (the stylesheet order).
 - **Backups (D68):** with your age public key the installer sets up the kit's encrypted nightly
   backup (database and the settings with every secret; no uploads exist), a timer at 03:30, and
   `sudo ./deploy/backup.sh` to back up, restore and drill; pulling to your own computer and

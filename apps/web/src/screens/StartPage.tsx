@@ -9,8 +9,8 @@
  *                 registration is open, owned after); the registration board below it while
  *                 registration is open, the owners after the close; a way to the stage once the
  *                 show is sealed, to the result once it has ended. A player's pick goes to the
- *                 server's claim. The card's "Opens in N s" stays hidden: shows have no start
- *                 time yet (`.start-page` in ./screens.css). Everything shown comes from the feed.
+ *                 server's claim. The card has no countdown: shows have no start time yet, so no
+ *                 `opensIn` is passed (kit v0.22.0). Everything shown comes from the feed.
  * Depends on:     @seasonal/kit/react, @sc/contracts (types), ../account/AccountEntry.js, ../lib/*,
  *                 ../board/*, ./BrandLogo.js, ./Lobby.js, ./SignIn.js
  */
@@ -100,7 +100,6 @@ function ShowCard({ show }: { show: PublicShowView }) {
         `${String(show.winnerCount)} prizes`,
         takenText(show),
       ]}
-      opensIn={0}
       signature={`${show.id}:${show.state}`}
     />
   );

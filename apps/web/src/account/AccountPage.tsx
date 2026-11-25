@@ -165,11 +165,12 @@ export function AccountPage({ me, website, onGone }: AccountPageProps) {
           </p>
         ) : (
           <>
-            <p>
-              <a className="button" href={apiPath('/me/export')} download>
+            {/* A plain GET the browser saves (the server names the file); a button like the other. */}
+            <form action={apiPath('/me/export')} method="get">
+              <button type="submit" className="button">
                 Download my data
-              </a>
-            </p>
+              </button>
+            </form>
             <DeleteForm onGone={onGone} />
             <p>
               <Link to="/privacy">What is stored, and why</Link>

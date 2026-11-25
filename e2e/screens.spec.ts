@@ -166,7 +166,7 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await expect(page.getByRole('heading', { name: 'Privacy', level: 1 })).toBeVisible();
   await shoot(page, 'privacy');
   await page.goto('/account');
-  await expect(page.getByRole('link', { name: 'Download my data' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Download my data' })).toBeVisible();
   await shoot(page, 'account');
   await page.getByRole('button', { name: 'Delete my account' }).click();
   await expect(page.getByRole('form', { name: 'Delete my account' })).toBeVisible();

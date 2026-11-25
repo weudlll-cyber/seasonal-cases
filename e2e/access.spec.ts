@@ -44,7 +44,7 @@ const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
  */
 const KIT: readonly { rule: string; selector: string; backlog: string }[] = [
   // The kit's docked main area scrolls on the result page and holds nothing a keyboard can reach
-  // (DockedScreen, `sk-docked-main`): BACKLOG 70, for the kit's planning chat.
+  // (DockedScreen, `sk-docked-main`; still so at kit v0.22.0): BACKLOG 70, for the kit's chat.
   { rule: 'scrollable-region-focusable', selector: '.sk-docked-main', backlog: '70' },
 ];
 
@@ -149,7 +149,7 @@ test('axe finds nothing serious on any screen, light and dark, desktop and phone
   await expect(page.getByRole('heading', { name: 'My matches' })).toBeVisible();
   await audit(page, 'my-matches');
   await page.goto('/account');
-  await expect(page.getByRole('link', { name: 'Download my data' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Download my data' })).toBeVisible();
   await audit(page, 'account');
   await page.getByRole('button', { name: 'Delete my account' }).click();
   await expect(page.getByRole('form', { name: 'Delete my account' })).toBeVisible();

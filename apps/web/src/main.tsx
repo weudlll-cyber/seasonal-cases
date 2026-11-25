@@ -3,7 +3,7 @@
  * @brief  The client's entry: the stylesheets in order, then the app into #root.
  *
  * Responsibility: the kit's CSS first (fonts, tokens, motion, fit floors with the cases' own,
- *                 shell, frames, bar, dock, call slot), then the client's own (CLAUDE.md "The
+ *                 shell, frames, bar, then the header, dock, call slot), then the client's own (CLAUDE.md "The
  *                 kit").
  * Depends on:     react-dom, @seasonal/kit CSS entries,
  *                 ./shell/*.css, ./stage/*.css, ./board/board.css, ./screens/*.css, ./App.js
@@ -14,8 +14,10 @@ import '@seasonal/kit/motion.css';
 import '@seasonal/kit/fit.css';
 import '@seasonal/kit/shell.css';
 import '@seasonal/kit/frames.css';
-import '@seasonal/kit/header.css';
 import '@seasonal/kit/bar.css';
+// After bar.css: the header hides its "Menu" button while unfolded, which the bar's button style
+// (same specificity) would otherwise show.
+import '@seasonal/kit/header.css';
 import '@seasonal/kit/dock.css';
 import '@seasonal/kit/call.css';
 import './shell/fonts.css';

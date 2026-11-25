@@ -19,13 +19,34 @@ The chain is running; this report is written at its end.
 
 ### Pieces
 
-| Piece | What                                                                                                                                                                                                                                                                              | Commit        | CI run       |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ |
-| 1     | Pinned v0.22.0 (lockfile at `2e8ed41`), `pnpm kit:check` current; the ADOPTION lines: the brake (v0.15.0) and the step badges (v0.19.0) were done before and are unchanged; `aria-controls` on the bar's panel buttons (v0.20.0); the v0.21.0 and v0.22.0 lines are pieces 2 to 4 | `9b7e52d`     | PR run green |
-| 2     | Backups (D68): `deploy/lib/backup.sh`, `deploy/backup.sh`, the installer's answer and flag, harness (66 checks), docs, the dev drill (OPERATIONS-CASES.md)                                                                                                                        | `5aff90d`     | PR run green |
-| 3     | The kit's server parts (D69, D70): `writeCheck`, `securityHeaderSet` + hook (helmet removed), `sessionCookie`, `guardedFetch` (own deleted, BACKLOG 69 closed), `/healthz` `/readyz` (readiness limited)                                                                          | (this commit) | (next entry) |
+| Piece | What                                                                                                                                                                                                                                                                              | Commit               | CI run                                                   |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------------------------------------------- |
+| 1     | Pinned v0.22.0 (lockfile at `2e8ed41`), `pnpm kit:check` current; the ADOPTION lines: the brake (v0.15.0) and the step badges (v0.19.0) were done before and are unchanged; `aria-controls` on the bar's panel buttons (v0.20.0); the v0.21.0 and v0.22.0 lines are pieces 2 to 4 | `9b7e52d`            | PR run green                                             |
+| 2     | Backups (D68): `deploy/lib/backup.sh`, `deploy/backup.sh`, the installer's answer and flag, harness (66 checks), docs, the dev drill (OPERATIONS-CASES.md)                                                                                                                        | `5aff90d`            | PR run green                                             |
+| 3     | The kit's server parts (D69, D70): `writeCheck`, `securityHeaderSet` + hook (helmet removed), `sessionCookie`, `guardedFetch` (own deleted, BACKLOG 69 closed), `/healthz` `/readyz` (readiness limited)                                                                          | `e54ec31`, `ed80d3c` | 45677780097 red (e2e), 45680848575 and 45680857889 green |
+| 4     | The four patches deleted; the download button; the axe exclusion tried without and put back (BACKLOG 70 open); the header measured, a stylesheet-order bug fixed (BACKLOG 73)                                                                                                     | (this commit)        | (next entry)                                             |
 
 ### Choices made without the owner
+
+- **Piece 4, the header.** Measured in a production build (no development items), a signed-in user
+  named "Alexandra" with their role, standalone, folded = `data-sk-folded`, height 64 px:
+
+  | Role       | 1280 × 720 | 1536 × 768 | 1920 × 1080 |
+  | ---------- | ---------- | ---------- | ----------- |
+  | signed out | unfolded   | unfolded   | unfolded    |
+  | player     | unfolded   | unfolded   | unfolded    |
+  | organiser  | unfolded   | unfolded   | unfolded    |
+  | admin      | unfolded   | unfolded   | unfolded    |
+
+  Before the fix (same build) the signed-in roles were folded at 1280 and the Menu button showed at
+  every size, folded or not: the order of the stylesheets (BACKLOG 73). The kit's rule was not
+  changed. The kit's own measurement says Cases' bar folds at 1280 and 1536; with the order fixed it
+  does not for these names.
+
+- **Piece 4, axe.** Without the exclusion axe found exactly the old finding (4 times, the result
+  page, `.sk-docked-main`), nothing new from the patches' removal; the exclusion is back as it was.
+- **Piece 4, the download button.** A `GET` form's submit button (the server names the file), so it
+  is a real button with the existing `.button` class; no new style.
 
 - **Piece 3's first push was red** (every journey and the axe run): to keep the journeys' API calls
   allowed, `Sec-Fetch-Site` was set for the whole browser context, which Chromium refuses for a
