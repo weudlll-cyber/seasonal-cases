@@ -295,3 +295,14 @@ the owner confirmed them on 2026-11-23 (D46).
 - **D75 — One CI run per change.** The CI workflow runs on a push to `master` and on a pull
   request against `master` only, so a push to a branch with an open pull request starts one run,
   not two identical ones. A branch is checked by its pull request.
+
+## 2026-11-25, night chain SC-N11: the owner's decision D76 and what follows from it
+
+- **D76 — Docker is Cases' only production path.** Cases moves to Docker before production, as the
+  other games; the native install (a PostgreSQL role, a systemd service, Node on the host) is removed,
+  so there is one way to run it on a server. Version `1.1.0-rc.3`.
+- **D77 — The image.** One image per mode (`SC_MODE` as a build argument): the client's base path
+  (`/` or `/games/cases/`) is built into it. The server runs its TypeScript with tsx, as
+  `pnpm start` does (no server bundle, unlike Mini Games), and serves the built client itself
+  (`web.ts`), unchanged. It runs as uid 10001, keeps nothing on disk, and its health check asks
+  `/readyz`.

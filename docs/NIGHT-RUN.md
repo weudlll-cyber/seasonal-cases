@@ -2,6 +2,34 @@
 
 The morning sheets of the unattended night chains, newest first.
 
+## Night chain SC-N11 (2026-11-25)
+
+Cases moves to Docker (D76), version `1.1.0-rc.3`. Branch `kit/v0.17-adoption`, draft PR #5; nothing
+merged, nothing tagged.
+
+### Final report
+
+The chain is running; this report is written at its end.
+
+### State
+
+| Done    | Running          | Open          | Needs the owner's word / hand |
+| ------- | ---------------- | ------------- | ----------------------------- |
+| Piece 1 | Piece 2: compose | Pieces 3 to 5 | (collected per piece)         |
+
+### Pieces
+
+| Piece | What                                                                                                                                                              | Commit        | CI run       |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ |
+| 1     | `Dockerfile`, `.dockerignore`, version `1.1.0-rc.3`; built and smoke-run locally (healthy, client served, uid 10001, 122 MB, no tests or package managers inside) | (this commit) | (next entry) |
+
+### Choices made without the owner
+
+- **Piece 1.** After Mini Games' Dockerfile (same pinned base, `pnpm fetch` layer, apk upgrade,
+  package managers removed, an unprivileged user, the labels). Differently: no server bundle (the
+  server runs with tsx, as it does today), and one image per mode, because the client's base path is
+  built in.
+
 ## Task SC-B1 (2026-11-25)
 
 The nightly Firefox/WebKit run on `master` (45533798067, `073f9ad`): journey 5 failed in all five

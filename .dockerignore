@@ -1,0 +1,24 @@
+# @file   .dockerignore
+# @brief  Keeps the image's build context small and free of secrets (after seasonal-mini-games).
+#
+# Responsibility: exclude dependencies, git data, docs, the browser tests, the installer, build
+#                 and test output, local outputs, and every env file (they hold secrets).
+node_modules
+**/node_modules
+.git
+.github
+.local
+.claude
+docs
+e2e
+deploy
+**/dist
+coverage
+test-results
+playwright-report
+# Env files hold secrets, the development ones too.
+.env
+.env.*
+**/.env
+**/.env.*
+**/*.env
