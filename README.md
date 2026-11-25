@@ -14,8 +14,8 @@ manually assigned ranks. In development the local mode also has a development si
 and rank, no password) for the Quick Test; it exists only with `NODE_ENV=development` and
 `SC_DEV=1` (`apps/server/dev.env`).
 
-**Status:** version 1.0.0 on master, tag `v1.0.0`; 1.1.0-rc.2 on the branch `kit/v0.17-adoption`
-(the whole kit, v0.22.0), not merged yet: phases P0 to P3 built, P4 (installer, security
+**Status:** version 1.0.0 on master, tag `v1.0.0`; 1.1.0-rc.3 on the branch `kit/v0.17-adoption`
+(the whole kit, v0.22.0; Docker from 1.1.0-rc.3), not merged yet: phases P0 to P3 built, P4 (installer, security
 reviews) built; the first show on a server is the next step
 ([docs/CONCEPT.md](docs/CONCEPT.md) §12, [CHANGELOG.md](CHANGELOG.md),
 [docs/RELEASING.md](docs/RELEASING.md)).
@@ -43,7 +43,8 @@ on every interface, so a phone on the same network reaches it at `http://<PC's I
 
 ## Install on a server
 
-On a Debian or Ubuntu server, from a clone of this repository:
+The game runs on a server in Docker only (the game and PostgreSQL, `ops/compose.yml`). On a Debian
+or Ubuntu server with Docker, from a clone of this repository:
 
 ```sh
 sudo ./deploy/install.sh            # asks once, remembers; --update --ref <tag> later
@@ -51,28 +52,17 @@ sudo ./deploy/install.sh            # asks once, remembers; --update --ref <tag>
 
 Step by step, standalone or under the website: [docs/INSTALL.md](docs/INSTALL.md).
 
-## Run it in production by hand
-
-Node 22+, pnpm and PostgreSQL; the installer does all of this for you.
-
-```sh
-pnpm install --frozen-lockfile
-SC_MODE=local pnpm build    # or SC_MODE=website for /games/cases/
-pnpm start                  # one process: API, sockets, the built client, /healthz
-```
-
-`pnpm start` needs `DATABASE_URL`, `SC_DATA_KEY`, `SC_COOKIE_SECRET` and, in local mode,
-`SC_PUBLIC_ORIGIN`; every variable is in [docs/CONFIG.md](docs/CONFIG.md).
+Every setting is in [docs/CONFIG.md](docs/CONFIG.md).
 
 ## Accounts and admins (local mode)
 
-Players create their own accounts on the start page. Admins come from the command line, on the
-server's database (`DATABASE_URL` and `SC_DATA_KEY` in the shell; `pnpm dev:sc …` reads
-`apps/server/dev.env` for the development database):
+Players create their own accounts on the start page. Admins come from the command line: on a
+server `sudo ./deploy/admin.sh admin …`, in development `pnpm dev:sc …` (it reads
+`apps/server/dev.env`):
 
 ```sh
-pnpm sc admin promote <name>     # the account becomes an admin; its sessions end
-pnpm sc admin reset-2fa <name>   # removes its second factor and recovery codes; sessions end
+pnpm dev:sc admin promote <name>     # the account becomes an admin; its sessions end
+pnpm dev:sc admin reset-2fa <name>   # removes its second factor and recovery codes; sessions end
 ```
 
 An admin sets up two-factor sign-in in the admin area before the accounts and settings open,

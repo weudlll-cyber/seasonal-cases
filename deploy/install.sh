@@ -3,18 +3,20 @@
 # @brief  Installs or updates Seasonal Cases on a Debian or Ubuntu server, in one call:
 #         `sudo ./deploy/install.sh` from a clone of this repository (docs/INSTALL.md).
 #
-# Responsibility: ask once for what the server needs (mode, address, port, database, mail or the
-#                 website's proxy) and remember it in /etc/seasonal-cases/install.conf (root,
-#                 0600; the secrets only in cases.env, 0600). Then: packages, Node and pnpm,
-#                 PostgreSQL when asked to create it, the system user, the code at the chosen
-#                 ref, the build, the settings, the systemd unit, the start, the readiness check,
-#                 in website mode the route file in the website's routes folder, and the encrypted
-#                 nightly backup (./lib/backup.sh) once an age public key is given.
-#                 `--update` takes the remembered answers and a new `--ref`; `--check` says what
-#                 would change and changes nothing; `--answers FILE` and `--yes` run unattended.
-#                 A re-run with the same answers changes nothing. After seasonal-mini-games
-#                 ops/install.sh, for a Node service under systemd instead of Docker.
-# Depends on:     ./lib/common.sh, ./lib/host.sh, ./lib/app.sh, ./lib/route.sh, ./lib/backup.sh
+# Responsibility: the one way Seasonal Cases runs on a server: the compose stack (ops/compose*.yml,
+#                 DECISIONS D76). Check that Docker is there, ask once for what the server needs
+#                 (mode, address, port, mail or the website's proxy) and remember it in
+#                 /etc/seasonal-cases/install.conf (root, 0600; the secrets only in cases.env,
+#                 0600). Then: the few packages, the code at the chosen ref, its image, the
+#                 settings, the game's journal, the stack, the readiness check, in website mode the
+#                 route file in the website's routes folder, and the encrypted nightly backup
+#                 (./lib/backup.sh) once an age public key is given. `--update` takes the
+#                 remembered answers and a new `--ref`, backs up first, then rebuilds and
+#                 restarts; `--check` says what would change, changes nothing and reports the
+#                 stack's health; `--answers FILE` and `--yes` run unattended. A re-run with the
+#                 same answers changes nothing. After seasonal-mini-games ops/install.sh.
+# Depends on:     ./lib/common.sh, ./lib/host.sh, ./lib/app.sh, ./lib/website.sh, ./lib/route.sh,
+#                 ./lib/backup.sh, ../ops/compose*.yml (of the checked-out code)
 set -euo pipefail
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -24,15 +26,17 @@ HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 . "$HERE/lib/host.sh"
 # shellcheck source=deploy/lib/app.sh
 . "$HERE/lib/app.sh"
+# shellcheck source=deploy/lib/website.sh
+. "$HERE/lib/website.sh"
 # shellcheck source=deploy/lib/route.sh
 . "$HERE/lib/route.sh"
 # shellcheck source=deploy/lib/backup.sh
 . "$HERE/lib/backup.sh"
 
 # The remembered answers (no secrets: those live in the environment file).
-ANSWERS=(SC_INSTALL_MODE SC_PUBLIC_ORIGIN SC_PORT SC_HOST SC_DB SC_SMTP_HOST SC_SMTP_PORT SC_MAIL_FROM
-  SC_WEBSITE_ORIGIN SC_TRUSTED_PROXIES SC_PROXY SC_ROUTES_DIR SC_SITE_PORT_FILE SC_REF SC_REPO
-  SC_PRIVACY_CONTACT SC_BACKUP_AGE_RECIPIENT)
+ANSWERS=(SC_INSTALL_MODE SC_PUBLIC_ORIGIN SC_PORT SC_SMTP_HOST SC_SMTP_PORT SC_MAIL_FROM
+  SC_WEBSITE_ORIGIN SC_WEBSITE_NETWORK SC_TRUSTED_PROXIES SC_EDGE_SUBNET SC_PROXY SC_ROUTES_DIR
+  SC_SITE_PORT_FILE SC_REF SC_REPO SC_PRIVACY_CONTACT SC_BACKUP_AGE_RECIPIENT)
 UPDATE=0
 ANSWERS_FILE=''
 
@@ -41,21 +45,21 @@ usage() {
 usage: sudo ./deploy/install.sh [options]
   --mode local|website     standalone with own accounts, or embedded under the website
   --origin URL             local mode: the address players open (https://cases.example.org)
-  --port N                 the game's port on this machine (3970)
-  --db create|url          create a local PostgreSQL role and database, or use an existing one
-                           (its address from --answers or a hidden prompt, never a flag)
+  --port N                 the loopback port the game is published on (3970)
   --smtp-host H --smtp-port N --mail-from TEXT   local mode: the forgotten-password mail
   --website-origin URL     website mode: the website's address
   --proxy nginx|caddy      website mode: the website's proxy (found by itself when possible)
   --routes-dir DIR         website mode: the website's prepared routes folder
+  --website-network NAME   website mode: the website's Docker network (found by itself)
+  --edge-subnet CIDR       the game's own Docker network (172.30.251.0/24)
   --backup-recipient KEY   your age public key (age1…) for the encrypted nightly backup;
                            without one no backup is set up
   --proxies LIST           addresses whose X-Forwarded-For names the visitor
   --ref REF --repo URL     the tag or branch to run, and where to fetch it from
   --answers FILE           KEY=value lines with the answers (deploy/answers.example)
   --yes                    take defaults, stop on a missing answer instead of asking
-  --update                 fetch --ref (or the remembered one), build, migrate, restart
-  --check                  say what would change; change nothing
+  --update                 back up, fetch --ref (or the remembered one), build, restart
+  --check                  say what would change and how the stack is; change nothing
 USAGE
 }
 
@@ -65,13 +69,14 @@ parse_flags() {
       --mode) SC_INSTALL_MODE=$2; shift ;;
       --origin) SC_PUBLIC_ORIGIN=$2; shift ;;
       --port) SC_PORT=$2; shift ;;
-      --db) SC_DB=$2; shift ;;
       --smtp-host) SC_SMTP_HOST=$2; shift ;;
       --smtp-port) SC_SMTP_PORT=$2; shift ;;
       --mail-from) SC_MAIL_FROM=$2; shift ;;
       --website-origin) SC_WEBSITE_ORIGIN=$2; shift ;;
       --proxy) SC_PROXY=$2; shift ;;
       --routes-dir) SC_ROUTES_DIR=$2; shift ;;
+      --website-network) SC_WEBSITE_NETWORK=$2; shift ;;
+      --edge-subnet) SC_EDGE_SUBNET=$2; shift ;;
       --proxies) SC_TRUSTED_PROXIES=$2; shift ;;
       --backup-recipient) SC_BACKUP_AGE_RECIPIENT=$2; shift ;;
       --ref) SC_REF=$2; shift ;;
@@ -91,10 +96,9 @@ parse_flags() {
 load_answers() {
   if [[ -n $ANSWERS_FILE ]]; then
     [[ -r $ANSWERS_FILE ]] || die "cannot read the answers file $ANSWERS_FILE"
-    load_values "$ANSWERS_FILE" "${ANSWERS[@]}" DATABASE_URL
+    load_values "$ANSWERS_FILE" "${ANSWERS[@]}"
   fi
   load_values "$STATE_FILE" "${ANSWERS[@]}"
-  if [[ ${SC_DB:-} == url && -z ${DATABASE_URL:-} ]]; then DATABASE_URL=$(file_value "$ENV_FILE" DATABASE_URL); fi
   ((UPDATE)) && [[ ! -f $STATE_FILE ]] && die "--update needs an installed game; run the installer without it first"
   return 0
 }
@@ -103,18 +107,14 @@ ask_common() {
   step "answers"
   ask SC_INSTALL_MODE "mode: local (own domain, own accounts) or website (under the website)" local
   must_match SC_INSTALL_MODE '^(local|website)$' "local or website"
-  ask SC_PORT "the game's port on this machine" 3970
+  ask SC_PORT "the loopback port the game is published on" 3970
   must_match SC_PORT '^[0-9]{2,5}$' "a port number"
   ask SC_REPO "where to fetch the code from" "$(git -C "$HERE/.." remote get-url origin 2>/dev/null || true)"
   must_match SC_REPO '^(https://|git@|/)[^[:space:]]+$' "an https://, git@ or /path address"
   ask SC_REF "the tag or branch to run" "$(git -C "$HERE/.." rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
   must_match SC_REF '^[A-Za-z0-9._/-]+$' "a tag or branch name"
-  ask SC_DB "database: create (a local PostgreSQL) or url (an existing one)" create
-  must_match SC_DB '^(create|url)$' "create or url"
-  if [[ $SC_DB == url ]]; then
-    ask_secret DATABASE_URL "the database address (postgres://user:password@host:port/name)"
-    must_match DATABASE_URL '^postgres(ql)?://' "a postgres:// address"
-  fi
+  SC_EDGE_SUBNET=${SC_EDGE_SUBNET:-172.30.251.0/24}
+  must_match SC_EDGE_SUBNET '^([0-9]{1,3}\.){3}0/24$' "a /24 network such as 172.30.251.0/24"
   ask_backup
 }
 
@@ -128,8 +128,9 @@ ask_backup() {
 ask_local() {
   ask SC_PUBLIC_ORIGIN "the address players open (https://…)"
   must_match SC_PUBLIC_ORIGIN '^https?://[^/]+$' "an origin such as https://cases.example.org"
-  ask SC_HOST "the address the game listens on" 127.0.0.1
-  ask SC_TRUSTED_PROXIES "your reverse proxy's addresses" 127.0.0.1,::1
+  # The proxy on this server reaches the published port: its connections arrive from the
+  # gateway of the game's network.
+  ask SC_TRUSTED_PROXIES "your reverse proxy's addresses, as the game sees them" "$(gateway_of "$SC_EDGE_SUBNET")"
   check_addresses
   if ((YES)); then SC_SMTP_HOST=${SC_SMTP_HOST:-}; else ask SC_SMTP_HOST "SMTP relay for the forgotten-password mail (empty: none)" none; fi
   [[ ${SC_SMTP_HOST:-} == none ]] && SC_SMTP_HOST=''
@@ -149,35 +150,19 @@ ask_website() {
   if [[ $SC_PROXY == nginx ]]; then
     ask SC_ROUTES_DIR "the website's routes folder" "$SC_ROOT/etc/seasonal/routes"
     ask SC_SITE_PORT_FILE "the site's local port file" "$SC_ROOT/etc/seasonal/site-local-port"
-    ask SC_HOST "the address the game listens on" 127.0.0.1
-    ask SC_TRUSTED_PROXIES "the website proxy's addresses" 127.0.0.1
-    check_addresses
   else
     ask SC_ROUTES_DIR "the website checkout's deploy/site/routes folder"
-    ask SC_HOST "the Docker bridge address the site's Caddy reaches this machine at" 172.17.0.1
-    # The range whose X-Forwarded-For the game trusts: the site's Docker networks (DECISIONS D37).
-    ask SC_TRUSTED_PROXIES "the site containers' network, trusted to name the visitor" 172.16.0.0/12
-    check_addresses
   fi
   keep_secret SC_PROXY_SECRET 32
-  website_feed
+  website_network
 }
 
-# The listen address and the proxies end up in the settings and route files: their form only.
+# The gateway of a /24 network: where the host's connections to a published port come from.
+gateway_of() { printf '%s.1' "${1%.0/24}"; }
+
+# The trusted addresses end up in the settings and route files: their form only.
 check_addresses() {
-  must_match SC_HOST '^([0-9]{1,3}\.){3}[0-9]{1,3}$' "an IPv4 address such as 127.0.0.1"
   must_match SC_TRUSTED_PROXIES '^[0-9A-Fa-f:./]+(,[0-9A-Fa-f:./]+)*$' "addresses or networks, comma-separated"
-}
-
-# The account-changes feed and the profile card need the site's local address and the token.
-website_feed() {
-  local token="$SC_ROOT/etc/seasonal/games-sync-token"
-  if [[ $SC_PROXY == nginx && -r $token && -r $SC_SITE_PORT_FILE ]]; then
-    SC_WEBSITE_LOCAL_ORIGIN="http://127.0.0.1:$(tr -d '[:space:]' <"$SC_SITE_PORT_FILE")"
-    SC_GAMES_SYNC_TOKEN=$(tr -d '[:space:]' <"$token")
-  else
-    warn "no account-changes feed: the site's local address or $token is not available here"
-  fi
 }
 
 write_state() {
@@ -195,12 +180,12 @@ next_steps() {
   fi
   step "done ($CHANGES change(s))"
   if [[ $SC_INSTALL_MODE == local ]]; then
-    info "open $SC_PUBLIC_ORIGIN behind your reverse proxy (to http://$SC_HOST:$SC_PORT)"
+    info "open $SC_PUBLIC_ORIGIN behind your reverse proxy (to http://127.0.0.1:$SC_PORT)"
     info "first admin: register on the page, then: sudo ./deploy/admin.sh admin promote <name>"
   else
     info "open $SC_WEBSITE_ORIGIN/games/cases/; add the game's card in the website's Admin → Games"
   fi
-  info "status: systemctl status $SERVICE; logs: journalctl --namespace=$SERVICE -u $SERVICE"
+  info "health: sudo ./deploy/install.sh --check; logs: sudo journalctl --namespace=$PROJECT"
   if [[ -n ${SC_BACKUP_AGE_RECIPIENT:-} ]]; then
     info "first backup: sudo ./deploy/backup.sh backup; pull and restore: docs/INSTALL.md"
   fi
@@ -211,22 +196,21 @@ main() {
   [[ $EUID -eq 0 || -n $SC_ROOT ]] || die "run it with sudo"
   load_answers
   check_os
+  check_docker
   ask_common
   if [[ $SC_INSTALL_MODE == local ]]; then ask_local; else ask_website; fi
   install_prereqs
-  install_node
-  ensure_database
-  ensure_user
+  ((UPDATE)) && backup_before_update
   fetch_code
-  build_app
+  build_image
   write_env
-  write_unit
   write_journal
   write_state
-  start_service
+  start_stack
   wait_ready
   [[ $SC_INSTALL_MODE == website ]] && install_route
   write_backup
+  ((DRY_RUN)) && report_health
   next_steps
 }
 

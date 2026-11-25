@@ -13,18 +13,28 @@ The chain is running; this report is written at its end.
 
 ### State
 
-| Done           | Running                       | Open           | Needs the owner's word / hand |
-| -------------- | ----------------------------- | -------------- | ----------------------------- |
-| Pieces 1 and 2 | Piece 3: installer and backup | Pieces 4 and 5 | (collected per piece)         |
+| Done          | Running                  | Open    | Needs the owner's word / hand |
+| ------------- | ------------------------ | ------- | ----------------------------- |
+| Pieces 1 to 3 | Piece 4: proof on the PC | Piece 5 | (collected per piece)         |
 
 ### Pieces
 
-| Piece | What                                                                                                                                                              | Commit        | CI run            |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ----------------- |
-| 1     | `Dockerfile`, `.dockerignore`, version `1.1.0-rc.3`; built and smoke-run locally (healthy, client served, uid 10001, 122 MB, no tests or package managers inside) | `b322262`     | 45709144145 green |
-| 2     | `ops/compose.yml`, `compose.website.yml`, `compose.journal.yml`, `cases.env.example`; CONFIG's compose settings; `docker compose config` passes                   | (this commit) | (next entry)      |
+| Piece | What                                                                                                                                                                                              | Commit        | CI run            |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ----------------- |
+| 1     | `Dockerfile`, `.dockerignore`, version `1.1.0-rc.3`; built and smoke-run locally (healthy, client served, uid 10001, 122 MB, no tests or package managers inside)                                 | `b322262`     | 45709144145 green |
+| 2     | `ops/compose.yml`, `compose.website.yml`, `compose.journal.yml`, `cases.env.example`; CONFIG's compose settings; `docker compose config` passes                                                   | `f0936be`     | 45709761278 green |
+| 3     | The installer on Docker (`deploy/`, D78), the backup on the database container, the harness (69 checks, shellcheck clean), INSTALL rewritten, CONFIG, README, OPERATIONS-CASES; BACKLOG 35 closed | (this commit) | (next entry)      |
 
 ### Choices made without the owner
+
+- **Piece 3.** Reused from Cases' installer: questions, answers file, state, `put_file`, route files,
+  `--check`. From Mini Games: the website network choice, the feed at `site:3800`, the trusted
+  network ranges. Differently: Docker is checked and not installed (the task); images are tagged
+  with the commit and mode and left on the server; the kit's backup script is copied out of the image
+  (the server needs no Node) and its units used unchanged. No native install exists anywhere, so
+  nothing migrates one. Removed: Node and pnpm on the host, the PostgreSQL role and database, the
+  system user, the systemd service of the game, `--db`, `SC_HOST` and `DATABASE_URL` answers, the
+  hidden prompt, the unit rewrites.
 
 - **Piece 2.** After Mini Games' `compose.yml` and `compose.website.yml`. Differently: no Caddy
   service (Cases' standalone installs use the server's own proxy, as before); one loopback port in

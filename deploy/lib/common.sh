@@ -23,11 +23,14 @@ STATE_FILE="$ETC_DIR/install.conf"
 ENV_FILE="$ETC_DIR/cases.env"
 OPT_DIR="$SC_ROOT/opt/seasonal-cases"
 APP_DIR="$OPT_DIR/app"
-UNIT_FILE="$SC_ROOT/etc/systemd/system/seasonal-cases.service"
-# The game's own journal (a log namespace): 14 days of logs, whatever the host keeps for others.
+# The kit's backup script, copied out of the game's image (./backup.sh).
+BACKUP_SCRIPT="$OPT_DIR/backup.sh"
+# The game's own journal (a log namespace): 14 days of logs, whatever the host keeps for others;
+# its socket is started with Docker, which writes into it (ops/compose.journal.yml).
 JOURNAL_CONF="$SC_ROOT/etc/systemd/journald@seasonal-cases.conf"
-SERVICE=seasonal-cases
-SERVICE_USER=seasonal-cases
+DOCKER_DROPIN="$SC_ROOT/etc/systemd/system/docker.service.d/seasonal-cases-journal.conf"
+# The compose project: containers are seasonal-cases-app-1 and seasonal-cases-postgres-1.
+PROJECT=seasonal-cases
 DRY_RUN=0
 YES=0
 CHANGES=0
@@ -104,17 +107,6 @@ ask() {
   fi
   read -r -p "  $question${default:+ [$default]}: " answer
   printf -v "$var" '%s' "${answer:-$default}"
-  [[ -n ${!var} ]] || die "no answer for: $question"
-}
-
-# Like ask, without echo: for a value that holds a password; never a default.
-ask_secret() {
-  local var=$1 question=$2 answer
-  [[ -n ${!var:-} ]] && return 0
-  ((YES)) && die "missing answer for: $var ($question); give it in --answers, never as a flag"
-  read -r -s -p "  $question: " answer
-  echo
-  printf -v "$var" '%s' "$answer"
   [[ -n ${!var} ]] || die "no answer for: $question"
 }
 

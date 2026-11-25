@@ -306,3 +306,11 @@ the owner confirmed them on 2026-11-23 (D46).
   `pnpm start` does (no server bundle, unlike Mini Games), and serves the built client itself
   (`web.ts`), unchanged. It runs as uid 10001, keeps nothing on disk, and its health check asks
   `/readyz`.
+- **D78 — The installer and the backup on Docker.** `deploy/install.sh` installs and updates the
+  compose stack (both modes): it checks Docker and says how to install it, builds the image on the
+  server, writes the env file, starts the stack, waits for `/readyz`, writes the website route file
+  as before; `--update` backs up first; `--check` reports the stack's health. The kit's backup runs
+  against the database container with its systemd units as the kit prints them: this supersedes the
+  two rewrites of the units made for the native install (night chain SC-N10, under D68). The logs go
+  through Docker's syslog driver into the game's 14-day journal namespace (D61). Website mode joins
+  the website's network; the game reads the account feed at `http://site:3800` in both modes.

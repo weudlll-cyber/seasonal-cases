@@ -15,8 +15,8 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
 - **Sign-in's brake:** per account and address (D55, BACKLOG 54, closed).
 - **Show polish:** the applause button is built (D39); tips and next-case suggestions wait
   (BACKLOG 10); sound is built (BACKLOG 7, closed).
-- **Release:** the installer is built (BACKLOG 11, closed); a first run on a real VPS (BACKLOG
-  34); website mode behind the site's Caddy lacks the feed (BACKLOG 35). The open-rounds listing
+- **Release:** the installer is built (BACKLOG 11, closed); it installs the Docker stack (D78); a
+  first run on a real VPS (BACKLOG 34). The open-rounds listing
   and the member summary are built (BACKLOG 25, 26, closed); the website wires the card's origin
   (BACKLOG 33).
 - **Kit:** v0.22.0 on `kit/v0.17-adoption` (D56, D65, D67; v0.11.1 on master; v0.19.0 brought the header's step badges). Nothing is pending any more:

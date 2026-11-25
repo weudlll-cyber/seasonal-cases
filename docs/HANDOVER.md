@@ -196,8 +196,7 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
 ## Needs the owner's word
 
 - The merge of `proto/cases-v1` and the tag `v1.0.0` ([RELEASING.md](RELEASING.md)).
-- The second security review's remaining question: the feed behind the site's Caddy (BACKLOG
-  35). Decided 2026-11-22 and built: the limits, no bots in real shows, the asked trusted range
+- Decided 2026-11-22 and built: the limits, no bots in real shows, the asked trusted range
   (D34, D37), the ceremony and the motion as built (D30, D32), the website-mode rank (D31).
 
 - Whether the show is fun (the P1 gate), after playing it.

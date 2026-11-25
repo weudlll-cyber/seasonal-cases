@@ -16,7 +16,8 @@
 #                 account-changes feed is denied by the website's own files. The Caddy file names
 #                 the range the game trusts to name the visitor (SC_TRUSTED_PROXIES, D37). It
 #                 never touches a website-owned file.
-# Depends on:     ./common.sh, nginx or docker (the site's Caddy), systemctl
+# Depends on:     ./common.sh, ./website.sh (site_container), nginx or docker (the site's Caddy),
+#                 systemctl
 # shellcheck shell=bash
 
 BASE=/games/cases
@@ -116,17 +117,11 @@ ${clear}		@sc_signin path $SIGN_IN_ROUTE
 CADDY
 }
 
-# The site's Caddy container (compose project seasonal-site, service caddy), or empty.
-site_caddy() {
-  docker ps -q --filter label=com.docker.compose.project=seasonal-site \
-    --filter label=com.docker.compose.service=caddy 2>/dev/null | head -n 1
-}
-
 check_proxy() {
   if [[ $SC_PROXY == nginx ]]; then
     nginx -t -q
   else
-    docker exec "$(site_caddy)" caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile >/dev/null
+    docker exec "$(site_container caddy)" caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile >/dev/null
   fi
 }
 
@@ -134,7 +129,7 @@ reload_proxy() {
   if [[ $SC_PROXY == nginx ]]; then
     run systemctl reload nginx
   else
-    run docker exec "$(site_caddy)" caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
+    run docker exec "$(site_container caddy)" caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
   fi
 }
 
@@ -143,12 +138,15 @@ install_route() {
   [[ -d $SC_ROUTES_DIR ]] || die "the website's routes folder $SC_ROUTES_DIR is missing; prepare it with the website's installer first"
   local file old game site
   file=$(route_file)
-  game="$SC_HOST:$SC_PORT"
   if [[ $SC_PROXY == nginx ]]; then
+    # The host's nginx reaches the game on its published loopback port.
+    game="127.0.0.1:$SC_PORT"
     site="127.0.0.1:$(tr -d '[:space:]' <"$SC_SITE_PORT_FILE")"
     [[ $site =~ ^127\.0\.0\.1:[0-9]{2,5}$ ]] || die "no port in $SC_SITE_PORT_FILE"
   else
-    [[ -n $(site_caddy) ]] || die "the website's Caddy container (seasonal-site, caddy) is not running"
+    [[ -n $(site_container caddy) ]] || die "the website's Caddy container (seasonal-site, caddy) is not running"
+    # Caddy in its container reaches the game by its name on the website's network.
+    game=sc-cases:3970
     site=site:3800
   fi
   old=$(mktemp)

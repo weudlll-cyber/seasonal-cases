@@ -5,17 +5,16 @@
 
 # local (own domain, own accounts) or website (under the website, /games/cases/)
 SC_INSTALL_MODE=local
+# The loopback port the game is published on, for the server's proxy.
 SC_PORT=3970
-# create: a local PostgreSQL role and database; url: DATABASE_URL below
-SC_DB=create
-# DATABASE_URL=postgres://user:password@host:5432/name
 SC_REPO=https://github.com/weudlll-cyber/seasonal-cases.git
 SC_REF=master
 
 # Local mode
 SC_PUBLIC_ORIGIN=https://cases.example.org
-SC_HOST=127.0.0.1
-SC_TRUSTED_PROXIES=127.0.0.1,::1
+# The proxy's addresses as the game sees them (default: the gateway of its network).
+# SC_TRUSTED_PROXIES=172.30.251.1
+# SC_EDGE_SUBNET=172.30.251.0/24
 # SC_SMTP_HOST=127.0.0.1
 # SC_SMTP_PORT=25
 # SC_MAIL_FROM=Seasonal Cases <cases@example.org>
@@ -32,3 +31,4 @@ SC_TRUSTED_PROXIES=127.0.0.1,::1
 # SC_PROXY=nginx
 # SC_ROUTES_DIR=/etc/seasonal/routes
 # SC_SITE_PORT_FILE=/etc/seasonal/site-local-port
+# SC_WEBSITE_NETWORK=seasonal-site_default

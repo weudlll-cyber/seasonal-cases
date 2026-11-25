@@ -5,17 +5,13 @@ up, pull and restore is in [INSTALL.md](INSTALL.md) ("Backups").
 
 ## What a Cases backup holds
 
-| Part                | In Cases                                                                                                                                        |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Database            | PostgreSQL, schema `sc` (`SK_BACKUP_DB_SCHEMA=sc`), dumped with the client tools on the host (`SK_BACKUP_DB_URL`, the password in `PGPASSWORD`) |
-| Volumes             | none: the game keeps no uploads                                                                                                                 |
-| Secret files        | `/etc/seasonal-cases/cases.env` (data, cookie, recovery and proxy secrets, the sync token, the database address and password)                   |
-| Prefix, environment | `cases`, `prod`                                                                                                                                 |
-| Schedule            | `cases-backup@prod.timer`, 03:30                                                                                                                |
-
-The installer fits two lines of the kit's printed systemd units to a server without Docker: they wait
-for `postgresql.service` instead of requiring `docker.service`, and run the script with `bash` from
-the installed code.
+| Part                | In Cases                                                                                                      |
+| ------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Database            | PostgreSQL in the compose stack's container (`SK_BACKUP_DB_CONTAINER=seasonal-cases-postgres-1`), schema `sc` |
+| Volumes             | none to back up: the database goes as a dump; the game keeps no uploads                                       |
+| Secret files        | `/etc/seasonal-cases/cases.env` (every secret, the database password among them)                              |
+| Prefix, environment | `cases`, `prod`                                                                                               |
+| Schedule            | `cases-backup@prod.timer`, 03:30; the kit's units as it prints them                                           |
 
 ## Restore drills
 

@@ -12,22 +12,22 @@ service's environment file), **website** (the website's operator gives it), **de
 
 ## Always
 
-| Variable        | Default                                | Required in | From      | What                                                                                                             |
-| --------------- | -------------------------------------- | ----------- | --------- | ---------------------------------------------------------------------------------------------------------------- |
-| `NODE_ENV`      | (unset)                                | —           | installer | `production` for a real server (`pnpm start` sets it when unset); `development` with `SC_DEV=1` for `pnpm dev`   |
-| `SC_MODE`       | `local`                                | —           | installer | `local` (own domain, own accounts) or `website` (embedded under `/games/cases/`)                                 |
-| `SC_PORT`       | `3970`                                 | —           | installer | the port on 127.0.0.1; a reverse proxy faces the internet                                                        |
-| `SC_HOST`       | `127.0.0.1`                            | —           | installer | the address it listens on; the Docker bridge (such as `172.17.0.1`) when the website's Caddy runs in a container |
-| `SC_LOG_LEVEL`  | `info` (production, dev), else `error` | —           | you       | `fatal`, `error`, `warn`, `info` or `debug`; one JSON line per event on stdout                                   |
-| `SC_CLIENT_DIR` | `apps/web/dist` in production          | —           | you       | the built client this process serves under the base path                                                         |
-| `SC_DATA_DIR`   | `.local/data`                          | —           | you       | the shows' event log without a database (development only)                                                       |
-| `SC_DEV`        | (unset)                                | —           | dev       | `1` with `NODE_ENV=development` turns the development sign-in and Quick Test on (local mode only)                |
+| Variable        | Default                                | Required in | From      | What                                                                                                           |
+| --------------- | -------------------------------------- | ----------- | --------- | -------------------------------------------------------------------------------------------------------------- |
+| `NODE_ENV`      | (unset)                                | —           | installer | `production` for a real server (`pnpm start` sets it when unset); `development` with `SC_DEV=1` for `pnpm dev` |
+| `SC_MODE`       | `local`                                | —           | installer | `local` (own domain, own accounts) or `website` (embedded under `/games/cases/`)                               |
+| `SC_PORT`       | `3970`                                 | —           | installer | the port it listens on; in the container always 3970 (`SC_HOST_PORT` publishes it)                             |
+| `SC_HOST`       | `127.0.0.1`                            | —           | installer | the address it listens on; in the container `0.0.0.0` (compose sets it)                                        |
+| `SC_LOG_LEVEL`  | `info` (production, dev), else `error` | —           | you       | `fatal`, `error`, `warn`, `info` or `debug`; one JSON line per event on stdout                                 |
+| `SC_CLIENT_DIR` | `apps/web/dist` in production          | —           | you       | the built client this process serves under the base path                                                       |
+| `SC_DATA_DIR`   | `.local/data`                          | —           | you       | the shows' event log without a database (development only)                                                     |
+| `SC_DEV`        | (unset)                                | —           | dev       | `1` with `NODE_ENV=development` turns the development sign-in and Quick Test on (local mode only)              |
 
 ## Database and secrets
 
 | Variable           | Default                    | Required in                         | From      | What                                                                                                                                                                                                                                                                                                 |
 | ------------------ | -------------------------- | ----------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`     | (none: files and memory)   | production                          | installer | `postgres://user:password@host:port/database`                                                                                                                                                                                                                                                        |
+| `DATABASE_URL`     | (none: files and memory)   | production                          | installer | `postgres://user:password@host:port/database`; in the compose stack built from `POSTGRES_PASSWORD`                                                                                                                                                                                                   |
 | `SC_DATA_KEY`      | —                          | production; any run with a database | installer | 64 hex digits (`openssl rand -hex 32`); encrypts sealed shows and TOTP secrets at rest                                                                                                                                                                                                               |
 | `SC_RECOVERY_KEY`  | a new random one per start | production; any run with a database | installer | 64 hex digits (`openssl rand -hex 32`), not one byte repeated; the HMAC key of the admins' recovery codes (kit v0.9.0, kit K20). Its own secret, never `SC_DATA_KEY`. Codes stored before it (plain SHA-256) keep working until used (kit K27). A changed key voids every code made with the old one |
 | `SC_COOKIE_SECRET` | a new random one per start | production                          | installer | at least 32 characters; signs the session cookie, so sessions survive a restart                                                                                                                                                                                                                      |
@@ -60,8 +60,8 @@ Not read by the game: the installer's answer `SC_BACKUP_AGE_RECIPIENT` (your age
 `--backup-recipient`; none: no backup) becomes `/etc/seasonal-cases/backup.env` (root 0600), whose
 `SK_BACKUP_*` settings are the kit's (`docs/OPERATIONS.md` in the kit). The secrets that must travel
 with a backup are all in `cases.env`: `SC_DATA_KEY`, `SC_COOKIE_SECRET`, `SC_RECOVERY_KEY`,
-`SC_PROXY_SECRET` and `SC_GAMES_SYNC_TOKEN` (website mode), `DATABASE_URL` and `SC_DB_PASSWORD`.
-There are no upload folders.
+`SC_PROXY_SECRET` and `SC_GAMES_SYNC_TOKEN` (website mode) and `POSTGRES_PASSWORD`. There are no
+upload folders.
 
 ## Account names
 

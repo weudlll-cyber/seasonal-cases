@@ -12,6 +12,11 @@ Branch `kit/v0.17-adoption`, night chain SC-N11: Cases moves to Docker (DECISION
 - **The compose stack** (`ops/compose.yml`): the game and PostgreSQL 17, the database not published,
   the game on a loopback port; a website install joins the website's network; development is
   unchanged.
+- **Docker is the only server path (D76, D78):** the installer installs and updates the compose
+  stack (it needs Docker and says how to get it), backs up before an update, reports health with
+  `--check`; the native path (a local PostgreSQL role, a systemd service, Node on the server) is
+  gone. The kit's backup runs against the database container; `admin.sh` runs inside the game's
+  container. The website's account feed now works behind its Caddy too.
 
 ## 1.1.0-rc.2 (not tagged; the tag follows the merge with the owner's word)
 
