@@ -35,11 +35,14 @@ RUN pnpm install --frozen-lockfile --offline \
   && SC_MODE="$SC_MODE" pnpm --filter @sc/web build
 
 # prod: the server's production dependencies and its sources, without tests and test helpers.
+# `pnpm fetch` has linked every package of the lockfile, development tools among them, so that
+# node_modules goes and a production one is installed from the store.
 FROM deps AS prod
 COPY . .
-RUN pnpm install --frozen-lockfile --offline --prod --filter "@sc/server..." \
+RUN rm -rf node_modules \
+  && pnpm install --frozen-lockfile --offline --prod --filter "@sc/server..." \
   && rm -rf packages/ui apps/web apps/server/src/testing apps/server/src/db/testing.ts \
-    packages/*/src/testing \
+    apps/server/vitest.config.ts packages/*/src/testing \
   && find apps/server/src packages -name '*.test.ts' -delete
 
 # runtime: production files only, owned by root and therefore read-only for the app user.

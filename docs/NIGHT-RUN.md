@@ -13,9 +13,9 @@ The chain is running; this report is written at its end.
 
 ### State
 
-| Done          | Running                  | Open    | Needs the owner's word / hand |
-| ------------- | ------------------------ | ------- | ----------------------------- |
-| Pieces 1 to 3 | Piece 4: proof on the PC | Piece 5 | (collected per piece)         |
+| Done          | Running                          | Open | Needs the owner's word / hand |
+| ------------- | -------------------------------- | ---- | ----------------------------- |
+| Pieces 1 to 4 | Piece 5: docs and the image scan | none | (collected per piece)         |
 
 ### Pieces
 
@@ -23,9 +23,17 @@ The chain is running; this report is written at its end.
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ----------------- |
 | 1     | `Dockerfile`, `.dockerignore`, version `1.1.0-rc.3`; built and smoke-run locally (healthy, client served, uid 10001, 122 MB, no tests or package managers inside)                                 | `b322262`     | 45709144145 green |
 | 2     | `ops/compose.yml`, `compose.website.yml`, `compose.journal.yml`, `cases.env.example`; CONFIG's compose settings; `docker compose config` passes                                                   | `f0936be`     | 45709761278 green |
-| 3     | The installer on Docker (`deploy/`, D78), the backup on the database container, the harness (69 checks, shellcheck clean), INSTALL rewritten, CONFIG, README, OPERATIONS-CASES; BACKLOG 35 closed | (this commit) | (next entry)      |
+| 3     | The installer on Docker (`deploy/`, D78), the backup on the database container, the harness (69 checks, shellcheck clean), INSTALL rewritten, CONFIG, README, OPERATIONS-CASES; BACKLOG 35 closed | `84f85c3`     | 45711310188 green |
+| 4     | A whole show on the compose stack on the PC, the backup and restore drill (OPERATIONS-CASES); the image fixed: development tools were still in it (122 MB to 77 MB)                               | (this commit) | (next entry)      |
 
 ### Choices made without the owner
+
+- **Piece 4.** The proof used ports 3999 (the game) and 8579 (a throw-away Mailpit) and the network
+  `172.30.252.0/24`. Quick Test is development only, so a real show was played by the organiser's
+  steps with registered accounts. The image scan found six findings in `lefthook`, a development
+  tool: `pnpm fetch` had left every package linked in the production stage. The stage now removes
+  that `node_modules` and installs the production one; the rebuilt image started on the restored
+  database and scanned clean.
 
 - **Piece 3.** Reused from Cases' installer: questions, answers file, state, `put_file`, route files,
   `--check`. From Mini Games: the website network choice, the feed at `site:3800`, the trusted
