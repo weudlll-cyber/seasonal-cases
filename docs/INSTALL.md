@@ -96,7 +96,7 @@ terminal). Nothing here is tied to a particular server.
 | Update to a tag or branch          | `sudo ./deploy/install.sh --update --ref v1.0.0`                                             |
 | Re-run with the remembered answers | `sudo ./deploy/install.sh --yes`                                                             |
 | Status and logs                    | `systemctl status seasonal-cases`, `journalctl --namespace=seasonal-cases -u seasonal-cases` |
-| Health                             | `curl http://127.0.0.1:3970/api/health`                                                      |
+| Health                             | `curl http://127.0.0.1:3970/healthz` (and `/readyz`)                                         |
 
 `--update` fetches the tag or branch, builds, restarts; the server applies new database
 migrations itself on start. The answers live in `/etc/seasonal-cases/install.conf`; change one

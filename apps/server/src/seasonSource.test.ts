@@ -2,7 +2,8 @@
  * @file   apps/server/src/seasonSource.test.ts
  * @brief  Tests the season of a new show: standalone and a non-https website origin give the date's
  *         season; in website mode the website's season feed decides once it has answered, and
- *         while it has not, or answers badly, the date's season stays.
+ *         while it has not, or answers badly, the date's season stays. The live fetch is the kit's
+ *         guarded one: a website origin that is a private address is refused and logged.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -49,6 +50,16 @@ describe('the season source', () => {
       expect(source?.seasonAt(NOVEMBER)).toBe('spring');
     });
     expect(read).toHaveBeenCalledWith('https://site.example/api/public/season', expect.anything());
+  });
+
+  it('reads the feed only through the guarded fetch of the kit, which refuses a private address', async () => {
+    const log = vi.fn();
+    source = seasonSource({ ...SITE, origin: 'https://127.0.0.1' }, log);
+    await vi.waitFor(() => {
+      expect(log).toHaveBeenCalled();
+    });
+    expect(String(log.mock.calls[0]?.[0])).toContain('season feed:');
+    expect(source.seasonAt(NOVEMBER)).toBe('autumn');
   });
 
   it('stays with the date when the website answers badly', async () => {

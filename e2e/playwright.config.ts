@@ -27,12 +27,18 @@ export default defineConfig({
   timeout: 90_000,
   expect: { timeout: 10_000 },
   reporter: [['list']],
-  use: { baseURL: CLIENT, trace: 'retain-on-failure' },
+  // The journeys' API calls stand for the game's own page: they say so, as a browser does
+  // (`Sec-Fetch-Site`), since the server refuses a write that names no origin (D69).
+  use: {
+    baseURL: CLIENT,
+    trace: 'retain-on-failure',
+    extraHTTPHeaders: { 'sec-fetch-site': 'same-origin' },
+  },
   webServer: [
     {
       command: 'node --import=tsx e2e/server.ts',
       cwd: '..',
-      url: 'http://127.0.0.1:3980/api/health',
+      url: 'http://127.0.0.1:3980/healthz',
       reuseExistingServer: false,
       timeout: 60_000,
     },
@@ -47,7 +53,7 @@ export default defineConfig({
     {
       command: 'node --import=tsx e2e/websiteServer.ts',
       cwd: '..',
-      url: 'http://127.0.0.1:3990/games/cases/api/health',
+      url: 'http://127.0.0.1:3990/games/cases/healthz',
       reuseExistingServer: false,
       timeout: 60_000,
     },

@@ -58,7 +58,8 @@ describe('the website sign-in', () => {
       SC_TEST_PLAIN_COOKIE: '1',
     });
     const signedIn = await signInAs(harness, member(7, 'Ana'));
-    expect(String(signedIn.headers['set-cookie'])).toMatch(/Path=\/games\/cases\//);
+    // The kit's plain cookie (http) sits at the root; only the test-only mode ever has it here.
+    expect(String(signedIn.headers['set-cookie'])).toMatch(/^sc_session=[^;]+;.*Path=\/;/);
     expect(String(signedIn.headers['set-cookie'])).not.toMatch(/Secure/);
   });
 
@@ -87,7 +88,10 @@ describe('the website sign-in', () => {
     const first = await signInAs(harness, member(7, 'Ana'));
     expect(first.statusCode).toBe(302);
     expect(first.headers.location).toBe('/games/cases/show');
-    expect(String(first.headers['set-cookie'])).toMatch(/Path=\/games\/cases\/; .*Secure/);
+    // Under the website's path: the `__Secure-` prefix, the base path, a lifetime of 7 days.
+    expect(String(first.headers['set-cookie'])).toMatch(
+      /^__Secure-sc_session=[^;]+; Max-Age=604800; Path=\/games\/cases;.*Secure/,
+    );
     const me = async (cookie: string) =>
       (
         await harness?.server.app.inject({
@@ -142,13 +146,10 @@ describe('the website sign-in', () => {
       (await app.inject({ method: 'POST', url: '/games/cases/api/dev/sign-in', payload: {} }))
         .statusCode,
     ).toBe(404);
-    expect((await app.inject({ method: 'GET', url: '/api/health' })).statusCode).toBe(404);
-    expect(
-      (await app.inject({ method: 'GET', url: '/games/cases/api/health' })).json(),
-    ).toMatchObject({
-      ok: true,
-      mode: 'website',
-    });
+    expect((await app.inject({ method: 'GET', url: '/healthz' })).statusCode).toBe(404);
+    expect((await app.inject({ method: 'GET', url: '/games/cases/healthz' })).json()).toMatchObject(
+      { status: 'ok' },
+    );
   });
 });
 

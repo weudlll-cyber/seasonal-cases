@@ -22,9 +22,27 @@ The chain is running; this report is written at its end.
 | Piece | What                                                                                                                                                                                                                                                                              | Commit        | CI run       |
 | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ |
 | 1     | Pinned v0.22.0 (lockfile at `2e8ed41`), `pnpm kit:check` current; the ADOPTION lines: the brake (v0.15.0) and the step badges (v0.19.0) were done before and are unchanged; `aria-controls` on the bar's panel buttons (v0.20.0); the v0.21.0 and v0.22.0 lines are pieces 2 to 4 | `9b7e52d`     | PR run green |
-| 2     | Backups (D68): `deploy/lib/backup.sh`, `deploy/backup.sh`, the installer's answer and flag, harness (66 checks), docs, the dev drill (OPERATIONS-CASES.md)                                                                                                                        | (this commit) | (next entry) |
+| 2     | Backups (D68): `deploy/lib/backup.sh`, `deploy/backup.sh`, the installer's answer and flag, harness (66 checks), docs, the dev drill (OPERATIONS-CASES.md)                                                                                                                        | `5aff90d`     | PR run green |
+| 3     | The kit's server parts (D69, D70): `writeCheck`, `securityHeaderSet` + hook (helmet removed), `sessionCookie`, `guardedFetch` (own deleted, BACKLOG 69 closed), `/healthz` `/readyz` (readiness limited)                                                                          | (this commit) | (next entry) |
 
 ### Choices made without the owner
+
+- **Piece 3, the headers in production.** The production client was walked under the kit's headers
+  in a browser (start, privacy, account, matches, admin, chronicle, a Quick Test stage with an
+  opening): fonts load, the stage's styles apply, no style, image or connect violation. One report
+  stays, as before under helmet: `script-src eval`, zod's check whether it may compile its parsers,
+  caught by zod itself. Noticed, left.
+
+- **Piece 3, Cases' own clients.** The browser client sends `Origin` and `Sec-Fetch-Site` itself;
+  the socket upgrade is judged as a write (`writeCheck` with method POST) since it carries the
+  cookie; the website stand-in forwards the browser's headers and host; the admin command line talks
+  to the database, not over HTTP; the bots run inside the server. Server tests' injected requests and
+  the journeys' API calls now name themselves as the page's own (`Sec-Fetch-Site: same-origin`).
+- **Piece 3, health.** `/healthz` answers `{status, version}`, `/readyz` the kit's body with the
+  version; the old `mode` and `db` fields are gone with the old paths (D70). Readiness is limited to
+  60 a minute per address, as the kit notes for the public route (the old route had no limit).
+- **Piece 3, the cookie.** The kit puts a non-secure cookie at `/` (plain http: development and the
+  browser tests only); production cookies are `__Host-` or `__Secure-` with their own paths.
 
 - **Piece 2, a backup without a key.** The installer sets up no backup without the owner's age
   public key and says so loudly (`NO BACKUP is set up`), rather than refusing to install: with

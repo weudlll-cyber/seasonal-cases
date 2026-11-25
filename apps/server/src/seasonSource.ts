@@ -4,22 +4,20 @@
  *         date's season otherwise (DECISIONS D62).
  *
  * Responsibility: in website mode the kit's `seasonFeedReader` reads the website's public season
- *                 (`GET /api/public/season`) server to server, through the game's guarded fetch
- *                 (./guardedFetch.ts) and with the kit's defaults for the timeout and for how long
- *                 an answer counts as fresh. The reader runs once at start and then every ten
+ *                 (`GET /api/public/season`) server to server, through the kit's guarded fetch
+ *                 (`guardedFetch`, only the website's host, public addresses only; D69) and with the
+ *                 kit's defaults for the timeout and for how long an answer counts as fresh. The reader runs once at start and then every ten
  *                 minutes. While the feed has not answered, or its last answer is stale, the
  *                 season is the date's (CONCEPT §6), so a website that is down changes nothing.
  *                 Standalone, and a website origin that is not https (development), always the
  *                 date's: the kit's reader reads https only.
- * Depends on:     @seasonal/kit/server, @sc/application, @sc/contracts (types), ./config.js,
- *                 ./guardedFetch.js
+ * Depends on:     @seasonal/kit/server, @sc/application, @sc/contracts (types), ./config.js
  */
-import { seasonFeedReader } from '@seasonal/kit/server';
+import { guardedFetch, seasonFeedReader } from '@seasonal/kit/server';
 import { seasonOf } from '@sc/application';
 import type { Season } from '@sc/contracts';
 
 import type { WebsiteConfig } from './config.js';
-import { guardedFetch } from './guardedFetch.js';
 
 const REFRESH_MS = 10 * 60_000;
 
@@ -42,10 +40,16 @@ export function seasonSource(
   if (website === null || !website.origin.startsWith('https://')) return DATES;
   const reader = seasonFeedReader({
     origin: website.origin,
-    fetch: fetcher ?? guardedFetch(website.origin),
+    fetch: fetcher ?? guardedFetch({ allowedHosts: [new URL(website.origin).hostname] }),
   });
   const refresh = () => {
-    reader.refresh().catch(log);
+    // The reader never throws: it keeps its last answer and says why a read failed.
+    reader
+      .refresh()
+      .then(({ lastError }) => {
+        if (lastError !== null) log(new Error(`season feed: ${lastError}`));
+      })
+      .catch(log);
   };
   refresh();
   const timer = setInterval(refresh, REFRESH_MS);

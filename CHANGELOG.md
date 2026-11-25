@@ -9,6 +9,13 @@ Branch `kit/v0.17-adoption`, night chain SC-N10: the whole move to kit v0.22.0 (
 D69), on top of 1.1.0-rc.1.
 
 - **Kit v0.22.0.** The game bar's panel buttons carry `aria-controls` (kit v0.20.0).
+- **The kit's server parts (D69, D70):** the CSRF check (`writeCheck`; a write that names no origin
+  is now refused too), the security headers (the kit's strict set: no referrer, scripts and styles
+  from the game only, framed only as the mode allows; helmet is gone), the session cookie
+  (`__Host-sc_session` at the root of its own host, `__Secure-sc_session` under the website's path;
+  a session of a build before this one signs in again), the season feed's guarded fetch, and
+  `/healthz` and `/readyz` in place of `/api/health` and `/api/ready` (the installer waits for
+  `/readyz`).
 - **Backups (D68):** with your age public key the installer sets up the kit's encrypted nightly
   backup (database and the settings with every secret; no uploads exist), a timer at 03:30, and
   `sudo ./deploy/backup.sh` to back up, restore and drill; pulling to your own computer and

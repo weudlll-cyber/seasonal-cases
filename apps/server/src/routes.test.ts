@@ -38,10 +38,8 @@ describe('development mode', () => {
       const response = await app.inject({ method: 'POST', url, payload: {} });
       expect(response.statusCode).toBe(404);
     }
-    expect((await app.inject({ method: 'GET', url: '/api/health' })).json()).toMatchObject({
-      ok: true,
-      mode: 'local',
-      db: 'none',
+    expect((await app.inject({ method: 'GET', url: '/readyz' })).json()).toMatchObject({
+      status: 'ready',
     });
   });
 });

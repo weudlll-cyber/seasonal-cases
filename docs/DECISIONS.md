@@ -265,3 +265,9 @@ the owner confirmed them on 2026-11-23 (D46).
 - **D68 — Backups come from the kit, first, before production.** Cases uses the kit's
   `ops/backup.sh` and its pull scripts.
 - **D69 — The CSRF guard is the kit's.** `writeCheck` replaces Cases' own guard.
+
+- **D70 — The health routes are the kit's, the old ones removed** (night chain SC-N10, from D69's
+  adoption). `/healthz` (liveness: status and version) and `/readyz` (readiness, 60 a minute per
+  address) under the base path replace `/api/health` and `/api/ready`. No alias is kept: nothing
+  outside this repository is documented to call the old paths (searched here and in the website's
+  docs and server).

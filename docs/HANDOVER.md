@@ -138,6 +138,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   "Working cheaply" (D54) brought in; `proto/cases-v1` merged into master and tagged `v1.0.0`
   ([TAGS.md](TAGS.md)); the branches deleted.
 
+- **The kit's server parts (D69, D70):** CSRF check, security headers, session cookie, guarded
+  fetch and the health routes `/healthz`, `/readyz` are the kit's.
 - **Backups (D68, BACKLOG 72):** the kit's, set up by the installer with the owner's age public key
   (INSTALL "Backups"; the drill in [OPERATIONS-CASES.md](OPERATIONS-CASES.md)). **Needs the owner's
   hand on the VPS:** make the key on the own computer, give the installer the public key, pull the

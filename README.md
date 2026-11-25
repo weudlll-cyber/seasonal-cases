@@ -58,7 +58,7 @@ Node 22+, pnpm and PostgreSQL; the installer does all of this for you.
 ```sh
 pnpm install --frozen-lockfile
 SC_MODE=local pnpm build    # or SC_MODE=website for /games/cases/
-pnpm start                  # one process: API, sockets, the built client, /api/health
+pnpm start                  # one process: API, sockets, the built client, /healthz
 ```
 
 `pnpm start` needs `DATABASE_URL`, `SC_DATA_KEY`, `SC_COOKIE_SECRET` and, in local mode,

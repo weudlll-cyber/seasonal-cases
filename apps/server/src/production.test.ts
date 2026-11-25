@@ -121,16 +121,18 @@ describe('health and readiness', () => {
       probe: () => Promise.resolve(up),
     });
     const get = (url: string) => server.app.inject({ method: 'GET', url });
-    expect((await get('/api/health')).json()).toEqual({
-      ok: true,
-      mode: 'local',
-      version: config.version,
-      db: 'ok',
-    });
-    expect((await get('/api/ready')).statusCode).toBe(200);
+    // Liveness asks nothing; readiness asks the database (the kit's answers, D69).
+    expect((await get('/healthz')).json()).toEqual({ status: 'ok', version: config.version });
+    expect((await get('/readyz')).json()).toEqual({ status: 'ready', version: config.version });
     up = false;
-    expect((await get('/api/health')).json()).toMatchObject({ ok: false, db: 'down' });
-    expect((await get('/api/ready')).statusCode).toBe(503);
+    expect((await get('/healthz')).statusCode).toBe(200);
+    const down = await get('/readyz');
+    expect(down.statusCode).toBe(503);
+    expect(down.json()).toEqual({ status: 'unavailable', reason: 'database' });
+    // Readiness asks the database: 60 a minute per address, then refused; liveness never.
+    for (let i = 0; i < 60; i += 1) await get('/readyz');
+    expect((await get('/readyz')).statusCode).toBe(429);
+    expect((await get('/healthz')).statusCode).toBe(200);
     await server.app.close();
   });
 });
@@ -158,13 +160,19 @@ describe('the built client', () => {
       const page = await fetch(`${address}${base}`);
       expect(await page.text()).toContain('Seasonal Cases');
       expect(page.headers.get('cache-control')).toBe('no-cache');
-      expect(page.headers.get('referrer-policy')).toBe('strict-origin');
+      // The kit's strict set: no referrer, no inline scripts, framed only as the mode allows.
+      expect(page.headers.get('referrer-policy')).toBe('no-referrer');
+      const policy = page.headers.get('content-security-policy') ?? '';
+      expect(policy).toContain("script-src 'self'");
+      expect(policy).toContain(
+        mode === 'website' ? "frame-ancestors 'self' https://" : "frame-ancestors 'self'",
+      );
       const asset = await fetch(`${address}${base}assets/index-abc.js`);
       expect(asset.headers.get('cache-control')).toContain('immutable');
       // A client route answers the page; the API's unknown paths do not.
       expect(await (await fetch(`${address}${base}chronicle`)).text()).toContain('Seasonal Cases');
       expect((await fetch(`${address}${base}api/nothing`)).status).toBe(404);
-      expect((await fetch(`${address}${base}api/health`)).status).toBe(200);
+      expect((await fetch(`${address}${base}healthz`)).status).toBe(200);
       // The opening's showcase is a development page: not there outside development.
       expect((await fetch(`${address}${base}dev/opening`)).status).toBe(404);
       await server.app.close();

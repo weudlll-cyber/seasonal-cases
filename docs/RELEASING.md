@@ -44,10 +44,10 @@ On the server, in the clone the installer runs from (docs/INSTALL.md):
 ```sh
 sudo ./deploy/install.sh --check --ref v1.0.0    # what would change
 sudo ./deploy/install.sh --update --ref v1.0.0   # fetch, build, restart; migrations run on start
-curl http://127.0.0.1:3970/api/health            # {"ok":true,…,"version":"1.0.0",…}
+curl http://127.0.0.1:3970/healthz               # {"status":"ok",…,"version":"1.0.0",…}
 ```
 
-In website mode the health path is `/games/cases/api/health`.
+In website mode the health path is `/games/cases/healthz`.
 
 ## Repository settings (the kit's, DECISIONS D59)
 

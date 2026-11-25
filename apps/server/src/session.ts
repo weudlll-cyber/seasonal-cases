@@ -2,16 +2,18 @@
  * @file   apps/server/src/session.ts
  * @brief  The session cookie and the signed-in user of a request or a socket.
  *
- * Responsibility: the cookie `sc_session` holds the session's random token, signed
- *                 (@fastify/cookie), http-only, same-site lax, scoped to the base path, secure in
- *                 website mode and behind https, for 7 days (GAME-INTEGRATION §3). `signIn` rotates the session:
+ * Responsibility: the session cookie, named and attributed by the kit (`sessionCookie`: `sc_session`
+ *                 on plain http, `__Host-sc_session` at the root of its own host, `__Secure-sc_session`
+ *                 under the website's path; D69), holds the session's random token, signed
+ *                 (@fastify/cookie), http-only, same-site lax, secure in website mode and behind
+ *                 https, for 7 days as the session itself (GAME-INTEGRATION §3). `signIn` rotates the session:
  *                 the browser's old one ends and a new one opens. The user comes from the account
  *                 behind a live session; a deleted account signs nobody in, nor does a development
  *                 account once the development features are off.
- * Depends on:     fastify, @fastify/cookie, @seasonal/kit/server (SessionEnds), @sc/contracts,
+ * Depends on:     fastify, @fastify/cookie, @seasonal/kit/server, @sc/contracts,
  *                 ./auth/accounts.js, ./auth/sessions.js, ./auth/twoFactor.js (types)
  */
-import type { SessionEnds } from '@seasonal/kit/server';
+import { sessionCookieOptions, type SessionCookie, type SessionEnds } from '@seasonal/kit/server';
 import type { Me } from '@sc/contracts';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
@@ -20,12 +22,10 @@ import type { TwoFactorStore } from './auth/twoFactor.js';
 import {
   findSession,
   openSession,
-  SESSION_MS,
+  SESSION_DAYS,
   type Session,
   type SessionStore,
 } from './auth/sessions.js';
-
-export const SESSION_COOKIE = 'sc_session';
 
 export interface Auth {
   readonly accounts: AccountStore;
@@ -35,8 +35,7 @@ export interface Auth {
   readonly recoveryKey: Buffer;
   readonly directory: Directory;
   readonly ends: SessionEnds;
-  readonly cookiePath: string;
-  readonly secure: boolean;
+  readonly cookie: SessionCookie;
   // Whether development accounts may sign in: only while the development features are on, so
   // a database that once ran in development keeps no back door (security pass, finding 12).
   readonly devAccounts: boolean;
@@ -70,7 +69,7 @@ export function sessionOf(
   auth: Auth,
   request: FastifyRequest,
 ): Promise<SignedIn | null> {
-  return signedInBy(auth, tokenFrom(app, request.cookies[SESSION_COOKIE]));
+  return signedInBy(auth, tokenFrom(app, request.cookies[auth.cookie.name]));
 }
 
 /** The signed-in user of a raw Cookie header (the socket's handshake), or null. */
@@ -80,7 +79,7 @@ export function sessionFromHeader(
   header: string | undefined,
 ): Promise<SignedIn | null> {
   if (header === undefined) return Promise.resolve(null);
-  return signedInBy(auth, tokenFrom(app, app.parseCookie(header)[SESSION_COOKIE]));
+  return signedInBy(auth, tokenFrom(app, app.parseCookie(header)[auth.cookie.name]));
 }
 
 /** Ends the request's session, if any, and tells the socket side. */
@@ -95,7 +94,7 @@ export async function signOut(
     await auth.sessions.remove(current.session.id);
     void auth.ends.end([current.session.id]);
   }
-  reply.clearCookie(SESSION_COOKIE, { path: auth.cookiePath });
+  reply.clearCookie(auth.cookie.name, sessionCookieOptions(auth.cookie));
 }
 
 /** A fresh session for the account in place of the browser's old one (rotation). */
@@ -108,13 +107,9 @@ export async function signIn(
   await signOut(app, auth, request, reply);
   auth.directory.update(account);
   const { token } = await openSession(auth.sessions, account.id, auth.now());
-  reply.setCookie(SESSION_COOKIE, token, {
+  reply.setCookie(auth.cookie.name, token, {
+    ...sessionCookieOptions(auth.cookie, SESSION_DAYS),
     signed: true,
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: auth.secure,
-    path: auth.cookiePath,
-    maxAge: Math.floor(SESSION_MS / 1000),
   });
   return meOf(account);
 }

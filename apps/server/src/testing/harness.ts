@@ -7,12 +7,14 @@
  *                 default or with the environment and stores a test gives (website mode, a
  *                 mailbox, say); sign users in through the dev route; register a standalone
  *                 account through its confirmation link (D42); and connect socket.io clients with
- *                 their cookie. Used by tests only.
+ *                 their cookie. Its requests name themselves as a browser's own page's do (the
+ *                 CSRF check refuses a write that names nothing, D69). Used by tests only.
  * Depends on:     socket.io-client, @sc/application, @sc/contracts (types), ../app.js,
  *                 ../config.js, ../mail.js
  */
 import { memoryStore } from '@sc/application';
 import type { Ack, ClientToServerEvents, Me, Role, ServerToClientEvents } from '@sc/contracts';
+import type { InjectOptions } from 'fastify';
 import { io as connect, type Socket } from 'socket.io-client';
 
 import { buildServer, type BuiltServer, type Stores } from '../app.js';
@@ -52,6 +54,7 @@ export async function startHarness(
   const mailer = stores.mailer === undefined ? own : stores.mailer;
   const box = mailer !== null && 'sent' in mailer ? (mailer as typeof own) : own;
   const server = await buildServer(config, { events: memoryStore(), ...stores, mailer });
+  asBrowser(server);
   const address = await server.app.listen({ host: '127.0.0.1', port: 0 });
   const sockets: Client[] = [];
   return {
@@ -89,6 +92,22 @@ export async function startHarness(
       await server.app.close();
     },
   };
+}
+
+/**
+ * A page's own request carries `Sec-Fetch-Site: same-origin`; so does every injected one, unless
+ * the test names an origin or a fetch site itself.
+ */
+function asBrowser({ app }: BuiltServer): void {
+  const inject = app.inject.bind(app) as (options: InjectOptions) => unknown;
+  const own = (options: InjectOptions): unknown => {
+    const headers = options.headers ?? {};
+    const named = 'origin' in headers || 'sec-fetch-site' in headers;
+    return inject(
+      named ? options : { ...options, headers: { ...headers, 'sec-fetch-site': 'same-origin' } },
+    );
+  };
+  Object.assign(app, { inject: own });
 }
 
 /** Registers the form and posts the token of its mail's link; answers the last status. */

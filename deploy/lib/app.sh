@@ -13,7 +13,7 @@
 #                 secrets, generated once and kept; the unit runs `node … start.ts` as that user,
 #                 hardened, with its logs in a journald namespace of its own whose retention is
 #                 14 days (DECISIONS D61); the server migrates the database on start; the
-#                 installer waits for /api/ready.
+#                 installer waits for /readyz (the kit's health names, D69).
 # Depends on:     ./common.sh, git, pnpm, useradd, systemctl, curl
 # shellcheck shell=bash
 
@@ -142,14 +142,14 @@ start_service() {
 wait_ready() {
   local base=/ url tries
   [[ $SC_INSTALL_MODE == website ]] && base=/games/cases/
-  url="http://$SC_HOST:$SC_PORT${base}api/ready"
+  url="http://$SC_HOST:$SC_PORT${base}readyz"
   if ((DRY_RUN)); then
     info "would wait for $url"
     return 0
   fi
   for tries in $(seq 1 45); do
     if curl -fsS -o /dev/null "$url"; then
-      info "ready after $((tries * 2)) s: $(curl -fsS "http://$SC_HOST:$SC_PORT${base}api/health")"
+      info "ready after $((tries * 2)) s: $(curl -fsS "http://$SC_HOST:$SC_PORT${base}healthz")"
       return 0
     fi
     sleep 2
