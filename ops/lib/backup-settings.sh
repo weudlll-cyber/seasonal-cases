@@ -4,7 +4,7 @@
 #         (DECISIONS D68, D78; the kit's docs/OPERATIONS.md).
 #
 # Responsibility: `backup_lines` names what a backup of this game holds: the database in its compose
-#                 container, the settings file that must travel with it, how to stop the game and
+#                 container, the keys' file that must travel with it, how to stop the game and
 #                 start it again with its database roles around a restore. The game keeps no
 #                 uploads, so no volume is named. With the operator's age public key
 #                 (SC_BACKUP_AGE_RECIPIENT, an install-time answer) the installer installs age,
@@ -30,10 +30,9 @@ backup_lines() {
   quoted SK_BACKUP_DB_NAME seasonal_cases
   # The schema the game's tables live in: a restore replaces it whole, in one transaction.
   quoted SK_BACKUP_DB_SCHEMA sc
-  # The settings file holds the data, cookie, recovery and proxy secrets and the database's
-  # passwords: a restored database cannot open what it sealed without them. It travels inside the
-  # encryption.
-  quoted SK_BACKUP_SECRET_FILES "$ENV_FILE"
+  # The keys travel inside the encryption: a restored database cannot open what it sealed without
+  # them. The database's passwords stay the server's own (./app.sh sets the roles again).
+  quoted SK_BACKUP_SECRET_FILES "$KEYS_FILE"
   quoted SK_BACKUP_GROUP "$BACKUP_GROUP"
   quoted SK_BACKUP_STOP_CMD "docker compose -p $PROJECT stop app"
   # Not a plain start: a restored database needs its roles and grants again (D82).

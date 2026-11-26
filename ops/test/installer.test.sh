@@ -68,6 +68,7 @@ case $1 in
     printf '# ---- /etc/systemd/system/%s-backup@.service\n[Unit]\nAfter=docker.service\nRequires=docker.service\n\n[Service]\nEnvironmentFile=%s\nExecStart=%s backup\n\n' "$SK_BACKUP_PREFIX" "$SK_BACKUP_ENV_FILE" "$SK_INVOKED"
     printf '# ---- /etc/systemd/system/%s-backup@.timer\n[Timer]\nOnCalendar=*-*-* 03:30:00\n' "$SK_BACKUP_PREFIX" ;;
   backup) do_backup ;;
+  restore) printf 'kit %s\n' "$*" >>"$SC_ROOT/calls.log" ;;
 esac
 KIT
   chmod +x "$1"
@@ -153,9 +154,12 @@ case_local() {
   check '[[ $(value "$env" SC_PUBLIC_ORIGIN) == https://cases.example.org && $(value "$env" SC_SMTP_PORT) == 1025 ]]' "local settings"
   check '[[ $(value "$env" SC_TRUSTED_PROXIES) == 172.30.251.1 ]]' "the proxy is not the network's gateway"
   local db owner app key cookie recovery
-  db=$(value "$env" POSTGRES_PASSWORD) key=$(value "$env" SC_DATA_KEY)
+  local keys="$ROOT/etc/seasonal-cases/prod.keys"
+  db=$(value "$env" POSTGRES_PASSWORD) key=$(value "$keys" SC_DATA_KEY)
   owner=$(value "$env" SC_DB_OWNER_PASSWORD) app=$(value "$env" SC_DB_APP_PASSWORD)
-  cookie=$(value "$env" SC_COOKIE_SECRET) recovery=$(value "$env" SC_RECOVERY_KEY)
+  cookie=$(value "$keys" SC_COOKIE_SECRET) recovery=$(value "$keys" SC_RECOVERY_KEY)
+  check '[[ $(mode_of "$keys") == 600 && $(value "$env" SC_KEYS_FILE) == */etc/seasonal-cases/prod.keys ]]' "no keys file"
+  check '! grep -q "SC_DATA_KEY\|SC_COOKIE_SECRET\|SC_RECOVERY_KEY" "$env"' "a key among the settings"
   check '[[ ${#db} == 48 && ${#key} == 64 && ${#cookie} == 64 && ${#recovery} == 64 && $recovery != "$key" ]]' "secrets not made"
   check '[[ ${#owner} == 48 && ${#app} == 48 && $owner != "$app" && $owner != "$db" ]]' "role passwords not made"
   check '[[ $OUT != *"$db"* && $OUT != *"$key"* && $OUT != *"$cookie"* && $OUT != *"$recovery"* && $OUT != *"$owner"* && $OUT != *"$app"* ]]' "a secret was printed"
@@ -186,7 +190,7 @@ case_local() {
   check '[[ $CODE == 0 && $(mode_of "$backup") == 600 ]]' "no backup: $OUT"
   check '[[ $(value "$backup" SK_BACKUP_START_CMD) == "$ROOT/usr/local/bin/scases start" ]]' "a restore would not set the roles again"
   check '[[ $(value "$backup" SK_BACKUP_DB_CONTAINER) == seasonal-cases-postgres-1 && $(value "$backup" SK_BACKUP_AGE_RECIPIENT) == "$KEY_PUB" ]]' "backup settings"
-  check '[[ $(value "$backup" SK_BACKUP_SECRET_FILES) == "$env" && $(value "$backup" SK_BACKUP_STOP_CMD) == "docker compose -p seasonal-cases stop app" ]]' "no secret file or stop command"
+  check '[[ $(value "$backup" SK_BACKUP_SECRET_FILES) == "$ROOT/etc/seasonal-cases/prod.keys" && $(value "$backup" SK_BACKUP_STOP_CMD) == "docker compose -p seasonal-cases stop app" ]]' "no keys file in the backup or no stop command"
   check 'grep -q "^Requires=docker.service" "$unit" && grep -q "^ExecStart=$ROOT/opt/seasonal-cases/kit/ops/backup.sh backup" "$unit"' "the units were changed"
   check 'grep -q "^systemctl enable --now cases-backup@prod.timer" "$calls"' "the timer is not enabled"
   check 'grep -q "^apt-get install .*age" "$calls" && grep -q "^groupadd .*cases-backup" "$calls"' "no age or no group"
@@ -195,7 +199,7 @@ case_local() {
   # A re-run with the same (remembered) answers changes nothing and keeps the secrets.
   installer --yes
   check '[[ $CODE == 0 && $OUT == *"done (0 change(s))"* ]]' "a re-run changed something: $OUT"
-  check '[[ $(value "$env" SC_DATA_KEY) == "$key" && $(value "$env" POSTGRES_PASSWORD) == "$db" && $(value "$env" SC_DB_APP_PASSWORD) == "$app" ]]' "a secret changed"
+  check '[[ $(value "$ROOT/etc/seasonal-cases/prod.keys" SC_DATA_KEY) == "$key" && $(value "$env" POSTGRES_PASSWORD) == "$db" && $(value "$env" SC_DB_APP_PASSWORD) == "$app" ]]' "a secret changed"
   # --check names a change, reports the health and changes nothing.
   : >"$calls"
   installer --check --port 3971
@@ -214,6 +218,10 @@ case_command() {
   check '[[ $CODE == 0 ]] && grep -q "^docker compose -p seasonal-cases .* exec -T app node --import=tsx src/tools/sc.ts admin promote Ada" "$calls"' "admin: $OUT"
   scases backup
   check '[[ $CODE == 0 ]] && grep -q "^kit backup prefix=cases db=seasonal-cases-postgres-1" "$calls"' "backup: $OUT"
+  # A restore hands the kit the folder the keys are restored to and compared in.
+  : >"$calls"
+  scases --yes restore "$ROOT/stubs/kit/ops/backup.sh" --identity "$ROOT/key.txt"
+  check '[[ $CODE == 0 ]] && grep -q "^kit restore .*--yes --secrets-to $ROOT/etc/seasonal-cases$" "$calls"' "restore: $OUT"
   : >"$calls"
   scases start
   check '[[ $CODE == 0 ]] && grep -q "ON_ERROR_STOP" "$calls" && grep -q "up -d --remove-orphans" "$calls" && grep -q "exec -T app wget -qO- http://127.0.0.1:3970/readyz" "$calls"' "start: $OUT"

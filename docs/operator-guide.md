@@ -78,7 +78,8 @@ the server and a reverse proxy on the server that does HTTPS and forwards to the
    `built seasonal-cases:<commit>-local (version …)`, then
    `ready after … s: {"status":"ready",…}`, the lines starting `host:` about the firewall, security
    updates and fail2ban, and last `done (… change(s))`. Secrets are made once, kept in
-   `/etc/seasonal-cases/prod.env` (root only) and never printed.
+   `/etc/seasonal-cases/prod.env` and the keys in `/etc/seasonal-cases/prod.keys` (both root only),
+   and never printed.
 
    **Server security (standalone only):** the installer turns on the firewall (SSH's own port, 80
    and 443 allowed), automatic security updates and a fail2ban jail for SSH, each only where it is
@@ -217,7 +218,7 @@ encrypted file into `/var/backups/seasonal-cases/prod` (`cases-prod-<UTC time>.t
 | ------------ | ------------------------------------------------------------------------------------- |
 | Database     | a dump from the stack's database container (`seasonal-cases-postgres-1`), schema `sc` |
 | Volumes      | none: the database goes as the dump, the game keeps no uploads                        |
-| Secret files | `/etc/seasonal-cases/prod.env` (every secret, the database passwords among them)      |
+| Secret files | `/etc/seasonal-cases/prod.keys`: the data, cookie and recovery keys                   |
 | Manifest     | prefix `cases`, environment `prod`, the time, the parts                               |
 | Schedule     | `cases-backup@prod.timer`, the kit's units as it prints them                          |
 
@@ -275,21 +276,21 @@ moment, then:
 sudo scases restore <file> --identity cases-backup-key.txt
 ```
 
-It asks first (`y` and Enter), stops the game, replaces the database in one transaction, and starts
-the game again with its database roles. Delete the key from the server afterwards. The restore leaves
-the server's settings file as it is and only names the one in the backup: the data can be read only
-with the secrets it was sealed with, so on another server (or after the settings were lost) take the
-settings out of the backup first, as below.
+It asks first (`y` and Enter), stops the game, replaces the database in one transaction, puts the
+backup's keys back into `/etc/seasonal-cases/prod.keys` and starts the game again with its database
+roles. If the backup's keys differ from the server's, it refuses and changes nothing: that is right
+when the file is not the one you meant. Delete your key from the server afterwards.
 
-**On a new server** take the settings out of the backup first, so the installer keeps those secrets
-(the database passwords among them):
+**On a new server** run the installer (section 2 or 3), which makes keys of its own, then restore
+with `--force-env`, which lets the backup's keys replace them (the data can be read only with the
+keys it was sealed with):
 
 ```sh
-age -d -i cases-backup-key.txt <file> | tar -x ./secret-prod.env
-sudo install -D -m 600 secret-prod.env /etc/seasonal-cases/prod.env && rm secret-prod.env
+sudo scases restore <file> --identity cases-backup-key.txt --force-env
 ```
 
-then run the installer (section 2 or 3), then restore as above.
+`--force-env` also accepts a backup of another environment, so check the file's name first
+(`cases-prod-…`).
 
 ### Drills done
 
@@ -314,8 +315,8 @@ operator's address. To delete the backups too (they cannot be made again):
 sudo scases uninstall --purge-backups
 ```
 
-The settings file with the secrets goes with an uninstall: only a backup (which carries it) or your
-own copy brings a database back afterwards.
+The settings and keys go with an uninstall: only a backup (which carries the keys) or your own copy
+of `prod.keys` makes the data readable afterwards.
 
 ## 7. When something fails
 

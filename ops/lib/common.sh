@@ -22,6 +22,10 @@ ETC_DIR="$SC_ROOT/etc/seasonal-cases"
 STATE_FILE="$ETC_DIR/install.conf"
 # One environment, `prod`: the admin command reads every *.env here as one.
 ENV_FILE="$ETC_DIR/prod.env"
+# The keys that seal the data and sign the sessions, in a file of their own: it travels inside
+# every backup and a restore puts it back (./backup-settings.sh), so only a differing key stops a
+# restore, not a setting that changed since.
+KEYS_FILE="$ETC_DIR/prod.keys"
 OPT_DIR="$SC_ROOT/opt/seasonal-cases"
 APP_DIR="$OPT_DIR/app"
 # What runs: the compose files, these libraries and the command (./app.sh).

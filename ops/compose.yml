@@ -17,7 +17,8 @@
 #                 Website installs add ops/compose.website.yml; the installer adds
 #                 ops/compose.journal.yml, which keeps the logs 14 days. CPU and memory are capped.
 #                 Development uses ops/compose.dev.yml, never this file.
-# Depends on:     /etc/seasonal-cases/prod.env (written by ops/install.sh; ops/cases.env.example)
+# Depends on:     /etc/seasonal-cases/prod.env and prod.keys (written by ops/install.sh;
+#                 ops/cases.env.example)
 #
 # Run:  sudo scases start (installed); by hand: docker compose -p seasonal-cases
 #       --env-file <settings> -f ops/compose.yml up -d
@@ -25,7 +26,9 @@
 services:
   app:
     image: ${SC_IMAGE:?set SC_IMAGE in the env file}
-    env_file: ${SC_ENV_FILE:?set SC_ENV_FILE in the env file}
+    env_file:
+      - ${SC_ENV_FILE:?set SC_ENV_FILE in the env file}
+      - ${SC_KEYS_FILE:?set SC_KEYS_FILE in the env file}
     environment:
       NODE_ENV: production
       SC_HOST: 0.0.0.0

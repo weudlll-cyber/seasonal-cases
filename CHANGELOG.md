@@ -13,6 +13,8 @@ Branch `kit/v0.17-adoption`, night chain SC-N13: kit v0.34.0 (DECISIONS D86).
   button for deleting the account, disabled controls look locked.
 - **Header (kit):** the account chip is filled, "Sign in" is the solid button when signed out, the
   back link takes a lower row on a phone; badges give way before the header folds.
+- **Backup and restore (D88):** the keys are in a file of their own (`prod.keys`), travel in every
+  backup, are put back by `scases restore` and refused if they differ, unless forced.
 - **Result page:** on a PC it takes the full content width, so the cases stand in a grid beside
   the winners instead of one long column.
 

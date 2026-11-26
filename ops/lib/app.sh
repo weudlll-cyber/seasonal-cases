@@ -11,9 +11,10 @@
 #                 the command in /opt/seasonal-cases/stack (linked as /usr/local/bin/scases), and
 #                 the kit's whole ops/ folder, copied out of the image, in /opt/seasonal-cases/kit,
 #                 so the server needs no Node. The settings file (/etc/seasonal-cases/prod.env,
-#                 root 0600) holds the compose settings and every setting of docs/CONFIG.md, the
-#                 secrets made once and kept; the logs go to a journald namespace of the game's own
-#                 whose retention is 14 days (D61). Before the game starts, the database's owner
+#                 root 0600) holds the compose settings and every setting of docs/CONFIG.md but
+#                 the three keys, which are in prod.keys beside it (D88); secrets are made once and
+#                 kept; the logs go to a journald namespace of the game's own whose retention is
+#                 14 days (D61). Before the game starts, the database's owner
 #                 and app roles are set up with the kit's db-roles (which also converts an older
 #                 database once). Used by ../install.sh and ../scases.
 # Depends on:     ./common.sh, the kit's ops/lib/db-roles.sh, git, docker (with compose), systemctl,
@@ -106,12 +107,25 @@ install_stack() {
   CHANGES=$((CHANGES + 1))
 }
 
-# Secrets made once: kept from the settings file on every later run.
+# Secrets made once: kept from their file (the settings file unless named) on every later run.
 keep_secret() {
-  local var=$1 bytes=$2 value
-  value=$(file_value "$ENV_FILE" "$var")
+  local var=$1 bytes=$2 file=${3:-$ENV_FILE} value
+  value=$(file_value "$file" "$var")
   [[ -n $value ]] || value=$(secret "$bytes")
   printf -v "$var" '%s' "$value"
+}
+
+# The keys' file: always written the same way, so a restore finds it equal while the keys are.
+write_keys() {
+  keep_secret SC_DATA_KEY 32 "$KEYS_FILE"
+  keep_secret SC_COOKIE_SECRET 32 "$KEYS_FILE"
+  keep_secret SC_RECOVERY_KEY 32 "$KEYS_FILE"
+  {
+    printf '# The keys of Seasonal Cases (ops/install.sh). Without them a backup cannot be read.\n'
+    quoted SC_DATA_KEY "$SC_DATA_KEY"
+    quoted SC_COOKIE_SECRET "$SC_COOKIE_SECRET"
+    quoted SC_RECOVERY_KEY "$SC_RECOVERY_KEY"
+  } | put_file "$KEYS_FILE" 0600
 }
 
 write_env() {
@@ -119,22 +133,18 @@ write_env() {
   keep_secret POSTGRES_PASSWORD 24
   keep_secret SC_DB_OWNER_PASSWORD 24
   keep_secret SC_DB_APP_PASSWORD 24
-  keep_secret SC_DATA_KEY 32
-  keep_secret SC_COOKIE_SECRET 32
-  keep_secret SC_RECOVERY_KEY 32
+  write_keys
   {
     printf '# Written by ops/install.sh; every variable is in docs/CONFIG.md.\n'
     quoted SC_IMAGE "${SC_IMAGE:-$IMAGE_REPO:not-built}"
     quoted SC_ENV_FILE "${ENV_FILE#"$SC_ROOT"}"
+    quoted SC_KEYS_FILE "${KEYS_FILE#"$SC_ROOT"}"
     quoted SC_HOST_PORT "$SC_PORT"
     quoted SC_EDGE_SUBNET "$SC_EDGE_SUBNET"
     quoted POSTGRES_PASSWORD "$POSTGRES_PASSWORD"
     quoted SC_DB_OWNER_PASSWORD "$SC_DB_OWNER_PASSWORD"
     quoted SC_DB_APP_PASSWORD "$SC_DB_APP_PASSWORD"
     quoted SC_MODE "$SC_INSTALL_MODE"
-    quoted SC_DATA_KEY "$SC_DATA_KEY"
-    quoted SC_COOKIE_SECRET "$SC_COOKIE_SECRET"
-    quoted SC_RECOVERY_KEY "$SC_RECOVERY_KEY"
     quoted SC_TRUSTED_PROXIES "$SC_TRUSTED_PROXIES"
     # An `if` per optional line: a false test must not be the block's last status.
     if [[ -n ${SC_PRIVACY_CONTACT:-} ]]; then quoted SC_PRIVACY_CONTACT "$SC_PRIVACY_CONTACT"; fi

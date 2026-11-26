@@ -15,6 +15,7 @@ const OPS = fileURLToPath(new URL('../../../ops/', import.meta.url));
 const SETTINGS = {
   SC_IMAGE: 'seasonal-cases:test',
   SC_ENV_FILE: `${OPS}cases.env.example`,
+  SC_KEYS_FILE: `${OPS}cases.env.example`,
   SC_HOST_PORT: '3970',
   POSTGRES_PASSWORD: 'stand-in',
   SC_DB_OWNER_PASSWORD: 'stand-in',

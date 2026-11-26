@@ -58,10 +58,10 @@ the admin area (`/admin`, Settings).
 
 Not read by the game: the installer's answer `SC_BACKUP_AGE_RECIPIENT` (your age public key, or
 `--backup-recipient`; none: no backup) becomes `/etc/seasonal-cases/backup.conf` (root 0600), whose
-`SK_BACKUP_*` settings are the kit's (`docs/OPERATIONS.md` in the kit). The secrets that must travel
-with a backup are all in `prod.env`: `SC_DATA_KEY`, `SC_COOKIE_SECRET`, `SC_RECOVERY_KEY`,
-`SC_PROXY_SECRET` and `SC_GAMES_SYNC_TOKEN` (website mode) and the three database passwords. There are no
-upload folders.
+`SK_BACKUP_*` settings are the kit's (`docs/OPERATIONS.md` in the kit). What must travel with a backup is in a file of its own, `/etc/seasonal-cases/prod.keys` (root
+0600): `SC_DATA_KEY`, `SC_COOKIE_SECRET` and `SC_RECOVERY_KEY`; a restore puts it back and refuses
+differing keys unless forced. The database passwords and the website's secrets stay in `prod.env`
+and are the server's own. There are no upload folders.
 
 ## Account names
 
@@ -100,6 +100,7 @@ Read by `docker compose` (`ops/compose*.yml`), from the same file as the game's 
 | ---------------------- | ----------------- | ------------ | --------- | -------------------------------------------------------------------------- |
 | `SC_IMAGE`             | —                 | the stack    | installer | the game's image, built on the server from the chosen ref                  |
 | `SC_ENV_FILE`          | —                 | the stack    | installer | the env file the game's container gets (this file)                         |
+| `SC_KEYS_FILE`         | -                 | the stack    | installer | the keys' file the game's container gets beside the settings               |
 | `SC_HOST_PORT`         | —                 | the stack    | installer | the loopback port the game is published on, for the server's proxy (3970)  |
 | `SC_EDGE_SUBNET`       | `172.30.251.0/24` | —            | installer | the game's network; in local mode its gateway is the trusted proxy address |
 | `SC_WEBSITE_NETWORK`   | —                 | website mode | installer | the website's Docker network the game joins                                |

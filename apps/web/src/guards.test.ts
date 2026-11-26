@@ -6,8 +6,8 @@
  *
  * The contrast pairs are the ones the game's style sheets draw: text colours on the page, on a
  * card and on a surface, and the text on the solid pill and on the season colours. The success
- * green is drawn as it is on cards and surfaces only; on the bare page a darker shade of it is
- * used (./board/board.css).
+ * green is drawn as it is on cards and surfaces; on the bare page the shade of it that
+ * ./board/board.css mixes is checked, and the controls' disabled text on the second surface.
  * Depends on:     @seasonal/kit/testing, node:fs, node:module, node:url
  */
 import { readFileSync } from 'node:fs';
@@ -32,6 +32,9 @@ const SEASONS = ['spring', 'summer', 'autumn', 'winter'].map((s) => `--sk-color-
 const pairs = [
   ...TEXTS.flatMap((text) => [PAGE, CARD, SURFACE].map((on) => ({ text, on }))),
   ...[CARD, SURFACE].map((on) => ({ text: '--sk-color-success', on })),
+  { text: 'color-mix(in srgb, var(--sk-color-success) 85%, var(--sk-color-text))', on: PAGE },
+  // The kit's controls: a disabled button or field, and its danger button on a card.
+  { text: '--sk-color-text-muted', on: ['--sk-color-surface-2'] },
   { text: '--sk-color-on-solid', on: ['--sk-color-solid'] },
   ...SEASONS.map((season) => ({ text: '--sk-color-on-season', on: [season] })),
 ];

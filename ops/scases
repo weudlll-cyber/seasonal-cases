@@ -44,6 +44,8 @@ SK_ADMIN_IMAGE_KEY=SC_IMAGE
 SK_ADMIN_REF_KEY=SC_REF
 SK_ADMIN_DEFAULT_ENV=prod
 SK_ADMIN_STACK_FILES='stack kit'
+# A restore puts the backup's keys back here, and refuses differing ones unless --force-env.
+SK_ADMIN_SECRETS_DIR=$ETC_DIR
 SK_ADMIN_UNIT_DIR="$SC_ROOT/etc/systemd/system"
 SK_ADMIN_COMMAND=$COMMAND_LINK
 # Asked inside the game's container.

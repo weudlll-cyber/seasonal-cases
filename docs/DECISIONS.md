@@ -375,3 +375,10 @@ the owner confirmed them on 2026-11-23 (D46).
   button class from the game, so the header's three looks (K96) and the bar are the kit's alone.
   The end-of-show button keeps the game's highlight. The dense result frame is not used: measured,
   the result's first part fits from 1280 x 720 up.
+- **D88 — The keys have a file of their own, and a restore puts them back.** The data, cookie and
+  recovery keys are in `/etc/seasonal-cases/prod.keys`, the one secret file a backup carries; the
+  admin command names the folder (`SK_ADMIN_SECRETS_DIR`), so a restore puts the keys back and
+  refuses differing ones, before anything is replaced, unless forced. The settings file travels no
+  longer (D78, D83): it holds settings an update changes, which would make every older backup look
+  different, and the database's passwords, which are the server's own. On a new server the guide
+  installs, then restores with `--force-env`.
