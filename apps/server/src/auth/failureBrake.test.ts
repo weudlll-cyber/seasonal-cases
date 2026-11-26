@@ -89,13 +89,20 @@ describe('sign-in’s brake (D55)', () => {
 
   it('brakes the pair at 20, the account everywhere at 100, the address at 20', () => {
     const brake = new SignInBrake(() => 0);
-    for (let i = 0; i < 20; i += 1) brake.failed('x', 'a');
-    expect(brake.accountBraked('x', 'a')).toBe(true);
-    expect(brake.accountBraked('x', 'b')).toBe(false);
+    const wrong = (account: string, address: string) => brake.reserve(account, address)?.failed();
+    // Whether a try may start, without keeping its places.
+    const free = (account: string, address: string): boolean => {
+      const attempt = brake.reserve(account, address);
+      attempt?.passed();
+      return attempt !== null;
+    };
+    for (let i = 0; i < 20; i += 1) wrong('x', 'a');
+    expect(free('x', 'a')).toBe(false);
+    expect(free('x', 'b')).toBe(true);
     expect(brake.addressBraked('a')).toBe(true);
     expect(brake.addressBraked('b')).toBe(false);
-    for (let i = 0; i < 80; i += 1) brake.failed('x', `c${String(i % 10)}`);
-    expect(brake.accountBraked('x', 'b')).toBe(true);
-    expect(brake.accountBraked('y', 'b')).toBe(false);
+    for (let i = 0; i < 80; i += 1) wrong('x', `c${String(i % 10)}`);
+    expect(free('x', 'b')).toBe(false);
+    expect(free('y', 'b')).toBe(true);
   });
 });

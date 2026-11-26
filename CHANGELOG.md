@@ -3,6 +3,13 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
+## 1.1.0-rc.5 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N13: kit v0.34.0 (DECISIONS D86).
+
+- **Sign-in:** wrong passwords sent at the same moment are held to the brake's limits; before, each
+  of them was checked.
+
 ## 1.1.0-rc.4 (not tagged; the tag follows the merge with the owner's word)
 
 Branch `kit/v0.17-adoption`, night chain SC-N12: kit v0.32.0 with every part it offers the game

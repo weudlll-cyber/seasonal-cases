@@ -38,7 +38,7 @@ import { addressKey } from './addressKey.js';
 import type { AddressLimit } from './addressLimit.js';
 import type { Account } from './auth/accounts.js';
 import { emailKey, type CredentialStore } from './auth/credentials.js';
-import { SignInBrake } from './auth/failureBrake.js';
+import { SignInBrake, type Attempt } from './auth/failureBrake.js';
 import { nameKey } from './auth/names.js';
 import { dummyHash, hashPassword, passwordMatches, passwordProblem } from './auth/passwords.js';
 import type { PendingStore } from './auth/pending.js';
@@ -112,8 +112,27 @@ async function secondFactorMissing(
   return false;
 }
 
-function braked(yes: boolean): void {
-  if (yes) throw new Refusal(429, TOO_MANY_TRIES);
+const tooMany = (): Refusal => new Refusal(429, TOO_MANY_TRIES);
+
+/**
+ * Runs the password check of one reserved attempt and ends it: a check that finds no account
+ * counts on the brake, anything else (a success, or a refusal in front of the check) frees the
+ * attempt's places.
+ */
+async function underBrake(
+  attempt: Attempt,
+  check: () => Promise<Account | undefined>,
+): Promise<Account> {
+  let wrong = false;
+  try {
+    const account = await check();
+    if (account !== undefined) return account;
+    wrong = true;
+    throw new Refusal(401, SIGN_IN_FAILED);
+  } finally {
+    if (wrong) attempt.failed();
+    else attempt.passed();
+  }
 }
 
 // Sign in.
@@ -125,7 +144,7 @@ function entryRoutes(ctx: Ctx, { credentials, perAddress }: LocalAccounts): void
 
   app.post('/api/auth/sign-in', async (request, reply) => {
     const address = `address:${addressKey(request.ip)}`;
-    braked(brake.addressBraked(address));
+    if (brake.addressBraked(address)) throw tooMany();
     const { login, password, code } = parseBody(LocalSignInRequestSchema, request.body);
     const normal = login.includes('@') ? emailKey(login) : nameKey(login);
     const found = login.includes('@')
@@ -134,15 +153,15 @@ function entryRoutes(ctx: Ctx, { credentials, perAddress }: LocalAccounts): void
     // An account's failures count under its id, by name or by e-mail alike; a login no
     // account has counts under its normalised form, so it answers exactly like a real one.
     const accountKey = found === undefined ? `login:${normal}` : `account:${found.accountId}`;
-    braked(brake.accountBraked(accountKey, address));
-    // The outer cap counts only what the brake let through.
-    perAddress(request.ip);
-    const matches = await passwordMatches(found?.passwordHash ?? (await dummyHash()), password);
-    const account = found === undefined ? undefined : await auth.accounts.byId(found.accountId);
-    if (!matches || account === undefined || account.deleted) {
-      brake.failed(accountKey, address);
-      throw new Refusal(401, SIGN_IN_FAILED);
-    }
+    const attempt = brake.reserve(accountKey, address);
+    if (attempt === null) throw tooMany();
+    const account = await underBrake(attempt, async () => {
+      // The outer cap counts only what the brake let through.
+      perAddress(request.ip);
+      const matches = await passwordMatches(found?.passwordHash ?? (await dummyHash()), password);
+      const known = found === undefined ? undefined : await auth.accounts.byId(found.accountId);
+      return matches && known?.deleted === false ? known : undefined;
+    });
     if (await secondFactorMissing(ctx, account, code, perAccount)) return { twoFactor: true };
     return signIn(ctx, request, reply, account);
   });

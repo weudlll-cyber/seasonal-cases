@@ -99,12 +99,12 @@ case $name in
       dest=${*: -1}
       mkdir -p "$dest/.git" "$dest/ops"
       cp -r "$REPO_OPS/." "$dest/ops/"
-      printf '{\n  "version": "1.1.0-rc.4"\n}\n' >"$dest/package.json"
+      printf '{\n  "version": "1.1.0-rc.5"\n}\n' >"$dest/package.json"
     elif [[ $* == *"rev-parse --short HEAD"* ]]; then
       cat "$SC_ROOT/.commit" 2>/dev/null || printf 'abc1234\n'
     fi ;;
   curl) for ((i = 1; i <= $#; i++)); do [[ ${!i} == -o ]] && { j=$((i + 1)); : >"${!j}" 2>/dev/null; }; done
-        printf '{"status":"ready","version":"1.1.0-rc.4"}' ;;
+        printf '{"status":"ready","version":"1.1.0-rc.5"}' ;;
   nginx) [[ -n ${NGINX_FAIL:-} ]] && exit 1 ;;
   docker)
     [[ ! -e $SC_ROOT/.nodocker ]] || exit 1
@@ -161,7 +161,7 @@ case_local() {
   check '[[ $OUT != *"$db"* && $OUT != *"$key"* && $OUT != *"$cookie"* && $OUT != *"$recovery"* && $OUT != *"$owner"* && $OUT != *"$app"* ]]' "a secret was printed"
   check '! grep -q "$owner\|$app\|$db" "$calls"' "a password on a command line"
   check '! grep -q "PASSWORD\|SC_DATA_KEY\|SC_COOKIE_SECRET\|SC_RECOVERY_KEY" "$state"' "a secret in the state file"
-  check 'grep -q "^docker build .*SC_MODE=local .*SC_VERSION=1.1.0-rc.4 .*-t seasonal-cases:abc1234-local" "$calls"' "no image build"
+  check 'grep -q "^docker build .*SC_MODE=local .*SC_VERSION=1.1.0-rc.5 .*-t seasonal-cases:abc1234-local" "$calls"' "no image build"
   # The kit's ops/ whole out of the image, the stack's files and the command beside it.
   check 'grep -q "^docker run --rm --entrypoint tar seasonal-cases:abc1234-local -C /app/apps/server/node_modules/@seasonal/kit -cf - ops" "$calls"' "the kit's ops folder is not the image's"
   check '[[ -r "$ROOT/opt/seasonal-cases/kit/ops/lib/db-roles.sql" && -r "$stack/compose.yml" && -x "$stack/scases" && -r "$stack/lib/app.sh" ]]' "files not installed"

@@ -360,3 +360,12 @@ the owner confirmed them on 2026-11-23 (D46).
   artifact's centre, the phone bar in one row); the website-mode browser tests run behind the kit's
   `startWebsiteStandIn`, whose app is the game's Vite client. The game's own stand-in website is
   removed; the accessibility check excludes nothing any more (BACKLOG 70, closed).
+
+## 2026-11-26, night chain SC-N13: the owner's decisions of 2026-11-26 and what follows
+
+- **D86 — Kit v0.34.0, one look for every game.** The kit is pinned at v0.34.0 (commit `7c1e97f`),
+  version `1.1.0-rc.5`. The kit's base components and its three header looks (the filled account
+  chip, the compact back link with a 44 px tap area, the solid "Sign in" when signed out) are the
+  one look of every game; known defects are fixed before the owner looks. Sign-in's brake holds
+  a place for each try before the password is checked (the kit's `reserve`), so guesses sent at
+  the same moment are held to D55's limits.
