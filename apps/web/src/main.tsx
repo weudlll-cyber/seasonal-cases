@@ -18,6 +18,7 @@ import '@seasonal/kit/bar.css';
 // After bar.css: the header hides its "Menu" button while unfolded, which the bar's button style
 // (same specificity) would otherwise show.
 import '@seasonal/kit/header.css';
+import '@seasonal/kit/steps.css';
 import '@seasonal/kit/dock.css';
 import '@seasonal/kit/call.css';
 import './shell/fonts.css';

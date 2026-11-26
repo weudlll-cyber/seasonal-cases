@@ -11,8 +11,7 @@
 import type { RecoveryCodes, TwoFactorSetup as Setup } from '@sc/contracts';
 import { useState } from 'react';
 
-import { postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { post } from '../lib/base.js';
 import { useAction } from '../lib/useAction.js';
 import { TextField } from '../screens/fields.js';
 
@@ -61,7 +60,7 @@ function ConfirmForm({ setup, busy, run, onCodes }: ConfirmProps) {
       onSubmit={(event) => {
         event.preventDefault();
         run(async () => {
-          const answer = await postJson<RecoveryCodes>(apiPath('/me/2fa/confirm'), { code });
+          const answer = await post<RecoveryCodes>('/me/2fa/confirm', { code });
           onCodes(answer.recoveryCodes);
         });
       }}
@@ -106,7 +105,7 @@ export function TwoFactorSetup({ onEnabled }: { onEnabled: () => void }) {
           title="Draw a new secret for your authenticator app"
           onClick={() => {
             action.run(async () => {
-              setSetup(await postJson<Setup>(apiPath('/me/2fa/setup')));
+              setSetup(await post<Setup>('/me/2fa/setup'));
             });
           }}
         >

@@ -10,13 +10,13 @@
  *                 kit's motion.css stops them and ./stageParts.css hides them. The Stage places
  *                 the confetti outside its measured parts, so the falling pieces never count as
  *                 overflow for the fit.
- * Depends on:     react, @sc/contracts (types), ./applause.js, ./Badges.js
+ * Depends on:     react, @seasonal/kit/react, @sc/contracts, ./applause.js
  */
+import { StepBadges } from '@seasonal/kit/react';
 import { ownerText, type CaseView, type PublicShowView } from '@sc/contracts';
 import type { CSSProperties } from 'react';
 
 import { confettiPieces, type ApplauseStep } from './applause.js';
-import { Badges } from './Badges.js';
 
 const PIECES = 36;
 const MAIN_PRIZE = 1;
@@ -62,8 +62,8 @@ export function LowerThird({ show }: { show: PublicShowView }) {
         {view.ownerName === null ? '' : ' belongs to'}
       </span>
       <span className="lower-third-name">
-        <Badges badges={view.ownerBadges} />
         {ownerText(view.ownerName)}
+        <StepBadges steps={view.ownerSteps} />
       </span>
       {view.ownerRank !== null && (
         <span className="rank-badge" title={`Seasonal rank ${String(view.ownerRank)}`}>

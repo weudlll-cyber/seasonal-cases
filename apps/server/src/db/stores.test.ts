@@ -59,7 +59,6 @@ const ANA: Account = {
   name: 'Ana',
   role: 'organiser',
   rank: 3,
-  badges: ['/media/step-icons/0123456789abcdef0123456789abcdef.webp'],
   steps: [
     {
       ladder: 'holder',

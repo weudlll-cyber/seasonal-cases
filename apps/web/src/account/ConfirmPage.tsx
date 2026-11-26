@@ -14,8 +14,7 @@
 import type { ConfirmRequest, ConfirmResult } from '@sc/contracts';
 import { useState } from 'react';
 
-import { postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { post } from '../lib/base.js';
 import { linkToken, spendToken } from '../lib/linkToken.js';
 import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
@@ -47,7 +46,7 @@ export function ConfirmPage() {
           title="Make the account"
           onClick={() => {
             action.run(async () => {
-              const result = await postJson<ConfirmResult>(apiPath('/auth/confirm'), body);
+              const result = await post<ConfirmResult>('/auth/confirm', body);
               // The token is spent: off the address, so a reload shows no dead button.
               spendToken();
               setMade(result.name);

@@ -10,14 +10,13 @@
  *                 the privacy page; it offers no button the server would refuse. The server checks
  *                 everything again; a refusal (wrong password, the last admin) is shown as the
  *                 sentence it comes with.
- * Depends on:     react, @sc/contracts, ../lib/api.js, ../lib/base.js, ../lib/router.js,
+ * Depends on:     react, @sc/contracts, ../lib/base.js, ../lib/router.js,
  *                 ../lib/useAction.js, ../screens/fields.js, ./account.css
  */
 import { PASSWORD_LIMIT, type DeleteAccountRequest, type Me } from '@sc/contracts';
 import { useEffect, useState } from 'react';
 
-import { getJson, postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { api, apiPath, post } from '../lib/base.js';
 import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
 import { TextField } from '../screens/fields.js';
@@ -35,7 +34,7 @@ function useSecondFactor(open: boolean): boolean {
   const [second, setSecond] = useState(false);
   useEffect(() => {
     if (!open) return;
-    getJson<{ enabled: boolean }>(apiPath('/me/2fa'))
+    api<{ enabled: boolean }>('/me/2fa')
       .then((answer) => {
         setSecond(answer.enabled);
       })
@@ -122,7 +121,7 @@ function DeleteForm({ onGone }: { onGone: () => Promise<void> }) {
       onSubmit={(event) => {
         event.preventDefault();
         action.run(async () => {
-          await postJson(apiPath('/me/delete'), body);
+          await post('/me/delete', body);
           await onGone();
         });
       }}

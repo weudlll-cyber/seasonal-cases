@@ -12,8 +12,7 @@
 import { SettingsSchema, type Settings } from '@sc/contracts';
 import { useEffect, useState } from 'react';
 
-import { getJson, postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { api, post } from '../lib/base.js';
 import { useAction } from '../lib/useAction.js';
 import { TextField } from './fields.js';
 import { Artifacts, entry, Num, Setting } from './SettingsParts.js';
@@ -134,7 +133,7 @@ export function SettingsAdmin() {
   const [saved, setSaved] = useState(false);
   const action = useAction();
   useEffect(() => {
-    getJson<Settings>(apiPath('/settings'))
+    api<Settings>('/settings')
       .then(setDraft)
       .catch(() => undefined);
   }, []);
@@ -148,7 +147,7 @@ export function SettingsAdmin() {
       onSubmit={(event) => {
         event.preventDefault();
         action.run(async () => {
-          setDraft(await postJson<Settings>(apiPath('/admin/settings'), draft));
+          setDraft(await post<Settings>('/admin/settings', draft));
           setSaved(true);
         });
       }}

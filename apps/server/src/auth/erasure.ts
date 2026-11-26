@@ -6,7 +6,7 @@
  * Responsibility: one routine for both ways an account goes: a standalone player deleting their
  *                 own, and the website telling the feed that a member was deleted there. The
  *                 account row stays as a tombstone, with no personal data: its id, the name
- *                 "deleted player" and a short id, no badges, rank 0, role player, deleted. Every
+ *                 "deleted player" and a short id, no steps, rank 0, role player, deleted. Every
  *                 show, chronicle entry, result page and "My matches" row then shows that name
  *                 (the directory is updated, and the shows' logs and models are rewritten by
  *                 `forget`), while the cases, the ranks, the sealed distribution and the
@@ -46,7 +46,6 @@ export const tombstone = (account: Account): Account => ({
   name: goneName(account),
   role: 'player',
   rank: 0,
-  badges: [],
   steps: [],
   deleted: true,
 });

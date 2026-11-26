@@ -10,7 +10,7 @@
  *                 answers the same sentence.
  *                 A Privacy link sits under every form (D61).
  *                 The server checks everything again and answers each refusal in one sentence.
- * Depends on:     react, @sc/contracts, ../lib/api.js, ../lib/base.js, ../lib/router.js, ../lib/useAction.js,
+ * Depends on:     react, @sc/contracts, ../lib/base.js, ../lib/router.js, ../lib/useAction.js,
  *                 ../screens/fields.js
  */
 import {
@@ -25,8 +25,7 @@ import {
 } from '@sc/contracts';
 import { useState } from 'react';
 
-import { postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { post } from '../lib/base.js';
 import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
 import { TextField } from '../screens/fields.js';
@@ -59,7 +58,7 @@ function SignInForm({ onEnter }: { onEnter: (me: Me) => void }) {
       onSubmit={(event) => {
         event.preventDefault();
         action.run(async () => {
-          const answer = await postJson<Me | TwoFactorNeeded>(apiPath('/auth/sign-in'), body);
+          const answer = await post<Me | TwoFactorNeeded>('/auth/sign-in', body);
           if ('twoFactor' in answer) setCode('');
           else onEnter(answer);
         });
@@ -117,7 +116,7 @@ function RegisterForm() {
       onSubmit={(event) => {
         event.preventDefault();
         action.run(async () => {
-          await postJson(apiPath('/auth/register'), body);
+          await post('/auth/register', body);
           setSent(true);
         });
       }}
@@ -186,7 +185,7 @@ function ForgotForm() {
       onSubmit={(event) => {
         event.preventDefault();
         action.run(async () => {
-          await postJson(apiPath('/auth/forgot'), body);
+          await post('/auth/forgot', body);
           setSent(true);
         });
       }}

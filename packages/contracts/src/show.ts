@@ -33,8 +33,14 @@ export const REVEAL_STEPS = ['idle', 'selected', 'open', 'owner'] as const;
 export const RevealStepSchema = z.enum(REVEAL_STEPS);
 export type RevealStep = z.infer<typeof RevealStepSchema>;
 
-// A website step's icon, the only badge form (AUTH.md, kit v0.8.0): never an arbitrary URL.
-export const BadgeSchema = z.string().regex(/^\/media\/step-icons\/[0-9a-f]{32}\.webp$/);
+// A website member's step, as the kit's `Step` has it (`stepShape.ts`): the kit's step badges
+// draw these beside a name, at most three, and check each icon's address themselves.
+export const StepSchema = z.object({
+  ladder: z.enum(['holder', 'farmer', 'investor']),
+  name: z.string(),
+  icon: z.string().nullable(),
+});
+export type Step = z.infer<typeof StepSchema>;
 
 /** Whether a role may lead a show (direction, dev admin). */
 export function canDirect(role: Role): boolean {

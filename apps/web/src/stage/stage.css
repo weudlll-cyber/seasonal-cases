@@ -192,6 +192,8 @@ button.case-body:focus-visible {
   /* A long owner's name wraps to a second line; it is never cut with an ellipsis (D60). */
   overflow-wrap: anywhere;
   text-align: center;
+  /* Three step icons stay inside the narrowest case. */
+  --sk-step-icon: 1rem;
 }
 
 /* The case's picture (./case.css) fills the token; its glow is the token's season colour. The

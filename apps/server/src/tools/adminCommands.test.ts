@@ -16,7 +16,7 @@ const OLGA: Account = {
   name: 'Olga',
   role: 'player',
   rank: 0,
-  badges: [],
+  steps: [],
   websiteOrigin: null,
   websiteUserId: null,
   deleted: false,

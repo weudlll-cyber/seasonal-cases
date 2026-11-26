@@ -5,10 +5,20 @@
  * Responsibility: one way for every button to call the server: `run(action)` returns nothing
  *                 (safe as a click handler), clears the last error, and stores the error's
  *                 sentence when the server refuses. An `Ack` with `ok: false` counts as refused.
- * Depends on:     react, @sc/contracts (types)
+ *                 `sentenceOf` is that sentence for any caught error.
+ * Depends on:     @seasonal/kit, react, @sc/contracts (types)
  */
-import type { Ack } from '@sc/contracts';
+import { ApiError } from '@seasonal/kit';
+import type { Ack, ApiRefusal } from '@sc/contracts';
 import { useCallback, useState } from 'react';
+
+/** What to show for a failed call: the server's sentence where it answered with one. */
+export function sentenceOf(e: unknown): string {
+  if (!(e instanceof ApiError)) return e instanceof Error ? e.message : String(e);
+  if (e.status === 0) return 'the server did not answer';
+  const said = (e.body as Partial<ApiRefusal> | null)?.error;
+  return said ?? `the server answered ${String(e.status)}`;
+}
 
 export interface Action {
   readonly error: string | null;
@@ -30,7 +40,7 @@ export function useAction(): Action {
         if (isRefusedAck(result)) setError(result.error);
       })
       .catch((e: unknown) => {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(sentenceOf(e));
       })
       .finally(() => {
         setBusy(false);

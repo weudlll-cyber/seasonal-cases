@@ -3,12 +3,12 @@
  * @brief  The game's accounts: the port every store fills, an in-memory store, and the names
  *         the screens show.
  *
- * Responsibility: an account is a player, an organiser or an admin, with a rank, website badges
+ * Responsibility: an account is a player, an organiser or an admin, with a rank, website steps
  *                 and its kind: `dev` (the development sign-in), `local` (standalone accounts,
  *                 piece 6 of SC-N2) or `website` (keyed by website origin and user id, never by
  *                 name or e-mail, GAME-INTEGRATION §3). A deleted website account keeps its id
  *                 and shows as "deleted player" plus its short id everywhere (§4). `Directory`
- *                 keeps every account's shown name and badges in memory for the projections,
+ *                 keeps every account's shown name and steps in memory for the projections,
  *                 which must not wait on a store.
  * Depends on:     @seasonal/kit/server (types), @sc/contracts (types), @sc/domain (types)
  */
@@ -25,9 +25,8 @@ export interface Account {
   readonly name: string;
   readonly role: AccountRole;
   readonly rank: number;
-  readonly badges: readonly string[];
   // A website member's steps as the kit's `identityFrom` gave them; none for any other account.
-  readonly steps?: readonly Step[];
+  readonly steps: readonly Step[];
   readonly websiteOrigin: string | null;
   readonly websiteUserId: string | null;
   readonly deleted: boolean;
@@ -74,15 +73,12 @@ export function meOf(account: Account): Me {
     name: shownName(account),
     role: account.role,
     rank: account.rank,
-    badges: [...account.badges],
     // The steps exactly as received, for the header's chip: none for a standalone account.
-    ...(account.steps === undefined || account.steps.length === 0
-      ? {}
-      : { steps: account.steps.map((s) => ({ ...s })) }),
+    ...(account.steps.length === 0 ? {} : { steps: account.steps.map((s) => ({ ...s })) }),
   };
 }
 
-/** The shown names and badges of every account, kept up to date by whoever saves one. */
+/** The shown names and steps of every account, kept up to date by whoever saves one. */
 export class Directory {
   private readonly people = new Map<string, Person>();
 
@@ -93,7 +89,7 @@ export class Directory {
   }
 
   update(account: Account): void {
-    this.people.set(account.id, { name: shownName(account), badges: account.badges });
+    this.people.set(account.id, { name: shownName(account), steps: account.steps });
   }
 
   readonly lookup = (id: string): Person | undefined => this.people.get(id);

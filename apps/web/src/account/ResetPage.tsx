@@ -11,8 +11,7 @@
 import { PASSWORD_LIMIT, type ResetRequest } from '@sc/contracts';
 import { useState } from 'react';
 
-import { postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { post } from '../lib/base.js';
 import { linkToken, spendToken } from '../lib/linkToken.js';
 import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
@@ -41,7 +40,7 @@ export function ResetPage() {
         onSubmit={(event) => {
           event.preventDefault();
           action.run(async () => {
-            await postJson(apiPath('/auth/reset'), body);
+            await post('/auth/reset', body);
             // The token is spent: off the address, so a reload shows no dead form.
             spendToken();
             setDone(true);

@@ -19,9 +19,8 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   first run on a real VPS (BACKLOG 34). The open-rounds listing
   and the member summary are built (BACKLOG 25, 26, closed); the website wires the card's origin
   (BACKLOG 33).
-- **Kit:** v0.22.0 on `kit/v0.17-adoption` (D56, D65, D67; v0.11.1 on master; v0.19.0 brought the header's step badges). Nothing is pending any more:
-  the press action, the chat hand-over and the failure brake are the kit's (BACKLOG 41, 43, 49,
-  closed); `packages/ui/src/pending/` is gone.
+- **Kit:** v0.32.0 on `kit/v0.17-adoption` (D56, D79; v0.11.1 on master). Nothing is pending:
+  `packages/ui/src/pending/` is gone; the load check comes before production (D79, BACKLOG 64).
 - **The kit's handbook (v0.17.0), read against the game on 2026-11-24:** the owner's hand is needed for
   the GitHub settings (59, RELEASING.md); the steps before production (64, waits for the VPS; coverage (63) is decided: no target, D64). Replaced without a visible change: the season
   colours as the kit's tokens, an opened case's hidden name as `sk-visually-hidden`, the arena

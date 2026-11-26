@@ -10,7 +10,7 @@
  *                 holding the direction) and "Fill with bots" exist in a development build only
  *                 (D34, D63): their parts are loaded on demand under Vite's DEV flag, so a
  *                 production bundle has neither their words nor their paths.
- * Depends on:     react, @sc/contracts, @sc/ui, ../lib/api.js, ../lib/router.js,
+ * Depends on:     react, @sc/contracts, @sc/ui, ../lib/base.js, ../lib/router.js,
  *                 ../lib/useAction.js, ../shell/DevBoundary.js, ./AccountsAdmin.js,
  *                 ./QuickTestParts.js (lazy, development only), ./SetupForm.js
  */
@@ -18,8 +18,7 @@ import { canDirect, type Me, type Settings, type ShowSummary } from '@sc/contrac
 import { formatTime } from '@sc/ui';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 
-import { getJson, postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { api, post } from '../lib/base.js';
 import { useAction } from '../lib/useAction.js';
 import { DevBoundary } from '../shell/DevBoundary.js';
 import { AdminAccounts } from './AccountsAdmin.js';
@@ -74,7 +73,7 @@ function ShowList({ shows, busy, act, dev }: ShowListProps) {
                   title={tip}
                   disabled={busy}
                   onClick={() => {
-                    act(() => postJson(apiPath(`/shows/${s.id}/${path}`)));
+                    act(() => post(`/shows/${s.id}/${path}`));
                   }}
                 >
                   {label}
@@ -99,7 +98,7 @@ function useDefaults(me: Me | null): Defaults | undefined {
   const may = me !== null && canDirect(me.role);
   useEffect(() => {
     if (!may) return;
-    getJson<Settings>(apiPath('/settings'))
+    api<Settings>('/settings')
       .then((s) => {
         setDefaults({ cases: s.defaultCases, winners: s.defaultWinners });
       })
@@ -123,7 +122,7 @@ export function Admin({ me, onShowChanged, dev }: AdminProps) {
   const defaults = useDefaults(me);
   const action = useAction();
   const refresh = useCallback(() => {
-    getJson<ShowSummary[]>(apiPath('/shows'))
+    api<ShowSummary[]>('/shows')
       .then(setShows)
       .catch(() => undefined);
   }, []);
@@ -150,7 +149,7 @@ export function Admin({ me, onShowChanged, dev }: AdminProps) {
         )
       : undefined;
   const create = (setup: Setup) => {
-    act(() => postJson(apiPath('/shows'), setup));
+    act(() => post('/shows', setup));
   };
   return (
     <main className="page admin">

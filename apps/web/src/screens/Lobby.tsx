@@ -11,8 +11,7 @@ import type { ShowSummary } from '@sc/contracts';
 import { formatTime } from '@sc/ui';
 import { useEffect, useState } from 'react';
 
-import { getJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { api } from '../lib/base.js';
 import { Link } from '../lib/router.js';
 
 function Way({ show }: { show: ShowSummary }) {
@@ -24,7 +23,7 @@ function Way({ show }: { show: ShowSummary }) {
 export function Lobby({ signature }: { signature: string }) {
   const [shows, setShows] = useState<ShowSummary[]>([]);
   useEffect(() => {
-    getJson<ShowSummary[]>(apiPath('/shows'))
+    api<ShowSummary[]>('/shows')
       .then(setShows)
       .catch(() => undefined);
   }, [signature]);

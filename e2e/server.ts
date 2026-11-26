@@ -48,7 +48,7 @@ for (const project of ROOT_PROJECTS) {
     name: root.name,
     role: 'admin',
     rank: 0,
-    badges: [],
+    steps: [],
     websiteOrigin: null,
     websiteUserId: null,
     deleted: false,

@@ -21,8 +21,7 @@ import { lazy, Suspense } from 'react';
 import { AccountEntry } from '../account/AccountEntry.js';
 import { RegistrationBoard } from '../board/RegistrationBoard.js';
 import type { DevSignInFn } from '../lib/devSignIn.js';
-import { postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { post } from '../lib/base.js';
 import type { ShowFeed } from '../lib/feed.js';
 import type { ServerMode } from '../lib/mode.js';
 import { Link } from '../lib/router.js';
@@ -113,7 +112,7 @@ function useClaim(me: Me | null, show: PublicShowView | null) {
     claimable === null
       ? undefined
       : (caseNumber: number) => {
-          action.run(() => postJson(apiPath(`/shows/${claimable}/claim`), { caseNumber }));
+          action.run(() => post(`/shows/${claimable}/claim`, { caseNumber }));
         };
   return { onClaim, error: action.error };
 }

@@ -63,8 +63,8 @@ test('journey 4: website sign-in, back link, docked chat, badges; a guest only w
   }
   await ana.locator('.board-case[data-case="3"]').getByRole('button').click();
   await expect(ana.locator('.board-pick')).toContainText('Your pick: case 3, you hold it');
-  // The website's step icon reaches the page: on the board, where the header's chip has no slot.
-  await expect(ana.locator('.board-case[data-case="3"] .badge-icon')).toHaveAttribute(
+  // The website's step icon reaches the page: beside the holder's name on the board.
+  await expect(ana.locator('.board-case[data-case="3"] .sk-step')).toHaveAttribute(
     'src',
     STEP_ICON,
   );

@@ -69,10 +69,10 @@ case $name in
   git)
     if [[ $1 == clone ]]; then
       mkdir -p "${*: -1}/.git" "${*: -1}/ops"
-      printf '{\n  "version": "1.1.0-rc.3"\n}\n' >"${*: -1}/package.json"
+      printf '{\n  "version": "1.1.0-rc.4"\n}\n' >"${*: -1}/package.json"
     elif [[ $* == *"rev-parse --short HEAD"* ]]; then printf 'abc1234\n'; fi ;;
   curl) for ((i = 1; i <= $#; i++)); do [[ ${!i} == -o ]] && { j=$((i + 1)); : >"${!j}" 2>/dev/null; }; done
-        printf '{"status":"ready","version":"1.1.0-rc.3"}' ;;
+        printf '{"status":"ready","version":"1.1.0-rc.4"}' ;;
   nginx) [[ -n ${NGINX_FAIL:-} ]] && exit 1 ;;
   docker)
     [[ ! -e $SC_ROOT/.nodocker ]] || exit 1
@@ -119,7 +119,7 @@ case_local() {
   check '[[ ${#db} == 48 && ${#key} == 64 && ${#cookie} == 64 && ${#recovery} == 64 && $recovery != "$key" ]]' "secrets not made"
   check '[[ $OUT != *"$db"* && $OUT != *"$key"* && $OUT != *"$cookie"* && $OUT != *"$recovery"* ]]' "a secret was printed"
   check '! grep -q "POSTGRES_PASSWORD\|SC_DATA_KEY\|SC_COOKIE_SECRET\|SC_RECOVERY_KEY" "$state"' "a secret in the state file"
-  check 'grep -q "^docker build .*SC_MODE=local .*SC_VERSION=1.1.0-rc.3 .*-t seasonal-cases:abc1234-local" "$calls"' "no image build"
+  check 'grep -q "^docker build .*SC_MODE=local .*SC_VERSION=1.1.0-rc.4 .*-t seasonal-cases:abc1234-local" "$calls"' "no image build"
   check 'grep -q "^docker compose -p seasonal-cases .*ops/compose.yml -f .*ops/compose.journal.yml up -d" "$calls"' "the stack was not started"
   check '! grep -q "compose.website.yml" "$calls"' "the website overlay in local mode"
   check 'grep -q "^curl .*http://127.0.0.1:3970/readyz" "$calls"' "it did not wait for readyz"

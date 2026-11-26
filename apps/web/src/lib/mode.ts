@@ -7,12 +7,11 @@
  *                 website's sign-in and the docked chat (GAME-INTEGRATION §2, §5, §8); local mode
  *                 has the development sign-in when the server is in development, and the docked
  *                 chat only when the server names a chat origin (SC_CHAT_ORIGIN, development).
- * Depends on:     react, ./api.js, ./base.js
+ * Depends on:     react, ./base.js
  */
 import { useEffect, useState } from 'react';
 
-import { getJson } from './api.js';
-import { apiPath } from './base.js';
+import { api } from './base.js';
 
 export interface ServerMode {
   readonly mode: 'local' | 'website';
@@ -28,7 +27,7 @@ const UNKNOWN: ServerMode = { mode: 'local', dev: false, chatOrigin: null, priva
 export function useServerMode(): ServerMode {
   const [mode, setMode] = useState<ServerMode>(UNKNOWN);
   useEffect(() => {
-    getJson<ServerMode>(apiPath('/config'))
+    api<ServerMode>('/config')
       .then(setMode)
       .catch(() => undefined);
   }, []);

@@ -7,8 +7,8 @@
  *                 hex> · verified", the reveal of every case as its reveal part, and the full list
  *                 with the owners as `more`. The server checked the commitment; the client shows
  *                 its answer as it came.
- * Depends on:     react, @seasonal/kit/react, @sc/contracts, @sc/ui, ../lib/api.js,
- *                 ../lib/base.js, ../stage/ArtifactEmblem.js
+ * Depends on:     react, @seasonal/kit/react, @sc/contracts, @sc/ui,
+ *                 ../lib/base.js, ../lib/useAction.js, ../stage/ArtifactEmblem.js
  */
 import { ResultFrame } from '@seasonal/kit/react';
 import {
@@ -21,8 +21,8 @@ import {
 import { formatTime, shortCommitment } from '@sc/ui';
 import { useEffect, useState } from 'react';
 
-import { getJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { api } from '../lib/base.js';
+import { sentenceOf } from '../lib/useAction.js';
 import { ArtifactEmblem } from '../stage/ArtifactEmblem.js';
 
 function Placings({ result }: { result: ShowResult }) {
@@ -103,10 +103,10 @@ export function Result({ showId }: { showId: string }) {
   const [show, setShow] = useState<PublicShowView | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    getJson<PublicShowView>(apiPath(`/shows/${showId}`))
+    api<PublicShowView>(`/shows/${showId}`)
       .then(setShow)
       .catch((e: unknown) => {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(sentenceOf(e));
       });
   }, [showId]);
   if (error !== null) return <p className="page card">{error}</p>;

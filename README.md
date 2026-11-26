@@ -14,8 +14,8 @@ manually assigned ranks. In development the local mode also has a development si
 and rank, no password) for the Quick Test; it exists only with `NODE_ENV=development` and
 `SC_DEV=1` (`apps/server/dev.env`).
 
-**Status:** version 1.0.0 on master, tag `v1.0.0`; 1.1.0-rc.3 on the branch `kit/v0.17-adoption`
-(the whole kit, v0.22.0; Docker from 1.1.0-rc.3), not merged yet: phases P0 to P3 built, P4 (installer, security
+**Status:** version 1.0.0 on master, tag `v1.0.0`; 1.1.0-rc.4 on the branch `kit/v0.17-adoption`
+(the whole kit, v0.22.0; Docker from 1.1.0-rc.4), not merged yet: phases P0 to P3 built, P4 (installer, security
 reviews) built; the first show on a server is the next step
 ([docs/CONCEPT.md](docs/CONCEPT.md) §12, [CHANGELOG.md](CHANGELOG.md),
 [docs/RELEASING.md](docs/RELEASING.md)).

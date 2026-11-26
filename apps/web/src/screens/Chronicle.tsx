@@ -12,8 +12,7 @@ import { prizeName, winnerText, type ChronicleEntry } from '@sc/contracts';
 import { formatTime, shortCommitment } from '@sc/ui';
 import { useEffect, useState } from 'react';
 
-import { getJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { api } from '../lib/base.js';
 import { Link } from '../lib/router.js';
 import { ArtifactEmblem } from '../stage/ArtifactEmblem.js';
 
@@ -43,7 +42,7 @@ function Entry({ entry }: { entry: ChronicleEntry }) {
 export function Chronicle() {
   const [entries, setEntries] = useState<ChronicleEntry[] | null>(null);
   useEffect(() => {
-    getJson<ChronicleEntry[]>(apiPath('/chronicle'))
+    api<ChronicleEntry[]>('/chronicle')
       .then(setEntries)
       .catch(() => {
         setEntries([]);

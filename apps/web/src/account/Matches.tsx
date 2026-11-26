@@ -11,8 +11,7 @@ import type { Match, Me } from '@sc/contracts';
 import { formatTime } from '@sc/ui';
 import { useEffect, useState } from 'react';
 
-import { getJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { api } from '../lib/base.js';
 import { Link } from '../lib/router.js';
 
 function prizeText(match: Match): string {
@@ -24,7 +23,7 @@ export function Matches({ me }: { me: Me | null }) {
   const [matches, setMatches] = useState<Match[] | null>(null);
   useEffect(() => {
     if (me === null) return;
-    getJson<Match[]>(apiPath('/me/matches'))
+    api<Match[]>('/me/matches')
       .then(setMatches)
       .catch(() => {
         setMatches([]);

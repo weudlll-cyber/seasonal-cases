@@ -35,7 +35,7 @@ export function devRoutes(ctx: Ctx): void {
       name,
       role: ROLE_OF[role] ?? 'player',
       rank: role === 'viewer' ? 0 : rank,
-      badges: [],
+      steps: [],
       websiteOrigin: null,
       websiteUserId: null,
       deleted: false,

@@ -8,7 +8,7 @@
  *                 or a wrong proxy secret (`X-Sc-Proxy-Secret`) 403; a guest goes to the
  *                 website's login and back (`websiteLoginLocation`); an invalid identity 403
  *                 NO_WEBSITE_USER; a member gets the account keyed by (website origin, website
- *                 user id), its name, role, rank and badges brought up to date, a rotated
+ *                 user id), its name, role, rank and steps brought up to date, a rotated
  *                 7-day session, and a redirect to `next` when it is a path under the base path
  *                 (`safeNext`). Both routes are rate-limited per address (Mini Games' rule:
  *                 30 a minute). Website mode only (./app.ts).
@@ -65,9 +65,7 @@ export async function websiteAccount(
     name: who.displayName,
     role: roleOf(who),
     rank: rankOf(who),
-    // Only icons in the contract's exact form ever reach a page (the kit checks each).
-    badges: who.steps.flatMap((s) => (s.icon === null ? [] : [s.icon])),
-    // The same steps, as received: the kit's header draws and checks them.
+    // As received: only icons in the contract's exact form are drawn (the kit checks each).
     steps: who.steps,
     websiteOrigin: origin,
     websiteUserId: who.subject,

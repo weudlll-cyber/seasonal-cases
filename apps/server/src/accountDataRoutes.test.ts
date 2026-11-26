@@ -100,7 +100,7 @@ describe('deleting the account (D61)', () => {
     expect(await stores.credentials.byName(ANA.name.toLowerCase())).toBeUndefined();
     // The tombstone holds no name; the event log holds none either.
     const tomb = await stores.accounts.byId(ana.id);
-    expect(tomb).toMatchObject({ deleted: true, role: 'player', rank: 0, badges: [] });
+    expect(tomb).toMatchObject({ deleted: true, role: 'player', rank: 0, steps: [] });
     const gone = `deleted player ${ana.id.slice(0, 6)}`;
     expect(tomb?.name).toBe(gone);
     const text = JSON.stringify([everything(stores), done.body]);

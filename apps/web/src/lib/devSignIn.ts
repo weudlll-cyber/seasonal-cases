@@ -8,18 +8,17 @@
  *                 branch, so Vite replaces `import.meta.env.DEV` with `false` and a production
  *                 bundle has neither the function nor the path. No runtime check stands in for
  *                 this: the server refuses the route anyway, the bundle must not offer it.
- * Depends on:     @sc/contracts (types), ./api.js, ./base.js
+ * Depends on:     @sc/contracts (types), ./base.js
  */
 import type { Me, SignInRequest } from '@sc/contracts';
 
-import { postJson } from './api.js';
-import { apiPath } from './base.js';
+import { post } from './base.js';
 
 export type DevSignInFn = (request: SignInRequest) => Promise<void>;
 
 export function devSignInOf(enter: (me: Me) => void): DevSignInFn | undefined {
   if (!import.meta.env.DEV) return undefined;
   return async (request) => {
-    enter(await postJson<Me>(apiPath('/dev/sign-in'), request));
+    enter(await post<Me>('/dev/sign-in', request));
   };
 }

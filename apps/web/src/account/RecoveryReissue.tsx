@@ -11,8 +11,7 @@
 import { PASSWORD_LIMIT, type RecoveryCodes, type RecoveryReissue } from '@sc/contracts';
 import { useState } from 'react';
 
-import { postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { post } from '../lib/base.js';
 import { useAction } from '../lib/useAction.js';
 import { TextField } from '../screens/fields.js';
 import { RecoveryCodeList } from './TwoFactorSetup.js';
@@ -29,7 +28,7 @@ function ReissueForm({ onCodes }: { onCodes: (codes: readonly string[]) => void 
       onSubmit={(event) => {
         event.preventDefault();
         action.run(async () => {
-          const answer = await postJson<RecoveryCodes>(apiPath('/me/2fa/recovery'), body);
+          const answer = await post<RecoveryCodes>('/me/2fa/recovery', body);
           setPassword('');
           setCode('');
           onCodes(answer.recoveryCodes);

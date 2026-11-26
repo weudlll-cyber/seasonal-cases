@@ -9,13 +9,12 @@
  *                 when Vite's DEV flag is set, so a production bundle contains neither the
  *                 button, nor its words, nor the route's path. The server refuses the route
  *                 outside development as well.
- * Depends on:     react, ../lib/api.js, ../lib/base.js, ../lib/router.js, ./SetupForm.js (types),
+ * Depends on:     react, ../lib/base.js, ../lib/router.js, ./SetupForm.js (types),
  *                 ./fields.js
  */
 import { useState } from 'react';
 
-import { postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { post } from '../lib/base.js';
 import { navigate } from '../lib/router.js';
 import { TextField } from './fields.js';
 import type { Setup } from './SetupForm.js';
@@ -49,7 +48,7 @@ export function QuickTestControls({ busy, setup, act }: QuickTestProps) {
           title="Create, fill with bots, seal and start a show from the seed; you hold the direction"
           onClick={() => {
             act(
-              () => postJson(apiPath('/dev/quick-test'), { ...setup, seed }),
+              () => post('/dev/quick-test', { ...setup, seed }),
               () => {
                 navigate('/show');
               },

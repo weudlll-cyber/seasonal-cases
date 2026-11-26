@@ -3,8 +3,8 @@
  * @brief  The session cookie and the signed-in user of a request or a socket.
  *
  * Responsibility: the session cookie, named and attributed by the kit (`sessionCookie`: `sc_session`
- *                 on plain http, `__Host-sc_session` at the root of its own host, `__Secure-sc_session`
- *                 under the website's path; D69), holds the session's random token, signed
+ *                 on plain http under the base path, `__Host-sc_session` at the root of its own
+ *                 host, `__Secure-sc_session` under the website's path; D69), holds the session's random token, signed
  *                 (@fastify/cookie), http-only, same-site lax, secure in website mode and behind
  *                 https, for 7 days as the session itself (GAME-INTEGRATION §3). `signIn` rotates the session:
  *                 the browser's old one ends and a new one opens. The user comes from the account

@@ -58,8 +58,10 @@ describe('the website sign-in', () => {
       SC_TEST_PLAIN_COOKIE: '1',
     });
     const signedIn = await signInAs(harness, member(7, 'Ana'));
-    // The kit's plain cookie (http) sits at the root; only the test-only mode ever has it here.
-    expect(String(signedIn.headers['set-cookie'])).toMatch(/^sc_session=[^;]+;.*Path=\/;/);
+    // The kit's plain cookie (http) takes the base path; only the test-only mode has it here.
+    expect(String(signedIn.headers['set-cookie'])).toMatch(
+      /^sc_session=[^;]+;.*Path=\/games\/cases;/,
+    );
     expect(String(signedIn.headers['set-cookie'])).not.toMatch(/Secure/);
   });
 
@@ -83,7 +85,7 @@ describe('the website sign-in', () => {
     expect(invalid.json()).toEqual({ error: 'NO_WEBSITE_USER' });
   });
 
-  it('signs a member in under the base path with rank and badges, and keeps the account', async () => {
+  it('signs a member in under the base path with rank and steps, and keeps the account', async () => {
     harness = await startHarness(false, WEBSITE);
     const first = await signInAs(harness, member(7, 'Ana'));
     expect(first.statusCode).toBe(302);
@@ -105,13 +107,12 @@ describe('the website sign-in', () => {
           name: string;
           role: string;
           rank: number;
-          badges: string[];
           steps?: unknown;
         };
       }>().me;
     const ana = await me(cookieOf(first.headers['set-cookie']));
-    expect(ana).toMatchObject({ name: 'Ana', role: 'player', rank: 1, badges: [ICON] });
-    // The steps as the kit gave them (ladder, name, icon): the header's chip draws them (D65).
+    expect(ana).toMatchObject({ name: 'Ana', role: 'player', rank: 1 });
+    // The steps as the kit gave them (ladder, name, icon): the screens draw them (D65, D79).
     expect(ana?.steps).toEqual([{ ladder: 'holder', name: 'Golden', icon: ICON }]);
     // A rename applies at the next sign-in; the account stays the same.
     const again = await signInAs(harness, member(7, 'Anna'));
@@ -193,10 +194,10 @@ describe('the account feed', () => {
     await applyChange(deps, { id: 7, kind: 'deleted' });
     await applyChange(deps, { id: 7, kind: 'deleted' });
     expect(auth.directory.lookup(id)?.name).toBe(`deleted player ${id.slice(0, 6)}`);
-    // The stored account is erased too: no name, no badges (D61).
+    // The stored account is erased too: no name, no steps (D61).
     expect(await auth.accounts.byId(id)).toMatchObject({
       name: `deleted player ${id.slice(0, 6)}`,
-      badges: [],
+      steps: [],
       deleted: true,
     });
     // A deleted account cannot sign in again.

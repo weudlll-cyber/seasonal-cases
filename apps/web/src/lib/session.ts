@@ -6,13 +6,12 @@
  *                 is signed in (a guest watches, CONCEPT §2). `enter` takes the user a
  *                 standalone sign-in or registration answered with (../account/AccountEntry.tsx),
  *                 or a development sign-in (./devSignIn.ts, development builds only).
- * Depends on:     react, @sc/contracts (types), ./api.js, ./base.js
+ * Depends on:     react, @sc/contracts (types), ./base.js
  */
 import type { Me } from '@sc/contracts';
 import { useCallback, useEffect, useState } from 'react';
 
-import { getJson, postJson } from './api.js';
-import { apiPath } from './base.js';
+import { api, post } from './base.js';
 
 export interface Session {
   readonly me: Me | null | undefined;
@@ -23,7 +22,7 @@ export interface Session {
 export function useSession(): Session {
   const [me, setMe] = useState<Me | null | undefined>(undefined);
   useEffect(() => {
-    getJson<{ me: Me | null }>(apiPath('/me'))
+    api<{ me: Me | null }>('/me')
       .then((answer) => {
         setMe(answer.me);
       })
@@ -32,7 +31,7 @@ export function useSession(): Session {
       });
   }, []);
   const signOut = useCallback(async () => {
-    await postJson(apiPath('/sign-out'));
+    await post('/sign-out');
     setMe(null);
   }, []);
   return { me, enter: setMe, signOut };

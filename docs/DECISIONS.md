@@ -314,3 +314,17 @@ the owner confirmed them on 2026-11-23 (D46).
   two rewrites of the units made for the native install (night chain SC-N10, under D68). The logs go
   through Docker's syslog driver into the game's 14-day journal namespace (D61). Website mode joins
   the website's network; the game reads the account feed at `http://site:3800` in both modes.
+
+## 2026-11-26, night chain SC-N12: the owner's decision D79 and what follows from it
+
+- **D79 — Every kit part is adopted.** Every part the kit's `docs/ADOPTION.md` marks "Only on the
+  owner's word" for Seasonal Cases, from "Since v0.22.0" to "Since v0.32.0", is adopted: one
+  solution for every game, no lasting game-side exception. The one exception in time is the load
+  check, which comes before Cases' production. The kit is pinned at v0.32.0 (commit `0016e86`);
+  version `1.1.0-rc.4`.
+- **D80 — The client's shared parts.** The step badges are the kit's `StepBadges`, after a name, on
+  the board, the stage's cases and the lower third; the views send a member's whole steps
+  (`ladder`, `name`, `icon`), and an account keeps nothing but them (migration 0005 drops the
+  separate icon list). This ends the last sentence of D65 but one: the boards no longer keep icons
+  of their own. The client's server calls are the kit's `createApiClient`; the sentence of a refusal
+  is read from `ApiError.body.error`.

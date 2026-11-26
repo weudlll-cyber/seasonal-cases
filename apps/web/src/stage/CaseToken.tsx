@@ -7,14 +7,14 @@
  *                 stage), or opened (the lid standing open, the artifact's small emblem inside;
  *                 ./CasePicture.tsx). For the direction holder it is a
  *                 button that selects the case; for everyone else plain content.
- * Depends on:     react, @sc/contracts (types), ./ArtifactEmblem.js, ./Badges.js,
+ * Depends on:     react, @seasonal/kit/react, @sc/contracts, ./ArtifactEmblem.js,
  *                 ./CasePicture.js, ./arc.js
  */
+import { StepBadges } from '@seasonal/kit/react';
 import { ownerText, type CaseView } from '@sc/contracts';
 import type { CSSProperties } from 'react';
 
 import { ArtifactEmblem } from './ArtifactEmblem.js';
-import { Badges } from './Badges.js';
 import { CasePicture } from './CasePicture.js';
 import type { Spot } from './arc.js';
 
@@ -46,8 +46,8 @@ export function CaseToken({ view, spot, away, onSelect }: CaseTokenProps) {
       {/* A space between the number and the owner: the visible text reads "3 Ana", which the button's
           name "Select Case 3, Ana" then contains (WCAG 2.5.3, axe `label-content-name-mismatch`). */}{' '}
       <span className="case-owner" title={owner}>
-        <Badges badges={view.ownerBadges} />
         {owner}
+        <StepBadges steps={view.ownerSteps} />
       </span>
     </>
   );

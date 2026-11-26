@@ -20,8 +20,7 @@ import {
 } from '@sc/contracts';
 import { useCallback, useEffect, useState } from 'react';
 
-import { getJson, postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { api, post } from '../lib/base.js';
 import { useAction } from '../lib/useAction.js';
 import { RecoveryReissue } from '../account/RecoveryReissue.js';
 import { TwoFactorSetup } from '../account/TwoFactorSetup.js';
@@ -84,7 +83,7 @@ const NOT_ASKED: TwoFactorStatus = { required: false, enabled: false };
 export function AdminAccounts({ me }: { me: Me }) {
   const [status, setStatus] = useState<TwoFactorStatus | null>(null);
   const load = useCallback(() => {
-    getJson<TwoFactorStatus>(apiPath('/me/2fa'))
+    api<TwoFactorStatus>('/me/2fa')
       .then(setStatus)
       .catch(() => {
         setStatus(NOT_ASKED);
@@ -106,14 +105,14 @@ function AccountsAdmin({ me }: { me: Me }) {
   const [rows, setRows] = useState<AccountRow[]>([]);
   const action = useAction();
   const refresh = useCallback(() => {
-    getJson<AccountRow[]>(apiPath('/admin/accounts'))
+    api<AccountRow[]>('/admin/accounts')
       .then(setRows)
       .catch(() => undefined);
   }, []);
   useEffect(refresh, [refresh]);
   const change = (id: string, update: AccountUpdate) => {
     action.run(async () => {
-      await postJson(apiPath(`/admin/accounts/${id}`), update);
+      await post(`/admin/accounts/${id}`, update);
       refresh();
     });
   };

@@ -3,6 +3,18 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
+## 1.1.0-rc.4 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N12: kit v0.32.0 with every part it offers the game
+(DECISIONS D79).
+
+- **Step badges (D80):** a website member's steps are drawn by the kit beside the name, after it,
+  on the board, the stage's cases and the lower third (before: the game's own icons, before the
+  name).
+- **Header (kit):** the account chip reads "Signed in as …" with its space on wide windows; a fold
+  no longer depends on how the page got there; the brand link is a 44 px target.
+- **Result page and other docked screens (kit):** their content can be scrolled by keyboard.
+
 ## 1.1.0-rc.3 (not tagged; the tag follows the merge with the owner's word)
 
 Branch `kit/v0.17-adoption`, night chain SC-N11: Cases moves to Docker (DECISIONS D76, D77).

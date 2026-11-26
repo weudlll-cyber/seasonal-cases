@@ -132,7 +132,7 @@ async function confirmed(ctx: Ctx, local: LocalAccounts, pending: Pending): Prom
     name: pending.name,
     role: 'player',
     rank: 0,
-    badges: [],
+    steps: [],
     websiteOrigin: null,
     websiteUserId: null,
     deleted: false,

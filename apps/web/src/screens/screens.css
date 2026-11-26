@@ -4,9 +4,8 @@
  *         chronicle.
  *
  * Responsibility: normal pages that scroll (CONCEPT §7). The start page holds the logo, the
- *                 kit's start card (`@seasonal/kit/frames.css`) and the board; the card's
- *                 "Opens in N s" is hidden while shows have no start time. Colours only from the
- *                 kit's tokens.
+ *                 kit's start card (`@seasonal/kit/frames.css`) and the board. Colours only from
+ *                 the kit's tokens.
  * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/frames.css, ../shell/shell.css
  */
 

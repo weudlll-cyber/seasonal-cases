@@ -175,16 +175,3 @@ label {
   --dock-reserve: 0px !important;
   height: 100%;
 }
-
-/* A player's website step icons beside the name. */
-.badges {
-  display: inline-flex;
-  gap: 2px;
-  margin-right: 4px;
-  vertical-align: middle;
-}
-
-.badge-icon {
-  width: 16px;
-  height: 16px;
-}
