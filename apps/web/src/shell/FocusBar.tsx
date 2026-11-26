@@ -16,7 +16,7 @@
  *                 (`presses`, v0.13.0). One panel at a time (`usePanels`);
  *                 Escape closes the open one from anywhere on the page, as Mini Games' focus
  *                 shell does from its bar (the kit's hook leaves the key to the game).
- * Depends on:     react, @seasonal/kit/react, @sc/contracts, ../stage/DirectionBar.js,
+ * Depends on:     react, @seasonal/kit/react, @sc/contracts, @sc/ui, ../stage/DirectionBar.js,
  *                 ../stage/facts.js, ../stage/Stage.js
  */
 import {
@@ -28,6 +28,7 @@ import {
   type BarAction,
 } from '@seasonal/kit/react';
 import { ownerText, type Me, type OrganiserView, type PublicShowView } from '@sc/contracts';
+import { counted } from '@sc/ui';
 import { useEffect, type RefObject } from 'react';
 
 import { DirectionBar } from '../stage/DirectionBar.js';
@@ -140,9 +141,9 @@ export function FocusBar({
         back={{ websiteMode: website }}
         lead={<span className="focus-lead">Seasonal Cases</span>}
         facts={[
-          { text: `${String(casesLeft)} cases left` },
+          { text: `${counted(casesLeft, 'case')} left` },
           // Read out on a phone: the scoreboard above the stage shows the prizes there.
-          { text: `${String(prizesLeft)} prizes left`, desktopOnly: true },
+          { text: `${counted(prizesLeft, 'prize')} left`, desktopOnly: true },
         ]}
         time={null}
         actions={actions}

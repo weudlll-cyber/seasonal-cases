@@ -2,9 +2,9 @@
 
 A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
 
-- **Now:** version `1.0.0` on master, tag `v1.0.0`; `1.1.0-rc.1` on `kit/v0.17-adoption` (night chain
-  SC-N7: the whole kit, v0.17.0), not merged; the first show on a server is next after it
-  (docs/RELEASING.md §4).
+- **Now:** version `1.0.0` on master, tag `v1.0.0`; `1.1.0-rc.4` on `kit/v0.17-adoption` (night
+  chains SC-N7 to SC-N12, kit v0.32.0, D79), not merged; the first show on a server is next after
+  it (docs/RELEASING.md).
   Built: website mode, the docked chat, PostgreSQL, standalone accounts with 2FA, roles, ranks,
   lobby, "My matches", the settings catalogue, the chronicle (BACKLOG 1, 2, 3, 5, 6, 8, 9, 17, 18,
   21, 28, closed).
@@ -15,7 +15,7 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
 - **Sign-in's brake:** per account and address (D55, BACKLOG 54, closed).
 - **Show polish:** the applause button is built (D39); tips and next-case suggestions wait
   (BACKLOG 10); sound is built (BACKLOG 7, closed).
-- **Release:** the installer is built (BACKLOG 11, closed); it installs the Docker stack (D78); a
+- **Release:** the installer is built (BACKLOG 11, closed); it installs the Docker stack, and `scases` runs it (D83); a
   first run on a real VPS (BACKLOG 34). The open-rounds listing
   and the member summary are built (BACKLOG 25, 26, closed); the website wires the card's origin
   (BACKLOG 33).
@@ -25,6 +25,8 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   the GitHub settings (59, RELEASING.md); the steps before production (64, waits for the VPS; coverage (63) is decided: no target, D64). Replaced without a visible change: the season
   colours as the kit's tokens, an opened case's hidden name as `sk-visually-hidden`, the arena
   tones as own tokens.
+- **For the kit's planning chat:** the game bar at 200 % and the docked screen's region (BACKLOG
+  77, 78).
 - **Browsers:** all six projects pass all six journeys on `kit/v0.17-adoption` (the five nightly
   ones proven on 2026-11-25, run 45702753156); the nightly run on `master` stays red until the merge
   (BACKLOG 74).

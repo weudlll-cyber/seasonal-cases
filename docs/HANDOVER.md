@@ -11,12 +11,16 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
 
 ## Where things stand
 
-- **Now (2026-11-25, night chain SC-N11):** `1.1.0-rc.3` on `kit/v0.17-adoption` (draft PR #5),
-  not merged, not tagged: the owner looks at it first. **On a server Cases runs in Docker only**
-  (D76–D78): `Dockerfile`, `ops/compose.yml`, the installer and the backup on them, the native path
-  removed; step by step in [INSTALL.md](operator-guide.md). Proven on the owner's PC with a whole show and
-  a restore drill ([OPERATIONS-CASES.md](operator-guide.md)); not yet on a Linux host (BACKLOG 34,
-  64). CI builds and scans the image (job `image`, not yet a required check).
+- **Now (2026-11-26, night chain SC-N12):** `1.1.0-rc.4` on `kit/v0.17-adoption` (draft PR #5),
+  not merged, not tagged: the owner looks at it first. The kit is at v0.32.0 with every part it
+  offers the game, the load check apart (D79–D85): step badges and API client; guarded feed
+  fetch, https headers and two database roles; `ops/install.sh` and the installed command
+  `scases` (the kit's admin command), operator address, host baseline, container hardening, one
+  [operator guide](operator-guide.md); the kit's guards, sweep and website stand-in. Rehearsed on
+  the owner's PC with a copy of the development data; the list for a real server, a show to play
+  and what looks different are in [NIGHT-2026-11-26-kit-0.32.md](NIGHT-2026-11-26-kit-0.32.md).
+- **Night chain SC-N11 (2026-11-25):** on a server Cases runs in Docker only (D76–D78),
+  `1.1.0-rc.3`.
 - **Night chain SC-N10 (2026-11-25):** `1.1.0-rc.2` on `kit/v0.17-adoption` (draft PR #5),
   kit v0.22.0 with its backup and server parts; not merged: the owner looks at it first. Open: the
   kit's finding BACKLOG 70. Needs the owner's hand: the age key on the VPS, the GitHub settings
@@ -151,15 +155,15 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
 - **The kit's server parts (D69, D70):** CSRF check, security headers, session cookie, guarded
   fetch and the health routes `/healthz`, `/readyz` are the kit's.
 - **Backups (D68, BACKLOG 72):** the kit's, set up by the installer with the owner's age public key
-  (INSTALL "Backups"; the drill in [OPERATIONS-CASES.md](operator-guide.md)). **Needs the owner's
+  ([operator-guide.md](operator-guide.md), section 5, with the drills). **Needs the owner's
   hand on the VPS:** make the key on the own computer, give the installer the public key, pull the
   first backup and drill it.
-- **Kit:** `kit: pinned v0.22.0, newest v0.27.0, 5 releases behind` (`pnpm kit:check`, 2026-11-25,
-  end of night chain SC-N11; master pins v0.11.1 until the merge). The pin moves only on the owner's
-  word. Before it moves: since v0.25 the kit's `ops/backup.sh` loads files from `ops/lib`, and the
-  installer copies only `backup.sh` out of the image (`deploy/lib/backup.sh`).
-- **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
-  play-through steps, every choice made without the owner, and the pictures seen and left.
+- **Kit:** `kit: pinned v0.32.0, newest v0.33.0, 1 release behind` (`pnpm kit:check`,
+  2026-11-26, end of night chain SC-N12; master pins v0.11.1 until the merge). The pin moves only
+  on the owner's word.
+- **Morning sheets:** the newest chain's is
+  [NIGHT-2026-11-26-kit-0.32.md](NIGHT-2026-11-26-kit-0.32.md); earlier chains are in
+  [NIGHT-RUN.md](NIGHT-RUN.md).
 
 ## What runs
 
@@ -167,15 +171,14 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
   `pnpm test:coverage`. `pnpm kit:check` alone prints the pinned kit tag against the newest; CI's
   `verify` job writes it to the job summary and warns when behind, never failing (D41); Renovate
   has a rule for the kit's tags once the app is enabled.
-- On a server: the compose stack (`ops/compose.yml`: the game and PostgreSQL), installed, updated
-  and checked by `deploy/install.sh`; `deploy/admin.sh` and `deploy/backup.sh` act on it. CI job
-  `deploy` tests the installer, job `image` the image.
+- On a server: the compose stack (`ops/compose.yml`: the game, its one-shot migration and
+  PostgreSQL), installed and checked by `ops/install.sh`; the installed command `scases`
+  updates, rolls back, backs up, restores and uninstalls. CI job `deploy` tests both, job
+  `image` the image.
 - `pnpm dev`: server 127.0.0.1:3970, client 0.0.0.0:5470 (http://localhost:5470; the phone at
-  http://192.168.0.66:5470 on the home Wi-Fi). Left running hidden for the owner at the end of
-  SC-N11 (1.1.0-rc.3, on `kit/v0.17-adoption`), on PostgreSQL; the development database holds three
-  accounts the chains did not make
-  ("Plan-Claude", "Walter", "walter"), left as they are; the play-through steps are in
-  [NIGHT-RUN.md](NIGHT-RUN.md) "Final report" (Quick Test seed `sc-n1-01`).
+  http://192.168.0.66:5470 on the home Wi-Fi), on PostgreSQL; the development database holds
+  accounts the chains did not make, left as they are. Quick Test seed `sc-n1-01`. What is left
+  running after the newest chain is in its sheet.
 - The development services: `docker compose --env-file ops/compose.dev.env -f
 ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   http://localhost:8570); they restart by themselves. `pnpm dev:reset-db` empties the database.
@@ -183,16 +186,16 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   their events on start. Without `DATABASE_URL` the server uses `.local/data/*.jsonl` and memory.
 - `pnpm e2e --project=chromium`: the journeys on their own stack (3980/5480; 3990/5485 for
   website mode), without a database.
-- `pnpm e2e --project=screens`: ten screens and the phone's direction panel at 1536 × 768,
-  1280 × 720 and 390 × 844, light and dark, into `.local/screens/proto-v5/` (with the
-  registration's pending page).
+- `pnpm e2e --project=screens`: every screen at CONCEPT §7's sizes in both themes into
+  `.local/screens/sc-n12/`, and each walked by the kit's `sweep` (about half an hour); the
+  website-mode header's run beside it.
 - `pnpm e2e --project=<p>` for `chromium-mobile`, `firefox`, `firefox-mobile`, `webkit` and
   `webkit-mobile`: the journeys in every browser and size (nightly on master); all 36 passed on
   2026-11-23, one project per run.
 - The store tests need PostgreSQL: the development database, or `SC_TEST_DATABASE_URL` (CI).
 - Journey 5 needs Mailpit (the development services above; a service in CI).
 - `pnpm dev:sc admin promote <name>` makes a standalone account an admin on the dev database
-  (`sudo ./deploy/admin.sh admin …` on a server); that admin
+  (`sudo scases admin …` on a server); that admin
   sets up two-factor sign-in in the admin area before the accounts and settings open.
 - Journey 6 signs in as its browser project's seeded admin (`e2e/rootAdmin.ts`), so it runs
   once per project and e2e server start.
@@ -218,6 +221,7 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
 - The choices of the night recorded in [NIGHT-RUN.md](NIGHT-RUN.md) "Choices made without the
   owner", among them the separate "Start show" step after sealing.
 - The website's side for the slug `cases` (BACKLOG 27): it lives in the website repository.
+- The kit's game bar at a 200 % root font (BACKLOG 77): a change would alter the bar's look.
 - The independent review's questions that remain ([security-pass.md](security-pass.md), "Out of
   scope or for the owner"; the enrolment window, recovery codes, names and the registration
   answer are decided and built, D35, D36):
@@ -249,8 +253,8 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
     real; BACKLOG 63, closed);
   - the repository's GitHub settings differ from the handbook's list (59);
   - the steps "before production" are not all done (64); `.gitleaksignore` is not added;
-  - the morning sheet is one file, `docs/NIGHT-RUN.md`, with a section per chain, not
-    `docs/NIGHT-<date>.md`;
+  - the earlier chains' morning sheets are one file, `docs/NIGHT-RUN.md` (since SC-N12 a file
+    per chain);
   - some browser tests wait on the clock (`waitForTimeout` in journey 1 for the case's
     travel), where the handbook passes time in;
   - the handbook asks that each rule's test be run once without the change; the chains did

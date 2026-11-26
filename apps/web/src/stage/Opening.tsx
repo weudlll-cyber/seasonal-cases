@@ -8,9 +8,10 @@
  *                 (./stage.css, `data-opening`); for the direction holder only, "Begin", which
  *                 ends the opening on the server (`direction:begin`). Until then no case can be
  *                 selected: the server refuses it, and the stage offers no click.
- * Depends on:     @sc/contracts, ../lib/useAction.js, ./ArtifactEmblem.js
+ * Depends on:     @sc/contracts, @sc/ui, ../lib/useAction.js, ./ArtifactEmblem.js
  */
 import { prizeTitle, type Ack, type PublicShowView } from '@sc/contracts';
+import { counted } from '@sc/ui';
 
 import { useAction } from '../lib/useAction.js';
 import { ArtifactEmblem } from './ArtifactEmblem.js';
@@ -27,7 +28,7 @@ export function Opening({ show, onBegin }: OpeningProps) {
     <section className="opening" aria-label="Opening">
       <h2 className="opening-title show-font">Seasonal Cases</h2>
       <p className="opening-facts">
-        {show.caseCount} cases · {show.winnerCount} prizes
+        {counted(show.caseCount, 'case')} · {counted(show.winnerCount, 'prize')}
       </p>
       <ul className="opening-table">
         {show.artifactTable.map((a) => {

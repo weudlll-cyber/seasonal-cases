@@ -15,7 +15,7 @@
  *                 ./QuickTestParts.js (lazy, development only), ./SetupForm.js
  */
 import { canDirect, type Me, type Settings, type ShowSummary } from '@sc/contracts';
-import { formatTime } from '@sc/ui';
+import { counted, formatTime } from '@sc/ui';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 
 import { api, post } from '../lib/base.js';
@@ -62,7 +62,8 @@ function ShowList({ shows, busy, act, dev }: ShowListProps) {
           <li key={s.id} data-show={s.id}>
             <span className="admin-show-id">{s.id}</span>
             <span>
-              {s.state} · {s.caseCount} cases · {s.winnerCount} winners · {formatTime(s.createdAt)}
+              {s.state} · {counted(s.caseCount, 'case')} · {counted(s.winnerCount, 'winner')} ·{' '}
+              {formatTime(s.createdAt)}
             </span>
             <span className="admin-steps">
               {steps.map(([path, label, tip]) => (

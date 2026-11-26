@@ -23,6 +23,8 @@ Branch `kit/v0.17-adoption`, night chain SC-N12: kit v0.32.0 with every part it 
   the operator's e-mail address is the privacy page's contact; a standalone server gets a firewall,
   automatic security updates and fail2ban; the database container is hardened; one guide,
   `docs/operator-guide.md`.
+- **Found in the play-through and fixed:** one prize is said "1 prize" (not "1 prizes"), and the
+  word "Unclaimed" stays whole under a small case on the stage.
 - **Found by the kit's checks and fixed (D85):** text links and link-like buttons standing alone are
   44 px targets, their words where they were; the start card is no longer squeezed and cut on the
   start page when a board or list follows it; the "you hold it" line on the registration board is a

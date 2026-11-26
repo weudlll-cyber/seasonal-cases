@@ -187,7 +187,10 @@ button.case-body:focus-visible {
 }
 
 .case-owner {
-  max-width: 100%;
+  /* Wider than a small case where that is needed, so "Unclaimed" stays whole at the 14 px floor
+     (88 px, as the phone's columns). */
+  width: max-content;
+  max-width: max(100%, 5.5rem);
   font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
   /* A long owner's name wraps to a second line; it is never cut with an ellipsis (D60). */
   overflow-wrap: anywhere;

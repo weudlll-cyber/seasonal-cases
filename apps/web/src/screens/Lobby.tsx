@@ -8,7 +8,7 @@
  * Depends on:     react, @sc/contracts (types), @sc/ui, ../lib/*
  */
 import type { ShowSummary } from '@sc/contracts';
-import { formatTime } from '@sc/ui';
+import { counted, formatTime } from '@sc/ui';
 import { useEffect, useState } from 'react';
 
 import { api } from '../lib/base.js';
@@ -47,7 +47,7 @@ export function Lobby({ signature }: { signature: string }) {
             <span>{formatTime(s.createdAt)}</span>
             <span>{s.state}</span>
             <span>
-              {s.caseCount} cases · {s.winnerCount} prizes
+              {counted(s.caseCount, 'case')} · {counted(s.winnerCount, 'prize')}
             </span>
             <Way show={s} />
           </li>

@@ -11,11 +11,12 @@
  *                 show is sealed, to the result once it has ended. A player's pick goes to the
  *                 server's claim. The card has no countdown: shows have no start time yet, so no
  *                 `opensIn` is passed (kit v0.22.0). Everything shown comes from the feed.
- * Depends on:     @seasonal/kit/react, @sc/contracts (types), ../account/AccountEntry.js, ../lib/*,
+ * Depends on:     @seasonal/kit/react, @sc/contracts (types), @sc/ui, ../account/AccountEntry.js, ../lib/*,
  *                 ../board/*, ./BrandLogo.js, ./Lobby.js, ./SignIn.js
  */
 import { StartCard } from '@seasonal/kit/react';
 import type { Me, PublicShowView } from '@sc/contracts';
+import { counted } from '@sc/ui';
 import { lazy, Suspense } from 'react';
 
 import { AccountEntry } from '../account/AccountEntry.js';
@@ -102,11 +103,7 @@ function ShowCard({ show }: { show: PublicShowView }) {
           )}
         </p>
       }
-      facts={[
-        `${String(show.caseCount)} cases`,
-        `${String(show.winnerCount)} prizes`,
-        takenText(show),
-      ]}
+      facts={[counted(show.caseCount, 'case'), counted(show.winnerCount, 'prize'), takenText(show)]}
       signature={`${show.id}:${show.state}`}
     />
   );
