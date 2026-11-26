@@ -136,7 +136,8 @@ Docker keeps no second copy. The privacy page names the contact from the answer 
 
 Set up by the installer when it has your public key (DECISIONS D68; the kit's `docs/OPERATIONS.md`
 describes the script, which the installer copies out of the game's image to
-`/opt/seasonal-cases/backup.sh`). Every night at 03:30 the server writes one encrypted file into
+the kit's `ops/` folder, copied out of the image to
+`/opt/seasonal-cases/kit`). Every night at 03:30 the server writes one encrypted file into
 `/var/backups/seasonal-cases/prod` (`cases-prod-<UTC time>.tar.age`): the database dump, the
 settings file with every secret (`cases.env`: without the data and recovery keys a restored database
 cannot open what it sealed) and a manifest. The game keeps no uploads. The 14 newest files are kept,

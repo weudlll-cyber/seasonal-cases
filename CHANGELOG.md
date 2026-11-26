@@ -14,6 +14,10 @@ Branch `kit/v0.17-adoption`, night chain SC-N12: kit v0.32.0 with every part it 
 - **Header (kit):** the account chip reads "Signed in as …" with its space on wide windows; a fold
   no longer depends on how the page got there; the brand link is a 44 px target.
 - **Result page and other docked screens (kit):** their content can be scrolled by keyboard.
+- **Server (D81, D82):** the website's account feed is read with the kit's guarded fetch; over
+  https the pages ask the browser to upgrade http addresses; the running game connects to its
+  database with a role that can only read and write rows, and a separate service migrates before it
+  starts. An installed game is converted once by its update.
 
 ## 1.1.0-rc.3 (not tagged; the tag follows the merge with the owner's word)
 

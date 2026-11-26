@@ -13,10 +13,13 @@
  *                 (Mini Games' choice). Processing is safe to repeat; the cursor moves only after
  *                 a page is processed. A failing feed is logged and the game plays on. The cursor
  *                 lives in a CursorStore: the database's server_state, or memory without one.
- * Depends on:     @seasonal/kit/server (SessionEnds, types), ./accounts.js, ./erasure.js,
- *                 ./sessions.js, ./twoFactor.js
+ *                 The feed is read with the kit's `guardedFetch`: only the configured local
+ *                 origin may be plain http and private, with its time and size limits and no
+ *                 redirect.
+ * Depends on:     @seasonal/kit/server, ./accounts.js, ./erasure.js, ./sessions.js,
+ *                 ./twoFactor.js
  */
-import type { SessionEnds } from '@seasonal/kit/server';
+import { guardedFetch, type SessionEnds } from '@seasonal/kit/server';
 
 import type { AccountStore, Directory } from './accounts.js';
 import { eraseAccount } from './erasure.js';
@@ -74,10 +77,12 @@ export interface FeedSource {
 
 /** Asks the feed until caught up; answers the new cursor. */
 export async function pollOnce(deps: FeedDeps, source: FeedSource, since: string): Promise<string> {
+  const { hostname, origin } = new URL(source.localOrigin);
+  const send = guardedFetch({ allowedHosts: [hostname], localOrigins: [origin] });
   let cursor = since;
   for (;;) {
     const url = `${source.localOrigin}/api/games/cases/account-changes?since=${encodeURIComponent(cursor)}`;
-    const response = await fetch(url, { headers: { 'x-games-sync-token': source.syncToken } });
+    const response = await send(url, { headers: { 'x-games-sync-token': source.syncToken } });
     if (!response.ok) throw new Error(`account feed answered ${String(response.status)}`);
     const page = parsePage(await response.json());
     if (page === null) throw new Error('account feed answered an unknown shape');

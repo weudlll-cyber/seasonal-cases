@@ -23,8 +23,9 @@ STATE_FILE="$ETC_DIR/install.conf"
 ENV_FILE="$ETC_DIR/cases.env"
 OPT_DIR="$SC_ROOT/opt/seasonal-cases"
 APP_DIR="$OPT_DIR/app"
-# The kit's backup script, copied out of the game's image (./backup.sh).
-BACKUP_SCRIPT="$OPT_DIR/backup.sh"
+# The kit's ops/ folder, copied whole out of the game's image with its layout (./app.sh).
+KIT_DIR="$OPT_DIR/kit"
+BACKUP_SCRIPT="$KIT_DIR/ops/backup.sh"
 # The game's own journal (a log namespace): 14 days of logs, whatever the host keeps for others;
 # its socket is started with Docker, which writes into it (ops/compose.journal.yml).
 JOURNAL_CONF="$SC_ROOT/etc/systemd/journald@seasonal-cases.conf"

@@ -5,9 +5,9 @@
 #         (docs/INSTALL.md, docs/OPERATIONS-CASES.md).
 #
 # Responsibility: load the backup's settings (/etc/seasonal-cases/backup.env, root only) into this
-#                 process, never onto a command line, and run the kit's script, the copy the
-#                 installer took out of the game's image. Root only.
-# Depends on:     ./lib/common.sh, ./lib/backup.sh, /opt/seasonal-cases/backup.sh, docker
+#                 process, never onto a command line, and run the kit's script, in the copy of its
+#                 ops/ folder the installer took out of the game's image. Root only.
+# Depends on:     ./lib/common.sh, ./lib/backup.sh, /opt/seasonal-cases/kit/ops, docker
 set -euo pipefail
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)

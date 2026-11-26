@@ -27,7 +27,7 @@ the admin area (`/admin`, Settings).
 
 | Variable           | Default                    | Required in                         | From      | What                                                                                                                                                                                                                                                                                                 |
 | ------------------ | -------------------------- | ----------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`     | (none: files and memory)   | production                          | installer | `postgres://user:password@host:port/database`; in the compose stack built from `POSTGRES_PASSWORD`                                                                                                                                                                                                   |
+| `DATABASE_URL`     | (none: files and memory)   | production                          | installer | `postgres://user:password@host:port/database`; in the compose stack the app role's for the game and the owner role's for the migration                                                                                                                                                               |
 | `SC_DATA_KEY`      | —                          | production; any run with a database | installer | 64 hex digits (`openssl rand -hex 32`); encrypts sealed shows and TOTP secrets at rest                                                                                                                                                                                                               |
 | `SC_RECOVERY_KEY`  | a new random one per start | production; any run with a database | installer | 64 hex digits (`openssl rand -hex 32`), not one byte repeated; the HMAC key of the admins' recovery codes (kit v0.9.0, kit K20). Its own secret, never `SC_DATA_KEY`. Codes stored before it (plain SHA-256) keep working until used (kit K27). A changed key voids every code made with the old one |
 | `SC_COOKIE_SECRET` | a new random one per start | production                          | installer | at least 32 characters; signs the session cookie, so sessions survive a restart                                                                                                                                                                                                                      |
@@ -60,7 +60,7 @@ Not read by the game: the installer's answer `SC_BACKUP_AGE_RECIPIENT` (your age
 `--backup-recipient`; none: no backup) becomes `/etc/seasonal-cases/backup.env` (root 0600), whose
 `SK_BACKUP_*` settings are the kit's (`docs/OPERATIONS.md` in the kit). The secrets that must travel
 with a backup are all in `cases.env`: `SC_DATA_KEY`, `SC_COOKIE_SECRET`, `SC_RECOVERY_KEY`,
-`SC_PROXY_SECRET` and `SC_GAMES_SYNC_TOKEN` (website mode) and `POSTGRES_PASSWORD`. There are no
+`SC_PROXY_SECRET` and `SC_GAMES_SYNC_TOKEN` (website mode) and the three database passwords. There are no
 upload folders.
 
 ## Account names
@@ -96,17 +96,21 @@ Fixed in the code, not settings. A refusal is 429 with one sentence.
 Read by `docker compose` (`ops/compose*.yml`), from the same file as the game's settings
 (`/etc/seasonal-cases/cases.env`, written by the installer; example `ops/cases.env.example`).
 
-| Variable             | Default           | Required in  | From      | What                                                                       |
-| -------------------- | ----------------- | ------------ | --------- | -------------------------------------------------------------------------- |
-| `SC_IMAGE`           | —                 | the stack    | installer | the game's image, built on the server from the chosen ref                  |
-| `SC_ENV_FILE`        | —                 | the stack    | installer | the env file the game's container gets (this file)                         |
-| `SC_HOST_PORT`       | —                 | the stack    | installer | the loopback port the game is published on, for the server's proxy (3970)  |
-| `SC_EDGE_SUBNET`     | `172.30.251.0/24` | —            | installer | the game's network; in local mode its gateway is the trusted proxy address |
-| `SC_WEBSITE_NETWORK` | —                 | website mode | installer | the website's Docker network the game joins                                |
-| `POSTGRES_PASSWORD`  | made once         | the stack    | installer | the database's password; the game's `DATABASE_URL` is built from it        |
+| Variable               | Default           | Required in  | From      | What                                                                       |
+| ---------------------- | ----------------- | ------------ | --------- | -------------------------------------------------------------------------- |
+| `SC_IMAGE`             | —                 | the stack    | installer | the game's image, built on the server from the chosen ref                  |
+| `SC_ENV_FILE`          | —                 | the stack    | installer | the env file the game's container gets (this file)                         |
+| `SC_HOST_PORT`         | —                 | the stack    | installer | the loopback port the game is published on, for the server's proxy (3970)  |
+| `SC_EDGE_SUBNET`       | `172.30.251.0/24` | —            | installer | the game's network; in local mode its gateway is the trusted proxy address |
+| `SC_WEBSITE_NETWORK`   | —                 | website mode | installer | the website's Docker network the game joins                                |
+| `POSTGRES_PASSWORD`    | made once         | the stack    | installer | the database superuser's password; the game is not given it                |
+| `SC_DB_OWNER_PASSWORD` | made once         | the stack    | installer | the owner role's (`sc_owner`), which migrates; the game is not given it    |
+| `SC_DB_APP_PASSWORD`   | made once         | the stack    | installer | the app role's (`sc_app`), which the running game connects as              |
 
 Inside the container the game always listens on `0.0.0.0:3970` and reads the database at
-`postgres:5432` (the compose file sets `SC_HOST`, `SC_PORT`, `NODE_ENV` and `DATABASE_URL`).
+`postgres:5432` (the compose file sets `SC_HOST`, `SC_PORT`, `NODE_ENV` and `DATABASE_URL`). The database has two
+roles beside the superuser (DECISIONS D82): `sc_owner` migrates (the stack's one-shot service
+`migrate`), `sc_app` reads and writes rows.
 
 ## Tests only
 

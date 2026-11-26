@@ -45,7 +45,15 @@ setup() {
   STUBS="$ROOT/stubs"
   mkdir -p "$STUBS" "$ROOT/etc"
   printf 'ID=ubuntu\nVERSION_ID="24.04"\n' >"$ROOT/etc/os-release"
-  cat >"$STUBS/kit-backup.sh" <<'KIT'
+  mkdir -p "$STUBS/kit/ops/lib"
+  cat >"$STUBS/kit/ops/lib/db-roles.sh" <<'ROLES'
+sk_db_roles_apply() {
+  [[ ${#SK_DB_OWNER_PASSWORD} == 48 && ${#SK_DB_APP_PASSWORD} == 48 ]] || return 1
+  printf 'roles prefix=%s\n' "$SK_DB_PREFIX" >>"$SC_ROOT/calls.log"
+  printf 'select 1;\n' | "$@"
+}
+ROLES
+  cat >"$STUBS/kit/ops/backup.sh" <<'KIT'
 #!/usr/bin/env bash
 case $1 in
   print-units)
@@ -80,7 +88,7 @@ case $name in
       'ps -q') [[ $* == *service=caddy* ]] && printf 'caddy123\n'; [[ $* == *service=site* ]] && printf 'site123\n' ;;
       'inspect -f') printf '%s\n' "${SITE_NETWORKS:-seasonal-site_default }" ;;
       'network inspect') printf '172.18.0.0/16 \n' ;;
-      'run --rm') cat "$(dirname "$0")/kit-backup.sh" ;;
+      'run --rm') tar -C "$(dirname "$0")/kit" -cf - ops ;;
       'compose -p') [[ $* == *" ps --all"* ]] && printf 'seasonal-cases-app-1  Up (healthy)\n' ;;
     esac ;;
 esac
@@ -88,6 +96,7 @@ exit 0
 STUB
     chmod +x "$STUBS/$cmd"
   done
+  chmod +x "$STUBS/kit/ops/backup.sh"
 }
 
 teardown() { rm -rf "$ROOT"; }
@@ -115,6 +124,14 @@ case_local() {
   check '[[ $(value "$env" SC_TRUSTED_PROXIES) == 172.30.251.1 ]]' "the proxy is not the network's gateway"
   local db key cookie recovery
   db=$(value "$env" POSTGRES_PASSWORD) key=$(value "$env" SC_DATA_KEY)
+  local owner app
+  owner=$(value "$env" SC_DB_OWNER_PASSWORD) app=$(value "$env" SC_DB_APP_PASSWORD)
+  check '[[ ${#owner} == 48 && ${#app} == 48 && $owner != "$app" && $owner != "$db" ]]' "role passwords not made"
+  check '[[ $OUT != *"$owner"* && $OUT != *"$app"* ]] && ! grep -q "$owner\|$app" "$calls"' "a role password was printed or on a command line"
+  check 'grep -q "^roles prefix=sc$" "$calls" && grep -q "up -d --wait postgres" "$calls" && grep -q "exec -T postgres psql .*-U seasonal_cases" "$calls"' "no database roles"
+  check '[[ $(grep -n "^roles prefix=sc" "$calls" | cut -d: -f1) -lt $(grep -n "up -d --remove-orphans" "$calls" | cut -d: -f1) ]]' "the stack started before the roles"
+  check 'grep -q "^docker run --rm --entrypoint tar seasonal-cases:abc1234-local -C /app/apps/server/node_modules/@seasonal/kit -cf - ops" "$calls"' "the kit's ops folder is not the image's"
+  check '[[ -r "$ROOT/opt/seasonal-cases/kit/ops/lib/db-roles.sh" ]]' "the kit's lib was not copied"
   cookie=$(value "$env" SC_COOKIE_SECRET) recovery=$(value "$env" SC_RECOVERY_KEY)
   check '[[ ${#db} == 48 && ${#key} == 64 && ${#cookie} == 64 && ${#recovery} == 64 && $recovery != "$key" ]]' "secrets not made"
   check '[[ $OUT != *"$db"* && $OUT != *"$key"* && $OUT != *"$cookie"* && $OUT != *"$recovery"* ]]' "a secret was printed"
@@ -136,11 +153,11 @@ case_local() {
   key_pub=age1$(printf 'q%.0s' {1..58})
   installer "${LOCAL[@]}" --smtp-host mail.example.org --smtp-port 1025 --backup-recipient "$key_pub"
   local backup="$ROOT/etc/seasonal-cases/backup.env" unit="$ROOT/etc/systemd/system/cases-backup@.service"
-  check '[[ $CODE == 0 && $(mode_of "$backup") == 600 && $(mode_of "$ROOT/opt/seasonal-cases/backup.sh") == 755 ]]' "no backup: $OUT"
-  check 'grep -q "^docker run --rm --entrypoint cat seasonal-cases:abc1234-local /app/apps/server/node_modules/@seasonal/kit/ops/backup.sh" "$calls"' "the script is not the image's"
+  check '[[ $CODE == 0 && $(mode_of "$backup") == 600 && -x "$ROOT/opt/seasonal-cases/kit/ops/backup.sh" ]]' "no backup: $OUT"
+  check '[[ $(value "$backup" SK_BACKUP_START_CMD) == "bash /opt/seasonal-cases/app/deploy/start.sh" ]]' "a restore would not set the roles again"
   check '[[ $(value "$backup" SK_BACKUP_DB_CONTAINER) == seasonal-cases-postgres-1 && $(value "$backup" SK_BACKUP_AGE_RECIPIENT) == "$key_pub" ]]' "backup settings"
   check '[[ $(value "$backup" SK_BACKUP_SECRET_FILES) == /etc/seasonal-cases/cases.env && $(value "$backup" SK_BACKUP_STOP_CMD) == "docker compose -p seasonal-cases stop app" ]]' "no secret file or stop command"
-  check 'grep -q "^Requires=docker.service" "$unit" && grep -q "^ExecStart=$ROOT/opt/seasonal-cases/backup.sh backup" "$unit"' "the units were changed"
+  check 'grep -q "^Requires=docker.service" "$unit" && grep -q "^ExecStart=$ROOT/opt/seasonal-cases/kit/ops/backup.sh backup" "$unit"' "the units were changed"
   check 'grep -q "^systemctl enable --now cases-backup@prod.timer" "$calls"' "the timer is not enabled"
   check 'grep -q "^apt-get install .*age" "$calls" && grep -q "^groupadd .*cases-backup" "$calls"' "no age or no group"
   installer "${LOCAL[@]}" --backup-recipient AGE-SECRET-KEY-1abc
@@ -171,6 +188,10 @@ case_local() {
   : >"$calls"
   script backup.sh backup
   check '[[ $CODE == 0 ]] && grep -q "^kit backup prefix=cases" "$calls"' "backup.sh: $OUT"
+  # After a restore: the roles again, then the whole stack with its migration service.
+  : >"$calls"
+  script start.sh
+  check '[[ $CODE == 0 ]] && grep -q "^roles prefix=sc" "$calls" && grep -q "up -d --remove-orphans" "$calls"' "start.sh: $OUT"
   teardown
 }
 

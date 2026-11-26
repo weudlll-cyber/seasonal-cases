@@ -188,6 +188,15 @@ function hostFrom(read: EnvReader): string {
   return '127.0.0.1';
 }
 
+/** Whether visitors reach the game over https: always inside the website, else by its address;
+ * never in the browser tests' plain-http stand-in website. */
+export function servedOverHttps(
+  config: Pick<ServerConfig, 'mode' | 'plainCookie' | 'publicOrigin'>,
+): boolean {
+  if (config.plainCookie) return false;
+  return config.mode === 'website' || config.publicOrigin.startsWith('https:');
+}
+
 // SC_TEST_PLAIN_COOKIE=1 exists for the browser tests only; anywhere else it stops the start,
 // so no deployment can turn the Secure flag off (docs/CONFIG.md).
 function plainCookieFrom(read: EnvReader): boolean {

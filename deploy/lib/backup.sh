@@ -4,12 +4,12 @@
 #         nightly timer (DECISIONS D68, D78; the kit's docs/OPERATIONS.md).
 #
 # Responsibility: with the operator's age public key (SC_BACKUP_AGE_RECIPIENT, an install-time
-#                 answer) install age, make the group that may pull the backups, copy the kit's
-#                 script out of the game's image to /opt/seasonal-cases/backup.sh (the server
-#                 needs no Node), write the backup's settings (/etc/seasonal-cases/backup.env, root
+#                 answer) install age, make the group that may pull the backups, write the backup's
+#                 settings (/etc/seasonal-cases/backup.env, root
 #                 0600: the database in its compose container, the secret files that must travel,
-#                 how to stop and start the game around a restore) and the systemd units the kit
-#                 prints, then enable the 03:30 timer. The game keeps no uploads, so no volume is
+#                 how to stop the game and start it again with its database roles around a
+#                 restore) and the systemd units the kit prints (its script is the copy in
+#                 /opt/seasonal-cases/kit, ./app.sh), then enable the 03:30 timer. The game keeps no uploads, so no volume is
 #                 named. Without a key nothing is set up and the install says so loudly.
 # Depends on:     ./common.sh, ./host.sh (apt_install), docker, groupadd, systemctl
 # shellcheck shell=bash
@@ -17,8 +17,6 @@
 BACKUP_ENV="$ETC_DIR/backup.env"
 BACKUP_DIR=/var/backups/seasonal-cases/prod
 BACKUP_GROUP=cases-backup
-# The kit's script inside the image (the server's production dependency).
-KIT_BACKUP=/app/apps/server/node_modules/@seasonal/kit/ops/backup.sh
 # The drill's throw-away PostgreSQL: the stack's own image (ops/compose.yml).
 BACKUP_PG_IMAGE=postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
 
@@ -40,22 +38,10 @@ write_backup_env() {
     quoted SK_BACKUP_SECRET_FILES /etc/seasonal-cases/cases.env
     quoted SK_BACKUP_GROUP "$BACKUP_GROUP"
     quoted SK_BACKUP_STOP_CMD "docker compose -p $PROJECT stop app"
-    quoted SK_BACKUP_START_CMD "docker compose -p $PROJECT start app"
+    quoted SK_BACKUP_START_CMD "bash /opt/seasonal-cases/app/deploy/start.sh"
     quoted SK_BACKUP_PG_IMAGE "$BACKUP_PG_IMAGE"
     quoted SK_BACKUP_ENV_FILE /etc/seasonal-cases/backup.env
   } | put_file "$BACKUP_ENV" 0600
-}
-
-# The kit's script as the image carries it, so it is the version the game was built with.
-copy_backup_script() {
-  if ((DRY_RUN)); then
-    info "would copy the kit's backup script out of the image"
-    return 0
-  fi
-  local script
-  script=$(docker run --rm --entrypoint cat "$SC_IMAGE" "$KIT_BACKUP") ||
-    die "the kit's backup script could not be read from $SC_IMAGE"
-  printf '%s\n' "$script" | put_file "$BACKUP_SCRIPT" 0755
 }
 
 # The kit prints the three units, each after a "# ---- <path>" line.
@@ -88,7 +74,6 @@ write_backup() {
   fi
   apt_install age
   run groupadd -f --system "$BACKUP_GROUP"
-  copy_backup_script
   write_backup_env
   write_backup_units
   run systemctl daemon-reload

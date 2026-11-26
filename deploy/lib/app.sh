@@ -1,18 +1,23 @@
 #!/usr/bin/env bash
 # @file   deploy/lib/app.sh
-# @brief  The game on the machine: its code at the chosen ref, its image, the settings, the
-#         journal, the compose stack and its readiness (DECISIONS D76; after seasonal-mini-games
-#         ops/lib/config.sh).
+# @brief  The game on the machine: its code at the chosen ref, its image and the kit's scripts out
+#         of it, the settings, the journal, the compose stack with its database roles and its
+#         readiness (DECISIONS D76, D82; after seasonal-mini-games ops/lib/config.sh).
 #
 # Responsibility: the code in /opt/seasonal-cases/app (root's, a clone of SC_REPO at SC_REF) is the
 #                 build context and holds the compose files (ops/); the image is built on the server,
-#                 tagged with the commit and the mode; the env file (/etc/seasonal-cases/cases.env,
+#                 tagged with the commit and the mode; the kit's whole ops/ folder is copied out of
+#                 it to /opt/seasonal-cases/kit, so the server's scripts are the version the game
+#                 was built with and the server needs no Node; the env file (/etc/seasonal-cases/cases.env,
 #                 root 0600) holds the compose settings and every setting of docs/CONFIG.md, the
 #                 secrets made once and kept; the logs go to a journald namespace of the game's
 #                 own whose retention is 14 days (DECISIONS D61); the stack is brought up with
-#                 docker compose and the installer waits for /readyz; the health report of
-#                 --check reads the running stack.
-# Depends on:     ./common.sh, git, docker (with compose), systemctl, curl
+#                 docker compose and the installer waits for /readyz; before the game starts the
+#                 database's owner and app roles are set up with the kit's db-roles (which also
+#                 converts an older database once); the health report of --check reads the running
+#                 stack.
+# Depends on:     ./common.sh, the kit's ops/lib/db-roles.sh, git, docker (with compose), systemctl,
+#                 curl, tar, diff
 # shellcheck shell=bash
 
 # The code at SC_REF; answers the commit it stands on.
@@ -51,6 +56,33 @@ build_image() {
   info "built $SC_IMAGE (version ${version:-unknown})"
 }
 
+# Where the image carries the kit (the server's production dependency).
+KIT_IN_IMAGE=/app/apps/server/node_modules/@seasonal/kit
+
+# The kit's ops/ folder out of the image, whole: its scripts source each other. The new copy
+# replaces the old one only once it is complete.
+copy_kit() {
+  step "the kit's scripts"
+  if ((DRY_RUN)); then
+    info "would copy the kit's ops/ folder out of the image"
+    return 0
+  fi
+  local fresh="$KIT_DIR.new"
+  rm -rf "$fresh"
+  mkdir -p "$fresh"
+  docker run --rm --entrypoint tar "$SC_IMAGE" -C "$KIT_IN_IMAGE" -cf - ops | tar -xf - -C "$fresh" ||
+    die "the kit's ops folder could not be read from $SC_IMAGE"
+  [[ -r $fresh/ops/backup.sh ]] || die "the kit's ops folder in $SC_IMAGE has no backup.sh"
+  if [[ -d $KIT_DIR ]] && diff -rq "$fresh" "$KIT_DIR" >/dev/null 2>&1; then
+    rm -rf "$fresh"
+    return 0
+  fi
+  rm -rf "$KIT_DIR"
+  mv "$fresh" "$KIT_DIR"
+  CHANGES=$((CHANGES + 1))
+  info "wrote ${KIT_DIR#"$SC_ROOT"}/ops"
+}
+
 # Secrets made once: kept from the settings file on every later run.
 keep_secret() {
   local var=$1 bytes=$2 value
@@ -62,6 +94,8 @@ keep_secret() {
 write_env() {
   step "settings"
   keep_secret POSTGRES_PASSWORD 24
+  keep_secret SC_DB_OWNER_PASSWORD 24
+  keep_secret SC_DB_APP_PASSWORD 24
   keep_secret SC_DATA_KEY 32
   keep_secret SC_COOKIE_SECRET 32
   keep_secret SC_RECOVERY_KEY 32
@@ -72,6 +106,8 @@ write_env() {
     quoted SC_HOST_PORT "$SC_PORT"
     quoted SC_EDGE_SUBNET "$SC_EDGE_SUBNET"
     quoted POSTGRES_PASSWORD "$POSTGRES_PASSWORD"
+    quoted SC_DB_OWNER_PASSWORD "$SC_DB_OWNER_PASSWORD"
+    quoted SC_DB_APP_PASSWORD "$SC_DB_APP_PASSWORD"
     quoted SC_MODE "$SC_INSTALL_MODE"
     quoted SC_DATA_KEY "$SC_DATA_KEY"
     quoted SC_COOKIE_SECRET "$SC_COOKIE_SECRET"
@@ -125,9 +161,31 @@ compose() {
   docker compose -p "$PROJECT" --env-file "$ENV_FILE" "${files[@]}" "$@"
 }
 
+# The database first, then its roles (made or converted; nothing changes on a database that has
+# them, but the passwords are the settings' again), then the stack: the migration service and the
+# game.
 start_stack() {
+  step "database roles"
+  if ((DRY_RUN)); then
+    info "would set up the database's owner and app roles"
+  else
+    compose up -d --wait postgres
+    apply_roles
+  fi
   step "stack"
   run compose up -d --remove-orphans
+}
+
+# The passwords reach psql on standard input only (kit ops/lib/db-roles.sh).
+apply_roles() {
+  # shellcheck source=/dev/null
+  . "$KIT_DIR/ops/lib/db-roles.sh"
+  SK_DB_PREFIX=sc \
+    SK_DB_OWNER_PASSWORD=$(file_value "$ENV_FILE" SC_DB_OWNER_PASSWORD) \
+    SK_DB_APP_PASSWORD=$(file_value "$ENV_FILE" SC_DB_APP_PASSWORD) \
+    sk_db_roles_apply compose exec -T postgres \
+    psql -X -q -v ON_ERROR_STOP=1 -U seasonal_cases -d seasonal_cases ||
+    die "the database roles could not be set up"
 }
 
 ready_url() {

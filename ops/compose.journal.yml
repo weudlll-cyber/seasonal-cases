@@ -1,7 +1,7 @@
 # @file   ops/compose.journal.yml
 # @brief  The installed server's logs: into the game's own journal, kept 14 days (DECISIONS D61).
 #
-# Responsibility: both services log through Docker's syslog driver into the journal namespace
+# Responsibility: every service logs through Docker's syslog driver into the journal namespace
 #                 `seasonal-cases`, whose retention is 14 days
 #                 (/etc/systemd/journald@seasonal-cases.conf, deploy/install.sh), so the privacy
 #                 page's sentence holds whatever the host keeps for other services. Docker's own
@@ -18,6 +18,13 @@ services:
         syslog-address: unixgram:///run/systemd/journal.seasonal-cases/dev-log
         cache-disabled: 'true'
         tag: seasonal-cases
+  migrate:
+    logging:
+      driver: syslog
+      options:
+        syslog-address: unixgram:///run/systemd/journal.seasonal-cases/dev-log
+        cache-disabled: 'true'
+        tag: seasonal-cases-migrate
   postgres:
     logging:
       driver: syslog

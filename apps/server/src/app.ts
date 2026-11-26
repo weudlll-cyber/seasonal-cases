@@ -56,7 +56,7 @@ import { memoryCredentials, type CredentialStore } from './auth/credentials.js';
 import { memoryPending, type PendingStore } from './auth/pending.js';
 import { memorySessions, type SessionStore } from './auth/sessions.js';
 import { memoryTwoFactor, type TwoFactorStore } from './auth/twoFactor.js';
-import type { ServerConfig } from './config.js';
+import { servedOverHttps, type ServerConfig } from './config.js';
 import { devRoutes } from './devRoutes.js';
 import { healthRoutes, type Probe } from './healthRoutes.js';
 import { handleRefusals, type Ctx } from './http.js';
@@ -141,12 +141,8 @@ async function authOf(app: FastifyInstance, config: ServerConfig, stores: Stores
     }),
     cookie: sessionCookie({
       name: 'sc_session',
-      // Secure whenever the public address is https (security pass, finding 4); only plain
-      // http://localhost development goes without, and the browser tests' plain-http stand-in
-      // website (`plainCookie`, NODE_ENV=test only, ./config.ts).
-      secure:
-        !config.plainCookie &&
-        (config.mode === 'website' || config.publicOrigin.startsWith('https:')),
+      // Secure whenever the game is served over https (security pass, finding 4).
+      secure: servedOverHttps(config),
       basePath: config.basePath,
     }),
     devAccounts: config.dev,

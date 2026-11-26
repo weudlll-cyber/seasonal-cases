@@ -8,14 +8,15 @@
  *     or cookies (SC-N3 piece 2).
  *   - `headersOf`: the kit's security headers (`securityHeaderSet`, D69): its strict policy with
  *     `frame-src` for the website's chat (GAME-INTEGRATION §5: 'self', and in local development
- *     the chat's origin), the website as the other frame ancestor in website mode, no HSTS.
+ *     the chat's origin), the website as the other frame ancestor in website mode,
+ *     `upgrade-insecure-requests` where the game is served over https, no HSTS.
  *   - `serveClient`: the built client (`pnpm build`) under the base path; assets cached for a
  *     year (their names carry a hash), the page itself never; any other GET under the base path
  *     that is not the API answers the page, so the client's routes load from a link. The
  *     development pages under `dev/` (the opening's showcase, `/dev/opening`) answer 404 unless
  *     the server runs in development (`SC_DEV`).
  * Depends on:     node:fs, node:path, fastify (types), @fastify/static, @seasonal/kit/server,
- *                 ./config.js (types)
+ *                 ./config.js
  */
 import { existsSync } from 'node:fs';
 import path from 'node:path';
@@ -24,7 +25,7 @@ import fastifyStatic from '@fastify/static';
 import { securityHeaderSet, type SecurityHeaderSet } from '@seasonal/kit/server';
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
 
-import type { ServerConfig } from './config.js';
+import { servedOverHttps, type ServerConfig } from './config.js';
 
 export function loggerOptions(
   config: ServerConfig,
@@ -42,8 +43,10 @@ export function loggerOptions(
 
 export function headersOf(config: ServerConfig): SecurityHeaderSet {
   const frames = ["'self'", ...(config.chatOrigin === null ? [] : [config.chatOrigin])];
-  if (config.website === null) return securityHeaderSet({ mode: 'standalone', frames });
-  return securityHeaderSet({ mode: 'website', websiteOrigin: config.website.origin, frames });
+  const secure = servedOverHttps(config);
+  if (config.website === null) return securityHeaderSet({ mode: 'standalone', frames, secure });
+  const websiteOrigin = config.website.origin;
+  return securityHeaderSet({ mode: 'website', websiteOrigin, frames, secure });
 }
 
 // The server's own paths under the base path: never answered with the page.

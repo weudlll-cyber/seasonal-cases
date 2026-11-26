@@ -7,8 +7,9 @@
 #                 DECISIONS D76). Check that Docker is there, ask once for what the server needs
 #                 (mode, address, port, mail or the website's proxy) and remember it in
 #                 /etc/seasonal-cases/install.conf (root, 0600; the secrets only in cases.env,
-#                 0600). Then: the few packages, the code at the chosen ref, its image, the
-#                 settings, the game's journal, the stack, the readiness check, in website mode the
+#                 0600). Then: the few packages, the code at the chosen ref, its image and the
+#                 kit's scripts out of it, the settings, the game's journal, the database roles,
+#                 the stack, the readiness check, in website mode the
 #                 route file in the website's routes folder, and the encrypted nightly backup
 #                 (./lib/backup.sh) once an age public key is given. `--update` takes the
 #                 remembered answers and a new `--ref`, backs up first, then rebuilds and
@@ -203,6 +204,7 @@ main() {
   ((UPDATE)) && backup_before_update
   fetch_code
   build_image
+  copy_kit
   write_env
   write_journal
   write_state

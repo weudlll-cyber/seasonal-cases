@@ -10,7 +10,11 @@
 #                 (SC_EDGE_SUBNET), so the address the published port's connections come from is
 #                 known and can be trusted to name the visitor. Both restart unless stopped and
 #                 both say whether they are healthy (the game through the image's check of
-#                 /readyz). Website installs add ops/compose.website.yml; the installer adds
+#                 /readyz). Before the game, `migrate` runs once from the same image as the
+#                 database's owner role and grants the app role the game connects as (kit K90,
+#                 DECISIONS D82); the roles and their passwords are set up by the installer, and
+#                 the game's container is given neither the owner's nor the superuser's password.
+#                 Website installs add ops/compose.website.yml; the installer adds
 #                 ops/compose.journal.yml, which keeps the logs 14 days. CPU and memory are capped.
 #                 Development uses ops/compose.dev.yml, never this file.
 # Depends on:     /etc/seasonal-cases/cases.env (written by deploy/install.sh; ops/cases.env.example)
@@ -25,7 +29,10 @@ services:
       NODE_ENV: production
       SC_HOST: 0.0.0.0
       SC_PORT: '3970'
-      DATABASE_URL: postgres://seasonal_cases:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the env file}@postgres:5432/seasonal_cases
+      DATABASE_URL: postgres://sc_app:${SC_DB_APP_PASSWORD:?set SC_DB_APP_PASSWORD in the env file}@postgres:5432/seasonal_cases
+      # The env file holds these for compose; the game has no use for them.
+      POSTGRES_PASSWORD: ''
+      SC_DB_OWNER_PASSWORD: ''
     read_only: true
     tmpfs:
       - /tmp
@@ -36,14 +43,38 @@ services:
     ports:
       - '127.0.0.1:${SC_HOST_PORT:?set SC_HOST_PORT in the env file}:3970'
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     networks:
       - data
       - edge
     cpus: 1
     mem_limit: 768m
     restart: unless-stopped
+
+  migrate:
+    image: ${SC_IMAGE:?set SC_IMAGE in the env file}
+    command: ['node', '--import=tsx', 'src/tools/migrate.ts']
+    environment:
+      DATABASE_URL: postgres://sc_owner:${SC_DB_OWNER_PASSWORD:?set SC_DB_OWNER_PASSWORD in the env file}@postgres:5432/seasonal_cases
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    # The image's health check asks the game's port, which nothing here listens on.
+    healthcheck:
+      disable: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - data
+    cpus: 1
+    mem_limit: 512m
+    restart: 'no'
 
   postgres:
     image: postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24

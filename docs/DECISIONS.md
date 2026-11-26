@@ -328,3 +328,13 @@ the owner confirmed them on 2026-11-23 (D46).
   separate icon list). This ends the last sentence of D65 but one: the boards no longer keep icons
   of their own. The client's server calls are the kit's `createApiClient`; the sentence of a refusal
   is read from `ApiError.body.error`.
+- **D81 — The server's shared parts.** The account feed is read with the kit's `guardedFetch`, the
+  configured local origin of the website (`SC_WEBSITE_LOCAL_ORIGIN`) its only local one, with the
+  kit's time and size limits and no redirect: D71 no longer holds, its reason (the guarded fetch
+  refused exactly such an address) is gone since kit v0.27.0. The security headers say
+  `secure` wherever the game is served over https, by the same rule as the session cookie.
+- **D82 — Two database roles (kit K90).** An installed database has `sc_owner`, which migrates, and
+  `sc_app`, which the running game connects as and which only reads and writes rows (the migration
+  record: reads only). The stack's one-shot service `migrate` runs before the game; the installer
+  sets the roles up with the kit's `db-roles`, on an existing database once as its conversion (an
+  update backs up first), and after every restore. Development keeps its one user.
