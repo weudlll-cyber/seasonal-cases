@@ -47,6 +47,7 @@ function HandOver({ view, me, direct, action }: PartProps) {
   return (
     <span className="direction-handover">
       <select
+        className="sk-select"
         aria-label="Organiser to hand over to"
         title="An organiser watching this show"
         value={target?.id ?? ''}
@@ -64,7 +65,7 @@ function HandOver({ view, me, direct, action }: PartProps) {
       </select>
       <button
         type="button"
-        className="button"
+        className="sk-btn"
         title="Give the direction to the chosen organiser"
         disabled={target === undefined || action.busy}
         onClick={() => {
@@ -94,7 +95,7 @@ export function DirectionBar({ view, me, direct }: Omit<PartProps, 'action'>) {
         <button
           key={b.step}
           type="button"
-          className="button"
+          className="sk-btn"
           title={b.tip}
           disabled={action.busy || show.live.step !== b.after}
           onClick={() => {

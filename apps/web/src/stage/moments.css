@@ -167,7 +167,7 @@ html[data-sk-focus] {
   margin: 0;
 }
 
-.ceremony-end .button {
+.ceremony-end .sk-btn {
   display: inline-flex;
   align-items: center;
   text-decoration: none;
@@ -218,7 +218,7 @@ html[data-sk-focus] {
   gap: var(--sk-space-1);
 }
 
-.focus-panel .direction-bar .button {
+.focus-panel .direction-bar .sk-btn {
   width: 100%;
 }
 

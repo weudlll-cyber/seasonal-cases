@@ -85,7 +85,7 @@ export function PrivacyPage({ website, contact }: PrivacyPageProps) {
   const who = contact.trim() === '' ? FALLBACK_CONTACT : contact.trim();
   return (
     <main className="page">
-      <section className="card privacy-page" aria-label="Privacy">
+      <section className="sk-panel privacy-page" aria-label="Privacy">
         <h1>Privacy</h1>
         {website ? <Website /> : <Standalone />}
         <h2>Contact</h2>

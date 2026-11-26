@@ -12,6 +12,8 @@ import '@seasonal/kit/fonts.css';
 import '@seasonal/kit/tokens.css';
 import '@seasonal/kit/motion.css';
 import '@seasonal/kit/fit.css';
+// The kit's buttons, panels and fields (K95), after the tokens, the shell and the text floors.
+import '@seasonal/kit/components.css';
 import '@seasonal/kit/shell.css';
 import '@seasonal/kit/frames.css';
 import '@seasonal/kit/bar.css';

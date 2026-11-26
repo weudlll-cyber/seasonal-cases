@@ -142,7 +142,7 @@ export function SettingsAdmin() {
   const problem = checked.success ? null : (checked.error.issues[0]?.message ?? 'not valid');
   return (
     <form
-      className="card settings-admin"
+      className="sk-panel settings-admin"
       aria-label="Settings"
       onSubmit={(event) => {
         event.preventDefault();
@@ -163,7 +163,7 @@ export function SettingsAdmin() {
       />
       <button
         type="submit"
-        className="button button-solid"
+        className="sk-btn sk-btn--primary"
         disabled={action.busy || problem !== null}
         title="Save the settings for new shows"
       >

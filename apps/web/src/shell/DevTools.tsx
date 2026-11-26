@@ -59,7 +59,6 @@ export function DevSignIn({ onSignIn }: { onSignIn: DevSignInFn }): ReactElement
         const found = IDENTITIES.find((identity) => identity.as === as);
         if (found !== undefined) await onSignIn(found.request);
       }}
-      buttonClassName="button"
     />
   );
 }

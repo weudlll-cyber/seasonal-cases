@@ -43,6 +43,7 @@ function AccountItem({ account: a, self, busy, change }: ItemProps) {
       <span>{a.name}</span>
       <span>{a.kind}</span>
       <select
+        className="sk-select"
         aria-label={`Role of ${a.name}`}
         title="Player picks cases; organiser leads shows; admin also manages accounts"
         value={a.role}
@@ -58,6 +59,7 @@ function AccountItem({ account: a, self, busy, change }: ItemProps) {
         ))}
       </select>
       <select
+        className="sk-select"
         aria-label={`Rank of ${a.name}`}
         title="The rank decides case conflicts: higher wins"
         value={a.rank}
@@ -117,7 +119,7 @@ function AccountsAdmin({ me }: { me: Me }) {
     });
   };
   return (
-    <section className="card" aria-label="Accounts">
+    <section className="sk-panel" aria-label="Accounts">
       <h2>Accounts</h2>
       {action.error !== null && <p role="alert">{action.error}</p>}
       <ul className="admin-accounts">

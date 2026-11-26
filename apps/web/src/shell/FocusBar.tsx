@@ -163,7 +163,6 @@ export function FocusBar({
         ]}
         panels={panels}
         fullscreen={fullscreen}
-        buttonClassName="button"
       />
       {panels.open !== null && (
         <aside className="focus-panel" id={PANEL_ID} aria-label={panels.open}>

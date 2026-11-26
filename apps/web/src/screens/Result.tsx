@@ -109,8 +109,8 @@ export function Result({ showId }: { showId: string }) {
         setError(sentenceOf(e));
       });
   }, [showId]);
-  if (error !== null) return <p className="page card">{error}</p>;
+  if (error !== null) return <p className="page sk-panel">{error}</p>;
   if (show === null) return <p className="page">Loading…</p>;
-  if (show.result === null) return <p className="page card">This show has not ended yet.</p>;
+  if (show.result === null) return <p className="page sk-panel">This show has not ended yet.</p>;
   return <ResultView result={show.result} />;
 }

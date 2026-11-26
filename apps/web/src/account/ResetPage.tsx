@@ -26,7 +26,7 @@ export function ResetPage() {
   if (done) {
     return (
       <main className="page">
-        <p className="card" role="status">
+        <p className="sk-panel" role="status">
           Your new password is set. <Link to="/">Sign in</Link>
         </p>
       </main>
@@ -35,7 +35,7 @@ export function ResetPage() {
   return (
     <main className="page">
       <form
-        className="card sign-in"
+        className="sk-panel sign-in"
         aria-label="Choose a new password"
         onSubmit={(event) => {
           event.preventDefault();
@@ -60,7 +60,7 @@ export function ResetPage() {
         />
         <button
           type="submit"
-          className="button button-solid"
+          className="sk-btn sk-btn--primary"
           disabled={action.busy || token === ''}
           title="Set the new password"
         >

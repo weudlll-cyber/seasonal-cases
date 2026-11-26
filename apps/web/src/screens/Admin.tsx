@@ -54,7 +54,7 @@ interface ShowListProps {
 function ShowList({ shows, busy, act, dev }: ShowListProps) {
   const steps = dev ? [...STEPS.slice(0, 1), ...BOTS, ...STEPS.slice(1)] : STEPS;
   return (
-    <section className="card" aria-label="Shows">
+    <section className="sk-panel" aria-label="Shows">
       <h2>Shows</h2>
       {shows.length === 0 && <p>No show yet.</p>}
       <ul className="admin-shows">
@@ -70,7 +70,7 @@ function ShowList({ shows, busy, act, dev }: ShowListProps) {
                 <button
                   key={path}
                   type="button"
-                  className="button"
+                  className="sk-btn"
                   title={tip}
                   disabled={busy}
                   onClick={() => {
@@ -137,7 +137,7 @@ export function Admin({ me, onShowChanged, dev }: AdminProps) {
     });
   };
   if (me === null || (me.role !== 'admin' && me.role !== 'organiser')) {
-    return <p className="page card">Sign in as an organiser or admin to use the admin area.</p>;
+    return <p className="page sk-panel">Sign in as an organiser or admin to use the admin area.</p>;
   }
   const quick =
     dev && QuickTest !== null
@@ -157,7 +157,7 @@ export function Admin({ me, onShowChanged, dev }: AdminProps) {
       <h1>Admin</h1>
       {/* The form waits for the defaults: arriving later, they would replace what was typed. */}
       {defaults === undefined ? (
-        <p className="card">Loading the settings…</p>
+        <p className="sk-panel">Loading the settings…</p>
       ) : (
         <SetupForm
           {...(defaults === null ? {} : { defaults })}

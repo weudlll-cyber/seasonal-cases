@@ -28,7 +28,7 @@ export function SignIn({ onSignIn }: { onSignIn: DevSignInFn }) {
   const action = useAction();
   return (
     <form
-      className="card sign-in"
+      className="sk-panel sign-in"
       aria-label="Development sign-in"
       onSubmit={(event) => {
         event.preventDefault();
@@ -58,7 +58,12 @@ export function SignIn({ onSignIn }: { onSignIn: DevSignInFn }) {
         choices={RANK_CHOICES}
         onChange={setRank}
       />
-      <button type="submit" className="button button-solid" disabled={action.busy} title="Sign in">
+      <button
+        type="submit"
+        className="sk-btn sk-btn--primary"
+        disabled={action.busy}
+        title="Sign in"
+      >
         Sign in
       </button>
       {action.error !== null && <p role="alert">{action.error}</p>}

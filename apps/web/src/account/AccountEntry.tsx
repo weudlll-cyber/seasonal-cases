@@ -41,6 +41,15 @@ const TITLES: Record<Form, string> = {
 
 const PASSWORD_TIP = 'At least 12 characters; a long sentence is easy to remember';
 
+/** A form's one button: the kit's solid pill, off while its call runs. */
+function Submit({ busy, tip, label }: { busy: boolean; tip: string; label: string }) {
+  return (
+    <button type="submit" className="sk-btn sk-btn--primary" disabled={busy} title={tip}>
+      {label}
+    </button>
+  );
+}
+
 function SignInForm({ onEnter }: { onEnter: (me: Me) => void }) {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
@@ -94,9 +103,7 @@ function SignInForm({ onEnter }: { onEnter: (me: Me) => void }) {
           onChange={setCode}
         />
       )}
-      <button type="submit" className="button button-solid" disabled={action.busy} title="Sign in">
-        Sign in
-      </button>
+      <Submit busy={action.busy} tip="Sign in" label="Sign in" />
       {action.error !== null && <p role="alert">{action.error}</p>}
     </form>
   );
@@ -150,14 +157,11 @@ function RegisterForm() {
         value={password}
         onChange={setPassword}
       />
-      <button
-        type="submit"
-        className="button button-solid"
-        disabled={action.busy}
-        title="Create the account; a mail tells you how to go on"
-      >
-        Create account
-      </button>
+      <Submit
+        busy={action.busy}
+        tip="Create the account; a mail tells you how to go on"
+        label="Create account"
+      />
       {sent && <RegisterSent />}
       {action.error !== null && <p role="alert">{action.error}</p>}
     </form>
@@ -200,14 +204,7 @@ function ForgotForm() {
         value={email}
         onChange={setEmail}
       />
-      <button
-        type="submit"
-        className="button button-solid"
-        disabled={action.busy}
-        title="Send a link to choose a new password"
-      >
-        Send the link
-      </button>
+      <Submit busy={action.busy} tip="Send a link to choose a new password" label="Send the link" />
       {sent && (
         <p role="status">
           If an account has this e-mail, a link is on its way. It works once, for one hour.
@@ -222,7 +219,7 @@ export function AccountEntry({ onEnter }: { onEnter: (me: Me) => void }) {
   const [form, setForm] = useState<Form>('sign-in');
   const others = (Object.keys(TITLES) as Form[]).filter((f) => f !== form);
   return (
-    <section className="card sign-in account-entry" aria-label={TITLES[form]}>
+    <section className="sk-panel sign-in account-entry" aria-label={TITLES[form]}>
       <h2>{TITLES[form]}</h2>
       {form === 'sign-in' && <SignInForm onEnter={onEnter} />}
       {form === 'register' && <RegisterForm />}

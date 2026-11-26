@@ -29,10 +29,10 @@ export function Matches({ me }: { me: Me | null }) {
         setMatches([]);
       });
   }, [me]);
-  if (me === null) return <p className="page card">Sign in to see your matches.</p>;
+  if (me === null) return <p className="page sk-panel">Sign in to see your matches.</p>;
   return (
     <main className="page">
-      <section className="card" aria-label="My matches">
+      <section className="sk-panel" aria-label="My matches">
         <h1>My matches</h1>
         {matches?.length === 0 && <p>You have not picked a case yet.</p>}
         <ul className="match-list">

@@ -27,7 +27,7 @@ export function ConfirmPage() {
   if (made !== null) {
     return (
       <main className="page">
-        <p className="card" role="status">
+        <p className="sk-panel" role="status">
           Your account {made} is ready. <Link to="/">Sign in</Link> with your name or e-mail and
           your password.
         </p>
@@ -36,12 +36,12 @@ export function ConfirmPage() {
   }
   return (
     <main className="page">
-      <section className="card sign-in" aria-label="Confirm your account">
+      <section className="sk-panel sign-in" aria-label="Confirm your account">
         <h2>Confirm your account</h2>
         <p>One press makes the account you registered.</p>
         <button
           type="button"
-          className="button button-solid"
+          className="sk-btn sk-btn--primary"
           disabled={action.busy || token === ''}
           title="Make the account"
           onClick={() => {

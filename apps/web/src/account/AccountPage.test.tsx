@@ -48,7 +48,7 @@ describe('the account page', () => {
     render(<AccountPage me={ANA} website={false} onGone={onGone} />);
     const download = screen.getByRole('button', { name: 'Download my data' });
     expect(download.closest('form')?.getAttribute('action')).toContain('/me/export');
-    expect(download.className).toBe('button');
+    expect(download.className).toBe('sk-btn');
     fireEvent.change(await openForm(), { target: { value: 'a long enough secret' } });
     expect(screen.queryByLabelText('Code of your second factor')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Delete my account for good' }));

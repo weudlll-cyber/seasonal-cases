@@ -84,10 +84,10 @@ function DeleteFields({ second, password, code, onPassword, onCode }: FieldsProp
 function DeleteActions({ busy, onCancel }: { busy: boolean; onCancel: () => void }) {
   return (
     <div className="account-actions">
-      <button type="submit" className="button danger" disabled={busy}>
+      <button type="submit" className="sk-btn sk-btn--danger" disabled={busy}>
         Delete my account for good
       </button>
-      <button type="button" className="button" onClick={onCancel}>
+      <button type="button" className="sk-btn" onClick={onCancel}>
         Keep my account
       </button>
     </div>
@@ -104,7 +104,7 @@ function DeleteForm({ onGone }: { onGone: () => Promise<void> }) {
     return (
       <button
         type="button"
-        className="button danger"
+        className="sk-btn sk-btn--danger"
         onClick={() => {
           setOpen(true);
         }}
@@ -149,10 +149,10 @@ function DeleteForm({ onGone }: { onGone: () => Promise<void> }) {
 }
 
 export function AccountPage({ me, website, onGone }: AccountPageProps) {
-  if (me === null) return <p className="page card">Sign in to see your account.</p>;
+  if (me === null) return <p className="page sk-panel">Sign in to see your account.</p>;
   return (
     <main className="page">
-      <section className="card" aria-label="My account">
+      <section className="sk-panel" aria-label="My account">
         <h1>My account</h1>
         <p>
           {me.name} ({me.role === 'player' ? `player · rank ${String(me.rank)}` : me.role})
@@ -166,7 +166,7 @@ export function AccountPage({ me, website, onGone }: AccountPageProps) {
           <>
             {/* A plain GET the browser saves (the server names the file); a button like the other. */}
             <form action={apiPath('/me/export')} method="get">
-              <button type="submit" className="button">
+              <button type="submit" className="sk-btn">
                 Download my data
               </button>
             </form>

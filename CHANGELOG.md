@@ -9,6 +9,12 @@ Branch `kit/v0.17-adoption`, night chain SC-N13: kit v0.34.0 (DECISIONS D86).
 
 - **Sign-in:** wrong passwords sent at the same moment are held to the brake's limits; before, each
   of them was checked.
+- **Controls (D87):** the kit's buttons, panels and fields: bolder, larger button text, a red
+  button for deleting the account, disabled controls look locked.
+- **Header (kit):** the account chip is filled, "Sign in" is the solid button when signed out, the
+  back link takes a lower row on a phone; badges give way before the header folds.
+- **Result page:** on a PC it takes the full content width, so the cases stand in a grid beside
+  the winners instead of one long column.
 
 ## 1.1.0-rc.4 (not tagged; the tag follows the merge with the owner's word)
 

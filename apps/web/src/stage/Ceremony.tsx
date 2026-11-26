@@ -86,7 +86,7 @@ export function Ceremony({ showId, result, confetti = true, applause = 1 }: Cere
       {confetti && current?.slot === MAIN_PRIZE && <ConfettiPieces step={applause} />}
       {done && (
         <p className="ceremony-end">
-          <Link to={`/results/${showId}`} className="button button-solid">
+          <Link to={`/results/${showId}`} className="sk-btn sk-btn--primary">
             See the result
           </Link>
         </p>

@@ -30,11 +30,6 @@
   gap: var(--sk-space-2);
 }
 
-.button.danger {
-  border-color: var(--sk-color-danger);
-  color: var(--sk-color-danger);
-}
-
 .privacy-page h2 {
   margin-block: var(--sk-space-3) var(--sk-space-1);
 }

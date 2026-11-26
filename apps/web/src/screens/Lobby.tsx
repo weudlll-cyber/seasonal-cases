@@ -39,7 +39,7 @@ export function Lobby({ signature }: { signature: string }) {
   }, [signature]);
   if (shows.length === 0) return null;
   return (
-    <section className="card lobby" aria-label="All shows">
+    <section className="sk-panel lobby" aria-label="All shows">
       <h2>All shows</h2>
       <ul className="lobby-list">
         {shows.map((s) => (

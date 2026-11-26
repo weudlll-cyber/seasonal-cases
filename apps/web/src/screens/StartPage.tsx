@@ -136,7 +136,7 @@ export function StartPage({ me, mode, feed, showId, onSignIn, onEnter }: StartPa
           accounts, and the development sign-in too in development (DECISIONS D24). */}
       {localGuest && <AccountEntry onEnter={onEnter} />}
       {localGuest && mode.dev && onSignIn !== undefined && <DevSignInForm onSignIn={onSignIn} />}
-      {showId === null && <p className="card">There is no show yet.</p>}
+      {showId === null && <p className="sk-panel">There is no show yet.</p>}
       {show !== null && (
         <>
           <ShowCard show={show} />

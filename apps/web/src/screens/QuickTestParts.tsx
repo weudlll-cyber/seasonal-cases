@@ -43,7 +43,7 @@ export function QuickTestControls({ busy, setup, act }: QuickTestProps) {
       <span className="admin-buttons">
         <button
           type="button"
-          className="button button-solid"
+          className="sk-btn sk-btn--primary"
           disabled={busy}
           title="Create, fill with bots, seal and start a show from the seed; you hold the direction"
           onClick={() => {

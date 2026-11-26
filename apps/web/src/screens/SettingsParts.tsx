@@ -71,7 +71,7 @@ function ListButtons({
     <span className="admin-buttons">
       <button
         type="button"
-        className="button"
+        className="sk-btn"
         title="Add an artifact after the last"
         onClick={() => {
           onChange([...list, { name: `Artifact ${String(list.length + 1)}`, season: 'current' }]);
@@ -81,7 +81,7 @@ function ListButtons({
       </button>
       <button
         type="button"
-        className="button"
+        className="sk-btn"
         title="Remove the last artifact"
         disabled={list.length <= 1}
         onClick={() => {

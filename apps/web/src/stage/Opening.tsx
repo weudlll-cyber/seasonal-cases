@@ -44,7 +44,7 @@ export function Opening({ show, onBegin }: OpeningProps) {
       {onBegin !== undefined && (
         <button
           type="button"
-          className="button button-solid opening-begin"
+          className="sk-btn sk-btn--primary opening-begin"
           title="End the opening: from now on you can click a case"
           disabled={action.busy}
           onClick={() => {

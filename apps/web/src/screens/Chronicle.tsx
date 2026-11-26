@@ -18,7 +18,10 @@ import { ArtifactEmblem } from '../stage/ArtifactEmblem.js';
 
 function Entry({ entry }: { entry: ChronicleEntry }) {
   return (
-    <article className="card chronicle-entry" aria-label={`Show of ${formatTime(entry.endedAt)}`}>
+    <article
+      className="sk-panel chronicle-entry"
+      aria-label={`Show of ${formatTime(entry.endedAt)}`}
+    >
       <h2>{formatTime(entry.endedAt)}</h2>
       <ol className="chronicle-winners">
         {entry.winners.map((w) => (
@@ -53,7 +56,7 @@ export function Chronicle() {
   return (
     <main className="page chronicle">
       <h1>Chronicle</h1>
-      {entries?.length === 0 && <p className="card">No show has ended yet.</p>}
+      {entries?.length === 0 && <p className="sk-panel">No show has ended yet.</p>}
       {(entries ?? []).map((e) => (
         <Entry key={e.id} entry={e} />
       ))}

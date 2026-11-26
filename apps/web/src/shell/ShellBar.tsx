@@ -134,7 +134,6 @@ export function ShellBar({ route, me, website, dev, onSignOut, onDevSignIn }: Sh
         }
         // A new page or another account: the folded menu has done its job.
         closeKey={`${route} ${me?.name ?? ''}`}
-        buttonClassName="button"
       />
     </div>
   );

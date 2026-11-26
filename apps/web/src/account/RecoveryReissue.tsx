@@ -56,7 +56,7 @@ function ReissueForm({ onCodes }: { onCodes: (codes: readonly string[]) => void 
       />
       <button
         type="submit"
-        className="button"
+        className="sk-btn"
         disabled={action.busy}
         title="Make ten new codes; the old ones stop working"
       >
@@ -80,7 +80,7 @@ export function RecoveryReissue() {
     );
   }
   return (
-    <section className="card two-factor" aria-label="New recovery codes">
+    <section className="sk-panel two-factor" aria-label="New recovery codes">
       <h2>New recovery codes</h2>
       <p>Ten new codes replace your old ones; the old ones stop working at once.</p>
       <ReissueForm onCodes={setCodes} />

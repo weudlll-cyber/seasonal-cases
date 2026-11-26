@@ -369,3 +369,9 @@ the owner confirmed them on 2026-11-23 (D46).
   one look of every game; known defects are fixed before the owner looks. Sign-in's brake holds
   a place for each try before the password is checked (the kit's `reserve`), so guesses sent at
   the same moment are held to D55's limits.
+- **D87 — The controls are the kit's.** Buttons, panels and fields are the kit's `components.css`
+  (`sk-btn` with `--primary` and `--danger`, `sk-panel`, `sk-input`, `sk-select`); the game's
+  `.button`, `.card` and bare field rules are gone, and neither the header nor the game bar gets a
+  button class from the game, so the header's three looks (K96) and the bar are the kit's alone.
+  The end-of-show button keeps the game's highlight. The dense result frame is not used: measured,
+  the result's first part fits from 1280 x 720 up.

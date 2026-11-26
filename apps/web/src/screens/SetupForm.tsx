@@ -81,7 +81,7 @@ export function SetupForm({ busy, quick, onCreate, defaults = START }: SetupForm
   const setup = { cases, winners, labels: current, listed };
   return (
     <form
-      className="card admin-setup"
+      className="sk-panel admin-setup"
       aria-label="Show setup"
       onSubmit={(event) => {
         event.preventDefault();
@@ -140,7 +140,7 @@ function SetupButtons({ busy, onCreate }: { busy: boolean; onCreate: () => void 
     <span className="admin-buttons">
       <button
         type="button"
-        className="button"
+        className="sk-btn"
         disabled={busy}
         title="Create a show in setup; open its registration below"
         onClick={onCreate}

@@ -47,7 +47,7 @@ function Controls({ factor, season, onPlay, onFactor, onSeason }: ControlsProps)
     <div className="showcase-controls">
       <button
         type="button"
-        className="button button-solid"
+        className="sk-btn sk-btn--primary"
         title="Play the opening again from the closed case"
         onClick={() => {
           onPlay();
@@ -58,6 +58,7 @@ function Controls({ factor, season, onPlay, onFactor, onSeason }: ControlsProps)
       <label>
         Speed{' '}
         <select
+          className="sk-select"
           value={factor}
           onChange={(event) => {
             onFactor(Number(event.target.value));
@@ -73,6 +74,7 @@ function Controls({ factor, season, onPlay, onFactor, onSeason }: ControlsProps)
       <label>
         Season{' '}
         <select
+          className="sk-select"
           value={season}
           onChange={(event) => {
             onSeason(event.target.value as Season);

@@ -36,7 +36,7 @@ export function EndShow({ show, end, action }: EndShowProps) {
         <span className="direction-confirm-text">{hiddenText(prizesLeft)}</span>
         <button
           type="button"
-          className="button button-end"
+          className="sk-btn button-end"
           title="End the show; the ceremony reveals every prize"
           disabled={action.busy}
           onClick={finish}
@@ -45,7 +45,7 @@ export function EndShow({ show, end, action }: EndShowProps) {
         </button>
         <button
           type="button"
-          className="button"
+          className="sk-btn"
           title="Go back to the show"
           onClick={() => {
             setAsking(false);
@@ -59,7 +59,7 @@ export function EndShow({ show, end, action }: EndShowProps) {
   return (
     <button
       type="button"
-      className={`button button-end${show.allPrizesFound ? ' is-ready' : ''}`}
+      className={`sk-btn button-end${show.allPrizesFound ? ' is-ready' : ''}`}
       title={show.allPrizesFound ? 'Every prize is found: end the show' : 'End the show now'}
       disabled={action.busy}
       onClick={() => {
