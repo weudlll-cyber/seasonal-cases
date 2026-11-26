@@ -32,7 +32,9 @@
 }
 
 .board-pick.is-holding {
-  color: var(--sk-color-success);
+  /* On the bare page the kit's success green is 4.1:1 against the light glows: a shade towards
+     the text colour keeps 4.5:1 in both themes (../guards.test.ts). */
+  color: color-mix(in srgb, var(--sk-color-success) 85%, var(--sk-color-text));
   font-weight: var(--sk-font-weight-strong);
 }
 

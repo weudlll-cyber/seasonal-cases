@@ -1,26 +1,30 @@
 /**
  * @file   e2e/screens.spec.ts
- * @brief  The pictures for the owner and the planning chat: ten screens at 1536 × 768,
- *         1280 × 720, 390 × 844, 375 × 667 and 360 × 780, light and dark, and the phone sizes again with a
- *         200 % root font (a phone set to its largest text), into .local/screens/sc-n10/ (never
- *         into git).
+ * @brief  The pictures for the owner and the planning chat, and every screen's sweep: ten and
+ *         more screens at 1536 × 768, 1280 × 720, 390 × 844, 375 × 667 and 360 × 780, light and
+ *         dark, into .local/screens/sc-n12/ (never into git).
  *
  * Responsibility: delete the topic's previous pictures, then shoot the sign-in (the start page
  *                 for a guest), the registration's pending page (its mail is deleted from
- *                 Mailpit again), the start page with its registration board, the opening, the
- *                 stage at "selected", "open" and "owner" on the main prize (and the phone's
- *                 direction panel), the early-end question, the result, the ceremony of a show
- *                 nobody claimed a case in (every prize "not won") and the admin's settings, at
- *                 every size in both themes. Beside each picture it measures the smallest visible text, whether
- *                 the page overflows sideways, how many labels are cut with an ellipsis and
- *                 whether a risen artifact stands off its case's centre (D50), and writes all
- *                 findings to `checks.json`. Runs only as the project `screens`.
- * Depends on:     @playwright/test, node:fs, ./helpers.ts, ./measure.ts
+ *                 Mailpit again), privacy and the account area, the start page with its
+ *                 registration board, the opening, the stage at "selected", "open" and "owner" on
+ *                 the main prize (and the phone's direction panel), the early-end question, the
+ *                 result, the ceremony of a show nobody claimed a case in (every prize "not
+ *                 won"), the admin's settings and each role's header. Each screen is also walked
+ *                 by the kit's `sweep`: seven sizes, 100 % and 200 % root font, both themes, the
+ *                 kit's probe (sideways scroll, boxes past the window, cut text, controls under
+ *                 44 px, a cut fitted screen) and axe, with the game's own checks beside them
+ *                 (./measure.ts). All findings are written to `findings.txt` and fail the run.
+ *                 Runs only as the project `screens`.
+ * Depends on:     @playwright/test, @axe-core/playwright, @seasonal/kit/testing, node:fs,
+ *                 ./helpers.ts, ./measure.ts
  */
-import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
+import { AxeBuilder } from '@axe-core/playwright';
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { axeFinder, setTheme, sweep, type SweepScreen } from '@seasonal/kit/testing';
 
 import {
   boardCase,
@@ -30,9 +34,9 @@ import {
   signInApi,
   OWN_PAGE,
 } from './helpers.js';
-import { measure, type Measures } from './measure.js';
+import { ownFindings } from './measure.js';
 
-const DIR = fileURLToPath(new URL('../.local/screens/sc-n10/', import.meta.url));
+const DIR = fileURLToPath(new URL('../.local/screens/sc-n12/', import.meta.url));
 // The sizes of CONCEPT §7: two PCs and two phones, the smaller one the tightest for labels.
 const SIZES = [
   [1536, 768],
@@ -41,18 +45,49 @@ const SIZES = [
   [375, 667],
   [360, 780],
 ] as const;
-// Under this width a size is a phone, and is shot again with a large root font.
+// Under this width a size is a phone.
 const PHONE_WIDTH = 700;
 type Size = readonly [number, number];
 const THEMES = ['light', 'dark'] as const;
-const FLOOR = 14;
-// The game bar of a phone is one row: its 44 px buttons and a little room.
-const BAR_ONE_ROW = 52;
+const findings: string[] = [];
+const axe = axeFinder(AxeBuilder);
 
-interface Check extends Measures {
-  file: string;
+/** The stage opened again: the show's state is the server's, so a reload shows the same step. */
+const onStage =
+  (shown: Locator): SweepScreen['open'] =>
+  async (at) => {
+    await at.goto('/show');
+    await expect(shown).toBeVisible();
+  };
+
+// What the sweep may report and the game accepts, by part of the finding's text:
+const KNOWN = [
+  // Confetti falls past the stage's edge by design; it is decoration.
+  'span.confetti-piece',
+  // On a phone the stage screen is itself the scroll area (CONCEPT §7), which the probe's check of
+  // a fitted root does not see: the stage below the fold is reached by scrolling.
+  'cuts [docked-screen] div.stage "',
+  // The kit's game bar cuts its facts at a 200 % root font on a 1280 px window (BACKLOG 77).
+  'cut text: [game-bar] span.sk-bar-fact',
+];
+
+/** One screen through the kit's sweep; what it finds is kept, so the run goes on. */
+async function walk(page: Page, name: string, open: SweepScreen['open'] = async () => {}) {
+  const finder = async (at: Page) => [...(await axe(at)), ...(await ownFindings(at))];
+  try {
+    await sweep(page, [{ name, open, allow: KNOWN }], { axe: finder });
+  } catch (error) {
+    const found = error instanceof Error ? error.message : String(error);
+    findings.push(found);
+    // Written as found, so a long run shows where it stands.
+    appendFileSync(`${DIR}findings.txt`, `${found}\n`);
+  }
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = '';
+  });
+  await setTheme(page, 'light');
+  await page.setViewportSize({ width: 1280, height: 720 });
 }
-const checks: Check[] = [];
 
 /**
  * "End show" asking before an early end, at every size and theme: under the stage on a PC, in
@@ -60,43 +95,26 @@ const checks: Check[] = [];
  */
 async function shootEarlyEnd(page: Page): Promise<void> {
   for (const theme of THEMES) {
-    await page.emulateMedia({ colorScheme: theme });
     for (const [width, height] of SIZES) {
       await page.setViewportSize({ width, height });
+      await setTheme(page, theme);
       await page.waitForTimeout(350);
       const phone = width < PHONE_WIDTH;
       if (phone) await page.getByRole('button', { name: 'Direction', exact: true }).click();
       const bar = page.getByRole('navigation', { name: 'Direction' });
       await bar.getByRole('button', { name: 'End show' }).click();
       await expect(bar.getByRole('group', { name: 'End the show early?' })).toBeVisible();
-      const file = `early-end-${String(width)}x${String(height)}-${theme}`;
-      await capture(page, `${file}.png`);
-      if (phone) {
-        await rootFont(page, true);
-        await capture(page, `${file}-font200.png`);
-        await rootFont(page, false);
-      }
+      await capture(page, `early-end-${String(width)}x${String(height)}-${theme}.png`);
       await bar.getByRole('button', { name: 'Keep playing' }).click();
       if (phone) await page.keyboard.press('Escape');
     }
   }
-  await page.emulateMedia({ colorScheme: 'light' });
+  await setTheme(page, 'light');
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
-/** The root font at 200 %, as a phone set to its largest text size shows it; and back. */
-async function rootFont(page: Page, large: boolean): Promise<void> {
-  await page.evaluate((on) => {
-    document.documentElement.style.fontSize = on ? '200%' : '';
-  }, large);
-  await page.waitForTimeout(350);
-}
-
-/** One picture, and its measurements into `checks.json`. */
-async function capture(page: Page, file: string): Promise<void> {
-  await page.screenshot({ path: `${DIR}${file}`, animations: 'disabled' });
-  checks.push({ file, ...(await measure(page)) });
-}
+const capture = (page: Page, file: string) =>
+  page.screenshot({ path: `${DIR}${file}`, animations: 'disabled' });
 
 async function shoot(
   page: Page,
@@ -105,25 +123,18 @@ async function shoot(
   sizes: readonly Size[] = SIZES,
 ): Promise<void> {
   for (const theme of THEMES) {
-    await page.emulateMedia({ colorScheme: theme });
     for (const [width, height] of sizes) {
       await page.setViewportSize({ width, height });
+      await setTheme(page, theme);
       // The fit settles in the next frame after a resize.
       await page.waitForTimeout(350);
       // A part below the fold (the admin's settings) is scrolled into view at every size.
       if (scrollTo !== undefined) await scrollTo.scrollIntoViewIfNeeded();
-      const file = `${name}-${String(width)}x${String(height)}-${theme}`;
-      await capture(page, `${file}.png`);
-      if (width < PHONE_WIDTH) {
-        await rootFont(page, true);
-        if (scrollTo !== undefined) await scrollTo.scrollIntoViewIfNeeded();
-        await capture(page, `${file}-font200.png`);
-        await rootFont(page, false);
-      }
+      await capture(page, `${name}-${String(width)}x${String(height)}-${theme}.png`);
     }
   }
   // Back to a desktop in light, so the next steps find the direction bar under the stage.
-  await page.emulateMedia({ colorScheme: 'light' });
+  await setTheme(page, 'light');
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
@@ -131,7 +142,7 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   page,
   browser,
 }) => {
-  test.setTimeout(1_500_000);
+  test.setTimeout(3_600_000);
   mkdirSync(DIR, { recursive: true });
   // The topic's previous state, but for the header run's own folder (./headerSteps.spec.ts).
   for (const entry of readdirSync(DIR)) {
@@ -142,6 +153,10 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await page.goto('/');
   await expect(page.getByRole('form', { name: 'Sign in' })).toBeVisible();
   await shoot(page, 'sign-in');
+  await walk(page, 'sign-in', async (at) => {
+    await at.goto('/');
+    await expect(at.getByRole('form', { name: 'Sign in' })).toBeVisible();
+  });
 
   // The registration's neutral page while the account waits for its link (D42).
   const email = `screens.${String(Date.now())}@example.org`;
@@ -156,6 +171,7 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await register.getByRole('button', { name: 'Create account' }).click();
   await expect(register.getByRole('status')).toContainText('A mail to this address');
   await shoot(page, 'registration-pending');
+  await walk(page, 'registration-pending');
   await deleteMailTo(page, email);
 
   // The registration board: a show with claims and one conflict, seen by a player.
@@ -166,12 +182,24 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await page.goto('/privacy');
   await expect(page.getByRole('heading', { name: 'Privacy', level: 1 })).toBeVisible();
   await shoot(page, 'privacy');
+  await walk(page, 'privacy', async (at) => {
+    await at.goto('/privacy');
+    await expect(at.getByRole('heading', { name: 'Privacy', level: 1 })).toBeVisible();
+  });
   await page.goto('/account');
   await expect(page.getByRole('button', { name: 'Download my data' })).toBeVisible();
   await shoot(page, 'account');
+  await walk(page, 'account', async (at) => {
+    await at.goto('/account');
+    await expect(at.getByRole('button', { name: 'Download my data' })).toBeVisible();
+  });
   await page.getByRole('button', { name: 'Delete my account' }).click();
   await expect(page.getByRole('form', { name: 'Delete my account' })).toBeVisible();
   await shoot(page, 'account-delete');
+  await walk(page, 'account-delete', async (at) => {
+    await at.goto('/account');
+    await at.getByRole('button', { name: 'Delete my account' }).click();
+  });
   await page.goto('/');
   const boardId = await openShow(page.request, 24, 3);
   const players = await browser.newContext();
@@ -198,6 +226,10 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await boardCase(page, 7).getByRole('button').click();
   await expect(page.locator('.board-pick')).toContainText('Your pick: case 7');
   await shoot(page, 'start');
+  await walk(page, 'start', async (at) => {
+    await at.goto('/');
+    await expect(boardCase(at, 7)).toBeVisible();
+  });
   await players.close();
 
   // The stage: a Quick Test show directed by the organiser, the main prize on the centre stage.
@@ -212,31 +244,35 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await page.goto('/show');
   await expect(page.getByRole('button', { name: 'Begin' })).toBeVisible();
   await shoot(page, 'opening');
+  await walk(page, 'opening', onStage(page.getByRole('button', { name: 'Begin' })));
   await page.getByRole('button', { name: 'Begin' }).click();
   const bar = page.getByRole('navigation', { name: 'Direction' });
   await page.locator(`.case-token[data-case="${String(main)}"] button`).click();
   await expect(page.locator('.stage-screen')).toHaveAttribute('data-step', 'selected');
   await shoot(page, 'selected');
+  await walk(page, 'selected', onStage(page.locator('.stage-screen[data-step="selected"]')));
   await bar.getByRole('button', { name: 'Open' }).click();
   await expect(page.locator('.stage-screen')).toHaveAttribute('data-step', 'open');
   // The lid takes 1.6 s; the picture shows the case opened.
   await page.waitForTimeout(1800);
   await shoot(page, 'open');
+  await walk(page, 'open', onStage(page.locator('.stage-screen[data-step="open"]')));
   await bar.getByRole('button', { name: 'Owner' }).click();
   await expect(page.locator('.lower-third')).toBeVisible();
   await shoot(page, 'owner');
+  await walk(page, 'owner', onStage(page.locator('.lower-third')));
 
   // The direction on a phone: the game bar's Direction panel, open (one size, both themes).
   for (const theme of THEMES) {
-    await page.emulateMedia({ colorScheme: theme });
     await page.setViewportSize({ width: 390, height: 844 });
+    await setTheme(page, theme);
     await page.getByRole('button', { name: 'Direction' }).click();
     await expect(page.getByRole('complementary', { name: 'direction' })).toBeVisible();
     await page.waitForTimeout(350);
     await page.screenshot({ path: `${DIR}direction-panel-390x844-${theme}.png` });
     await page.getByRole('button', { name: 'Direction' }).click();
   }
-  await page.emulateMedia({ colorScheme: 'light' });
+  await setTheme(page, 'light');
   await page.setViewportSize({ width: 1280, height: 720 });
 
   await shootEarlyEnd(page);
@@ -249,6 +285,10 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await page.goto(`/results/${id}`);
   await expect(page.locator('.result-seal')).toContainText('verified');
   await shoot(page, 'result');
+  await walk(page, 'result', async (at) => {
+    await at.goto(`/results/${id}`);
+    await expect(at.locator('.result-seal')).toContainText('verified');
+  });
 
   // The ceremony of a real show nobody claimed a case in: every prize "not won" (D34).
   const empty = await openShow(page.request, 6, 3);
@@ -269,6 +309,10 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   // pause, and a pause in the past is refused.
   await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 250);
   await shoot(page, 'ceremony');
+  // The sweep waits for painted frames, which a held clock never gives: the ceremony runs on
+  // from here, and is walked as it stands then.
+  await page.clock.resume();
+  await walk(page, 'ceremony');
 
   // The admin area with the settings (a development admin needs no second factor).
   await signInApi(page.request, 'Ada', 'admin');
@@ -276,6 +320,10 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   const settings = page.getByRole('form', { name: 'Settings' });
   await expect(settings).toBeVisible();
   await shoot(page, 'admin-settings', settings);
+  await walk(page, 'admin-settings', async (at) => {
+    await at.goto('/admin');
+    await expect(settings).toBeVisible();
+  });
   // The header in each role: signed out is the sign-in, a player the start; these two beside them.
   for (const [name, role] of [
     ['Ada', 'admin'],
@@ -285,23 +333,11 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
     await page.goto('/');
     await expect(page.getByTestId('app-header')).toBeVisible();
     await shoot(page, `header-${role}`);
+    await walk(page, `header-${role}`, async (at) => {
+      await at.goto('/');
+      await expect(at.getByTestId('app-header')).toBeVisible();
+    });
   }
 
-  writeFileSync(`${DIR}checks.json`, JSON.stringify(checks, null, 2));
-  // The findings are assertions: nothing under the text floor, nothing scrolling sideways, nothing
-  // cut with an ellipsis, no artifact off its case's centre, and on a phone at the normal font the
-  // game bar in one row (D60), at every size, in both themes, at the large font too.
-  const oneRow = (c: Check) => c.barHeight > BAR_ONE_ROW && !c.file.includes('font200');
-  const phone = (c: Check) => Number(/-(\d+)x\d+-/.exec(c.file)?.[1]) < PHONE_WIDTH;
-  const problems = checks.filter(
-    (c) =>
-      c.smallestText < FLOOR ||
-      c.sideways ||
-      c.cut > 0 ||
-      c.offCentre > 0 ||
-      (phone(c) && oneRow(c)),
-  );
-  console.log(`${String(checks.length)} pictures, ${String(problems.length)} with findings`);
-  for (const p of problems) console.log(JSON.stringify(p));
-  expect(problems.map((c) => c.file)).toEqual([]);
+  expect(findings).toEqual([]);
 });

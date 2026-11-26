@@ -12,9 +12,9 @@
  *                 the folded menu, each named by its step. If the kit's chip cannot hold this and
  *                 neither props nor the game's CSS can fix it, this run fails and the finding goes
  *                 to the kit's planning chat; nothing is changed in the kit. Pictures go to
- *                 .local/screens/sc-n10/header-steps/ (never into git). Runs only as the project
+ *                 .local/screens/sc-n12/header-steps/ (never into git). Runs only as the project
  *                 `screens`.
- * Depends on:     @playwright/test, node:fs, ./helpers.ts, ./measure.ts, ./stubShared.ts
+ * Depends on:     @playwright/test, node:fs, ./helpers.ts, ./measure.ts, ./standIn.ts, ./stubShared.ts
  */
 import { mkdirSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -23,10 +23,10 @@ import { expect, test, type Page } from '@playwright/test';
 
 import { openMenu } from './helpers.js';
 import { measure } from './measure.js';
-import { LONG_NAME, STUB_ORIGIN } from './stubShared.js';
+import { gameAt, startSite } from './standIn.js';
+import { LONG_NAME } from './stubShared.js';
 
-const DIR = fileURLToPath(new URL('../.local/screens/sc-n10/header-steps/', import.meta.url));
-const GAME = `${STUB_ORIGIN}/games/cases/`;
+const DIR = fileURLToPath(new URL('../.local/screens/sc-n12/header-steps/', import.meta.url));
 const SIZES = [
   [390, 844],
   [375, 667],
@@ -97,9 +97,10 @@ test('the header with a 32-character name and three steps holds on a phone', asy
   rmSync(DIR, { recursive: true, force: true });
   mkdirSync(DIR, { recursive: true });
   const context = await browser.newContext();
-  await context.addCookies([{ name: 'stub-as', value: '9', url: STUB_ORIGIN }]);
+  const site = await startSite();
+  site.signInAs(9);
   const page = await context.newPage();
-  await page.goto(GAME);
+  await page.goto(gameAt(site));
   await openMenu(page);
   await page.getByRole('link', { name: 'Sign in' }).click();
   await expect(page.getByTestId('signed-in-as')).toBeAttached();
@@ -125,6 +126,7 @@ test('the header with a 32-character name and three steps holds on a phone', asy
   }
   console.log(`header steps: ${String(problems.length)} findings`);
   for (const p of problems) console.log(p);
-  expect(problems).toEqual([]);
   await context.close();
+  await site.close();
+  expect(problems).toEqual([]);
 });

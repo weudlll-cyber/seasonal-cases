@@ -33,7 +33,9 @@ function Entry({ entry }: { entry: ChronicleEntry }) {
       <p className="chronicle-proof">
         {entry.caseCount} cases · commitment {shortCommitment(entry.commitment)} ·{' '}
         {entry.verified ? 'verified' : 'NOT verified'} ·{' '}
-        <Link to={`/results/${entry.id}`}>Full result</Link>
+        <Link to={`/results/${entry.id}`} className="tap">
+          Full result
+        </Link>
       </p>
     </article>
   );

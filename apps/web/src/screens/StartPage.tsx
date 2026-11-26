@@ -90,8 +90,16 @@ function ShowCard({ show }: { show: PublicShowView }) {
       badge={<span className="start-badge">{stateText(show)}</span>}
       special={
         <p className="start-links">
-          {onStage && <Link to="/show">Go to the stage</Link>}
-          {show.state === 'ended' && <Link to={`/results/${show.id}`}>See the result</Link>}
+          {onStage && (
+            <Link to="/show" className="tap">
+              Go to the stage
+            </Link>
+          )}
+          {show.state === 'ended' && (
+            <Link to={`/results/${show.id}`} className="tap">
+              See the result
+            </Link>
+          )}
         </p>
       }
       facts={[

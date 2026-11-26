@@ -92,6 +92,18 @@ a {
   opacity: 0.9;
 }
 
+/* A text link or button standing alone: its target is the 44 px one, and the words stay where
+   they were (the box grows into the room around it). Links inside running text are not marked. */
+.tap,
+.link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--sk-hit-target);
+  min-height: var(--sk-hit-target);
+  margin-block: min(0px, calc((1lh - var(--sk-hit-target)) / 2));
+}
+
 :focus-visible {
   outline: 3px solid var(--sk-color-accent);
   outline-offset: 2px;

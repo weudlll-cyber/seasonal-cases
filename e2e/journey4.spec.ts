@@ -6,18 +6,27 @@
  *                 a member signs in the same way, sees the back link, the docked chat frame and
  *                 their step badge, and may pick a case; a guest sees the same show with the
  *                 back link and a "Sign in" through the website, and no case to pick.
- * Depends on:     @playwright/test, ./helpers.ts, ./stubShared.ts
+ * Depends on:     @playwright/test, ./helpers.ts, ./standIn.ts, ./stubShared.ts
  */
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 
 import { endEarly, openMenu, OWN_PAGE } from './helpers.js';
-import { STEP_ICON, STUB_ORIGIN } from './stubShared.js';
+import { gameAt, startSite, type WebsiteStandIn } from './standIn.js';
+import { STEP_ICON } from './stubShared.js';
 
-const GAME = `${STUB_ORIGIN}/games/cases/`;
+let site: WebsiteStandIn;
+let GAME = '';
+test.beforeAll(async () => {
+  site = await startSite();
+  GAME = gameAt(site);
+});
+test.afterAll(async () => {
+  await site.close();
+});
 
 /** Signs in through the website: the header's link, the website's login, and back. */
 async function signInThroughWebsite(context: BrowserContext, memberId: number): Promise<Page> {
-  await context.addCookies([{ name: 'stub-as', value: String(memberId), url: STUB_ORIGIN }]);
+  site.signInAs(memberId);
   const page = await context.newPage();
   await page.goto(GAME);
   await openMenu(page);
@@ -55,7 +64,7 @@ test('journey 4: website sign-in, back link, docked chat, badges; a guest only w
   const phone = await chatBar.isVisible();
   if (phone) await chatBar.click();
   await expect(
-    ana.frameLocator('[data-testid="chat-frame"]').getByText('Chat (stand-in)'),
+    ana.frameLocator('[data-testid="chat-frame"]').getByText('chat (stand-in)'),
   ).toBeVisible();
   if (phone) {
     await chatBar.click();

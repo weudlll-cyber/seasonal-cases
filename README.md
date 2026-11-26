@@ -39,7 +39,7 @@ on every interface, so a phone on the same network reaches it at `http://<PC's I
 | 3980 | the browser tests' own server                    |
 | 5480 | the browser tests' own client                    |
 | 3990 | the browser tests' server in website mode        |
-| 5485 | the browser tests' stand-in website              |
+| 5485 | the browser tests' client in website mode        |
 
 ## Install on a server
 

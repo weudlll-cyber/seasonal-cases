@@ -243,7 +243,9 @@ export function AccountEntry({ onEnter }: { onEnter: (me: Me) => void }) {
         ))}
       </p>
       <p className="account-switch">
-        <Link to="/privacy">Privacy</Link>
+        <Link to="/privacy" className="tap">
+          Privacy
+        </Link>
       </p>
     </section>
   );

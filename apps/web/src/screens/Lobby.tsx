@@ -15,8 +15,18 @@ import { api } from '../lib/base.js';
 import { Link } from '../lib/router.js';
 
 function Way({ show }: { show: ShowSummary }) {
-  if (show.state === 'ended') return <Link to={`/results/${show.id}`}>Result</Link>;
-  if (show.state === 'sealed' || show.state === 'live') return <Link to="/show">Stage</Link>;
+  if (show.state === 'ended')
+    return (
+      <Link to={`/results/${show.id}`} className="tap">
+        Result
+      </Link>
+    );
+  if (show.state === 'sealed' || show.state === 'live')
+    return (
+      <Link to="/show" className="tap">
+        Stage
+      </Link>
+    );
   return null;
 }
 

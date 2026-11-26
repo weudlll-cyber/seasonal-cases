@@ -11,10 +11,7 @@
  *                 checked by axe with the WCAG 2.0 to 2.2 A and AA rules (`target-size` on, since
  *                 axe ships it off) at 1536 x 768 and 390 x 844 in both themes. A finding of
  *                 impact serious or critical fails the run; moderate and minor ones are printed.
- *                 A finding in a part of the kit (an `sk-` class or component) is not fixed here:
- *                 `KIT` names exactly that rule on exactly that selector, with the BACKLOG row that
- *                 holds it, so the run stays green and the finding stays visible. A probe proves
- *                 the check sees a pointer target under 24 px. Chromium only, in the required `e2e`
+ *                 A probe proves the check sees a pointer target under 24 px. Chromium only, in the required `e2e`
  *                 job. Reuses `./helpers.ts` (sign-in, shows, the direction bar, the mail clean-up).
  * Depends on:     @playwright/test, @axe-core/playwright, ./helpers.ts
  */
@@ -38,16 +35,6 @@ const SIZES = [
 const THEMES = ['light', 'dark'] as const;
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
-/**
- * Findings in the kit's own parts, left to the kit: the rule and the exact selector, and the
- * BACKLOG row that holds the finding. Nothing else is excluded.
- */
-const KIT: readonly { rule: string; selector: string; backlog: string }[] = [
-  // The kit's docked main area scrolls on the result page and holds nothing a keyboard can reach
-  // (DockedScreen, `sk-docked-main`; still so at kit v0.22.0): BACKLOG 70, for the kit's chat.
-  { rule: 'scrollable-region-focusable', selector: '.sk-docked-main', backlog: '70' },
-];
-
 interface Finding {
   readonly text: string;
   readonly impact: string;
@@ -65,7 +52,6 @@ async function check(page: Page, label: string): Promise<void> {
   for (const v of result.violations) {
     for (const node of v.nodes) {
       const selector = node.target.join(' ');
-      if (KIT.some((k) => k.rule === v.id && k.selector === selector)) continue;
       found.push({
         impact: v.impact ?? 'minor',
         text: `${v.impact ?? '?'} ${v.id} | ${selector} | ${label} ${size}`,

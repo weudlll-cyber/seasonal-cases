@@ -24,6 +24,12 @@
   height: auto;
 }
 
+/* The card keeps its content's height: the page scrolls (CONCEPT §7), so a long board or lobby
+   below it never squeezes the card until it cuts its own icon and facts. */
+.start-page > .sk-start-card {
+  flex-shrink: 0;
+}
+
 .start-page .sk-start-icon img {
   width: 100%;
   height: auto;

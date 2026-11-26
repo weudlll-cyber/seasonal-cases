@@ -1,50 +1,52 @@
 /**
  * @file   e2e/measure.ts
- * @brief  What the screens run measures on a page, instead of someone looking at it (D60).
+ * @brief  The game's own measurements, beside the kit's probe (D60, D50).
  *
- * Responsibility: one function that runs in the page and counts what must not happen on a phone or
- *                 at the largest text: the smallest visible text, whether the document scrolls
- *                 sideways and which elements reach past the window's edge, the labels cut with an
- *                 ellipsis (their text wider than their box) and their texts, the risen artifacts
- *                 whose gem is off their case's centre (D50), and the game bar's height. A box of
- *                 a pixel or less (hidden, or kept for screen readers only) is not on screen.
+ * Responsibility: `measure` runs in the page and reads what the kit's probe does not: the
+ *                 smallest visible text, whether the document scrolls sideways and which elements
+ *                 reach past the window's edge, the risen artifacts whose gem is off their case's
+ *                 centre (D50), and the game bar's height. A box of a pixel or less (hidden, or
+ *                 kept for screen readers only) is not on screen. `ownFindings` turns that into
+ *                 findings for the kit's sweep: text under 14 px, an artifact off its centre, and
+ *                 on a phone of CONCEPT §7's sizes at the normal font a game bar of more than
+ *                 one row (D60).
  * Depends on:     @playwright/test (types)
  */
 import type { Page } from '@playwright/test';
 
+const FLOOR = 14;
+// The game bar of a phone is one row: its 44 px buttons and a little room.
+const BAR_ONE_ROW = 52;
+const PHONE_WIDTH = 700;
+// The narrowest phone of CONCEPT §7; the kit's sweep also looks at 320 px, where the bar wraps.
+const NARROWEST = 360;
+
 export interface Measures {
   smallestText: number;
   sideways: boolean;
-  // Visible labels cut with an ellipsis (their text wider than their box), and their texts.
-  cut: number;
-  cutTexts: string[];
   // Risen artifacts (the front case, the ceremony) whose gem is off their case's centre (D50).
   offCentre: number;
   // The first elements reaching past the window's right edge (only when the page scrolls sideways).
   wide: string[];
   // The game bar's height in px, 0 where there is none: one row at 52 px at most (D60).
   barHeight: number;
+  rootFont: number;
 }
 
 export async function measure(page: Page): Promise<Measures> {
   return page.evaluate(() => {
-    /** The smallest font of visible text, and the texts of the labels an ellipsis cuts. */
-    function texts(): { smallest: number; cutTexts: string[] } {
-      const cutTexts: string[] = [];
-      let smallest = Infinity;
+    /** The smallest font of visible text. */
+    function smallest(): number {
+      let least = Infinity;
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
       for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
         const parent = node.parentElement;
         if (parent === null || (node.textContent ?? '').trim() === '') continue;
         const box = parent.getBoundingClientRect();
         if (box.width <= 1 || box.height <= 1) continue;
-        const style = getComputedStyle(parent);
-        smallest = Math.min(smallest, parseFloat(style.fontSize));
-        if (style.textOverflow === 'ellipsis' && parent.scrollWidth > parent.clientWidth) {
-          cutTexts.push(parent.textContent);
-        }
+        least = Math.min(least, parseFloat(getComputedStyle(parent).fontSize));
       }
-      return { smallest, cutTexts };
+      return least;
     }
 
     function wideElements(): string[] {
@@ -71,18 +73,28 @@ export async function measure(page: Page): Promise<Measures> {
       }).length;
     }
 
-    const { smallest, cutTexts } = texts();
     const sideways = document.documentElement.scrollWidth > window.innerWidth + 1;
     return {
-      smallestText: smallest,
+      smallestText: smallest(),
       sideways,
-      cut: cutTexts.length,
-      cutTexts,
       offCentre: offCentre(),
       wide: sideways ? wideElements() : [],
       barHeight: Math.round(
         document.querySelector('.sk-game-bar')?.getBoundingClientRect().height ?? 0,
       ),
+      rootFont: parseFloat(getComputedStyle(document.documentElement).fontSize),
     };
   });
+}
+
+export async function ownFindings(page: Page): Promise<string[]> {
+  const seen = await measure(page);
+  const width = page.viewportSize()?.width ?? 0;
+  const phone = width >= NARROWEST && width < PHONE_WIDTH;
+  const tall = phone && seen.rootFont <= 16 && seen.barHeight > BAR_ONE_ROW;
+  return [
+    ...(seen.smallestText < FLOOR ? [`text of ${String(seen.smallestText)} px`] : []),
+    ...(seen.offCentre > 0 ? [`${String(seen.offCentre)} artifacts off their case's centre`] : []),
+    ...(tall ? [`the game bar is ${String(seen.barHeight)} px high`] : []),
+  ];
 }

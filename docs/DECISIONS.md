@@ -353,3 +353,10 @@ the owner confirmed them on 2026-11-23 (D46).
   database service carries the kit's container hardening, held by a test.
 - **D84 — One operator guide.** `docs/operator-guide.md` holds what `docs/INSTALL.md` and
   `docs/OPERATIONS-CASES.md` held, in the kit's section order (K86).
+- **D85 — The test parts are the kit's.** The client's static guards are the kit's
+  (`findFixedColours`, `findSmallText`, `findLowContrast`; `apps/web/src/guards.test.ts`); the
+  screens run walks every screen with the kit's `sweep` (seven sizes, 100 % and 200 %, both
+  themes, its probe and axe) and keeps beside it only the game's own checks (text floor, the risen
+  artifact's centre, the phone bar in one row); the website-mode browser tests run behind the kit's
+  `startWebsiteStandIn`, whose app is the game's Vite client. The game's own stand-in website is
+  removed; the accessibility check excludes nothing any more (BACKLOG 70, closed).

@@ -41,7 +41,11 @@ export function Matches({ me }: { me: Me | null }) {
               <span>{formatTime(m.createdAt)}</span>
               <span>Case {m.caseNumber}</span>
               <span>{prizeText(m)}</span>
-              {m.state === 'ended' && <Link to={`/results/${m.showId}`}>Result</Link>}
+              {m.state === 'ended' && (
+                <Link to={`/results/${m.showId}`} className="tap">
+                  Result
+                </Link>
+              )}
             </li>
           ))}
         </ul>

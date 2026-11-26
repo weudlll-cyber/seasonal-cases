@@ -23,6 +23,10 @@ Branch `kit/v0.17-adoption`, night chain SC-N12: kit v0.32.0 with every part it 
   the operator's e-mail address is the privacy page's contact; a standalone server gets a firewall,
   automatic security updates and fail2ban; the database container is hardened; one guide,
   `docs/operator-guide.md`.
+- **Found by the kit's checks and fixed (D85):** text links and link-like buttons standing alone are
+  44 px targets, their words where they were; the start card is no longer squeezed and cut on the
+  start page when a board or list follows it; the "you hold it" line on the registration board is a
+  darker green in the light theme.
 
 ## 1.1.0-rc.3 (not tagged; the tag follows the merge with the owner's word)
 

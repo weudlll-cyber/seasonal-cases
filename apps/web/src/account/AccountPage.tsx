@@ -172,7 +172,9 @@ export function AccountPage({ me, website, onGone }: AccountPageProps) {
             </form>
             <DeleteForm onGone={onGone} />
             <p>
-              <Link to="/privacy">What is stored, and why</Link>
+              <Link to="/privacy" className="tap">
+                What is stored, and why
+              </Link>
             </p>
           </>
         )}
