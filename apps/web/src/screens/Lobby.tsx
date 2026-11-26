@@ -5,10 +5,10 @@
  * Responsibility: one line per show with its state, cases, prizes and date (DECISIONS D24). The
  *                 stage follows the current show, so a sealed or live show links to the stage and
  *                 an ended one to its result. Read again whenever the current show changes.
- * Depends on:     react, @sc/contracts (types), @sc/ui, ../lib/*
+ * Depends on:     react, @sc/contracts, @sc/ui, ../lib/*
  */
-import type { ShowSummary } from '@sc/contracts';
-import { counted, formatTime } from '@sc/ui';
+import { counted, type ShowSummary } from '@sc/contracts';
+import { formatTime } from '@sc/ui';
 import { useEffect, useState } from 'react';
 
 import { api } from '../lib/base.js';

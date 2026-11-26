@@ -6,4 +6,4 @@
  *                 ./pending/ until the kit has them (CLAUDE.md "The kit"); none is pending now.
  * Depends on:     ./format.js
  */
-export { counted, formatTime, shortCommitment } from './format.js';
+export { formatTime, shortCommitment } from './format.js';

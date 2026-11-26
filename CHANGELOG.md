@@ -17,6 +17,9 @@ Branch `kit/v0.17-adoption`, night chain SC-N13: kit v0.34.0 (DECISIONS D86).
   backup, are put back by `scases restore` and refused if they differ, unless forced.
 - **Result page:** on a PC it takes the full content width, so the cases stand in a grid beside
   the winners instead of one long column.
+- **Found in the play-through and fixed:** the admin area's two checkbox rows are full touch
+  targets again; one owner is said "1 owner" on the start card, and the website's open sign-up
+  says "1 prize" for a show with one winner.
 
 ## 1.1.0-rc.4 (not tagged; the tag follows the merge with the owner's word)
 

@@ -2,8 +2,8 @@
 
 A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
 
-- **Now:** version `1.0.0` on master, tag `v1.0.0`; `1.1.0-rc.4` on `kit/v0.17-adoption` (night
-  chains SC-N7 to SC-N12, kit v0.32.0, D79), not merged; the first show on a server is next after
+- **Now:** version `1.0.0` on master, tag `v1.0.0`; `1.1.0-rc.5` on `kit/v0.17-adoption` (night
+  chains SC-N7 to SC-N13, kit v0.34.0, D86), not merged; the first show on a server is next after
   it (docs/RELEASING.md).
   Built: website mode, the docked chat, PostgreSQL, standalone accounts with 2FA, roles, ranks,
   lobby, "My matches", the settings catalogue, the chronicle (BACKLOG 1, 2, 3, 5, 6, 8, 9, 17, 18,
@@ -19,14 +19,14 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   first run on a real VPS (BACKLOG 34). The open-rounds listing
   and the member summary are built (BACKLOG 25, 26, closed); the website wires the card's origin
   (BACKLOG 33).
-- **Kit:** v0.32.0 on `kit/v0.17-adoption` (D56, D79; v0.11.1 on master). Nothing is pending:
+- **Kit:** v0.34.0 on `kit/v0.17-adoption` (D56, D79, D86; v0.11.1 on master). Nothing is pending:
   `packages/ui/src/pending/` is gone; the load check comes before production (D79, BACKLOG 64).
 - **The kit's handbook (v0.17.0), read against the game on 2026-11-24:** the owner's hand is needed for
   the GitHub settings (59, RELEASING.md); the steps before production (64, waits for the VPS; coverage (63) is decided: no target, D64). Replaced without a visible change: the season
   colours as the kit's tokens, an opened case's hidden name as `sk-visually-hidden`, the arena
   tones as own tokens.
-- **For the kit's planning chat:** the game bar at 200 % and the docked screen's region (BACKLOG
-  77, 78).
+- **For the kit's planning chat:** the game bar at 200 %, the docked screen's region and the
+  organiser's folded header at 1536 × 768 (BACKLOG 77, 78, 79).
 - **Browsers:** all six projects pass all six journeys on `kit/v0.17-adoption` (the five nightly
   ones proven on 2026-11-25, run 45702753156); the nightly run on `master` stays red until the merge
   (BACKLOG 74).

@@ -4,7 +4,8 @@
  *
  * Responsibility: an artifact's identity, name, season colour and the prize slot it stands for
  *                 (null: no prize); a prize slot's number and its optional label; the words for
- *                 a prize, an owner and a winner, so every screen says the same.
+ *                 a prize, an owner, a winner and a number of things, so every screen and the
+ *                 server say the same.
  * Depends on:     zod, ./show.js
  */
 import { z } from 'zod';
@@ -42,6 +43,11 @@ export function prizeName(slot: number, label: string): string {
 
 /** A prize slot's name (`prizeName`). */
 export const prizeTitle = (slot: PrizeSlot): string => prizeName(slot.slot, slot.label);
+
+/** "1 prize", "2 prizes": a number with its noun, whose plural takes an "s". */
+export function counted(n: number, noun: string): string {
+  return `${String(n)} ${noun}${n === 1 ? '' : 's'}`;
+}
 
 /**
  * How every screen names a case's owner: the name, or "Unclaimed" for a case nobody claimed

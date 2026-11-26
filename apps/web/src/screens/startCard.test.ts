@@ -20,4 +20,10 @@ describe('takenText', () => {
     const owned = live.cases.filter((c) => c.ownerName !== null).length;
     expect(takenText(live)).toBe(`${String(owned)} owners`);
   });
+
+  it('says one owner without the plural', () => {
+    const live = liveView('idle');
+    const cases = live.cases.map((c, i) => ({ ...c, ownerName: i === 0 ? 'Ana' : null }));
+    expect(takenText({ ...live, cases })).toBe('1 owner');
+  });
 });

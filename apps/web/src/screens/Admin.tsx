@@ -14,8 +14,8 @@
  *                 ../lib/useAction.js, ../shell/DevBoundary.js, ./AccountsAdmin.js,
  *                 ./QuickTestParts.js (lazy, development only), ./SetupForm.js
  */
-import { canDirect, type Me, type Settings, type ShowSummary } from '@sc/contracts';
-import { counted, formatTime } from '@sc/ui';
+import { canDirect, counted, type Me, type Settings, type ShowSummary } from '@sc/contracts';
+import { formatTime } from '@sc/ui';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 
 import { api, post } from '../lib/base.js';

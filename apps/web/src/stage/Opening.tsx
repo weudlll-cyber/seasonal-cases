@@ -8,10 +8,9 @@
  *                 (./stage.css, `data-opening`); for the direction holder only, "Begin", which
  *                 ends the opening on the server (`direction:begin`). Until then no case can be
  *                 selected: the server refuses it, and the stage offers no click.
- * Depends on:     @sc/contracts, @sc/ui, ../lib/useAction.js, ./ArtifactEmblem.js
+ * Depends on:     @sc/contracts, ../lib/useAction.js, ./ArtifactEmblem.js
  */
-import { prizeTitle, type Ack, type PublicShowView } from '@sc/contracts';
-import { counted } from '@sc/ui';
+import { counted, prizeTitle, type Ack, type PublicShowView } from '@sc/contracts';
 
 import { useAction } from '../lib/useAction.js';
 import { ArtifactEmblem } from './ArtifactEmblem.js';

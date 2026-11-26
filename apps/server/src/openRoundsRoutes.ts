@@ -11,7 +11,7 @@
  *                 the public address (local mode). The kit's `openRoundsPage` (v0.11.0) builds
  *                 the page and applies the website's checks (at most 20, lengths, an https
  *                 `joinUrl` on the game's origin); a round it leaves out is logged once, by id.
- * Depends on:     @seasonal/kit/server, @sc/application (types), @sc/domain, ./http.js (types)
+ * Depends on:     @seasonal/kit/server, @sc/application (types), @sc/contracts, @sc/domain, ./http.js (types)
  */
 import {
   OPEN_ROUNDS_CACHE_CONTROL,
@@ -21,6 +21,7 @@ import {
   type OpenRoundsPage,
 } from '@seasonal/kit/server';
 import type { ShowService } from '@sc/application';
+import { counted } from '@sc/contracts';
 import { currentClaims, type ShowModel } from '@sc/domain';
 
 import type { Ctx } from './http.js';
@@ -30,7 +31,7 @@ const ROUND_KIND = 'Seasonal Cases';
 function roundOf(model: ShowModel, joinUrl: string): OpenRoundInput {
   return {
     id: model.id,
-    title: `Seasonal Cases: ${String(model.caseCount)} cases, ${String(model.prizes.length)} prizes`,
+    title: `Seasonal Cases: ${counted(model.caseCount, 'case')}, ${counted(model.prizes.length, 'prize')}`,
     kind: ROUND_KIND,
     startsAt: null,
     signupClosesAt: null,
