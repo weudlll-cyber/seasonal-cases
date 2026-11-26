@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+# @file   ops/scases
+# @brief  The installed game's command, `sudo scases <verb>`: the kit's admin command with this
+#         game's names, and the game's own verbs (DECISIONS D83).
+#
+# Responsibility: the kit's ops/lib/admin.sh gives status, update, confirm, rollback, backup,
+#                 restore, logs and uninstall (its docs/OPERATIONS.md "The admin command"); this
+#                 file names the game's folders, image and settings and defines the hooks: how to
+#                 build a ref, which files an update installs, the database roles before the new
+#                 image starts and after a rollback's restore, the backup's settings, the route
+#                 file and the journal an uninstall removes. Its own verbs: `start` (roles, then
+#                 the stack; the restore's start command) and `admin promote|reset-2fa <name>`
+#                 (apps/server/src/tools/sc.ts inside the game's container). Installed to
+#                 /opt/seasonal-cases/stack by ops/install.sh, linked as /usr/local/bin/scases.
+# Depends on:     ./lib/*.sh, /opt/seasonal-cases/kit/ops, docker, systemctl
+# The SK_ADMIN_* settings, the SC_* answers and the hooks are used by the sourced files.
+# shellcheck disable=SC2034,SC2317,SC2329
+set -euo pipefail
+
+SELF=$(readlink -f "${BASH_SOURCE[0]}")
+HERE=${SELF%/*}
+# shellcheck source=ops/lib/common.sh
+. "$HERE/lib/common.sh"
+# shellcheck source=ops/lib/app.sh
+. "$HERE/lib/app.sh"
+# shellcheck source=ops/lib/website.sh
+. "$HERE/lib/website.sh"
+# shellcheck source=ops/lib/route.sh
+. "$HERE/lib/route.sh"
+# shellcheck source=ops/lib/backup-settings.sh
+. "$HERE/lib/backup-settings.sh"
+
+load_values "$STATE_FILE" SC_INSTALL_MODE SC_PORT SC_REPO SC_PROXY SC_ROUTES_DIR
+SC_INSTALL_MODE=${SC_INSTALL_MODE:-local}
+SC_PORT=${SC_PORT:-3970}
+
+SK_ADMIN_NAME=scases
+SK_ADMIN_PREFIX=cases
+SK_ADMIN_ETC=$ETC_DIR
+SK_ADMIN_STATE="$SC_ROOT/var/lib/seasonal-cases"
+SK_ADMIN_ROOT=$OPT_DIR
+SK_ADMIN_IMAGE_REPO=$IMAGE_REPO
+SK_ADMIN_IMAGE_KEY=SC_IMAGE
+SK_ADMIN_REF_KEY=SC_REF
+SK_ADMIN_DEFAULT_ENV=prod
+SK_ADMIN_STACK_FILES='stack kit'
+SK_ADMIN_UNIT_DIR="$SC_ROOT/etc/systemd/system"
+SK_ADMIN_COMMAND=$COMMAND_LINK
+# Asked inside the game's container.
+SK_ADMIN_READY_URL="http://127.0.0.1:3970$(base_path)readyz"
+
+game_compose() {
+  shift
+  compose "$@"
+}
+
+game_backup_settings() {
+  set -a
+  # shellcheck source=/dev/null
+  . <(backup_lines)
+  # The operator's age key, once one was given to the installer.
+  # shellcheck source=/dev/null
+  [[ ! -r $BACKUP_CONF ]] || . "$BACKUP_CONF"
+  set +a
+}
+
+game_build() {
+  SC_REF=$2
+  [[ $SC_REF =~ ^[A-Za-z0-9._/-]+$ ]] || die "a tag or branch name is expected"
+  fetch_code
+  build_image
+  SK_ADMIN_NEW_IMAGE=$SC_IMAGE
+}
+
+game_migrations() {
+  game_compose "$1" exec -T postgres psql -X -tA -U seasonal_cases -d seasonal_cases \
+    -c 'SELECT count(*) FROM sc.schema_migrations'
+}
+
+game_install_stack() {
+  install_stack
+  copy_kit
+}
+
+# The settings as they were are kept for a rollback; a role password the settings do not have yet
+# is made (the one-time conversion of an older database).
+game_before_start() {
+  local var
+  cp -p "$ENV_FILE" "$SK_ADMIN_STATE/$1/env.before"
+  for var in SC_DB_OWNER_PASSWORD SC_DB_APP_PASSWORD; do
+    [[ -n $(file_value "$ENV_FILE" "$var") ]] || sk_admin_set "$ENV_FILE" "$var" "$(secret 24)"
+  done
+  database_roles
+}
+
+# A restored dump belongs to the superuser and carries no grants.
+game_after_restore() {
+  (($2 == 0)) || database_roles
+}
+
+game_route_settings() {
+  [[ $SC_INSTALL_MODE == website ]] || return 0
+  route_target
+}
+
+game_uninstall_extra() {
+  rm -f "$JOURNAL_CONF" "$DOCKER_DROPIN"
+  systemctl stop systemd-journald@seasonal-cases.socket 2>/dev/null || true
+  systemctl daemon-reload
+}
+
+game_cmd_start() {
+  start_stack
+  sk_admin_wait_ready "$1"
+}
+
+game_cmd_admin() {
+  local env=$1 flags=()
+  shift
+  [[ -t 0 ]] || flags=(-T)
+  game_compose "$env" exec "${flags[@]}" app node --import=tsx src/tools/sc.ts admin "$@"
+}
+
+game_usage() {
+  cat <<'USAGE'
+  start                          set the database roles again and start the stack
+  admin promote <name>           give a registered account the admin role
+  admin reset-2fa <name>         remove an account's two-factor sign-in
+USAGE
+}
+
+# shellcheck source=/dev/null
+. "$KIT_DIR/ops/lib/admin.sh"
+# One line: an update or rollback replaces this file while it runs.
+sk_admin_main "$@"; exit

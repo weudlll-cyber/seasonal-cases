@@ -10,7 +10,7 @@
 #                 Any red job blocks a merge.
 #                 After seasonal-mini-games .github/workflows/ci.yml; action SHAs and image
 #                 digests are its own.
-# Depends on:     .github/actions/setup, osv-scanner.toml, e2e/, deploy/, Dockerfile
+# Depends on:     .github/actions/setup, osv-scanner.toml, e2e/, ops/, Dockerfile
 name: CI
 
 on:
@@ -115,17 +115,20 @@ jobs:
             --exclude-path node_modules '**/*.md'
 
   deploy:
-    # The installer (deploy/): shellcheck through its entry points (it follows the libraries)
-    # and the dry-run harness, every question path and file without root or a network.
+    # The installer and the game's command (ops/): shellcheck through their entry points (it
+    # follows the libraries) and the dry-run harness, every question path, file and verb without
+    # packages, Docker or a network. As root: the command refuses anyone else.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The harness hands out the pinned kit's ops/ from node_modules.
+      - uses: ./.github/actions/setup
       - name: shellcheck
         run: |
           docker run --rm -v "$PWD:/mnt" -w /mnt "$SHELLCHECK_IMAGE" -x \
-            deploy/install.sh deploy/admin.sh deploy/backup.sh deploy/test/installer.test.sh
+            ops/install.sh ops/scases ops/test/installer.test.sh
       - name: Installer harness
-        run: bash deploy/test/installer.test.sh
+        run: sudo bash ops/test/installer.test.sh
 
   image:
     # The production image (Dockerfile), as the installer builds it for a standalone server; the

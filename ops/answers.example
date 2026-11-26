@@ -1,6 +1,6 @@
-# @file   deploy/answers.example
-# @brief  The installer's answers for an unattended run: `sudo ./deploy/install.sh --answers FILE
-#         --yes` (docs/INSTALL.md). One KEY=value per line; secrets are not answers, the
+# @file   ops/answers.example
+# @brief  The installer's answers for an unattended run: `sudo ./ops/install.sh --answers FILE
+#         --yes` (docs/operator-guide.md). One KEY=value per line; secrets are not answers, the
 #         installer makes them.
 
 # local (own domain, own accounts) or website (under the website, /games/cases/)
@@ -19,8 +19,8 @@ SC_PUBLIC_ORIGIN=https://cases.example.org
 # SC_SMTP_PORT=25
 # SC_MAIL_FROM=Seasonal Cases <cases@example.org>
 
-# Whom the privacy page names as the contact (optional; empty: "the operator of this site")
-# SC_PRIVACY_CONTACT=privacy@example.org
+# The operator's contact address (the privacy page names it) is not an answer: pass --email once;
+# it is kept in /etc/seasonal/operator.env.
 
 # The encrypted nightly backup: your age public key (age-keygen on your own computer, then
 # age-keygen -y key.txt). Without it no backup is set up.

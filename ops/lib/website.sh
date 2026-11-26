@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# @file   deploy/lib/website.sh
+# @file   ops/lib/website.sh
 # @brief  Website installs: the website's Docker network, the addresses trusted to name a visitor,
 #         and the account feed (after seasonal-mini-games ops/lib/website.sh).
 #

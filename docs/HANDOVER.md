@@ -14,8 +14,8 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
 - **Now (2026-11-25, night chain SC-N11):** `1.1.0-rc.3` on `kit/v0.17-adoption` (draft PR #5),
   not merged, not tagged: the owner looks at it first. **On a server Cases runs in Docker only**
   (D76–D78): `Dockerfile`, `ops/compose.yml`, the installer and the backup on them, the native path
-  removed; step by step in [INSTALL.md](INSTALL.md). Proven on the owner's PC with a whole show and
-  a restore drill ([OPERATIONS-CASES.md](OPERATIONS-CASES.md)); not yet on a Linux host (BACKLOG 34,
+  removed; step by step in [INSTALL.md](operator-guide.md). Proven on the owner's PC with a whole show and
+  a restore drill ([OPERATIONS-CASES.md](operator-guide.md)); not yet on a Linux host (BACKLOG 34,
   64). CI builds and scans the image (job `image`, not yet a required check).
 - **Night chain SC-N10 (2026-11-25):** `1.1.0-rc.2` on `kit/v0.17-adoption` (draft PR #5),
   kit v0.22.0 with its backup and server parts; not merged: the owner looks at it first. Open: the
@@ -78,7 +78,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
   Piece 2: `pnpm build` and `pnpm start` (one process, the built client, health and ready,
   JSON logs, graceful stop), every variable in [CONFIG.md](CONFIG.md).
   Piece 3: the member summary for the website's profile (`/api/website/member-summary`).
-  Piece 4: the installer, `sudo ./deploy/install.sh` ([INSTALL.md](INSTALL.md)), both modes,
+  Piece 4: the installer, `sudo ./deploy/install.sh` ([INSTALL.md](operator-guide.md)), both modes,
   `--update` and `--check`, tested by `deploy/test/installer.test.sh` and shellcheck in CI.
   Piece 5: sound, synthesised (Web Audio), off until a viewer turns it on in the game bar.
   Piece 6: Firefox passes the journeys; WebKit's findings are in BACKLOG 12 (not fixed: budget
@@ -151,7 +151,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
 - **The kit's server parts (D69, D70):** CSRF check, security headers, session cookie, guarded
   fetch and the health routes `/healthz`, `/readyz` are the kit's.
 - **Backups (D68, BACKLOG 72):** the kit's, set up by the installer with the owner's age public key
-  (INSTALL "Backups"; the drill in [OPERATIONS-CASES.md](OPERATIONS-CASES.md)). **Needs the owner's
+  (INSTALL "Backups"; the drill in [OPERATIONS-CASES.md](operator-guide.md)). **Needs the owner's
   hand on the VPS:** make the key on the own computer, give the installer the public key, pull the
   first backup and drill it.
 - **Kit:** `kit: pinned v0.22.0, newest v0.27.0, 5 releases behind` (`pnpm kit:check`, 2026-11-25,

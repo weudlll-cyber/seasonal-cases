@@ -1,49 +1,51 @@
 #!/usr/bin/env bash
-# @file   deploy/install.sh
-# @brief  Installs or updates Seasonal Cases on a Debian or Ubuntu server, in one call:
-#         `sudo ./deploy/install.sh` from a clone of this repository (docs/INSTALL.md).
+# @file   ops/install.sh
+# @brief  Installs Seasonal Cases on a Debian or Ubuntu server, in one call:
+#         `sudo ./ops/install.sh` from a clone of this repository (docs/operator-guide.md).
 #
 # Responsibility: the one way Seasonal Cases runs on a server: the compose stack (ops/compose*.yml,
-#                 DECISIONS D76). Check that Docker is there, ask once for what the server needs
-#                 (mode, address, port, mail or the website's proxy) and remember it in
-#                 /etc/seasonal-cases/install.conf (root, 0600; the secrets only in cases.env,
-#                 0600). Then: the few packages, the code at the chosen ref, its image and the
-#                 kit's scripts out of it, the settings, the game's journal, the database roles,
-#                 the stack, the readiness check, in website mode the
-#                 route file in the website's routes folder, and the encrypted nightly backup
-#                 (./lib/backup.sh) once an age public key is given. `--update` takes the
-#                 remembered answers and a new `--ref`, backs up first, then rebuilds and
-#                 restarts; `--check` says what would change, changes nothing and reports the
-#                 stack's health; `--answers FILE` and `--yes` run unattended. A re-run with the
-#                 same answers changes nothing. After seasonal-mini-games ops/install.sh.
+#                 DECISIONS D76, D83). Check that Docker is there, ask once for what the server
+#                 needs (mode, address, port, mail or the website's proxy, the backup's age key)
+#                 and remember it in /etc/seasonal-cases/install.conf (root, 0600; the secrets
+#                 only in prod.env, 0600). Then: the few packages, the code at the chosen ref, its
+#                 image, the kit's scripts out of it and the stack's files with the command
+#                 `scases`, the operator's contact address, the settings, the game's journal, the
+#                 database roles, the stack, the readiness check, in website mode the route file
+#                 and a check through the website, the server's basic security, and the encrypted
+#                 nightly backup once an age public key is given. `--check` says what would change,
+#                 changes nothing and reports the stack's health; `--answers FILE` and `--yes` run
+#                 unattended. A re-run keeps the earlier answers and, with the same ones, changes
+#                 nothing. A new version is `scases update <ref>`, which backs up first. After
+#                 seasonal-mini-games ops/install.sh.
 # Depends on:     ./lib/common.sh, ./lib/host.sh, ./lib/app.sh, ./lib/website.sh, ./lib/route.sh,
-#                 ./lib/backup.sh, ../ops/compose*.yml (of the checked-out code)
+#                 ./lib/backup-settings.sh, the kit's ops/ out of the image
 set -euo pipefail
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-# shellcheck source=deploy/lib/common.sh
+# shellcheck source=ops/lib/common.sh
 . "$HERE/lib/common.sh"
-# shellcheck source=deploy/lib/host.sh
+# shellcheck source=ops/lib/host.sh
 . "$HERE/lib/host.sh"
-# shellcheck source=deploy/lib/app.sh
+# shellcheck source=ops/lib/app.sh
 . "$HERE/lib/app.sh"
-# shellcheck source=deploy/lib/website.sh
+# shellcheck source=ops/lib/website.sh
 . "$HERE/lib/website.sh"
-# shellcheck source=deploy/lib/route.sh
+# shellcheck source=ops/lib/route.sh
 . "$HERE/lib/route.sh"
-# shellcheck source=deploy/lib/backup.sh
-. "$HERE/lib/backup.sh"
+# shellcheck source=ops/lib/backup-settings.sh
+. "$HERE/lib/backup-settings.sh"
 
 # The remembered answers (no secrets: those live in the environment file).
 ANSWERS=(SC_INSTALL_MODE SC_PUBLIC_ORIGIN SC_PORT SC_SMTP_HOST SC_SMTP_PORT SC_MAIL_FROM
   SC_WEBSITE_ORIGIN SC_WEBSITE_NETWORK SC_TRUSTED_PROXIES SC_EDGE_SUBNET SC_PROXY SC_ROUTES_DIR
-  SC_SITE_PORT_FILE SC_REF SC_REPO SC_PRIVACY_CONTACT SC_BACKUP_AGE_RECIPIENT)
-UPDATE=0
+  SC_SITE_PORT_FILE SC_REF SC_REPO SC_BACKUP_AGE_RECIPIENT)
+# --email: kept by the kit in the operator's file, not among the answers.
+EMAIL=''
 ANSWERS_FILE=''
 
 usage() {
   cat <<'USAGE'
-usage: sudo ./deploy/install.sh [options]
+usage: sudo ./ops/install.sh [options]
   --mode local|website     standalone with own accounts, or embedded under the website
   --origin URL             local mode: the address players open (https://cases.example.org)
   --port N                 the loopback port the game is published on (3970)
@@ -55,12 +57,13 @@ usage: sudo ./deploy/install.sh [options]
   --edge-subnet CIDR       the game's own Docker network (172.30.251.0/24)
   --backup-recipient KEY   your age public key (age1…) for the encrypted nightly backup;
                            without one no backup is set up
+  --email ADDRESS          the operator's contact address (asked once if not given)
   --proxies LIST           addresses whose X-Forwarded-For names the visitor
   --ref REF --repo URL     the tag or branch to run, and where to fetch it from
-  --answers FILE           KEY=value lines with the answers (deploy/answers.example)
+  --answers FILE           KEY=value lines with the answers (ops/answers.example)
   --yes                    take defaults, stop on a missing answer instead of asking
-  --update                 back up, fetch --ref (or the remembered one), build, restart
   --check                  say what would change and how the stack is; change nothing
+A new version of an installed game: sudo scases update <ref>
 USAGE
 }
 
@@ -81,10 +84,10 @@ parse_flags() {
       --proxies) SC_TRUSTED_PROXIES=$2; shift ;;
       --backup-recipient) SC_BACKUP_AGE_RECIPIENT=$2; shift ;;
       --ref) SC_REF=$2; shift ;;
+      --email) EMAIL=$2; shift ;;
       --repo) SC_REPO=$2; shift ;;
       --answers) ANSWERS_FILE=$2; shift ;;
       --yes) YES=1 ;;
-      --update) UPDATE=1; YES=1 ;;
       --check) DRY_RUN=1; YES=1 ;;
       -h | --help) usage; exit 0 ;;
       *) usage >&2; die "unknown option $1" ;;
@@ -100,8 +103,6 @@ load_answers() {
     load_values "$ANSWERS_FILE" "${ANSWERS[@]}"
   fi
   load_values "$STATE_FILE" "${ANSWERS[@]}"
-  ((UPDATE)) && [[ ! -f $STATE_FILE ]] && die "--update needs an installed game; run the installer without it first"
-  return 0
 }
 
 ask_common() {
@@ -182,13 +183,13 @@ next_steps() {
   step "done ($CHANGES change(s))"
   if [[ $SC_INSTALL_MODE == local ]]; then
     info "open $SC_PUBLIC_ORIGIN behind your reverse proxy (to http://127.0.0.1:$SC_PORT)"
-    info "first admin: register on the page, then: sudo ./deploy/admin.sh admin promote <name>"
+    info "first admin: register on the page, then: sudo scases admin promote <name>"
   else
     info "open $SC_WEBSITE_ORIGIN/games/cases/; add the game's card in the website's Admin → Games"
   fi
-  info "health: sudo ./deploy/install.sh --check; logs: sudo journalctl --namespace=$PROJECT"
+  info "health: sudo scases status; logs: sudo journalctl --namespace=$PROJECT"
   if [[ -n ${SC_BACKUP_AGE_RECIPIENT:-} ]]; then
-    info "first backup: sudo ./deploy/backup.sh backup; pull and restore: docs/INSTALL.md"
+    info "first backup: sudo scases backup; pull and restore: docs/operator-guide.md"
   fi
 }
 
@@ -201,16 +202,21 @@ main() {
   ask_common
   if [[ $SC_INSTALL_MODE == local ]]; then ask_local; else ask_website; fi
   install_prereqs
-  ((UPDATE)) && backup_before_update
   fetch_code
   build_image
   copy_kit
+  install_stack
+  operator_contact
   write_env
   write_journal
   write_state
   start_stack
   wait_ready
-  [[ $SC_INSTALL_MODE == website ]] && install_route
+  if [[ $SC_INSTALL_MODE == website ]]; then
+    install_route
+    check_through_website
+  fi
+  host_baseline
   write_backup
   ((DRY_RUN)) && report_health
   next_steps

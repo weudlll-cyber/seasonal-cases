@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
-# @file   deploy/lib/app.sh
-# @brief  The game on the machine: its code at the chosen ref, its image and the kit's scripts out
-#         of it, the settings, the journal, the compose stack with its database roles and its
-#         readiness (DECISIONS D76, D82; after seasonal-mini-games ops/lib/config.sh).
+# @file   ops/lib/app.sh
+# @brief  The game on the machine: its code at the chosen ref, its image, the stack's files and the
+#         kit's scripts, the settings, the journal, the compose stack with its database roles and
+#         its readiness (DECISIONS D76, D82, D83; after seasonal-mini-games ops/lib/config.sh).
 #
 # Responsibility: the code in /opt/seasonal-cases/app (root's, a clone of SC_REPO at SC_REF) is the
-#                 build context and holds the compose files (ops/); the image is built on the server,
-#                 tagged with the commit and the mode; the kit's whole ops/ folder is copied out of
-#                 it to /opt/seasonal-cases/kit, so the server's scripts are the version the game
-#                 was built with and the server needs no Node; the env file (/etc/seasonal-cases/cases.env,
+#                 build context only; the image is built on the server, tagged with the commit and
+#                 the mode. What runs is installed apart from it, so an update can build the next
+#                 version without touching the running one: the compose files, these libraries and
+#                 the command in /opt/seasonal-cases/stack (linked as /usr/local/bin/scases), and
+#                 the kit's whole ops/ folder, copied out of the image, in /opt/seasonal-cases/kit,
+#                 so the server needs no Node. The settings file (/etc/seasonal-cases/prod.env,
 #                 root 0600) holds the compose settings and every setting of docs/CONFIG.md, the
-#                 secrets made once and kept; the logs go to a journald namespace of the game's
-#                 own whose retention is 14 days (DECISIONS D61); the stack is brought up with
-#                 docker compose and the installer waits for /readyz; before the game starts the
-#                 database's owner and app roles are set up with the kit's db-roles (which also
-#                 converts an older database once); the health report of --check reads the running
-#                 stack.
+#                 secrets made once and kept; the logs go to a journald namespace of the game's own
+#                 whose retention is 14 days (D61). Before the game starts, the database's owner
+#                 and app roles are set up with the kit's db-roles (which also converts an older
+#                 database once). Used by ../install.sh and ../scases.
 # Depends on:     ./common.sh, the kit's ops/lib/db-roles.sh, git, docker (with compose), systemctl,
 #                 curl, tar, diff
 # shellcheck shell=bash
 
-# The code at SC_REF; answers the commit it stands on.
+# The code at SC_REF.
 fetch_code() {
   step "code ($SC_REF)"
   if [[ -d $APP_DIR/.git ]]; then
@@ -47,7 +47,7 @@ build_image() {
   commit=$(git -C "$APP_DIR" rev-parse --short HEAD 2>/dev/null || true)
   commit=${commit:-unknown}
   version=$(sed -n 's/^ *"version": *"\([^"]*\)".*/\1/p' "$APP_DIR/package.json" | head -n 1)
-  SC_IMAGE="seasonal-cases:$commit-$SC_INSTALL_MODE"
+  SC_IMAGE="$IMAGE_REPO:$commit-$SC_INSTALL_MODE"
   run docker build --quiet \
     --build-arg SC_MODE="$SC_INSTALL_MODE" \
     --build-arg SC_VERSION="${version:-unknown}" \
@@ -72,7 +72,8 @@ copy_kit() {
   mkdir -p "$fresh"
   docker run --rm --entrypoint tar "$SC_IMAGE" -C "$KIT_IN_IMAGE" -cf - ops | tar -xf - -C "$fresh" ||
     die "the kit's ops folder could not be read from $SC_IMAGE"
-  [[ -r $fresh/ops/backup.sh ]] || die "the kit's ops folder in $SC_IMAGE has no backup.sh"
+  [[ -r $fresh/ops/backup.sh && -r $fresh/ops/lib/admin.sh ]] ||
+    die "the kit's ops folder in $SC_IMAGE is incomplete"
   if [[ -d $KIT_DIR ]] && diff -rq "$fresh" "$KIT_DIR" >/dev/null 2>&1; then
     rm -rf "$fresh"
     return 0
@@ -81,6 +82,28 @@ copy_kit() {
   mv "$fresh" "$KIT_DIR"
   CHANGES=$((CHANGES + 1))
   info "wrote ${KIT_DIR#"$SC_ROOT"}/ops"
+}
+
+# The checked-out ref's compose files, libraries and command, and the command's link.
+install_stack() {
+  step "the stack's files"
+  if [[ ! -r $APP_DIR/ops/compose.yml ]]; then
+    ((DRY_RUN)) || die "the code at $SC_REF has no ops/compose.yml"
+    info "would install the stack's files"
+    return 0
+  fi
+  local file
+  for file in "$APP_DIR"/ops/compose.yml "$APP_DIR"/ops/compose.website.yml "$APP_DIR"/ops/compose.journal.yml; do
+    put_file "$STACK_DIR/${file##*/}" 0644 <"$file"
+  done
+  for file in "$APP_DIR"/ops/lib/*.sh; do
+    put_file "$STACK_DIR/lib/${file##*/}" 0644 <"$file"
+  done
+  put_file "$STACK_DIR/scases" 0755 <"$APP_DIR/ops/scases"
+  [[ $(readlink "$COMMAND_LINK" 2>/dev/null) == "$STACK_DIR/scases" ]] && return 0
+  run mkdir -p "${COMMAND_LINK%/*}"
+  run ln -sfn "$STACK_DIR/scases" "$COMMAND_LINK"
+  CHANGES=$((CHANGES + 1))
 }
 
 # Secrets made once: kept from the settings file on every later run.
@@ -100,9 +123,9 @@ write_env() {
   keep_secret SC_COOKIE_SECRET 32
   keep_secret SC_RECOVERY_KEY 32
   {
-    printf '# Written by deploy/install.sh; every variable is in docs/CONFIG.md.\n'
-    quoted SC_IMAGE "${SC_IMAGE:-seasonal-cases:not-built}"
-    quoted SC_ENV_FILE /etc/seasonal-cases/cases.env
+    printf '# Written by ops/install.sh; every variable is in docs/CONFIG.md.\n'
+    quoted SC_IMAGE "${SC_IMAGE:-$IMAGE_REPO:not-built}"
+    quoted SC_ENV_FILE "${ENV_FILE#"$SC_ROOT"}"
     quoted SC_HOST_PORT "$SC_PORT"
     quoted SC_EDGE_SUBNET "$SC_EDGE_SUBNET"
     quoted POSTGRES_PASSWORD "$POSTGRES_PASSWORD"
@@ -139,12 +162,12 @@ write_env() {
 # `journalctl --namespace=seasonal-cases`.
 write_journal() {
   put_file "$JOURNAL_CONF" 0644 <<'JOURNAL'
-# Written by deploy/install.sh (Seasonal Cases): the game's logs are kept 14 days (DECISIONS D61).
+# Written by ops/install.sh (Seasonal Cases): the game's logs are kept 14 days (DECISIONS D61).
 [Journal]
 MaxRetentionSec=14day
 JOURNAL
   put_file "$DOCKER_DROPIN" 0644 <<'DROPIN'
-# Written by deploy/install.sh (Seasonal Cases): the game's journal listens before Docker starts.
+# Written by ops/install.sh (Seasonal Cases): the game's journal listens before Docker starts.
 [Unit]
 Wants=systemd-journald@seasonal-cases.socket
 After=systemd-journald@seasonal-cases.socket
@@ -155,29 +178,21 @@ DROPIN
 
 # docker compose for the installed stack: the project, the settings and the files of this mode.
 compose() {
-  local files=(-f "$APP_DIR/ops/compose.yml")
-  [[ $SC_INSTALL_MODE == website ]] && files+=(-f "$APP_DIR/ops/compose.website.yml")
-  files+=(-f "$APP_DIR/ops/compose.journal.yml")
+  local files=(-f "$STACK_DIR/compose.yml")
+  [[ $SC_INSTALL_MODE == website ]] && files+=(-f "$STACK_DIR/compose.website.yml")
+  files+=(-f "$STACK_DIR/compose.journal.yml")
   docker compose -p "$PROJECT" --env-file "$ENV_FILE" "${files[@]}" "$@"
 }
 
-# The database first, then its roles (made or converted; nothing changes on a database that has
-# them, but the passwords are the settings' again), then the stack: the migration service and the
-# game.
-start_stack() {
+# The database, then its roles: made, or converted from an older database; on one that has them
+# only the passwords are the settings' again. They reach psql on standard input only.
+database_roles() {
   step "database roles"
   if ((DRY_RUN)); then
     info "would set up the database's owner and app roles"
-  else
-    compose up -d --wait postgres
-    apply_roles
+    return 0
   fi
-  step "stack"
-  run compose up -d --remove-orphans
-}
-
-# The passwords reach psql on standard input only (kit ops/lib/db-roles.sh).
-apply_roles() {
+  compose up -d --wait postgres
   # shellcheck source=/dev/null
   . "$KIT_DIR/ops/lib/db-roles.sh"
   SK_DB_PREFIX=sc \
@@ -188,11 +203,18 @@ apply_roles() {
     die "the database roles could not be set up"
 }
 
-ready_url() {
-  local base=/
-  [[ $SC_INSTALL_MODE == website ]] && base=/games/cases/
-  printf 'http://127.0.0.1:%s%sreadyz' "$SC_PORT" "$base"
+# The roles, then the stack: the migration service and the game.
+start_stack() {
+  database_roles
+  step "stack"
+  run compose up -d --remove-orphans
 }
+
+base_path() {
+  if [[ $SC_INSTALL_MODE == website ]]; then printf '/games/cases/'; else printf '/'; fi
+}
+
+ready_url() { printf 'http://127.0.0.1:%s%sreadyz' "$SC_PORT" "$(base_path)"; }
 
 # The base path's readiness, at most 120 s; the database and the migrations come first.
 wait_ready() {
@@ -215,7 +237,7 @@ wait_ready() {
 # --check: the running stack's containers and whether the game answers ready.
 report_health() {
   step "health"
-  [[ -f $ENV_FILE && -d $APP_DIR/ops ]] || {
+  [[ -f $ENV_FILE && -r $STACK_DIR/compose.yml ]] || {
     info "nothing is installed yet"
     return 0
   }

@@ -6,8 +6,8 @@ names every problem and the mode that needs the value. Settings of the show itse
 cases and prizes, artifact names, durations, confetti) are not here: an admin changes them in
 the admin area (`/admin`, Settings).
 
-"From" says who provides the value: **installer** (`deploy/install.sh` writes it into
-`/etc/seasonal-cases/cases.env`, or the compose file sets it), **website** (the website's operator gives it), **dev** (set by
+"From" says who provides the value: **installer** (`ops/install.sh` writes it into
+`/etc/seasonal-cases/prod.env`, or the compose file sets it), **website** (the website's operator gives it), **dev** (set by
 `apps/server/dev.env` for `pnpm dev`), **you** (only when you want something else).
 
 ## Always
@@ -34,15 +34,15 @@ the admin area (`/admin`, Settings).
 
 ## Local mode
 
-| Variable             | Default                             | Required in                                         | From      | What                                                                                                             |
-| -------------------- | ----------------------------------- | --------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------- |
-| `SC_PUBLIC_ORIGIN`   | `http://localhost:5470`             | production; a server that mails outside development | installer | the address players open; reset and confirmation links point here; `https:` makes the cookie Secure              |
-| `SC_TRUSTED_PROXIES` | `127.0.0.1,::1`                     | —                                                   | installer | addresses or CIDRs whose `X-Forwarded-For` names the visitor (the reverse proxy); no keywords such as `loopback` |
-| `SC_SMTP_HOST`       | (none: no mail, no registration)    | —                                                   | installer | the SMTP relay for the registration's confirmation and the forgotten-password mail; without it both answer 503   |
-| `SC_SMTP_PORT`       | `25`                                | —                                                   | installer | its port                                                                                                         |
-| `SC_MAIL_FROM`       | `Seasonal Cases <cases@localhost>`  | —                                                   | installer | the sender                                                                                                       |
-| `SC_CHAT_ORIGIN`     | (none)                              | —                                                   | dev       | the website's development server, whose chat is docked under the stage                                           |
-| `SC_PRIVACY_CONTACT` | (none: "the operator of this site") | —                                                   | installer | who the privacy page names for questions about one's data (up to 200 characters); also in website mode           |
+| Variable             | Default                             | Required in                                         | From      | What                                                                                                                                                                                                  |
+| -------------------- | ----------------------------------- | --------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SC_PUBLIC_ORIGIN`   | `http://localhost:5470`             | production; a server that mails outside development | installer | the address players open; reset and confirmation links point here; `https:` makes the cookie Secure                                                                                                   |
+| `SC_TRUSTED_PROXIES` | `127.0.0.1,::1`                     | —                                                   | installer | addresses or CIDRs whose `X-Forwarded-For` names the visitor (the reverse proxy); no keywords such as `loopback`                                                                                      |
+| `SC_SMTP_HOST`       | (none: no mail, no registration)    | —                                                   | installer | the SMTP relay for the registration's confirmation and the forgotten-password mail; without it both answer 503                                                                                        |
+| `SC_SMTP_PORT`       | `25`                                | —                                                   | installer | its port                                                                                                                                                                                              |
+| `SC_MAIL_FROM`       | `Seasonal Cases <cases@localhost>`  | —                                                   | installer | the sender                                                                                                                                                                                            |
+| `SC_CHAT_ORIGIN`     | (none)                              | —                                                   | dev       | the website's development server, whose chat is docked under the stage                                                                                                                                |
+| `SC_PRIVACY_CONTACT` | (none: "the operator of this site") | -                                                   | installer | who the privacy page names for questions about one's data (up to 200 characters), also in website mode; the installer writes the operator's address (`--email`, kept in `/etc/seasonal/operator.env`) |
 
 ## Website mode
 
@@ -57,9 +57,9 @@ the admin area (`/admin`, Settings).
 ## Backups
 
 Not read by the game: the installer's answer `SC_BACKUP_AGE_RECIPIENT` (your age public key, or
-`--backup-recipient`; none: no backup) becomes `/etc/seasonal-cases/backup.env` (root 0600), whose
+`--backup-recipient`; none: no backup) becomes `/etc/seasonal-cases/backup.conf` (root 0600), whose
 `SK_BACKUP_*` settings are the kit's (`docs/OPERATIONS.md` in the kit). The secrets that must travel
-with a backup are all in `cases.env`: `SC_DATA_KEY`, `SC_COOKIE_SECRET`, `SC_RECOVERY_KEY`,
+with a backup are all in `prod.env`: `SC_DATA_KEY`, `SC_COOKIE_SECRET`, `SC_RECOVERY_KEY`,
 `SC_PROXY_SECRET` and `SC_GAMES_SYNC_TOKEN` (website mode) and the three database passwords. There are no
 upload folders.
 
@@ -94,7 +94,7 @@ Fixed in the code, not settings. A refusal is 429 with one sentence.
 ## The compose stack
 
 Read by `docker compose` (`ops/compose*.yml`), from the same file as the game's settings
-(`/etc/seasonal-cases/cases.env`, written by the installer; example `ops/cases.env.example`).
+(`/etc/seasonal-cases/prod.env`, written by the installer; example `ops/cases.env.example`).
 
 | Variable               | Default           | Required in  | From      | What                                                                       |
 | ---------------------- | ----------------- | ------------ | --------- | -------------------------------------------------------------------------- |

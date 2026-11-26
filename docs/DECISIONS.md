@@ -338,3 +338,18 @@ the owner confirmed them on 2026-11-23 (D46).
   record: reads only). The stack's one-shot service `migrate` runs before the game; the installer
   sets the roles up with the kit's `db-roles`, on an existing database once as its conversion (an
   update backs up first), and after every restore. Development keeps its one user.
+- **D83 — The server's operations are the kit's.** The installer is `ops/install.sh` (K86). The
+  kit's whole `ops/` folder comes out of the game's image to `/opt/seasonal-cases/kit`; the
+  installed game's command `scases` is the kit's admin command (status, update, confirm, rollback,
+  backup, restore, logs, uninstall; backups kept unless `--purge-backups`) with the game's `start`
+  and `admin` verbs: an update is `scases update <ref>`, so the installer's `--update` is gone
+  (D78), as are `deploy/admin.sh` and `deploy/backup.sh`. One environment, `prod`
+  (`/etc/seasonal-cases/prod.env`; the backup's settings in `backup.conf`). The route file is the
+  kit's `sk_route_install` with the game's secret header; it refuses `<base>/metrics` and no longer
+  the profile card's path at the proxy, which the server refuses to every proxied request itself,
+  and it no longer carries the trusted range as a comment (D37's remembered range stays). The
+  operator's address (`sk_operator_email`) is what the privacy page names; the installer's
+  `SC_PRIVACY_CONTACT` answer is gone. Standalone installs get the kit's host baseline. The
+  database service carries the kit's container hardening, held by a test.
+- **D84 — One operator guide.** `docs/operator-guide.md` holds what `docs/INSTALL.md` and
+  `docs/OPERATIONS-CASES.md` held, in the kit's section order (K86).

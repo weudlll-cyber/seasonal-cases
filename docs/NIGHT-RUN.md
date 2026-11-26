@@ -17,7 +17,7 @@ All five pieces are done. On a server Cases now runs in Docker only; nothing is 
   path is removed; the kit's backup runs against the database container with its units unchanged.
 - **Proof on the PC:** a whole show with five cases; backup, database volume removed, restore: every
   row count equal, accounts sign in, the result verifies with the same commitment
-  ([OPERATIONS-CASES.md](OPERATIONS-CASES.md)).
+  ([OPERATIONS-CASES.md](operator-guide.md)).
 - **Image scan:** CI job `image` (Trivy, and a search for development tools). The first scan found
   development tools in the image; fixed (BACKLOG 76).
 - **Not proven:** the installer, the backup's timer, the logs into the journal and website mode on a
@@ -36,7 +36,7 @@ All five pieces are done. On a server Cases now runs in Docker only; nothing is 
 **Needs the owner's word:** the merge of PR #5; moving the kit pin; the privacy contact text (from
 earlier chains).
 
-**Needs the owner's hand:** a first install on the VPS ([INSTALL.md](INSTALL.md)); the age key for
+**Needs the owner's hand:** a first install on the VPS ([INSTALL.md](operator-guide.md)); the age key for
 the backup; adding the job `image` to master's required checks after the merge; the GitHub settings
 (BACKLOG 59); deleting the branch `ci/push-master-only` on origin (task SC-CI1).
 
@@ -1362,7 +1362,7 @@ was a flaky installer check, fixed at its cause in piece 7.
   a graceful stop.
 - **3** the member summary for the website's profile.
 - **4** the installer, `sudo ./deploy/install.sh`, both modes, `--update`, `--check`, an answers
-  file; nginx and Caddy route files checked before a reload ([INSTALL.md](INSTALL.md)).
+  file; nginx and Caddy route files checked before a reload ([INSTALL.md](operator-guide.md)).
 - **5** synthesised sound, off until a viewer turns it on.
 - **6** Firefox passes the journeys; WebKit's four failures (phone layout paths in the journeys, a
   `Secure` cookie on the plain-http stand-in) are BACKLOG 12, not fixed.

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# @file   deploy/lib/common.sh
+# @file   ops/lib/common.sh
 # @brief  The installer's shared parts: messages, questions, remembered answers, files, secrets.
 #
 # Responsibility: after seasonal-mini-games ops/lib/common.sh and config.sh. Every path hangs off
-#                 SC_ROOT (empty on a real server; a temporary folder in deploy/test), so the
+#                 SC_ROOT (empty on a real server; a temporary folder in ops/test), so the
 #                 tests run without root. `ask` keeps a value already given (flag, answers file,
 #                 the remembered state) and with --yes stops on a missing answer that has no
 #                 default. `put_file` writes atomically and only on change, counting changes;
@@ -20,9 +20,13 @@ shopt -s lastpipe
 SC_ROOT="${SC_ROOT:-}"
 ETC_DIR="$SC_ROOT/etc/seasonal-cases"
 STATE_FILE="$ETC_DIR/install.conf"
-ENV_FILE="$ETC_DIR/cases.env"
+# One environment, `prod`: the admin command reads every *.env here as one.
+ENV_FILE="$ETC_DIR/prod.env"
 OPT_DIR="$SC_ROOT/opt/seasonal-cases"
 APP_DIR="$OPT_DIR/app"
+# What runs: the compose files, these libraries and the command (./app.sh).
+STACK_DIR="$OPT_DIR/stack"
+COMMAND_LINK="$SC_ROOT/usr/local/bin/scases"
 # The kit's ops/ folder, copied whole out of the game's image with its layout (./app.sh).
 KIT_DIR="$OPT_DIR/kit"
 BACKUP_SCRIPT="$KIT_DIR/ops/backup.sh"
@@ -32,6 +36,11 @@ JOURNAL_CONF="$SC_ROOT/etc/systemd/journald@seasonal-cases.conf"
 DOCKER_DROPIN="$SC_ROOT/etc/systemd/system/docker.service.d/seasonal-cases-journal.conf"
 # The compose project: containers are seasonal-cases-app-1 and seasonal-cases-postgres-1.
 PROJECT=seasonal-cases
+IMAGE_REPO=seasonal-cases
+# Where the kit's operator and host parts keep their files, under the test root too.
+export SK_OPERATOR_DIR="${SK_OPERATOR_DIR:-$SC_ROOT/etc/seasonal}"
+export SK_HOST_APT_CONF="${SK_HOST_APT_CONF:-$SC_ROOT/etc/apt/apt.conf.d}"
+export SK_HOST_JAIL_DIR="${SK_HOST_JAIL_DIR:-$SC_ROOT/etc/fail2ban/jail.d}"
 DRY_RUN=0
 YES=0
 CHANGES=0

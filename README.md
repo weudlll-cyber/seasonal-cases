@@ -47,17 +47,19 @@ The game runs on a server in Docker only (the game and PostgreSQL, `ops/compose.
 or Ubuntu server with Docker, from a clone of this repository:
 
 ```sh
-sudo ./deploy/install.sh            # asks once, remembers; --update --ref <tag> later
+sudo ./ops/install.sh               # asks once, remembers
+sudo scases update <tag>             # later: back up, switch; then: scases confirm or rollback
 ```
 
-Step by step, standalone or under the website: [docs/INSTALL.md](docs/INSTALL.md).
+Step by step, standalone or under the website, with backup, restore and uninstall:
+[docs/operator-guide.md](docs/operator-guide.md).
 
 Every setting is in [docs/CONFIG.md](docs/CONFIG.md).
 
 ## Accounts and admins (local mode)
 
 Players create their own accounts on the start page. Admins come from the command line: on a
-server `sudo ./deploy/admin.sh admin …`, in development `pnpm dev:sc …` (it reads
+server `sudo scases admin …`, in development `pnpm dev:sc …` (it reads
 `apps/server/dev.env`):
 
 ```sh
@@ -100,8 +102,8 @@ empty.
 - [docs/DECISIONS.md](docs/DECISIONS.md): the decisions, as dated facts.
 - [docs/BACKLOG.md](docs/BACKLOG.md) and [docs/OPEN.md](docs/OPEN.md): what is open and closed.
 - [docs/HANDOVER.md](docs/HANDOVER.md): where things stand.
-- [docs/CONFIG.md](docs/CONFIG.md), [docs/INSTALL.md](docs/INSTALL.md) and
-  [docs/RELEASING.md](docs/RELEASING.md): settings, installing, releasing.
+- [docs/CONFIG.md](docs/CONFIG.md), [docs/operator-guide.md](docs/operator-guide.md) and
+  [docs/RELEASING.md](docs/RELEASING.md): settings, running a server, releasing.
 - [docs/security-pass.md](docs/security-pass.md): the independent security reviews.
 - [CONTRIBUTING.md](CONTRIBUTING.md) and [CLAUDE.md](CLAUDE.md): how work is done here.
 

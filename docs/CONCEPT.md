@@ -20,6 +20,7 @@
 | 1.15 | 2026-11-24 | Night chain SC-N8, from the owner's decisions of 2026-11-24: the current season of a new show (§6) and the way back in focus mode (§7, §10): the kit parts of D62. |
 | 1.16 | 2026-11-24 | Night chain SC-N8, kit v0.19.0 (D65): the website member's step badges are drawn by the kit's header beside the name (§4, §10). |
 | 1.17 | 2026-11-25 | Night chain SC-N11, from the owner's decision of 2026-11-25: on a server the game runs in Docker only (§10, §11). |
+| 1.18 | 2026-11-26 | Night chain SC-N12, from the owner's decision of 2026-11-25/26: the installed game has the kit's admin command for update, rollback and uninstall (§10). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -274,7 +275,8 @@ Both are required (ecosystem principle, confirmed for this game 2026-11-21).
   roles player / organiser / admin, super admin by server command, manual ranks (§4), no website
   link, no chat and no call.
 - **Installer:** one call on a VPS for both modes, asking what it needs; general instructions. It
-  installs, updates and checks the Docker stack (§11), and backs up before an update.
+  installs and checks the Docker stack (§11); the installed game's command updates it (backing up
+  first), rolls an update back and uninstalls it.
 - **Privacy** (decided 2026-11-24, DECISIONS D61): a standalone account stays until its player
   deletes it ("Delete my account" in the account area: the password, and a current code with a
   second factor; the last admin is told to make another admin first). Deletion removes the name,

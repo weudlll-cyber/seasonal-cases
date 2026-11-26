@@ -11,7 +11,7 @@
 #                 With NODE_ENV=production no development route exists. It runs as uid 10001 on a
 #                 read-only root filesystem with /tmp in memory (ops/compose.yml), keeps nothing on
 #                 disk (everything is in PostgreSQL), and its health check asks /readyz.
-# Used by:        ops/compose.yml (deploy/install.sh builds it), .github/workflows/ci.yml (job image)
+# Used by:        ops/compose.yml (ops/install.sh builds it), .github/workflows/ci.yml (job image)
 
 # Base pinned by digest; Renovate keeps tag and digest current.
 FROM node:22-alpine@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a AS base

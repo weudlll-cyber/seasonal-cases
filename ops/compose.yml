@@ -2,7 +2,7 @@
 # @brief  The production stack on one server: the game and PostgreSQL 17 (DECISIONS D76; after
 #         seasonal-mini-games ops/compose.yml).
 #
-# Responsibility: the game's image (built on the server from a git ref, deploy/install.sh) runs as
+# Responsibility: the game's image (built on the server from a git ref, ops/install.sh) runs as
 #                 uid 10001 on a read-only root filesystem with /tmp in memory and no capability,
 #                 published on 127.0.0.1 only (SC_HOST_PORT), for the server's own proxy; it keeps
 #                 nothing on disk. PostgreSQL sits on an internal network without a published port,
@@ -17,9 +17,10 @@
 #                 Website installs add ops/compose.website.yml; the installer adds
 #                 ops/compose.journal.yml, which keeps the logs 14 days. CPU and memory are capped.
 #                 Development uses ops/compose.dev.yml, never this file.
-# Depends on:     /etc/seasonal-cases/cases.env (written by deploy/install.sh; ops/cases.env.example)
+# Depends on:     /etc/seasonal-cases/prod.env (written by ops/install.sh; ops/cases.env.example)
 #
-# Run:  docker compose -p seasonal-cases --env-file /etc/seasonal-cases/cases.env -f ops/compose.yml up -d
+# Run:  sudo scases start (installed); by hand: docker compose -p seasonal-cases
+#       --env-file <settings> -f ops/compose.yml up -d
 
 services:
   app:
@@ -78,6 +79,21 @@ services:
 
   postgres:
     image: postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    # The hardening of the kit's OPERATIONS.md: the four capabilities are what the image needs to
+    # start (apps/server/src/compose.test.ts holds the file to it).
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
     environment:
       POSTGRES_USER: seasonal_cases
       POSTGRES_DB: seasonal_cases

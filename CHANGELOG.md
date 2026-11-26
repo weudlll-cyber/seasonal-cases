@@ -18,6 +18,11 @@ Branch `kit/v0.17-adoption`, night chain SC-N12: kit v0.32.0 with every part it 
   https the pages ask the browser to upgrade http addresses; the running game connects to its
   database with a role that can only read and write rows, and a separate service migrates before it
   starts. An installed game is converted once by its update.
+- **Server operations (D83, D84):** the installer is `ops/install.sh`; the installed game has the
+  command `scases` (status, update, confirm, rollback, backup, restore, drill, logs, uninstall);
+  the operator's e-mail address is the privacy page's contact; a standalone server gets a firewall,
+  automatic security updates and fail2ban; the database container is hardened; one guide,
+  `docs/operator-guide.md`.
 
 ## 1.1.0-rc.3 (not tagged; the tag follows the merge with the owner's word)
 

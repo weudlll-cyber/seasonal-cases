@@ -39,11 +39,11 @@ tag.
 
 ## 4. Update a server
 
-On the server, in the clone the installer runs from (docs/INSTALL.md):
+On the server, in the clone the installer runs from ([operator-guide.md](operator-guide.md)):
 
 ```sh
-sudo ./deploy/install.sh --check --ref v1.0.0    # what would change
-sudo ./deploy/install.sh --update --ref v1.0.0   # back up, fetch, build, restart; migrations run on start
+sudo scases update v1.0.0     # build, back up, switch; the migration service runs first
+sudo scases confirm           # it works; or: sudo scases rollback
 curl http://127.0.0.1:3970/healthz               # {"status":"ok",…,"version":"1.0.0",…}
 ```
 
