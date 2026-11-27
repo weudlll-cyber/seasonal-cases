@@ -25,7 +25,7 @@
  */
 import { randomBytes } from 'node:crypto';
 
-import { RateLimiter } from '@seasonal/kit/server';
+import { RateLimiter, type Attempt } from '@seasonal/kit/server';
 import {
   ForgotRequestSchema,
   LocalSignInRequestSchema,
@@ -38,7 +38,7 @@ import { addressKey } from './addressKey.js';
 import type { AddressLimit } from './addressLimit.js';
 import type { Account } from './auth/accounts.js';
 import { emailKey, type CredentialStore } from './auth/credentials.js';
-import { SignInBrake, type Attempt } from './auth/failureBrake.js';
+import { SignInBrake } from './auth/failureBrake.js';
 import { nameKey } from './auth/names.js';
 import { dummyHash, hashPassword, passwordMatches, passwordProblem } from './auth/passwords.js';
 import type { PendingStore } from './auth/pending.js';

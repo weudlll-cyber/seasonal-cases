@@ -64,11 +64,6 @@ const onStage =
 const KNOWN = [
   // Confetti falls past the stage's edge by design; it is decoration.
   'span.confetti-piece',
-  // On a phone the stage screen is itself the scroll area (CONCEPT §7), which the probe's check of
-  // a fitted root does not see: the stage below the fold is reached by scrolling.
-  'cuts [docked-screen] div.stage "',
-  // The kit's game bar cuts its facts at a 200 % root font on a 1280 px window (BACKLOG 77).
-  'cut text: [game-bar] span.sk-bar-fact',
 ];
 
 /** One screen through the kit's sweep; what it finds is kept, so the run goes on. */

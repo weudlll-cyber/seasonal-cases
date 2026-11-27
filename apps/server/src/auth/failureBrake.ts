@@ -16,12 +16,9 @@
  *                 every held key's count (this repository's own class evicted the oldest key).
  * Depends on:     @seasonal/kit/server; the clock is passed in.
  */
-import { FailureBrake } from '@seasonal/kit/server';
+import { FailureBrake, type Attempt } from '@seasonal/kit/server';
 
 const WINDOW_MS = 15 * 60_000;
-
-// One reserved attempt, as the kit's `reserve` gives it (the kit does not export the type).
-export type Attempt = NonNullable<ReturnType<FailureBrake['reserve']>>;
 
 /** Sign-in's brake (D55): failures per account-and-address pair, per account, per address. */
 export const SIGN_IN_BRAKE = { pair: 20, account: 100, address: 20, windowMs: WINDOW_MS } as const;

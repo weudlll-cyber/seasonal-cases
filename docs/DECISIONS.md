@@ -382,3 +382,13 @@ the owner confirmed them on 2026-11-23 (D46).
   longer (D78, D83): it holds settings an update changes, which would make every older backup look
   different, and the database's passwords, which are the server's own. On a new server the guide
   installs, then restores with `--force-env`.
+
+## 2026-11-27, night chain SC-N14: the move to kit v0.38.0
+
+- **D89 — Kit v0.38.0.** The kit is pinned at v0.38.0 (commit ), version .
+  Its fixes replace the game's allowances (BACKLOG 77, 78); the rule for checks is the kit's
+  "How we check", in CLAUDE.md.
+- **D92 — The way to production waits (owner, 2026-11-27).** Bingo Royale goes to production
+  first. The kit's production parts of v0.35.0 (the privacy data list, the scan call, the
+  release workflow with , , the full browser suite nightly
+  only) wait for Cases' own way to the server.
