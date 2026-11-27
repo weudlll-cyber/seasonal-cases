@@ -30,7 +30,7 @@ describe('the client renders, the server decides', () => {
   });
 
   it('fills the result frame: headline, placings, proof, reveal and the full list', () => {
-    render(<ResultView result={resultOf(true)} />);
+    render(<ResultView result={resultOf(true)} call={null} />);
     const frame = screen.getByTestId('result');
     expect(within(frame).getByRole('heading', { level: 1 }).textContent).toBe('The winners');
     const places = frame.querySelector('.sk-result-places');
@@ -46,8 +46,15 @@ describe('the client renders, the server decides', () => {
     expect(screen.getByRole('region', { name: 'All cases' }).textContent).toContain('bot-5');
   });
 
+  it('offers the way back to the shared call only while one is live (D91)', () => {
+    const { rerender } = render(<ResultView result={resultOf(true)} call={null} />);
+    expect(screen.queryByTestId('back-to-call')).toBeNull();
+    rerender(<ResultView result={resultOf(true)} call={7} />);
+    expect(screen.getByTestId('back-to-call').getAttribute('href')).toBe('/calls/7');
+  });
+
   it('does not recompute the verification: an unverified result says so', () => {
-    render(<ResultView result={resultOf(false)} />);
+    render(<ResultView result={resultOf(false)} call={null} />);
     expect(screen.getByText(/^sealed at/).textContent).toContain('NOT verified');
   });
 });

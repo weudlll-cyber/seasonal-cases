@@ -391,6 +391,10 @@ the owner confirmed them on 2026-11-23 (D46).
 - **D90 — "Admin" only for those who may use it (owner, 2026-11-26).** The header shows the
   "Admin" link to organisers and admins only, not to players or signed-out visitors; the admin
   pages and the server refuse others as before.
+- **D91 — The shared call shows only while live (owner, 2026-11-27).** In website mode the
+  docked screen's call slot holds the website's one shared call (the kit's `onSharedCall`),
+  hidden until a call is live; a result then offers "Back to the call". Standalone frames
+  nothing.
 - **D92 — The way to production waits (owner, 2026-11-27).** Bingo Royale goes to production
   first. The kit's production parts of v0.35.0 (the privacy data list, the scan call, the
   release workflow with , , the full browser suite nightly

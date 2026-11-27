@@ -128,6 +128,8 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
   );
   await expect(noah.locator('.result-winners li')).toHaveCount(3);
   await expect(noah.locator('.result-winners li').first()).toContainText('Halving Stone');
+  // Standalone has no website, so no shared call is framed (D91).
+  await expect(noah.getByTestId('shared-call-slot')).toHaveCount(0);
   await other.close();
 
   await unclaimedShow(page);

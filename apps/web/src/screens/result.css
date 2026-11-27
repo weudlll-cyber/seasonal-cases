@@ -15,6 +15,14 @@
   width: 100%;
 }
 
+/* The way back to the shared call is a button as wide as its words, under the headline. */
+.result-call {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
 .result-winners {
   display: flex;
   flex-direction: column;
