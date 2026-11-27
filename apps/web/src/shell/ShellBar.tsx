@@ -5,7 +5,8 @@
  *
  * Responsibility: the kit's order, on screen and in the DOM: in website mode the way back to
  *                 Seasonal Entertainment, the brand (emblem, "Seasonal Cases"), the pages (Start,
- *                 Stage, Chronicle, "My matches" once signed in, Admin, Privacy; the current one marked),
+ *                 Stage, Chronicle, "My matches" once signed in, "Admin" for organisers and admins
+ *                 only (D90), Privacy; the current one marked),
  *                 the account chip "name (role)" and, in website mode, the member's steps as the
  *                 kit draws them (`account.steps`, D65), linking to the account page (download
  *                 and delete one's data, D61), with "Sign out" (a guest: "Sign in", which in
@@ -19,13 +20,13 @@
  *                 below). The header's height is published for the screens that subtract it
  *                 (./useShellHeight.ts). Hidden while a live show is on the stage: the game bar
  *                 takes its place (./FocusBar.tsx).
- * Depends on:     react, @seasonal/kit, @seasonal/kit/react, @sc/contracts (types),
+ * Depends on:     react, @seasonal/kit, @seasonal/kit/react, @sc/contracts,
  *                 assets/brand/emblem.webp, ../lib/base.js, ../lib/router.js,
  *                 ./DevBoundary.js, ./DevTools.js (lazy, development only), ./useShellHeight.js
  */
 import { websiteLoginHref } from '@seasonal/kit';
 import { AppHeader, type HeaderAccount, type HeaderLink } from '@seasonal/kit/react';
-import type { Me } from '@sc/contracts';
+import { canDirect, type Me } from '@sc/contracts';
 import { lazy, Suspense, useRef, type MouseEvent, type ReactElement } from 'react';
 
 import emblem from '../../../../assets/brand/emblem.webp';
@@ -67,7 +68,8 @@ export function linksOf(route: Route['name'], me: Me | null): readonly HeaderLin
     link('/show', 'Stage', route === 'stage'),
     link('/chronicle', 'Chronicle', route === 'chronicle'),
     ...(me === null ? [] : [link('/matches', 'My matches', route === 'matches')]),
-    link('/admin', 'Admin', route === 'admin'),
+    // Only for those who may use it (D90); the page and the server refuse everyone else anyway.
+    ...(me !== null && canDirect(me.role) ? [link('/admin', 'Admin', route === 'admin')] : []),
     link('/privacy', 'Privacy', route === 'privacy'),
   ];
 }

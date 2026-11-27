@@ -388,6 +388,9 @@ the owner confirmed them on 2026-11-23 (D46).
 - **D89 — Kit v0.38.0.** The kit is pinned at v0.38.0 (commit ), version .
   Its fixes replace the game's allowances (BACKLOG 77, 78); the rule for checks is the kit's
   "How we check", in CLAUDE.md.
+- **D90 — "Admin" only for those who may use it (owner, 2026-11-26).** The header shows the
+  "Admin" link to organisers and admins only, not to players or signed-out visitors; the admin
+  pages and the server refuse others as before.
 - **D92 — The way to production waits (owner, 2026-11-27).** Bingo Royale goes to production
   first. The kit's production parts of v0.35.0 (the privacy data list, the scan call, the
   release workflow with , , the full browser suite nightly

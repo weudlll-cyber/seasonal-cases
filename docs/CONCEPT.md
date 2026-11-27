@@ -21,6 +21,7 @@
 | 1.16 | 2026-11-24 | Night chain SC-N8, kit v0.19.0 (D65): the website member's step badges are drawn by the kit's header beside the name (§4, §10). |
 | 1.17 | 2026-11-25 | Night chain SC-N11, from the owner's decision of 2026-11-25: on a server the game runs in Docker only (§10, §11). |
 | 1.18 | 2026-11-26 | Night chain SC-N12, from the owner's decision of 2026-11-25/26: the installed game has the kit's admin command for update, rollback and uninstall (§10). |
+| 1.19 | 2026-11-27 | Night chain SC-N14, from the owner's decisions of 2026-11-26 and 2026-11-27: "Admin" in the header for organisers and admins only (§7); the one shared call in website mode, shown only while it is live (§7, §10). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -186,7 +187,8 @@ Target: a TV-studio feel with small means — SVG, icons, gradients, glow, CSS a
   where it belongs.
 - **Header** (decided 2026-11-24): the kit's app header in the kit's order: in website mode the
   way back to Seasonal Entertainment, the brand, the pages (Start, Stage, Chronicle, "My matches"
-  once signed in, Admin), the account chip "name (role)" with "Sign out" (a guest: "Sign in"), and
+  once signed in, "Admin" for organisers and admins only (decided 2026-11-26), Privacy), the
+  account chip "name (role)" with "Sign out" (a guest: "Sign in"), and
   the theme toggle at the far right; in development also "Quick Test" and "Dev sign-in". When the
   items do not fit one row, as on a phone, the pages and the account fold into one "Menu" button
   (this replaces the wrapping menu of 2026-11-22).
@@ -231,7 +233,9 @@ Target: a TV-studio feel with small means — SVG, icons, gradients, glow, CSS a
   stage, result) scale down evenly where there is no room, never up; **floor 14 px** text (decided
   2026-11-21); below the floor a named scroll area takes the rest. Normal pages (lobby, chronicle,
   admin) scroll. On the PC the chat dock sits at the bottom in the kit's sizes; on a phone the
-  kit's chat bar. The call slot is reserved in the kit's sizes and hidden while no call is linked.
+  kit's chat bar. In website mode the call slot, in the kit's sizes, holds the website's one shared
+  call and shows only while it is live (decided 2026-11-27); a result then offers "Back to the
+  call". Standalone frames no call.
 - **Check sizes** (CC, light and dark): PC 1280×720, 1366×768, 1536×768, 1440×900, 1900×860,
   1920×1080; phone 375×667, 360×780, 390×844, 430×932.
 - **Tooltips** on every input and icon button.
@@ -268,7 +272,7 @@ Both are required (ecosystem principle, confirmed for this game 2026-11-21).
 
 - **Embedded** under `https://stentertainment.net/games/cases/`: sign-in only through the website
   (GAME-INTEGRATION §2–§4, AUTH.md), rights per game, website admins are game admins, guests watch,
-  the website's chat embedded (room `cases`), the call slot reserved, the "← Seasonal Entertainment"
+  the website's chat embedded (room `cases`), the shared call's slot (§7), the "← Seasonal Entertainment"
   link top left, deleted accounts shown as "deleted player" plus short id.
 - **Standalone:** own accounts (register, made only once the mail's confirmation link is used,
   decided 2026-11-23; sign in; forgotten password by e-mail), 2FA for admins,
@@ -294,7 +298,7 @@ sign-in route and its login hop, accounts keyed by (website origin, website user
 admin as game admin, a host of this game as organiser, everyone else as player, guests who watch
 and cannot register, the account-changes feed (a lock or a rights change ends the game sessions; a
 deletion shows "deleted player" plus the short id), 7-day game sessions, the website's chat
-docked under every screen (room `cases`), the call slot reserved and hidden, and the
+docked under every screen (room `cases`), the call slot hidden while no shared call is live, and the
 "← Seasonal Entertainment" link. The rank in website mode is the number of the member's valid
 Discord steps, at most 5, and the steps' icons are the badges beside the name (§4, decided
 2026-11-22), in the header's account chip too, as the kit's header draws them (at most three, decided 2026-11-24). The role formerly called "moderator" is the **organiser**: they create shows, hold

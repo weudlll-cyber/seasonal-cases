@@ -1,7 +1,7 @@
 /**
  * @file   apps/web/src/shell/ShellBar.test.tsx
- * @brief  Tests the header on the kit's `AppHeader` (D56, D58): the pages and the marked current
- *         one, the account chip and "Sign out", a guest's "Sign in", website mode's back link
+ * @brief  Tests the header on the kit's `AppHeader` (D56, D58): the pages, "Admin" per role (D90)
+ *         and the marked current one, the account chip and "Sign out", a guest's "Sign in", website mode's back link
  *         and one sign-in, the development tools only where development is on, a move to
  *         another page without a reload, and the height published for the screens.
  */
@@ -48,7 +48,6 @@ describe('the pages', () => {
       'Start',
       'Stage',
       'Chronicle',
-      'Admin',
       'Privacy',
     ]);
     const signedIn = linksOf('matches', ANA);
@@ -57,10 +56,19 @@ describe('the pages', () => {
       'Stage',
       'Chronicle',
       'My matches',
-      'Admin',
       'Privacy',
     ]);
     expect(signedIn.filter((l) => l.active).map((l) => l.label)).toEqual(['My matches']);
+  });
+
+  it.each([
+    ['a signed-out visitor', null, false],
+    ['a viewer', { ...ANA, role: 'viewer' }, false],
+    ['a player', { ...ANA, role: 'player' }, false],
+    ['an organiser', { ...ANA, role: 'organiser' }, true],
+    ['an admin', { ...ANA, role: 'admin' }, true],
+  ] as const)('offers %s the "Admin" link only if allowed', (_who, me, shown) => {
+    expect(linksOf('start', me).some((l) => l.label === 'Admin')).toBe(shown);
   });
 
   it('renders them in the main navigation with aria-current on the current page', () => {
