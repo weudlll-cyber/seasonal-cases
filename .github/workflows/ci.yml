@@ -52,7 +52,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U sc -d sc" --health-interval 5s --health-timeout 3s
+          --health-cmd "pg_isready -h 127.0.0.1 -U sc -d sc" --health-interval 5s --health-timeout 3s
           --health-retries 10
     env:
       SC_TEST_DATABASE_URL: postgres://sc:ci-only@127.0.0.1:5432/sc
