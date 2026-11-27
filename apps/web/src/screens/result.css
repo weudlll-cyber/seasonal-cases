@@ -17,7 +17,7 @@
 
 /* The way back to the shared call is a button as wide as its words, under the headline. */
 .result-call {
-  align-self: flex-start;
+  width: fit-content;
   display: inline-flex;
   align-items: center;
   text-decoration: none;
