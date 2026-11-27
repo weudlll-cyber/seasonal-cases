@@ -4,6 +4,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--sk-space-2);
+  /* Wrapped onto two lines, the links' 44 px targets (../shell/shell.css), which reach past their
+     words, do not meet. */
+  row-gap: max(var(--sk-space-2), calc(var(--sk-hit-target) - 1lh));
   margin: 0;
 }
 
