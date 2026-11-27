@@ -104,7 +104,9 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U seasonal_cases -d seasonal_cases']
+      # Over TCP: while a new database is set up, a temporary server answers on the socket alone
+      # and shuts down again, so a socket check calls it ready too early.
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U seasonal_cases -d seasonal_cases']
       interval: 5s
       timeout: 3s
       retries: 20
