@@ -405,3 +405,11 @@ the owner confirmed them on 2026-11-23 (D46).
 - **D93 — Kit v0.39.1.** The kit is pinned at v0.39.1 (commit `29c0f01`), version
   `1.1.0-rc.7`. Every state of a page stands in a `main` or another landmark, and every wait
   for a database asks over TCP (the kit's OPERATIONS.md "Waiting for the database").
+
+## 2026-11-27, night chain SC-N16: the owner's decision and the move to kit v0.40.0
+
+- **D94 — Kit v0.40.0.** The kit is pinned at v0.40.0 (commit `23f10b9`), version
+  `1.1.0-rc.8`, with its four rules about where a check may look and write (K125) in CLAUDE.md.
+- **D95 — No development data has to be kept (owner, 2026-11-27).** Nothing in the development
+  database has to be kept. Where tests, sweeps or measurements move to a database of their own,
+  the development database may be emptied completely.

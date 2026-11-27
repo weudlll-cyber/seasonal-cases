@@ -6,8 +6,8 @@
  *                 127.0.0.1:3990 with the stand-in's proxy secret, the website-mode client's
  *                 address as the website's (the stand-in in front of it picks a free port per
  *                 test) and 127.0.0.1 as the only trusted proxy, the session
- *                 cookie without Secure (the test-only mode: the stand-in is plain http). A
- *                 running `pnpm dev` is neither used nor touched.
+ *                 cookie without Secure (the test-only mode: the stand-in is plain http). It
+ *                 has no database; a running `pnpm dev` and its database are not touched.
  * Depends on:     node:fs, node:url, ../apps/server/src/index.ts, ./stubShared.ts
  */
 import { rmSync } from 'node:fs';
@@ -21,6 +21,8 @@ const DATA = fileURLToPath(new URL('../.local/e2e/website/', import.meta.url));
 rmSync(DATA, { recursive: true, force: true });
 const config = configFrom({
   ...process.env,
+  // No database, whatever the shell holds: a test server never writes the development one.
+  DATABASE_URL: '',
   SC_MODE: 'website',
   SC_PORT: String(GAME_PORT),
   SC_DATA_DIR: DATA,

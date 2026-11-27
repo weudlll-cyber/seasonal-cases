@@ -96,6 +96,29 @@ on the website, as an admin, open **Admin → Embedding** (`/admin/embedding`) a
 (its docs/EMBED.md, "Approving a site"). Without the website running, the docked frame stays
 empty.
 
+## The local website-mode preview
+
+The kit's stand-in website in front of the game in website mode, on this computer only: the back
+link, the header, the step badges and the shared call's slot (a placeholder; the real call is only
+on the website). The game runs on a database of its own, never the development one. Choose a secret
+of 32 letters or more and set it as `SC_PROXY_SECRET` in each shell below.
+
+```sh
+docker exec sc-dev-postgres-1 createdb -U sc sc_preview
+# server (apps/server): the development settings, then these over them
+SC_MODE=website SC_PORT=3991 SC_DEV=0 SC_CHAT_ORIGIN= \
+  SC_WEBSITE_ORIGIN=http://127.0.0.1:4400 SC_TRUSTED_PROXIES=127.0.0.1 \
+  DATABASE_URL=<the development address with /sc_preview at its end> pnpm dev
+# client (apps/web)
+SC_MODE=website SC_WEB_PORT=5486 SC_SERVER=http://127.0.0.1:3991 pnpm dev
+# the preview (the repository root); open the address it prints
+pnpm exec sk-preview --slug cases --app http://127.0.0.1:5486 \
+  --secret-header X-Sc-Proxy-Secret --secret-env SC_PROXY_SECRET --can-host
+```
+
+`--can-host` signs in a member who may run a show. Throw the database away afterwards:
+`docker exec sc-dev-postgres-1 dropdb -U sc sc_preview`.
+
 ## Docs
 
 - [docs/CONCEPT.md](docs/CONCEPT.md): what the show is and does (the source of truth).

@@ -2,8 +2,8 @@
 
 A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
 
-- **Now:** version `1.0.0` on master, tag `v1.0.0`; `1.1.0-rc.7` on `kit/v0.17-adoption` (night
-  chains SC-N7 to SC-N15, kit v0.39.1, D93), not merged; the first show on a server is next after
+- **Now:** version `1.0.0` on master, tag `v1.0.0`; `1.1.0-rc.8` on `kit/v0.17-adoption` (night
+  chains SC-N7 to SC-N16, kit v0.40.0, D94), not merged; the first show on a server is next after
   it (docs/RELEASING.md).
   Built: website mode, the docked chat, PostgreSQL, standalone accounts with 2FA, roles, ranks,
   lobby, "My matches", the settings catalogue, the chronicle (BACKLOG 1, 2, 3, 5, 6, 8, 9, 17, 18,
@@ -19,13 +19,13 @@ A short page over [BACKLOG.md](BACKLOG.md), which is the authoritative list.
   first run on a real VPS (BACKLOG 34). The open-rounds listing
   and the member summary are built (BACKLOG 25, 26, closed); the website wires the card's origin
   (BACKLOG 33).
-- **Kit:** v0.39.1 on `kit/v0.17-adoption` (D56, D79, D86, D89, D93; v0.11.1 on master). Nothing is pending:
+- **Kit:** v0.40.0 on `kit/v0.17-adoption` (D56, D79, D86, D89, D93, D94; v0.11.1 on master). Nothing is pending:
   `packages/ui/src/pending/` is gone; the load check comes before production (D79, BACKLOG 64).
 - **The kit's handbook (v0.17.0), read against the game on 2026-11-24:** the owner's hand is needed for
   the GitHub settings (59, RELEASING.md); the steps before production (64, waits for the VPS; coverage (63) is decided: no target, D64). Replaced without a visible change: the season
   colours as the kit's tokens, an opened case's hidden name as `sk-visually-hidden`, the arena
   tones as own tokens.
-- **The way to production** waits behind Bingo Royale (D92; BACKLOG 64).
+- **The way to production** waits behind Bingo Royale (D92; BACKLOG 64, 86).
 - **Browsers:** all six projects pass all six journeys on `kit/v0.17-adoption` (the five nightly
   ones proven on 2026-11-25, run 45702753156); the nightly run on `master` stays red until the merge
   (BACKLOG 74).

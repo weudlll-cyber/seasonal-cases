@@ -86,8 +86,9 @@ The owner is addressed in German by the planning chat, never by files in this re
 - Only run checks that can answer something about the change: docs-only changes get the format
   check only; an identical tree is not measured again; no soak or hours-long comparison runs.
 - Browser tests: Chromium at merge and on master; Firefox and WebKit nightly.
-- Before the owner tests: play the show through yourself (start, every step, end; light and dark;
-  PC and phone sizes from `docs/CONCEPT.md` §7), look at every picture, fix known defects first.
+- Before the owner tests: play the show through yourself, on a server of its own (start, every
+  step, end; light and dark; PC and phone sizes from `docs/CONCEPT.md` §7), look at every picture,
+  fix known defects first.
   In a big move the sweep is that look for what it covers ("How we check", 3).
 
 ## How we check
@@ -122,6 +123,22 @@ A big move (a kit adoption, a migration, many known changes):
 The sweep: a server's request limit is met with the screen's `setup` (a fresh sign-in), never by
 loosening the limit; an owner decision on a least number of visible items is declared in the
 screen's `floors`.
+
+## Where a check may look and write
+
+The four rules of the kit HANDBOOK of that name (K125):
+
+- A change that matters only on a server (a database health check over TCP, say) is made with the
+  way to the server and rehearsed there with a fresh install, not as a change of its own before
+  it. Until then it is a row in `docs/BACKLOG.md` part one.
+- Browser tests, sweeps and measurements never write the owner's development database: they use
+  their own database or schema, created fresh and thrown away. Here the browser tests' servers set
+  `DATABASE_URL` empty and keep everything in memory and `.local/e2e/`; the store tests work in a
+  schema of their own and drop it; a walk or a measurement of its own starts its own server.
+- Browser journeys use fixed seeds and handle every outcome chance can give. A test that fails on
+  a lucky outcome is a test defect, not a flaky run to repeat.
+- A website-mode part is looked at in the local preview before a merge (README "The local
+  website-mode preview"); the real shared call only on the website.
 
 ## Working cheaply
 

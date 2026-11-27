@@ -16,6 +16,10 @@ import { base32Decode, hotp, stepAt } from '@seasonal/kit/server';
 import { openMenu } from './helpers.js';
 import { rootFor, type RootAdmin } from './rootAdmin.js';
 
+// A TOTP code's step, and the least of it that must be left before the first code is used.
+const STEP_MS = 30_000;
+const STEP_ROOM_MS = 10_000;
+
 async function signIn(page: Page, admin: RootAdmin, code?: string): Promise<void> {
   await page.goto('/');
   const form = page.getByRole('form', { name: 'Sign in' });
@@ -43,8 +47,12 @@ test('journey 6: an admin sets up two-factor sign-in, then signs in with a code 
   const key = (await setup.locator('.two-factor-secret').textContent()) ?? '';
   const secret = base32Decode(key);
   if (secret === null) throw new Error(`not a base32 key: ${key}`);
+  // The server takes the step now and one either side, each once: confirm, sign in and re-issue
+  // use one each, which holds only while the step does not turn right under the first of them. So
+  // a run that starts late in a step waits for the next one, whatever the time of the run.
+  const left = STEP_MS - (Date.now() % STEP_MS);
+  if (left < STEP_ROOM_MS) await page.waitForTimeout(left);
   const step = stepAt(Date.now());
-  // The server takes the step now and one either side: confirm, sign in and re-issue use one each.
   await setup.getByLabel('Code').fill(hotp(secret, step - 1));
   await setup.getByRole('button', { name: 'Confirm' }).click();
 

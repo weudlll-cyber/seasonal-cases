@@ -4,7 +4,8 @@
  *
  * Responsibility: delete `.local/e2e/` (the previous run's event logs), then start the server
  *                 in development mode on 127.0.0.1:3980 with its logs under `.local/e2e/data`.
- *                 A running `pnpm dev` (3970, `.local/data`) is neither used nor touched. Mail goes
+ *                 It has no database: accounts live in memory. A running `pnpm dev` (3970) and
+ *                 its database are neither used nor touched. Mail goes
  *                 to Mailpit (SMTP 127.0.0.1:1170, ops/compose.dev.yml; CI's service), whose
  *                 links open the e2e client (5480); journey 5 reads it there. A standalone admin
  *                 per browser project (./rootAdmin.ts) is seeded for journey 6.
@@ -28,6 +29,8 @@ const SERVER_PORT = 3980;
 rmSync(E2E_DIR, { recursive: true, force: true });
 const config = configFrom({
   ...process.env,
+  // No database, whatever the shell holds: a test server never writes the development one.
+  DATABASE_URL: '',
   NODE_ENV: 'development',
   SC_DEV: '1',
   SC_PORT: String(SERVER_PORT),
