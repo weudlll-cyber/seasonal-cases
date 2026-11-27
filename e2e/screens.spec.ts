@@ -64,7 +64,7 @@ const onStage =
 
 // What the sweep may report and the game accepts, by part of the finding's text:
 const KNOWN = [
-  // Confetti falls past the stage's edge by design; it is decoration.
+  // Confetti falls past the stage's edge, the motion as built (D30); it is decoration.
   'span.confetti-piece',
 ];
 

@@ -3,6 +3,21 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
+## 1.1.0-rc.6 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N14: kit v0.38.0 (DECISIONS D89).
+
+- **Header (D90):** "Admin" shows for organisers and admins only.
+- **Shared call (D91):** in website mode the website's shared call appears beside the chat while
+  it is live, and the result offers "Back to the call".
+- **Large text (kit):** at 200 % the game bar grows and wraps instead of cutting its facts or
+  pushing buttons off the window; the start card scrolls; on a low phone the open chat takes its
+  own room. A website organiser's header stays one row at 1536 x 768.
+- **Server (kit):** `scases status` writes nothing; a restore that fails starts the game again; a
+  rollback renames files into place.
+- **Found by the checks and fixed:** a new database is no longer called ready while it is still
+  being set up; the sign-in's two links keep their touch areas apart on narrow phones.
+
 ## 1.1.0-rc.5 (not tagged; the tag follows the merge with the owner's word)
 
 Branch `kit/v0.17-adoption`, night chain SC-N13: kit v0.34.0 (DECISIONS D86).

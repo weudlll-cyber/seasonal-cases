@@ -11,11 +11,15 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
 
 ## Where things stand
 
-- **Now (2026-11-26, night chain SC-N13):** `1.1.0-rc.5` on `kit/v0.17-adoption` (draft PR #5),
-  not merged, not tagged: the owner looks at it first. The kit is at v0.34.0 (D86–D88): the
+- **Now (2026-11-27, night chain SC-N14):** `1.1.0-rc.6` on `kit/v0.17-adoption` (draft PR #5),
+  not merged, not tagged: the owner looks at it first. The kit is at v0.38.0 (D89): "Admin" in
+  the header for organisers and admins only (D90), the shared call in website mode (D91), the
+  way to the server behind Bingo Royale (D92). What to open is in
+  [NIGHT-2026-11-27-kit-0.38.md](NIGHT-2026-11-27-kit-0.38.md).
+- **Night chain SC-N13 (2026-11-26):** `1.1.0-rc.5`, kit v0.34.0 (D86–D88): the
   sign-in brake holds guesses sent at once, the kit's buttons, panels, fields and header looks,
-  the keys in `prod.keys` which a backup carries. What to open and what looks different is in
-  [NIGHT-2026-11-26-kit-0.34.md](NIGHT-2026-11-26-kit-0.34.md).
+  the keys in `prod.keys` which a backup carries
+  ([NIGHT-2026-11-26-kit-0.34.md](NIGHT-2026-11-26-kit-0.34.md)).
 - **Night chain SC-N12 (2026-11-26):** `1.1.0-rc.4`, kit v0.32.0 with every part it
   offers the game, the load check apart (D79–D85): step badges and API client; guarded feed
   fetch, https headers and two database roles; `ops/install.sh` and the installed command
@@ -162,11 +166,12 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
   ([operator-guide.md](operator-guide.md), section 5, with the drills). **Needs the owner's
   hand on the VPS:** make the key on the own computer, give the installer the public key, pull the
   first backup and drill it.
-- **Kit:** `kit: pinned v0.34.0, newest v0.35.0, 1 release behind` (`pnpm kit:check`,
-  2026-11-26, end of night chain SC-N13; master pins v0.11.1 until the merge). The pin moves only
+- **Kit:** `kit: pinned v0.38.0, newest v0.38.0, current` (`pnpm kit:check`,
+  2026-11-27, end of night chain SC-N14; master pins v0.11.1 until the merge). The pin moves only
   on the owner's word.
 - **Morning sheets:** the newest chain's is
-  [NIGHT-2026-11-26-kit-0.34.md](NIGHT-2026-11-26-kit-0.34.md), the one before it
+  [NIGHT-2026-11-27-kit-0.38.md](NIGHT-2026-11-27-kit-0.38.md), the ones before it
+  [NIGHT-2026-11-26-kit-0.34.md](NIGHT-2026-11-26-kit-0.34.md) and
   [NIGHT-2026-11-26-kit-0.32.md](NIGHT-2026-11-26-kit-0.32.md); earlier chains are in
   [NIGHT-RUN.md](NIGHT-RUN.md).
 
@@ -226,10 +231,6 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
 - The choices of the night recorded in [NIGHT-RUN.md](NIGHT-RUN.md) "Choices made without the
   owner", among them the separate "Start show" step after sealing.
 - The website's side for the slug `cases` (BACKLOG 27): it lives in the website repository.
-- The kit's game bar at a 200 % root font (BACKLOG 77: cut facts, buttons past the top): a
-  change would alter the bar's look.
-- Whether the pin moves to kit v0.35.0 (the steps to production: signed images, scans, the
-  privacy data list).
 - The independent review's questions that remain ([security-pass.md](security-pass.md), "Out of
   scope or for the owner"; the enrolment window, recovery codes, names and the registration
   answer are decided and built, D35, D36):
