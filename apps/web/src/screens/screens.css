@@ -56,6 +56,14 @@
   margin: 0;
 }
 
+/* The links on the start card and in the show lists take their 44 px targets' room: reaching past
+   their words (../shell/shell.css `.tap`), a target lay over the heading or the line above. */
+.start-links .tap,
+.lobby-list .tap,
+.match-list .tap {
+  margin-block: 0;
+}
+
 .sign-in,
 .admin-setup {
   display: flex;

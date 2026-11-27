@@ -49,7 +49,6 @@ const SIZES = [
 ] as const;
 // Under this width a size is a phone.
 const PHONE_WIDTH = 700;
-type Size = readonly [number, number];
 const THEMES = ['light', 'dark'] as const;
 const findings: string[] = [];
 const axe = axeFinder(AxeBuilder);
@@ -113,16 +112,24 @@ async function shootEarlyEnd(page: Page): Promise<void> {
 const capture = (page: Page, file: string) =>
   page.screenshot({ path: `${DIR}${file}`, animations: 'disabled' });
 
+/**
+ * The theme without a wait, for a page whose clock is held: the kit's `setTheme` waits for motion
+ * on the page's own timers, which then never fire. The attribute is what the tokens follow.
+ */
+const setThemeHeld = (page: Page, theme: (typeof THEMES)[number]) =>
+  page.evaluate((wanted) => {
+    document.documentElement.setAttribute('data-theme', wanted);
+  }, theme);
+
 async function shoot(
   page: Page,
   name: string,
-  scrollTo?: Locator,
-  sizes: readonly Size[] = SIZES,
+  { scrollTo, themed = setTheme }: { scrollTo?: Locator; themed?: typeof setThemeHeld } = {},
 ): Promise<void> {
   for (const theme of THEMES) {
-    for (const [width, height] of sizes) {
+    for (const [width, height] of SIZES) {
       await page.setViewportSize({ width, height });
-      await setTheme(page, theme);
+      await themed(page, theme);
       // The fit settles in the next frame after a resize.
       await page.waitForTimeout(350);
       // A part below the fold (the admin's settings) is scrolled into view at every size.
@@ -131,7 +138,7 @@ async function shoot(
     }
   }
   // Back to a desktop in light, so the next steps find the direction bar under the stage.
-  await setTheme(page, 'light');
+  await themed(page, 'light');
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
@@ -305,7 +312,7 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   // so nothing moves on. 250 ms, not 10: on a loaded machine more passes between the read and the
   // pause, and a pause in the past is refused.
   await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 250);
-  await shoot(page, 'ceremony');
+  await shoot(page, 'ceremony', { themed: setThemeHeld });
   // The sweep waits for painted frames, which a held clock never gives: the ceremony runs on
   // from here, and is walked as it stands then.
   await page.clock.resume();
@@ -316,7 +323,7 @@ test('screens: sign-in, start, opening, selected, open, owner, ceremony, result,
   await page.goto('/admin');
   const settings = page.getByRole('form', { name: 'Settings' });
   await expect(settings).toBeVisible();
-  await shoot(page, 'admin-settings', settings);
+  await shoot(page, 'admin-settings', { scrollTo: settings });
   await walk(page, 'admin-settings', async (at) => {
     await at.goto('/admin');
     await expect(settings).toBeVisible();
