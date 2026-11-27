@@ -200,7 +200,7 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
 - `pnpm e2e --project=chromium`: the journeys on their own stack (3980/5480; 3990/5485 for
   website mode), without a database.
 - `pnpm e2e --project=screens`: every screen at CONCEPT §7's sizes in both themes into
-  `.local/screens/sc-n15/`, and each walked by the kit's `sweep` (about half an hour); the
+  `.local/screens/sc-n16/`, and each walked by the kit's `sweep` (about half an hour); the
   website-mode header's run beside it.
 - `pnpm e2e --project=<p>` for `chromium-mobile`, `firefox`, `firefox-mobile`, `webkit` and
   `webkit-mobile`: the journeys in every browser and size (nightly on master); all 36 passed on
