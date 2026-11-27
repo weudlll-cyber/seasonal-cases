@@ -144,6 +144,6 @@ function Showcase() {
 
 /** The showcase in development; anywhere else the page is not there. */
 export function OpeningShowcase({ dev }: { dev: boolean }) {
-  if (!dev) return <p className="page">This page does not exist.</p>;
+  if (!dev) return <main className="page">This page does not exist.</main>;
   return <Showcase />;
 }

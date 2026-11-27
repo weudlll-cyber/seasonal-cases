@@ -111,8 +111,9 @@ export function Result({ showId, call }: { showId: string; call: number | null }
         setError(sentenceOf(e));
       });
   }, [showId]);
-  if (error !== null) return <p className="page sk-panel">{error}</p>;
-  if (show === null) return <p className="page">Loading…</p>;
-  if (show.result === null) return <p className="page sk-panel">This show has not ended yet.</p>;
+  if (error !== null) return <main className="page sk-panel">{error}</main>;
+  if (show === null) return <main className="page">Loading…</main>;
+  if (show.result === null)
+    return <main className="page sk-panel">This show has not ended yet.</main>;
   return <ResultView result={show.result} call={call} />;
 }

@@ -137,7 +137,9 @@ export function Admin({ me, onShowChanged, dev }: AdminProps) {
     });
   };
   if (me === null || (me.role !== 'admin' && me.role !== 'organiser')) {
-    return <p className="page sk-panel">Sign in as an organiser or admin to use the admin area.</p>;
+    return (
+      <main className="page sk-panel">Sign in as an organiser or admin to use the admin area.</main>
+    );
   }
   const quick =
     dev && QuickTest !== null

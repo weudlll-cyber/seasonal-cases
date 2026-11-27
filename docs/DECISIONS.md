@@ -399,3 +399,9 @@ the owner confirmed them on 2026-11-23 (D46).
   first. The kit's production parts of v0.35.0 (the privacy data list, the scan call, the
   release workflow with `sk_image_verify`, `SK_ROUTE_TRUSTED`, the full browser suite nightly
   only) wait for Cases' own way to the server.
+
+## 2026-11-27, night chain SC-N15: the move to kit v0.39.1
+
+- **D93 — Kit v0.39.1.** The kit is pinned at v0.39.1 (commit `29c0f01`), version
+  `1.1.0-rc.7`. Every state of a page stands in a `main` or another landmark, and every wait
+  for a database asks over TCP (the kit's OPERATIONS.md "Waiting for the database").

@@ -29,7 +29,7 @@ export function Matches({ me }: { me: Me | null }) {
         setMatches([]);
       });
   }, [me]);
-  if (me === null) return <p className="page sk-panel">Sign in to see your matches.</p>;
+  if (me === null) return <main className="page sk-panel">Sign in to see your matches.</main>;
   return (
     <main className="page">
       <section className="sk-panel" aria-label="My matches">

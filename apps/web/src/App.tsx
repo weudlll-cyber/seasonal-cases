@@ -164,7 +164,7 @@ const Showcase = import.meta.env.DEV
   : null;
 
 function OpeningPage({ dev }: { dev: boolean }) {
-  if (Showcase === null) return <p className="page">This page does not exist.</p>;
+  if (Showcase === null) return <main className="page">This page does not exist.</main>;
   return (
     <DevBoundary>
       <Suspense fallback={null}>
@@ -201,7 +201,7 @@ function Routes({ route, me, mode, feed, current, session, phone, call }: Routes
   const signedIn = me ?? null;
   const show = feed.show;
   if (route.name === 'stage') {
-    if (show === null) return <p className="page">No show on the stage yet.</p>;
+    if (show === null) return <main className="page">No show on the stage yet.</main>;
     return (
       <Stage
         show={show}

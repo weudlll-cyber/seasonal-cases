@@ -149,7 +149,7 @@ function DeleteForm({ onGone }: { onGone: () => Promise<void> }) {
 }
 
 export function AccountPage({ me, website, onGone }: AccountPageProps) {
-  if (me === null) return <p className="page sk-panel">Sign in to see your account.</p>;
+  if (me === null) return <main className="page sk-panel">Sign in to see your account.</main>;
   return (
     <main className="page">
       <section className="sk-panel" aria-label="My account">
