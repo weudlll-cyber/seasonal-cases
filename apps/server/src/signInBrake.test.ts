@@ -133,6 +133,20 @@ describe('the brake against guessing counts failures only (D51, D55)', () => {
   );
 });
 
+describe('guesses sent at the same moment (kit K92)', () => {
+  it('are held to the limit: of 30 at once, 20 are checked and 10 refused', HASHES, async () => {
+    // No address cap behind the brake, so the brake alone answers.
+    const h = await startHarness(true, {}, { signInCap: () => undefined });
+    harness = h;
+    await h.register(ADA);
+    const answers = await Promise.all(
+      Array.from({ length: 30 }, () => signIn(h, 'ada', 'wrong', A)),
+    );
+    expect(answers.filter((x) => x.code === 401)).toHaveLength(20);
+    expect(answers.filter((x) => x.error === BRAKE_TEXT)).toHaveLength(10);
+  });
+});
+
 describe('the order of brake and cap', () => {
   it('counts on the cap only the tries the brake let through', HASHES, async () => {
     vi.useFakeTimers({ toFake: ['Date'] });

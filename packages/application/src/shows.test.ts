@@ -124,3 +124,50 @@ describe('rebuild on start', () => {
     expect(again.get(outcome.model.id)).toEqual(first.get(outcome.model.id));
   });
 });
+
+describe('forget', () => {
+  it('takes a deleted player out of every show and announces the shows it changed', () => {
+    const changed: string[] = [];
+    const shows = createShowService({
+      clock: { now: () => '2026-11-21T20:00:00.000Z' },
+      ids: { showId: () => 'show-1' },
+      random,
+      store: memoryStore(),
+      onChange: (model) => {
+        changed.push(model.id);
+      },
+    });
+    shows.createShow(MOD, setup);
+    shows.openRegistration('show-1', MOD.id);
+    shows.claim('show-1', { id: 'ana', name: 'Ana Example' }, 4, 7);
+    changed.length = 0;
+    expect(shows.forget('ana', 'deleted player ana')).toBe(1);
+    expect(changed).toEqual(['show-1']);
+    const claim = shows.get('show-1')?.claims.find((c) => c.player.id === 'ana');
+    expect(claim?.player).toEqual({ id: 'ana', name: 'deleted player ana' });
+    expect(claim?.caseNumber).toBe(7);
+    // Nobody else's show is touched, and a second call changes nothing.
+    expect(shows.forget('ana', 'deleted player ana')).toBe(0);
+    expect(shows.forget('nobody', 'x')).toBe(0);
+    expect(changed).toEqual(['show-1']);
+  });
+});
+
+describe('the season of a new show', () => {
+  const made = (seasonAt?: (at: string) => 'spring' | 'summer' | 'autumn' | 'winter') => {
+    const shows = createShowService({
+      clock: { now: () => '2026-11-21T20:00:00.000Z' },
+      ids: { showId: () => 'show-1' },
+      random,
+      store: memoryStore(),
+      ...(seasonAt === undefined ? {} : { seasonAt }),
+    });
+    shows.createShow(MOD, setup);
+    return shows.get('show-1')?.blank.season;
+  };
+
+  it("is the date's by default and the given one when the service is handed a source", () => {
+    expect(made()).toBe('autumn');
+    expect(made(() => 'spring')).toBe('spring');
+  });
+});

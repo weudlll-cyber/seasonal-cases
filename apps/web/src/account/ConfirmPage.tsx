@@ -1,6 +1,7 @@
 /**
  * @file   apps/web/src/account/ConfirmPage.tsx
- * @brief  `/confirm?token=…`: the page the registration mail links to (DECISIONS D42).
+ * @brief  `/confirm#token=…`: the page the registration mail links to (DECISIONS D42; the
+ *         token after the `#`, D63).
  *
  * Responsibility: one button makes the account from the token in the address; the server takes
  *                 the token once. A press, not the page's load, so a mail program that opens
@@ -13,20 +14,20 @@
 import type { ConfirmRequest, ConfirmResult } from '@sc/contracts';
 import { useState } from 'react';
 
-import { postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { post } from '../lib/base.js';
+import { linkToken, spendToken } from '../lib/linkToken.js';
 import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
 
 export function ConfirmPage() {
-  const token = new URLSearchParams(window.location.search).get('token') ?? '';
+  const [token] = useState(linkToken);
   const [made, setMade] = useState<string | null>(null);
   const action = useAction();
   const body: ConfirmRequest = { token };
   if (made !== null) {
     return (
       <main className="page">
-        <p className="card" role="status">
+        <p className="sk-panel" role="status">
           Your account {made} is ready. <Link to="/">Sign in</Link> with your name or e-mail and
           your password.
         </p>
@@ -35,19 +36,19 @@ export function ConfirmPage() {
   }
   return (
     <main className="page">
-      <section className="card sign-in" aria-label="Confirm your account">
+      <section className="sk-panel sign-in" aria-label="Confirm your account">
         <h2>Confirm your account</h2>
         <p>One press makes the account you registered.</p>
         <button
           type="button"
-          className="button button-solid"
+          className="sk-btn sk-btn--primary"
           disabled={action.busy || token === ''}
           title="Make the account"
           onClick={() => {
             action.run(async () => {
-              const result = await postJson<ConfirmResult>(apiPath('/auth/confirm'), body);
+              const result = await post<ConfirmResult>('/auth/confirm', body);
               // The token is spent: off the address, so a reload shows no dead button.
-              window.history.replaceState(null, '', window.location.pathname);
+              spendToken();
               setMade(result.name);
             });
           }}

@@ -12,7 +12,7 @@
 .board-screen {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   height: calc(100dvh - var(--shell-height) - 3.5rem - var(--dock-reserve, 0px));
   min-height: 320px;
   overflow: hidden;
@@ -22,7 +22,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0 var(--space-2);
+  gap: 0 var(--sk-space-2);
 }
 
 .board-pick,
@@ -32,14 +32,16 @@
 }
 
 .board-pick.is-holding {
-  color: var(--color-success);
-  font-weight: var(--font-weight-strong);
+  /* On the bare page the kit's success green is 4.1:1 against the light glows: a shade towards
+     the text colour keeps 4.5:1 in both themes (../guards.test.ts). */
+  color: color-mix(in srgb, var(--sk-color-success) 85%, var(--sk-color-text));
+  font-weight: var(--sk-font-weight-strong);
 }
 
 .board-pick.is-losing,
 .board-error {
-  color: var(--color-danger);
-  font-weight: var(--font-weight-strong);
+  color: var(--sk-color-danger);
+  font-weight: var(--sk-font-weight-strong);
 }
 
 .board-scroll {
@@ -51,7 +53,7 @@
 .board-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(max(150px, calc(var(--fit, 1) * 180px)), 1fr));
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   margin: 0;
   padding: 2px;
   list-style: none;
@@ -65,11 +67,11 @@
   width: 100%;
   height: 100%;
   min-height: var(--sk-floor-target);
-  padding: var(--space-1);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-  color: var(--color-text);
+  padding: var(--sk-space-1);
+  border: 1px solid var(--sk-color-border);
+  border-radius: var(--sk-radius);
+  background: var(--sk-color-surface);
+  color: var(--sk-color-text);
   font: inherit;
   font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
   text-align: start;
@@ -80,11 +82,11 @@ button.board-case-body {
 }
 
 button.board-case-body:hover {
-  border-color: var(--color-border-strong);
+  border-color: var(--sk-color-border-strong);
 }
 
 .board-case.is-mine .board-case-body {
-  border: 2px solid var(--color-success);
+  border: 2px solid var(--sk-color-success);
 }
 
 .board-number {
@@ -93,47 +95,47 @@ button.board-case-body:hover {
 }
 
 .board-holder {
-  font-weight: var(--font-weight-strong);
+  font-weight: var(--sk-font-weight-strong);
 }
 
 .board-rank {
-  color: var(--color-text-muted);
-  font-weight: var(--font-weight-body);
+  color: var(--sk-color-text-muted);
+  font-weight: var(--sk-font-weight-body);
 }
 
 .board-free,
 .board-others {
-  color: var(--color-text-muted);
+  color: var(--sk-color-text-muted);
 }
 
 .board-hint {
   margin-top: 2px;
-  font-weight: var(--font-weight-strong);
+  font-weight: var(--sk-font-weight-strong);
 }
 
 .hint-yours,
 .hint-free,
 .hint-higher {
-  color: var(--color-success);
+  color: var(--sk-color-success);
 }
 
 .hint-equal,
 .hint-lower {
-  color: var(--color-danger);
+  color: var(--sk-color-danger);
 }
 
 .artifact-table {
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-card);
+  padding: var(--sk-space-1) var(--sk-space-2);
+  border: 1px solid var(--sk-color-border);
+  border-radius: var(--sk-radius);
+  background: var(--sk-color-card);
   font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
 }
 
 .artifact-table ul {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px var(--space-3);
+  gap: 4px var(--sk-space-3);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -142,16 +144,16 @@ button.board-case-body:hover {
 .artifact-table li {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
 }
 
 .artifact-meaning {
-  color: var(--color-text-muted);
+  color: var(--sk-color-text-muted);
 }
 
 .artifact-commitment {
   margin: 4px 0 0;
-  color: var(--color-text-muted);
+  color: var(--sk-color-text-muted);
 }
 
 .lobby-state {

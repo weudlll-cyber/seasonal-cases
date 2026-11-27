@@ -10,7 +10,7 @@
  */
 import { expect, test, type WebSocket } from '@playwright/test';
 
-import { direct, endEarly, quickTestSealing, signInApi, signInUi } from './helpers.js';
+import { direct, endEarly, quickTestSealing, signInApi, signInUi, OWN_PAGE } from './helpers.js';
 
 // The direction bar's buttons and the step the player's stage shows after each.
 const STEPS = [
@@ -52,6 +52,7 @@ test('journey 3: no unopened content reaches a player; the commitment holds', as
   await signInApi(mod.request, 'Mia', 'organiser');
   const created = await mod.request.post('/api/dev/quick-test', {
     data: { cases: 8, winners: 2, labels: [], seed: SEED },
+    ...OWN_PAGE,
   });
   expect(created.ok()).toBe(true);
   const { id } = (await created.json()) as { id: string };

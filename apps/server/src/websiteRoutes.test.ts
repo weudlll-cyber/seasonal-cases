@@ -58,7 +58,10 @@ describe('the website sign-in', () => {
       SC_TEST_PLAIN_COOKIE: '1',
     });
     const signedIn = await signInAs(harness, member(7, 'Ana'));
-    expect(String(signedIn.headers['set-cookie'])).toMatch(/Path=\/games\/cases\//);
+    // The kit's plain cookie (http) takes the base path; only the test-only mode has it here.
+    expect(String(signedIn.headers['set-cookie'])).toMatch(
+      /^sc_session=[^;]+;.*Path=\/games\/cases;/,
+    );
     expect(String(signedIn.headers['set-cookie'])).not.toMatch(/Secure/);
   });
 
@@ -82,12 +85,15 @@ describe('the website sign-in', () => {
     expect(invalid.json()).toEqual({ error: 'NO_WEBSITE_USER' });
   });
 
-  it('signs a member in under the base path with rank and badges, and keeps the account', async () => {
+  it('signs a member in under the base path with rank and steps, and keeps the account', async () => {
     harness = await startHarness(false, WEBSITE);
     const first = await signInAs(harness, member(7, 'Ana'));
     expect(first.statusCode).toBe(302);
     expect(first.headers.location).toBe('/games/cases/show');
-    expect(String(first.headers['set-cookie'])).toMatch(/Path=\/games\/cases\/; .*Secure/);
+    // Under the website's path: the `__Secure-` prefix, the base path, a lifetime of 7 days.
+    expect(String(first.headers['set-cookie'])).toMatch(
+      /^__Secure-sc_session=[^;]+; Max-Age=604800; Path=\/games\/cases;.*Secure/,
+    );
     const me = async (cookie: string) =>
       (
         await harness?.server.app.inject({
@@ -96,10 +102,18 @@ describe('the website sign-in', () => {
           headers: { cookie },
         })
       )?.json<{
-        me: { id: string; name: string; role: string; rank: number; badges: string[] };
+        me: {
+          id: string;
+          name: string;
+          role: string;
+          rank: number;
+          steps?: unknown;
+        };
       }>().me;
     const ana = await me(cookieOf(first.headers['set-cookie']));
-    expect(ana).toMatchObject({ name: 'Ana', role: 'player', rank: 1, badges: [ICON] });
+    expect(ana).toMatchObject({ name: 'Ana', role: 'player', rank: 1 });
+    // The steps as the kit gave them (ladder, name, icon): the screens draw them (D65, D79).
+    expect(ana?.steps).toEqual([{ ladder: 'holder', name: 'Golden', icon: ICON }]);
     // A rename applies at the next sign-in; the account stays the same.
     const again = await signInAs(harness, member(7, 'Anna'));
     expect(await me(cookieOf(again.headers['set-cookie']))).toMatchObject({
@@ -133,13 +147,10 @@ describe('the website sign-in', () => {
       (await app.inject({ method: 'POST', url: '/games/cases/api/dev/sign-in', payload: {} }))
         .statusCode,
     ).toBe(404);
-    expect((await app.inject({ method: 'GET', url: '/api/health' })).statusCode).toBe(404);
-    expect(
-      (await app.inject({ method: 'GET', url: '/games/cases/api/health' })).json(),
-    ).toMatchObject({
-      ok: true,
-      mode: 'website',
-    });
+    expect((await app.inject({ method: 'GET', url: '/healthz' })).statusCode).toBe(404);
+    expect((await app.inject({ method: 'GET', url: '/games/cases/healthz' })).json()).toMatchObject(
+      { status: 'ok' },
+    );
   });
 });
 
@@ -166,7 +177,11 @@ describe('the account feed', () => {
     const answer = await signInAs(harness, member(7, 'Ana'));
     const cookie = cookieOf(answer.headers['set-cookie']);
     const { auth } = harness.server;
-    const deps = { ...auth, websiteOrigin: 'https://site.example' };
+    const deps = {
+      ...auth,
+      websiteOrigin: 'https://site.example',
+      forget: (playerId: string, name: string) => harness?.server.shows.forget(playerId, name) ?? 0,
+    };
     const me = () =>
       harness?.server.app.inject({
         method: 'GET',
@@ -179,6 +194,12 @@ describe('the account feed', () => {
     await applyChange(deps, { id: 7, kind: 'deleted' });
     await applyChange(deps, { id: 7, kind: 'deleted' });
     expect(auth.directory.lookup(id)?.name).toBe(`deleted player ${id.slice(0, 6)}`);
+    // The stored account is erased too: no name, no steps (D61).
+    expect(await auth.accounts.byId(id)).toMatchObject({
+      name: `deleted player ${id.slice(0, 6)}`,
+      steps: [],
+      deleted: true,
+    });
     // A deleted account cannot sign in again.
     expect((await signInAs(harness, member(7, 'Ana'))).statusCode).toBe(403);
   });

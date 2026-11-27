@@ -13,7 +13,7 @@
  */
 import { expect, test, type Page } from '@playwright/test';
 
-import { direct, endEarly, openShow, quickTestSealing, signInUi } from './helpers.js';
+import { direct, endEarly, openShow, quickTestSealing, signInUi, OWN_PAGE } from './helpers.js';
 
 const SEED = 'sc-n1-01';
 const STEPS = ['Open', 'Owner', 'Back to stage'] as const;
@@ -73,6 +73,12 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
 
   await signInUi(page, 'Ada', 'admin');
   await page.goto('/admin');
+  // While the header is unfolded it shows no "Menu" button beside its links (the order of the
+  // kit's stylesheets, apps/web/src/main.tsx). Whether it folds is the kit's measure: an admin's
+  // may fold at this width, depending on the fonts' metrics.
+  await expect(
+    page.locator('.sk-header:not([data-sk-folded="true"]) [data-testid="menu-button"]'),
+  ).toBeHidden();
   const setup = page.getByRole('form', { name: 'Show setup' });
   await setup.getByLabel('Cases (N)').fill('12');
   await setup.getByLabel('Winners (W)').fill('3');
@@ -122,6 +128,8 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
   );
   await expect(noah.locator('.result-winners li')).toHaveCount(3);
   await expect(noah.locator('.result-winners li').first()).toContainText('Halving Stone');
+  // Standalone has no website, so no shared call is framed (D91).
+  await expect(noah.getByTestId('shared-call-slot')).toHaveCount(0);
   await other.close();
 
   await unclaimedShow(page);
@@ -135,7 +143,7 @@ test('journey 1: Quick Test, four cases through the three steps, hand-over, veri
 async function unclaimedShow(page: Page): Promise<void> {
   const id = await openShow(page.request, 2, 1);
   for (const step of ['close', 'seal', 'start']) {
-    expect((await page.request.post(`/api/shows/${id}/${step}`)).ok()).toBe(true);
+    expect((await page.request.post(`/api/shows/${id}/${step}`, OWN_PAGE)).ok()).toBe(true);
   }
   await page.goto('/show');
   await page.getByRole('button', { name: 'Begin' }).click();

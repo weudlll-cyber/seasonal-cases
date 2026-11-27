@@ -125,3 +125,24 @@ export const MatchSchema = z.object({
   prize: z.string().nullable(),
 });
 export type Match = z.infer<typeof MatchSchema>;
+
+/** Deleting one's own account: the password, and a current code with two-factor sign-in (D61). */
+export const DeleteAccountRequestSchema = z.object({
+  password: z.string().min(1).max(PASSWORD_LIMIT),
+  code: TwoFactorCodeSchema.optional(),
+});
+export type DeleteAccountRequest = z.infer<typeof DeleteAccountRequestSchema>;
+
+/** A player's own data, as "Download my data" gives it: no password, no secret (D61). */
+export const AccountExportSchema = z.object({
+  exportedAt: z.string(),
+  profile: z.object({
+    name: z.string(),
+    email: z.string(),
+    role: AccountRoleSchema,
+    rank: RankSchema,
+  }),
+  // The shows the player joined, with their case and, once it is open, its prize.
+  matches: z.array(MatchSchema),
+});
+export type AccountExport = z.infer<typeof AccountExportSchema>;

@@ -10,8 +10,10 @@
  *                 port and server in SC_WEB_PORT and SC_SERVER. Pages may frame only this site
  *                 and, in local development, the website's chat origin (`frame-src`,
  *                 GAME-INTEGRATION §5; SC_CHAT_ORIGIN, default http://localhost:5380). The kit's
- *                 `themeInit()` serves the early theme script. As the Vitest project config it
- *                 runs the component tests in jsdom.
+ *                 `themeInit()` serves the early theme script. Each mode has a dependency cache of its
+ *                 own, and the kit's lazily loaded development menu is named in `optimizeDeps`
+ *                 (both below). As the Vitest project config it runs the component tests in
+ *                 jsdom.
  * Depends on:     vite, @vitejs/plugin-react, @seasonal/kit/vite
  */
 /// <reference types="vitest/config" />
@@ -28,6 +30,15 @@ const CHAT_ORIGIN = WEBSITE ? '' : (process.env['SC_CHAT_ORIGIN'] ?? 'http://loc
 export default defineConfig({
   base: BASE,
   plugins: [react(), themeInit()],
+  // The browser tests run a dev server per mode at once, and two servers on one dependency cache
+  // overwrite each other's optimisation: each mode has a cache folder of its own.
+  cacheDir: WEBSITE ? 'node_modules/.vite-website' : 'node_modules/.vite',
+  optimizeDeps: {
+    // The kit's development menu is loaded lazily (src/shell/DevTools.tsx). Named here it is in the
+    // first optimisation; discovered late, a second optimisation gives it a second copy of React
+    // ("Invalid hook call", seen in CI), and the page cannot render.
+    include: ['@seasonal/kit/react/dev'],
+  },
   server: {
     host: '0.0.0.0',
     port: PORT,

@@ -1,76 +1,164 @@
 /**
  * @file   apps/web/src/shell/ShellBar.tsx
- * @brief  The app header outside focus mode: the way back to the website, the name, the
- *         navigation, the user, the theme.
+ * @brief  The app header outside focus mode: the kit's `AppHeader` with this game's links,
+ *         account and development tools (DECISIONS D56, D58).
  *
- * Responsibility: one row on a desktop; on a phone the title row and the menu row, whose
- *                 links wrap below 480 px (DECISIONS D29), its height published for the
- *                 screens that subtract it (./useShellHeight.ts); the kit's `BackLink`
- *                 ("← Seasonal Entertainment", website mode only, GAME-INTEGRATION §8) at the
- *                 top left and the kit's `ThemeToggle`. In website mode a guest's "Sign in" goes
- *                 through the website (the kit's `websiteLoginHref` to the game's login hop) and
- *                 back to this page. Hidden while a live show is on the stage: the game bar takes
- *                 its place (./FocusBar.tsx).
- * Depends on:     react, @seasonal/kit, @seasonal/kit/react, @sc/contracts (types),
- *                 ../lib/base.js, ../lib/router.js, ../stage/Badges.js, ./useShellHeight.js
+ * Responsibility: the kit's order, on screen and in the DOM: in website mode the way back to
+ *                 Seasonal Entertainment, the brand (emblem, "Seasonal Cases"), the pages (Start,
+ *                 Stage, Chronicle, "My matches" once signed in, "Admin" for organisers and admins
+ *                 only (D90), Privacy; the current one marked),
+ *                 the account chip "name (role)" and, in website mode, the member's steps as the
+ *                 kit draws them (`account.steps`, D65), linking to the account page (download
+ *                 and delete one's data, D61), with "Sign out" (a guest: "Sign in", which in
+ *                 website mode goes through the website with the kit's `websiteLoginHref` to the
+ *                 game's login hop), in development the Quick Test link and the "Dev sign-in"
+ *                 menu (./DevTools.tsx, loaded only by a development build, each inside an error
+ *                 boundary: ./DevBoundary.tsx), and the theme toggle
+ *                 at the far right. When the items do not fit one row, the kit folds the pages and
+ *                 the account into one "Menu" button. The kit renders plain anchors; a click on
+ *                 one of this game's own pages moves without a reload (the delegated handler
+ *                 below). The header's height is published for the screens that subtract it
+ *                 (./useShellHeight.ts). Hidden while a live show is on the stage: the game bar
+ *                 takes its place (./FocusBar.tsx).
+ * Depends on:     react, @seasonal/kit, @seasonal/kit/react, @sc/contracts,
+ *                 assets/brand/emblem.webp, ../lib/base.js, ../lib/router.js,
+ *                 ./DevBoundary.js, ./DevTools.js (lazy, development only), ./useShellHeight.js
  */
 import { websiteLoginHref } from '@seasonal/kit';
-import { BackLink, ThemeToggle } from '@seasonal/kit/react';
-import type { Me } from '@sc/contracts';
-import { useRef } from 'react';
+import { AppHeader, type HeaderAccount, type HeaderLink } from '@seasonal/kit/react';
+import { canDirect, type Me } from '@sc/contracts';
+import { lazy, Suspense, useRef, type MouseEvent, type ReactElement } from 'react';
 
-import { BASE } from '../lib/base.js';
-import { Link } from '../lib/router.js';
-import { Badges } from '../stage/Badges.js';
+import emblem from '../../../../assets/brand/emblem.webp';
+import { appPathOf, BASE, pagePath } from '../lib/base.js';
+import type { DevSignInFn } from '../lib/devSignIn.js';
+import { navigate, type Route } from '../lib/router.js';
+import { DevBoundary } from './DevBoundary.js';
 import { useShellHeight } from './useShellHeight.js';
 
+// Development tools load on demand. A production build replaces import.meta.env.DEV with false,
+// so these imports and everything behind them stay out of the bundle (kit HANDBOOK, security).
+const QuickTestLink = import.meta.env.DEV
+  ? lazy(() => import('./DevTools.js').then((m) => ({ default: m.QuickTestLink })))
+  : null;
+const DevSignIn = import.meta.env.DEV
+  ? lazy(() => import('./DevTools.js').then((m) => ({ default: m.DevSignIn })))
+  : null;
+
 export interface ShellBarProps {
+  readonly route: Route['name'];
   readonly me: Me | null;
   readonly website: boolean;
-  readonly onSignOut: () => void;
+  // Development: the server's dev features are on (the quick tools show only in a dev build too).
+  readonly dev: boolean;
+  readonly onSignOut: () => Promise<void>;
+  // Absent in a production build (../lib/devSignIn.ts).
+  readonly onDevSignIn?: DevSignInFn | undefined;
 }
 
-export function ShellBar({ me, website, onSignOut }: ShellBarProps) {
-  const header = useRef<HTMLElement>(null);
-  useShellHeight(header);
+/** The pages of the bar; the server checks every call behind them. */
+export function linksOf(route: Route['name'], me: Me | null): readonly HeaderLink[] {
+  const link = (to: string, label: string, active: boolean): HeaderLink => ({
+    href: pagePath(to),
+    label,
+    active,
+  });
+  return [
+    link('/', 'Start', route === 'start'),
+    link('/show', 'Stage', route === 'stage'),
+    link('/chronicle', 'Chronicle', route === 'chronicle'),
+    ...(me === null ? [] : [link('/matches', 'My matches', route === 'matches')]),
+    // Only for those who may use it (D90); the page and the server refuse everyone else anyway.
+    ...(me !== null && canDirect(me.role) ? [link('/admin', 'Admin', route === 'admin')] : []),
+    link('/privacy', 'Privacy', route === 'privacy'),
+  ];
+}
+
+/** The signed-in account as the chip shows it: "Ana (player · rank 2)", "Olga (organiser)". */
+export function accountOf(me: Me | null, onSignOut: () => void): HeaderAccount | null {
+  if (me === null) return null;
+  const role = me.role === 'player' ? `player · rank ${String(me.rank)}` : me.role;
+  // A website member's steps go to the kit's chip exactly as the server received them (D65).
+  return {
+    name: me.name,
+    role,
+    href: pagePath('/account'),
+    onSignOut,
+    ...(me.steps === undefined ? {} : { steps: me.steps }),
+  };
+}
+
+// A plain left click: no modifier key, which opens a tab or a window in the browser's own way.
+const plain = (event: MouseEvent): boolean =>
+  event.button === 0 && !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey);
+
+/**
+ * A click on one of the game's own pages moves without a reload. The kit's header renders plain
+ * anchors; the paths named here are this bar's own, so the website's login hop and anything else
+ * the browser follows as it is.
+ */
+function inAppClick(paths: ReadonlySet<string>): (event: MouseEvent) => void {
+  return (event) => {
+    if (event.defaultPrevented || !plain(event)) return;
+    const anchor = event.target instanceof Element ? event.target.closest('a') : null;
+    if (anchor === null || !paths.has(anchor.pathname)) return;
+    event.preventDefault();
+    navigate(appPathOf(anchor.pathname));
+  };
+}
+
+export function ShellBar({ route, me, website, dev, onSignOut, onDevSignIn }: ShellBarProps) {
+  const wrapper = useRef<HTMLDivElement>(null);
+  useShellHeight(wrapper);
+  const links = linksOf(route, me);
+  const own = new Set([pagePath('/'), pagePath('/account'), ...links.map((l) => l.href)]);
+  const quick = dev && QuickTestLink !== null;
   return (
-    <header className="shell-bar" ref={header}>
-      <BackLink websiteMode={website} />
-      <Link to="/" className="shell-title">
-        Seasonal Cases
-      </Link>
-      <nav className="shell-nav" aria-label="Main">
-        <Link to="/">Start</Link>
-        <Link to="/show">Stage</Link>
-        <Link to="/chronicle">Chronicle</Link>
-        {me !== null && <Link to="/matches">My matches</Link>}
-        <Link to="/admin">Admin</Link>
-      </nav>
-      {me === null && website && (
-        <a
-          className="button"
-          href={websiteLoginHref(`${BASE}auth/website`)}
-          title="Sign in with your Seasonal Entertainment account"
-        >
-          Sign in
-        </a>
-      )}
-      {me !== null && (
-        <span className="shell-me">
-          <Badges badges={me.badges} />
-          <span className="shell-me-name" title={me.name}>
-            {me.name}
-          </span>
-          <span className="shell-me-role">
-            · {me.role}
-            {me.role === 'player' ? ` · rank ${String(me.rank)}` : ''}
-          </span>
-          <button type="button" className="button" title="Sign out" onClick={onSignOut}>
-            Sign out
-          </button>
-        </span>
-      )}
-      <ThemeToggle />
-    </header>
+    // The wrapper has no box (display: contents): the header stays a child of the page, sticky.
+    <div className="shell-header" ref={wrapper} onClick={inAppClick(own)}>
+      <AppHeader
+        websiteMode={website}
+        brand={{
+          href: pagePath('/'),
+          emblem: <img src={emblem} alt="" width="42" height="37" />,
+          name: 'Seasonal Cases',
+        }}
+        links={links}
+        navExtra={quick ? <QuickTestSlot /> : null}
+        account={accountOf(me, () => {
+          void onSignOut();
+        })}
+        signIn={{ href: website ? websiteLoginHref(`${BASE}auth/website`) : pagePath('/') }}
+        devTools={
+          dev && DevSignIn !== null && !website && onDevSignIn !== undefined ? (
+            <DevSignInSlot onSignIn={onDevSignIn} />
+          ) : null
+        }
+        // A new page or another account: the folded menu has done its job.
+        closeKey={`${route} ${me?.name ?? ''}`}
+      />
+    </div>
+  );
+}
+
+function QuickTestSlot(): ReactElement | null {
+  if (QuickTestLink === null) return null;
+  return (
+    <DevBoundary>
+      <Suspense fallback={null}>
+        <QuickTestLink />
+      </Suspense>
+    </DevBoundary>
+  );
+}
+
+function DevSignInSlot(props: { onSignIn: DevSignInFn }): ReactElement | null {
+  if (DevSignIn === null) return null;
+  return (
+    <DevBoundary>
+      <Suspense fallback={null}>
+        <DevSignIn onSignIn={props.onSignIn} />
+      </Suspense>
+    </DevBoundary>
   );
 }

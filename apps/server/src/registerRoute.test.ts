@@ -32,7 +32,7 @@ const signIn = (h: Harness, login: string) =>
 
 /** The confirmation tokens mailed so far, oldest first. */
 const tokensIn = (box: ReturnType<typeof mailbox>): string[] =>
-  box.sent.flatMap((m) => /confirm\?token=([\w-]+)/.exec(m.text)?.[1] ?? []);
+  box.sent.flatMap((m) => /confirm#token=([\w-]+)/.exec(m.text)?.[1] ?? []);
 
 async function started(): Promise<{ h: Harness; box: ReturnType<typeof mailbox> }> {
   const box = mailbox();

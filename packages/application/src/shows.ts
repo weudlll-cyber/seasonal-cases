@@ -22,7 +22,7 @@ import {
   type ShowSettings,
 } from '@sc/domain';
 
-import type { DirectionStep } from '@sc/contracts';
+import type { DirectionStep, Season } from '@sc/contracts';
 
 import type { Clock, EventStore, IdSource, RandomSource } from './ports.js';
 import { seasonOf } from './season.js';
@@ -46,6 +46,8 @@ export interface ShowDeps {
   readonly store: EventStore;
   // The settings at this moment: read at every creation, so a change applies to new shows only.
   readonly settings?: () => ShowSettings;
+  // The season of a show created at this time; the date's season by default (./season.ts).
+  readonly seasonAt?: (at: string) => Season;
   /** Called after every accepted use case with the show's new state. */
   readonly onChange?: (model: ShowModel) => void;
 }
@@ -68,6 +70,11 @@ export interface ShowService {
   handOver(showId: string, by: string, to: Actor): Outcome;
   endShow(showId: string, by: string): Outcome;
   quickTest(setup: ShowSetup & { readonly seed: string }, organiser: Actor): Outcome;
+  /**
+   * Takes a deleted player's name out of every show (D61): the logs are rewritten, the shows they
+   * appear in are folded again and announced through `onChange`. Answers how many shows changed.
+   */
+  forget(playerId: string, name: string): number;
 }
 
 const missing = (showId: string): Outcome => ({
@@ -76,11 +83,37 @@ const missing = (showId: string): Outcome => ({
   notFound: true,
 });
 
+/**
+ * Takes a deleted player's name out of the stored logs, folds the shows they appear in again and
+ * announces each one (`ShowService.forget`).
+ */
+function forgetPlayer(
+  deps: ShowDeps,
+  models: Map<string, ShowModel>,
+  playerId: string,
+  name: string,
+): number {
+  const changed = deps.store.redact(playerId, name);
+  const logs = deps.store.loadAll();
+  for (const showId of changed) {
+    const events = logs.get(showId);
+    if (events === undefined) continue;
+    const model = foldShow(events);
+    models.set(showId, model);
+    deps.onChange?.(model);
+  }
+  return changed.length;
+}
+
+/** Newest first; shows created in the same millisecond keep their creation order, reversed. */
+const newestFirst = (models: ReadonlyMap<string, ShowModel>): ShowModel[] =>
+  [...models.values()].reverse().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
 export function createShowService(deps: ShowDeps): ShowService {
   const { clock, ids, random, store } = deps;
   const settingsNow = deps.settings ?? (() => DEFAULT_SETTINGS);
-  const models = new Map<string, ShowModel>();
   // The rebuild: every show is a fold over its logged events.
+  const models = new Map<string, ShowModel>();
   for (const [showId, events] of store.loadAll()) models.set(showId, foldShow(events));
 
   // Appends what the domain decided, folds it in and tells the listener.
@@ -104,14 +137,12 @@ export function createShowService(deps: ShowDeps): ShowService {
   };
 
   const service: ShowService = {
-    // Newest first; shows created in the same millisecond keep their creation order, reversed.
-    list: () =>
-      [...models.values()].reverse().sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    list: () => newestFirst(models),
     get: (showId) => models.get(showId),
     createShow(by, setup) {
       const at = clock.now();
       const showId = ids.showId();
-      const season = seasonOf(at);
+      const season = (deps.seasonAt ?? seasonOf)(at);
       return commit(
         showId,
         decideCreate({ type: 'create', at, showId, by, ...setup, season, settings: settingsNow() }),
@@ -133,6 +164,7 @@ export function createShowService(deps: ShowDeps): ShowService {
     endShow: (id, by) => run(id, (at) => ({ type: 'end', at, by })),
     quickTest: ({ seed, ...setup }, organiser) =>
       quickTest(service, setup, organiser, random.seeded(seed)),
+    forget: (playerId, name) => forgetPlayer(deps, models, playerId, name),
   };
   return service;
 }

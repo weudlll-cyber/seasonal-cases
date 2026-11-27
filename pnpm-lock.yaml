@@ -170,6 +170,9 @@ importers:
 
   .:
     devDependencies:
+      '@axe-core/playwright':
+        specifier: 4.14.0
+        version: 4.14.0(playwright-core@1.64.1)
       '@eslint/js':
         specifier: 10.0.1
         version: 10.0.1(eslint@10.13.0(supports-color@7.2.0))
@@ -183,8 +186,8 @@ importers:
         specifier: workspace:*
         version: link:packages/domain
       '@seasonal/kit':
-        specifier: github:weudlll-cyber/seasonal-kit#v0.11.1
-        version: https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/acd011a621c2380479c58b3c01a29677747a3157(react@19.3.1)(vite@8.3.4(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))
+        specifier: github:weudlll-cyber/seasonal-kit#v0.40.0
+        version: https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/23f10b969648dcc6903e797128274b84ba71b459(@playwright/test@1.64.1)(react@19.3.1)(vite@8.3.4(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))
       '@types/node':
         specifier: 22.20.5
         version: 22.20.5
@@ -230,9 +233,6 @@ importers:
       '@fastify/cookie':
         specifier: 11.1.3
         version: 11.1.3
-      '@fastify/helmet':
-        specifier: 13.2.0
-        version: 13.2.0
       '@fastify/static':
         specifier: 10.1.12
         version: 10.1.12
@@ -249,8 +249,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/domain
       '@seasonal/kit':
-        specifier: github:weudlll-cyber/seasonal-kit#v0.11.1
-        version: https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/acd011a621c2380479c58b3c01a29677747a3157(react@19.3.1)(vite@8.3.4(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))
+        specifier: github:weudlll-cyber/seasonal-kit#v0.40.0
+        version: https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/23f10b969648dcc6903e797128274b84ba71b459(@playwright/test@1.64.1)(react@19.3.1)(vite@8.3.4(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))
       '@zxcvbn-ts/language-common':
         specifier: 4.2.0
         version: 4.2.0
@@ -292,8 +292,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ui
       '@seasonal/kit':
-        specifier: github:weudlll-cyber/seasonal-kit#v0.11.1
-        version: https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/acd011a621c2380479c58b3c01a29677747a3157(react@19.3.1)(vite@8.3.4(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))
+        specifier: github:weudlll-cyber/seasonal-kit#v0.40.0
+        version: https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/23f10b969648dcc6903e797128274b84ba71b459(@playwright/test@1.64.1)(react@19.3.1)(vite@8.3.4(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))
       react:
         specifier: 19.3.1
         version: 19.3.1
@@ -353,8 +353,8 @@ importers:
         specifier: workspace:*
         version: link:../contracts
       '@seasonal/kit':
-        specifier: github:weudlll-cyber/seasonal-kit#v0.11.1
-        version: https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/acd011a621c2380479c58b3c01a29677747a3157(react@19.3.1)(vite@8.3.4(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))
+        specifier: github:weudlll-cyber/seasonal-kit#v0.40.0
+        version: https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/23f10b969648dcc6903e797128274b84ba71b459(@playwright/test@1.64.1)(react@19.3.1)(vite@8.3.4(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))
       react:
         specifier: 19.3.1
         version: 19.3.1
@@ -384,6 +384,12 @@ packages:
   '@asamuzakjp/dom-selector@10.0.6':
     resolution: {integrity: sha512-thWv2/7bV1vrCp+tNo8eR8GfpmFh5PhYmDPMNqoYQsPyhLSd8UhV+IZTpKIQ1TGvKKTIV0h9xwEgx7mpx81Zjw==}
     engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
+
+  '@axe-core/playwright@4.14.0':
+    resolution: {integrity: sha512-SGUhG5PIHd2eMdpgBF2PyQLOhX+qyDR2PT4cmoS4Qk2ak+jX/rrSvst9l0PGv5WTHolKpUMvVmoHpr4cZgf1RQ==}
+    engines: {node: '>=22.12.0'}
+    peerDependencies:
+      playwright-core: '>= 1.0.0'
 
   '@babel/code-frame@7.29.7':
     resolution: {integrity: sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw==}
@@ -698,9 +704,6 @@ packages:
   '@fastify/forwarded@3.1.2':
     resolution: {integrity: sha512-89WiRG+hW3VQSfCwg4Hb8b43PeyEX15K5+lEfsZ4EUth/FyOjS/lv8HsVuswUNXWiSnxMGNouE/fq/0w3VumHQ==}
 
-  '@fastify/helmet@13.2.0':
-    resolution: {integrity: sha512-2u41U5hR9o1u3HUHLT3Njp7vWuWw+XXw8qCBwVY17pRQAN179YYKiU9f7/qEn1ITabgNTkq/Yk6gmrYPSraagA==}
-
   '@fastify/merge-json-schemas@0.2.2':
     resolution: {integrity: sha512-d/gx9sRbUCVgGRGzma46wLcwiY8noTqO2Nmjg/vbTARxHRE5bdh5PIL8s97Lt1X7ScRWRW52eVYxwIoPwIdVUA==}
 
@@ -967,14 +970,18 @@ packages:
   '@rolldown/pluginutils@1.1.1':
     resolution: {integrity: sha512-glFIJDvLNDtJhT9qrMFWLPbvS+skxgt4L0K8Ei2YtnhPysAJnsI7nyxSJxKj4ADeKX0OLjC4ntRkwpLOoS3rwA==}
 
-  '@seasonal/kit@https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/acd011a621c2380479c58b3c01a29677747a3157':
-    resolution: {gitHosted: true, integrity: sha512-5DMYMDufCMsdJY68R0orYF7vwhUyWtIDd6ItyYdWwR+0gy1yXJAMKZCqFwGqZhvjlkE7y9jJzCx1SE4aJu4GMA==, tarball: https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/acd011a621c2380479c58b3c01a29677747a3157}
-    version: 0.11.1
+  '@seasonal/kit@https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/23f10b969648dcc6903e797128274b84ba71b459':
+    resolution: {gitHosted: true, integrity: sha512-eOLAKfFwyVIvDdaMSzW8OcSzGHN2V0410iKJ+8+iYQgfTHAZ80SPhYzJukU8qKRHoxLC/HgPlCSK3H1f4XNGvg==, tarball: https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/23f10b969648dcc6903e797128274b84ba71b459}
+    version: 0.40.0
     engines: {node: '>=22'}
+    hasBin: true
     peerDependencies:
+      '@playwright/test': ^1.64.1
       react: ^19.3.1
       vite: ^8.3.4
     peerDependenciesMeta:
+      '@playwright/test':
+        optional: true
       react:
         optional: true
       vite:
@@ -1328,6 +1335,10 @@ packages:
   avvio@9.3.1:
     resolution: {integrity: sha512-QyTKW61/qlba+cUQBm/sT9X8lri4UdomqSDwCnrnj1IvLVDRRiXRkz4CgBRWB+/cmfC7SK5WQc8T1vSdGvaUcQ==}
 
+  axe-core@4.14.1:
+    resolution: {integrity: sha512-FHfa+lmNjQZfJz1q8wKqIDwC6DExcHt/pkjNQb09a3NPjCKg2rhu5qb2S4r76ASyFNNtuFooJpZe37OgudVGtQ==}
+    engines: {node: '>=4'}
+
   balanced-match@4.0.4:
     resolution: {integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==}
     engines: {node: 18 || 20 || >=22}
@@ -1669,10 +1680,6 @@ packages:
   hasown@2.0.4:
     resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
     engines: {node: '>= 0.4'}
-
-  helmet@8.3.0:
-    resolution: {integrity: sha512-Qgpiaws3Sm30Av8Eah6sjMCZZwjlBu+E68rhpCWBshY1lb09HtLwj5GviX0OyQIn+ulUS0iX0AxN5n3tLZzz1w==}
-    engines: {node: '>=18.0.0'}
 
   hookified@1.15.1:
     resolution: {integrity: sha512-MvG/clsADq1GPM2KGo2nyfaWVyn9naPiXrqIe4jYjXNZQt238kWyOGrsyc/DmRAQ+Re6yeo6yX/yoNCG5KAEVg==}
@@ -2532,6 +2539,11 @@ snapshots:
       is-potential-custom-element-name: 1.0.1
       lru-cache: 11.5.3
 
+  '@axe-core/playwright@4.14.0(playwright-core@1.64.1)':
+    dependencies:
+      axe-core: 4.14.1
+      playwright-core: 1.64.1
+
   '@babel/code-frame@7.29.7':
     dependencies:
       '@babel/helper-validator-identifier': 7.29.7
@@ -2762,11 +2774,6 @@ snapshots:
 
   '@fastify/forwarded@3.1.2': {}
 
-  '@fastify/helmet@13.2.0':
-    dependencies:
-      fastify-plugin: 6.0.1
-      helmet: 8.3.0
-
   '@fastify/merge-json-schemas@0.2.2':
     dependencies:
       dequal: 2.0.3
@@ -2955,8 +2962,9 @@ snapshots:
 
   '@rolldown/pluginutils@1.1.1': {}
 
-  '@seasonal/kit@https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/acd011a621c2380479c58b3c01a29677747a3157(react@19.3.1)(vite@8.3.4(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))':
+  '@seasonal/kit@https://codeload.github.com/weudlll-cyber/seasonal-kit/tar.gz/23f10b969648dcc6903e797128274b84ba71b459(@playwright/test@1.64.1)(react@19.3.1)(vite@8.3.4(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15))':
     optionalDependencies:
+      '@playwright/test': 1.64.1
       react: 19.3.1
       vite: 8.3.4(@types/node@22.20.5)(esbuild@0.28.2)(tsx@4.23.15)
 
@@ -3284,6 +3292,8 @@ snapshots:
     dependencies:
       '@fastify/error': 4.2.1
       fastq: 1.20.3
+
+  axe-core@4.14.1: {}
 
   balanced-match@4.0.4: {}
 
@@ -3689,8 +3699,6 @@ snapshots:
   hasown@2.0.4:
     dependencies:
       function-bind: 1.1.2
-
-  helmet@8.3.0: {}
 
   hookified@1.15.1: {}
 

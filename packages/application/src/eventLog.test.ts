@@ -1,6 +1,7 @@
 /**
  * @file   packages/application/src/eventLog.test.ts
- * @brief  Tests the JSON-lines store: append-only lines per show, read back whole, safe ids.
+ * @brief  Tests the JSON-lines store: append-only lines per show, read back whole, safe ids; and
+ *         both stores' `redact`, which takes a deleted player's name out of the logs (D61).
  *
  * Responsibility: write into a fresh temporary folder and remove it afterwards (CLAUDE.md:
  *                 test data is removed by its test).
@@ -12,7 +13,8 @@ import { join } from 'node:path';
 import type { ShowEvent } from '@sc/domain';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { jsonlStore } from './eventLog.js';
+import { jsonlStore, memoryStore } from './eventLog.js';
+import type { EventStore } from './ports.js';
 import { seasonOf } from './season.js';
 
 let dir = '';
@@ -45,6 +47,50 @@ describe('jsonlStore', () => {
     expect(() => {
       jsonlStore(dir).append('../escape', [opened('2026-11-21T20:00:00.000Z')]);
     }).toThrow(/unsafe/);
+  });
+});
+
+const claimed = (name: string, id: string, caseNumber: number): ShowEvent => ({
+  type: 'claimed',
+  at: '2026-11-21T20:00:00.000Z',
+  player: { id, name },
+  rank: 1,
+  caseNumber,
+});
+
+describe.each([
+  ['the memory store', () => memoryStore()],
+  ['the JSON-lines store', () => jsonlStore(dir)],
+] as const)('redact in %s', (_name, make: () => EventStore) => {
+  it('replaces the name in the shows that have it, and says which', () => {
+    const store = make();
+    store.append('show-a', [opened('2026-11-21T20:00:00.000Z'), claimed('Ana Example', 'ana', 1)]);
+    store.append('show-a', [claimed('Noah', 'noah', 2)]);
+    store.append('show-b', [claimed('Noah', 'noah', 1)]);
+    expect(store.redact('ana', 'deleted player ana')).toEqual(['show-a']);
+    const text = JSON.stringify([...store.loadAll()]);
+    expect(text).not.toContain('Ana Example');
+    expect(text).toContain('deleted player ana');
+    // Noah's claims, the order of the events and the other show are as they were.
+    expect(text).toContain('Noah');
+    expect(
+      store
+        .loadAll()
+        .get('show-a')
+        ?.map((e) => e.type),
+    ).toEqual(['registrationOpened', 'claimed', 'claimed']);
+    expect(store.redact('ana', 'deleted player ana')).toEqual([]);
+  });
+});
+
+describe('the JSON-lines store after a redaction', () => {
+  it('holds the name in no file any more, and still takes appended events', () => {
+    const store = jsonlStore(dir);
+    store.append('show-a', [claimed('Ana Example', 'ana', 1)]);
+    store.redact('ana', 'deleted player ana');
+    expect(readFileSync(join(dir, 'show-a.jsonl'), 'utf8')).not.toContain('Ana Example');
+    store.append('show-a', [claimed('Noah', 'noah', 2)]);
+    expect(jsonlStore(dir).loadAll().get('show-a')).toHaveLength(2);
   });
 });
 

@@ -6,7 +6,8 @@
  *                 admin API; and learn which case holds which artifact for a Quick Test seed by
  *                 running the same Quick Test in memory: the seed reproduces the sealing
  *                 (CONCEPT §8), so the test can aim at the main prize without reading anything
- *                 the client receives; act on the direction bar on a desktop or a phone.
+ *                 the client receives; act on the direction bar on a desktop or a phone; open the
+ *                 kit header's folded menu on a phone.
  * Depends on:     @playwright/test, @sc/application, @sc/domain
  */
 import { expect, type APIRequestContext, type Locator, type Page } from '@playwright/test';
@@ -23,21 +24,47 @@ export async function signInUi(page: Page, name: string, role: Role, rank = 0): 
   await form.getByLabel('Role').selectOption(role);
   await form.getByLabel('Rank').selectOption(String(rank));
   await form.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.locator('.shell-me')).toContainText(name);
+  await expect(page.getByTestId('signed-in-as')).toContainText(name);
 }
+
+/**
+ * On a phone the kit folds the header's pages and account into its "Menu" button: opens it where
+ * it is closed, so the links and "Sign out" in it can be clicked. A header that is not folded has
+ * no such button visible, and nothing happens.
+ */
+export async function openMenu(page: Page): Promise<void> {
+  await expect(page.getByTestId('app-header')).toBeVisible();
+  const menu = page.getByTestId('menu-button');
+  if ((await menu.isVisible()) && (await menu.getAttribute('aria-expanded')) === 'false') {
+    await menu.click();
+  }
+}
+
+/**
+ * What a page of the game says on its own requests (`Sec-Fetch-Site`): an API call of a test says
+ * it too, since the server refuses a write that names no origin (D69). Per call, not for the
+ * browser context: Chromium refuses a `sec-` header set on page requests.
+ */
+export const OWN_PAGE = { headers: { 'sec-fetch-site': 'same-origin' } };
 
 /** Signs in through the dev route; the page's context keeps the cookie. */
 export async function signInApi(request: APIRequestContext, name: string, role: Role, rank = 0) {
-  const response = await request.post('/api/dev/sign-in', { data: { name, role, rank } });
+  const response = await request.post('/api/dev/sign-in', {
+    data: { name, role, rank },
+    ...OWN_PAGE,
+  });
   expect(response.ok()).toBe(true);
 }
 
 /** Creates a show and opens its registration; returns its id. */
 export async function openShow(request: APIRequestContext, cases: number, winners: number) {
-  const created = await request.post('/api/shows', { data: { cases, winners, labels: [] } });
+  const created = await request.post('/api/shows', {
+    data: { cases, winners, labels: [] },
+    ...OWN_PAGE,
+  });
   expect(created.ok()).toBe(true);
   const { id } = (await created.json()) as { id: string };
-  expect((await request.post(`/api/shows/${id}/open`)).ok()).toBe(true);
+  expect((await request.post(`/api/shows/${id}/open`, OWN_PAGE)).ok()).toBe(true);
   return id;
 }
 
@@ -109,4 +136,19 @@ export async function endEarly(page: Page, hidden: number): Promise<void> {
     await expect(question).toContainText(`${words} still hidden`);
     await question.getByRole('button', { name: 'End now' }).click();
   });
+}
+
+/** Deletes the mails Mailpit holds for this address (its API on 127.0.0.1:8570). */
+export async function deleteMailTo(page: Page, to: string): Promise<void> {
+  const api = 'http://127.0.0.1:8570/api/v1';
+  await expect
+    .poll(async () => {
+      const found = await page.request.get(`${api}/search?query=${encodeURIComponent(`to:${to}`)}`);
+      const { messages } = (await found.json()) as { messages: { ID: string }[] };
+      if (messages.length > 0) {
+        await page.request.delete(`${api}/messages`, { data: { IDs: messages.map((m) => m.ID) } });
+      }
+      return messages.length;
+    })
+    .toBeGreaterThan(0);
 }

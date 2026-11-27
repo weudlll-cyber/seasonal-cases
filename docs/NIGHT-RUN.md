@@ -2,6 +2,632 @@
 
 The morning sheets of the unattended night chains, newest first.
 
+## Night chain SC-N11 (2026-11-25)
+
+Cases moves to Docker (D76), version `1.1.0-rc.3`. Branch `kit/v0.17-adoption`, draft PR #5; nothing
+merged, nothing tagged.
+
+### Final report
+
+All five pieces are done. On a server Cases now runs in Docker only; nothing is merged or tagged.
+
+- **Image and stack:** `Dockerfile` (77 MB, uid 10001, read-only root, health from `/readyz`),
+  `ops/compose.yml` with PostgreSQL 17, a website overlay and a journal overlay.
+- **Installer and backup:** both modes on the compose stack; `--update` backs up first; the native
+  path is removed; the kit's backup runs against the database container with its units unchanged.
+- **Proof on the PC:** a whole show with five cases; backup, database volume removed, restore: every
+  row count equal, accounts sign in, the result verifies with the same commitment
+  ([OPERATIONS-CASES.md](operator-guide.md)).
+- **Image scan:** CI job `image` (Trivy, and a search for development tools). The first scan found
+  development tools in the image; fixed (BACKLOG 76).
+- **Not proven:** the installer, the backup's timer, the logs into the journal and website mode on a
+  real Linux host (BACKLOG 34, 64).
+- **Kit:** pinned `v0.22.0`, newest `v0.27.0`; not moved. From v0.25 the kit's backup script loads
+  files from `ops/lib`: whoever moves the pin changes `copy_backup_script` in the same step.
+- **Seen and left:** on windows wider than 1440 px the header reads "Signed in asOlga" (the kit's
+  chip; the header was not to be touched).
+
+### State
+
+| Done          | Running | Open | Needs the owner's word / hand |
+| ------------- | ------- | ---- | ----------------------------- |
+| Pieces 1 to 5 | nothing | none | below                         |
+
+**Needs the owner's word:** the merge of PR #5; moving the kit pin; the privacy contact text (from
+earlier chains).
+
+**Needs the owner's hand:** a first install on the VPS ([INSTALL.md](operator-guide.md)); the age key for
+the backup; adding the job `image` to master's required checks after the merge; the GitHub settings
+(BACKLOG 59); deleting the branch `ci/push-master-only` on origin (task SC-CI1).
+
+### Pieces
+
+| Piece | What                                                                                                                                                                                              | Commit        | CI run            |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ----------------- |
+| 1     | `Dockerfile`, `.dockerignore`, version `1.1.0-rc.3`; built and smoke-run locally (healthy, client served, uid 10001, 122 MB, no tests or package managers inside)                                 | `b322262`     | 45709144145 green |
+| 2     | `ops/compose.yml`, `compose.website.yml`, `compose.journal.yml`, `cases.env.example`; CONFIG's compose settings; `docker compose config` passes                                                   | `f0936be`     | 45709761278 green |
+| 3     | The installer on Docker (`deploy/`, D78), the backup on the database container, the harness (69 checks, shellcheck clean), INSTALL rewritten, CONFIG, README, OPERATIONS-CASES; BACKLOG 35 closed | `84f85c3`     | 45711310188 green |
+| 4     | A whole show on the compose stack on the PC, the backup and restore drill (OPERATIONS-CASES); the image fixed: development tools were still in it (122 MB to 77 MB)                               | `2521d78`     | 45714127939 green |
+| 5     | CI job `image` with Trivy (BACKLOG 76, 64), CONCEPT 1.17, HANDOVER, CONFIG, RELEASING                                                                                                             | (this commit) | PR #5's checks    |
+
+### Choices made without the owner
+
+- **Piece 5.** The scan went into CI (a small step, after Mini Games' job `image`, the same pinned
+  Trivy), without Mini Games' size budget (not asked); instead the job fails when a development tool
+  is in the image, which is what happened here.
+
+- **Piece 4.** The proof used ports 3999 (the game) and 8579 (a throw-away Mailpit) and the network
+  `172.30.252.0/24`. Quick Test is development only, so a real show was played by the organiser's
+  steps with registered accounts. The image scan found six findings in `lefthook`, a development
+  tool: `pnpm fetch` had left every package linked in the production stage. The stage now removes
+  that `node_modules` and installs the production one; the rebuilt image started on the restored
+  database and scanned clean.
+
+- **Piece 3.** Reused from Cases' installer: questions, answers file, state, `put_file`, route files,
+  `--check`. From Mini Games: the website network choice, the feed at `site:3800`, the trusted
+  network ranges. Differently: Docker is checked and not installed (the task); images are tagged
+  with the commit and mode and left on the server; the kit's backup script is copied out of the image
+  (the server needs no Node) and its units used unchanged. No native install exists anywhere, so
+  nothing migrates one. Removed: Node and pnpm on the host, the PostgreSQL role and database, the
+  system user, the systemd service of the game, `--db`, `SC_HOST` and `DATABASE_URL` answers, the
+  hidden prompt, the unit rewrites.
+
+- **Piece 2.** After Mini Games' `compose.yml` and `compose.website.yml`. Differently: no Caddy
+  service (Cases' standalone installs use the server's own proxy, as before); one loopback port in
+  every mode (the installer waits for `/readyz` through it), so no separate nginx overlay; an own
+  journal overlay instead of Docker's size-rotated `local` logs, because the privacy page promises
+  14 days (D61): the syslog driver into the game's journal namespace, Docker's cache off. That
+  logging path is **not rehearsed on a real systemd host** (none here); listed under BACKLOG 64's
+  installer rehearsal.
+- **BACKLOG 35** (the website's account feed behind its Caddy): the game on the website's network
+  reaches `http://site:3800` in both website modes; closed by piece 3, which writes the setting.
+
+- **Piece 1.** After Mini Games' Dockerfile (same pinned base, `pnpm fetch` layer, apk upgrade,
+  package managers removed, an unprivileged user, the labels). Differently: no server bundle (the
+  server runs with tsx, as it does today), and one image per mode, because the client's base path is
+  built in.
+
+## Task SC-B1 (2026-11-25)
+
+The nightly Firefox/WebKit run on `master` (45533798067, `073f9ad`): journey 5 failed in all five
+projects (`firefox`, `chromium-mobile`, `firefox-mobile`, `webkit`, `webkit-mobile`), 25 others
+passed. First error each time: `apiRequestContext.get: connect ECONNREFUSED 127.0.0.1:8570`.
+Cause: `browsers.yml` ran no Mailpit service, which journey 5 reads its mails from (`ci.yml` has
+it). A test-setup fault; the game behaves the same in every browser. Also found: the workflow
+checked out `master` whatever ref it was started for, so it could not test a branch.
+
+Fixed on `kit/v0.17-adoption` (`d023360`): the same pinned Mailpit service as in `ci.yml`; the
+checkout takes the ref of the run (the schedule still `master`); the steps that skipped a `master`
+without a browser suite are gone (it has one since 1.0.0). Proof: run 45702753156 on the branch,
+30 passed (6 journeys in each of the five projects), no flaky. The branch had never run this
+workflow; nothing else failed there. Nothing for the kit.
+
+Open: `master`'s nightly stays red until the merge (BACKLOG 74); PR #5 conflicts with `master`
+since SC-CI1 (BACKLOG 75).
+
+## Night chain SC-N10 (2026-11-25)
+
+Kit v0.22.0, the whole move (D67 to D69), version `1.1.0-rc.2`. Branch `kit/v0.17-adoption`, draft
+PR #5; nothing merged, nothing tagged.
+
+### Final report
+
+**Done (2026-11-25):** pieces 1 to 7 on `kit/v0.17-adoption`, draft PR #5, version `1.1.0-rc.2`; not
+merged, not tagged. Kit v0.22.0 in; the kit's backup set up by the installer and drilled on the dev
+stack; the kit's CSRF check, headers, cookie, guarded fetch and health routes in place of the game's;
+the four CSS patches gone; the download button reshaped; the header's stylesheet-order bug fixed
+(BACKLOG 73); what stays the game's recorded (D71 to D74); the block for the kit's planning chat
+below. Play-through: the Quick Test show (seed `sc-n1-01`, three openings, "End show" with its
+question, result verified) and the privacy round trip (Mailpit link, download through the button,
+delete, "deleted player", commitment unchanged and verified) passed on the first run with no console
+error; the session's 2 shows, 2 accounts, sessions and mail deleted (counts back to the baseline).
+**Needs the owner's hand:** the age key on the VPS (and the first pull and drill there), the GitHub
+settings (BACKLOG 59). **Needs the owner's word:** the privacy contact text; BACKLOG 64 (the VPS).
+**Open for the kit:** BACKLOG 70. The raw `gh` output and the final head are in the chat report.
+
+### State
+
+| Done    | Running          | Open          | Needs the owner's word / hand |
+| ------- | ---------------- | ------------- | ----------------------------- |
+| Piece 1 | Piece 2: backups | Pieces 3 to 7 | (collected per piece)         |
+
+### Pieces
+
+| Piece | What                                                                                                                                                                                                                                                                              | Commit                          | CI run                                                                                                           |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 1     | Pinned v0.22.0 (lockfile at `2e8ed41`), `pnpm kit:check` current; the ADOPTION lines: the brake (v0.15.0) and the step badges (v0.19.0) were done before and are unchanged; `aria-controls` on the bar's panel buttons (v0.20.0); the v0.21.0 and v0.22.0 lines are pieces 2 to 4 | `9b7e52d`                       | PR run green                                                                                                     |
+| 2     | Backups (D68): `deploy/lib/backup.sh`, `deploy/backup.sh`, the installer's answer and flag, harness (66 checks), docs, the dev drill (OPERATIONS-CASES.md)                                                                                                                        | `5aff90d`                       | PR run green                                                                                                     |
+| 3     | The kit's server parts (D69, D70): `writeCheck`, `securityHeaderSet` + hook (helmet removed), `sessionCookie`, `guardedFetch` (own deleted, BACKLOG 69 closed), `/healthz` `/readyz` (readiness limited)                                                                          | `e54ec31`, `ed80d3c`            | 45677780097 red (e2e), 45680848575 and 45680857889 green                                                         |
+| 4     | The four patches deleted; the download button; the axe exclusion tried without and put back (BACKLOG 70 open); the header measured, a stylesheet-order bug fixed (BACKLOG 73)                                                                                                     | `4282a6c`                       | 45686080403, 45686094769 green                                                                                   |
+| 5     | What stays Cases' own: D71 to D74                                                                                                                                                                                                                                                 | `25f13aa`                       | 45687219198, 45687228702 green                                                                                   |
+| 6     | The block for the kit's planning chat (below)                                                                                                                                                                                                                                     | `6187960`, `5d77de2`, `b3bb143` | 45687968459 red (journey 1's guard), 45689451778 red (axe spec's resize race), 45691834764 and 45691845079 green |
+| 7     | The play-through on the dev stack; the screens run into `.local/screens/sc-n10/` (five sizes, both themes, 200 % on phones, headers per role): 256 pictures, 0 findings; the header run 0 findings                                                                                | (this commit)                   | (the chat report)                                                                                                |
+
+### For the kit's planning chat
+
+```text
+Seasonal Cases moved to kit v0.22.0 (branch kit/v0.17-adoption, 1.1.0-rc.2, 2026-11-25).
+
+Backup (ops/backup.sh): set up by Cases' installer (prefix cases, native PostgreSQL via
+SK_BACKUP_DB_URL + PGPASSWORD, no volumes, secret file cases.env). Drill on the dev stack: backup
+41160 bytes in 2.1 s; the kit's drill passed (11 tables, row counts equal, 1 secret file, 34 s);
+restore into a wiped copy 1.8 s, row counts equal; the server on the restored copy served the same
+show list and an ended show's view byte-equal, its commitment verifying.
+
+Replaced: Cases' CSRF guard (writeCheck), helmet and its options (securityHeaderSet +
+securityHeadersHook), its session cookie options (sessionCookie), its own guarded fetch
+(guardedFetch, season feed), /api/health and /api/ready (/healthz and /readyz with readiness), and
+the four CSS patches of K65.
+
+Stays Cases' own, with reasons (Cases DECISIONS D71-D74): the account feed's plain fetch of the
+website's own local http address (not an outside address; allowLocal would be needed); address
+limits, stores, the brake's keys, client serving, log and mailer (the kit has no such parts); two
+CSS rules that size the docked screen and the start icon (game layout); the result page's text, date
+and commitment format.
+
+What did not fit:
+1. backup.sh print-units writes After=docker.service and Requires=docker.service: a native install
+   has no Docker, so the units would never start. Cases rewrites them to After=postgresql.service.
+2. print-units writes ExecStart=<resolved path of backup.sh>; under pnpm that is the package store's
+   path, which changes with every kit update. Cases rewrites it to bash + the node_modules path.
+3. backup.sh backup fails in Git Bash on Windows (install -m cannot chmod); drill works there. A
+   dev drill on Windows needs a Linux container.
+4. sessionCookie gives the non-secure (plain http) cookie Path=/ and ignores basePath.
+5. header.css: .sk-menu-button { display: none } has the same specificity as bar.css's
+   .sk-bar-button { display: inline-flex }, so importing header.css before bar.css shows the Menu
+   button while unfolded. Cases had that order since v0.17.0: the button showed beside the links and
+   signed-in users got the folded header at 1280. With the order fixed, Cases' header is unfolded at
+   1280x720, 1536x768 and 1920x1080 for signed out, player, organiser and admin (name "Alexandra"),
+   so the v0.22.0 note "Cases' bar folds at 1280 and 1536" does not hold with it fixed. A more
+   specific selector (.sk-header .sk-menu-button) would remove the order trap.
+6. axe scrollable-region-focusable on .sk-docked-main (Cases' result page, 1536x768 and 390x844,
+   light and dark) is still there on v0.22.0 (Cases BACKLOG 70).
+
+Screens after the move: 256 pictures at five sizes, both themes, 200 % on phones, no finding (text
+floor, sideways scroll, ellipsis, game bar one row).
+
+Correction: Cases does have an outward fetch, the website's season feed (since 2026-11-24); it now
+goes through the kit's guardedFetch with the website's host allowed.
+```
+
+### Choices made without the owner
+
+- **Piece 7.** The first screens run stopped because a test web server did not start within 60 s
+  while the machine was busy with another project's tests; run again on an idle machine it passed.
+  The game bar kept one row on every phone picture (D60) with the kit's bar; the six-button bar with
+  a docked chat is not in the screens run (no chat there).
+
+- **Piece 4, the header.** Measured in a production build (no development items), a signed-in user
+  named "Alexandra" with their role, standalone, folded = `data-sk-folded`, height 64 px:
+
+  | Role       | 1280 × 720 | 1536 × 768 | 1920 × 1080 |
+  | ---------- | ---------- | ---------- | ----------- |
+  | signed out | unfolded   | unfolded   | unfolded    |
+  | player     | unfolded   | unfolded   | unfolded    |
+  | organiser  | unfolded   | unfolded   | unfolded    |
+  | admin      | unfolded   | unfolded   | unfolded    |
+
+  Before the fix (same build) the signed-in roles were folded at 1280 and the Menu button showed at
+  every size, folded or not: the order of the stylesheets (BACKLOG 73). The kit's rule was not
+  changed. The kit's own measurement says Cases' bar folds at 1280 and 1536; with the order fixed it
+  does not for these names.
+
+- **Piece 6's push run was red** (docs-only commit; the PR run of the same commit passed): the new
+  guard of journey 1 asked for a hidden Menu button on any wide window, but at 1366 px the admin's
+  header may legitimately fold (the kit's measure, font metrics). The guard now states what the fix
+  is about: an unfolded header shows no Menu button. So the header table of piece 4 (measured here on
+  Windows) holds for this machine's rendering; on another it may fold where the items do not fit.
+- **The next push's PR run was red** (its push run passed): the axe spec's early-end loop raced the
+  resize (`direct` saw the old bar, then pressed the phone's "Direction" button on a desktop and
+  waited until the 10-minute timeout); the two journeys after it failed on the live show it left. The
+  loop now waits for the layout the new size must have.
+- **Piece 4, axe.** Without the exclusion axe found exactly the old finding (4 times, the result
+  page, `.sk-docked-main`), nothing new from the patches' removal; the exclusion is back as it was.
+- **Piece 4, the download button.** A `GET` form's submit button (the server names the file), so it
+  is a real button with the existing `.button` class; no new style.
+
+- **Piece 3's first push was red** (every journey and the axe run): to keep the journeys' API calls
+  allowed, `Sec-Fetch-Site` was set for the whole browser context, which Chromium refuses for a
+  `sec-` header (`net::ERR_INVALID_ARGUMENT` on every page load). Cause confirmed by a probe; the
+  header is now on each API call only (`OWN_PAGE` in `e2e/helpers.ts`).
+
+- **Piece 3, the headers in production.** The production client was walked under the kit's headers
+  in a browser (start, privacy, account, matches, admin, chronicle, a Quick Test stage with an
+  opening): fonts load, the stage's styles apply, no style, image or connect violation. One report
+  stays, as before under helmet: `script-src eval`, zod's check whether it may compile its parsers,
+  caught by zod itself. Noticed, left.
+
+- **Piece 3, Cases' own clients.** The browser client sends `Origin` and `Sec-Fetch-Site` itself;
+  the socket upgrade is judged as a write (`writeCheck` with method POST) since it carries the
+  cookie; the website stand-in forwards the browser's headers and host; the admin command line talks
+  to the database, not over HTTP; the bots run inside the server. Server tests' injected requests and
+  the journeys' API calls now name themselves as the page's own (`Sec-Fetch-Site: same-origin`).
+- **Piece 3, health.** `/healthz` answers `{status, version}`, `/readyz` the kit's body with the
+  version; the old `mode` and `db` fields are gone with the old paths (D70). Readiness is limited to
+  60 a minute per address, as the kit notes for the public route (the old route had no limit).
+- **Piece 3, the cookie.** The kit puts a non-secure cookie at `/` (plain http: development and the
+  browser tests only); production cookies are `__Host-` or `__Secure-` with their own paths.
+
+- **Piece 2, a backup without a key.** The installer sets up no backup without the owner's age
+  public key and says so loudly (`NO BACKUP is set up`), rather than refusing to install: with
+  `--yes` an install must still be able to run. The key can be added by running it again.
+- **Piece 2, the kit's units.** They require `docker.service`; Cases' server has no Docker, so the
+  installer rewrites that to `After=postgresql.service` and runs the script with `bash` from the
+  installed code (the printed path is the package store's, which changes with a kit update). For the
+  kit (piece 6).
+- **Piece 2, the drill ran in a Linux container**, because the kit's `backup` command cannot
+  `chmod` in Git Bash on Windows (its `drill` does run there). The secret file was a stand-in: the
+  dev server's own settings file was not read or copied. One empty test schema left in the dev
+  database by an interrupted local test run was dropped.
+
+## Task SC-A1 (2026-11-25)
+
+The accessibility check (D66, BACKLOG 71). `e2e/access.spec.ts` (new, Chromium, in the required
+`e2e` job): one pass through the game with one show: sign-in, registration and its pending page,
+privacy, the board, My matches, the account page and its delete form, the chronicle, the stage at the
+opening, selected, open and owner, the early-end question, the ceremony, the result and the admin's
+settings, at 1536 × 768 and 390 × 844 in both themes (about 3 minutes). Reused: the kit's axe
+version and call (`@axe-core/playwright` 4.14.0, the kit names no helper), `helpers.ts` (sign-in,
+shows, the direction bar; `deleteMailTo` moved there from `screens.spec.ts`).
+
+First run: 78 serious and 48 moderate findings, four rules. Fixed in Cases' own code: the case
+buttons' name ("Select Case 3, Ana") did not contain their visible text (a space between the number
+and the owner), the phone scoreboard's sideways scroll had no keyboard stop (`tabIndex`), the stage
+had no landmark or heading (a `main` with a hidden `h1`; 48 moderate). For the kit: `scrollable-region-focusable` on `.sk-docked-main`
+(the result page, every size and theme), excluded exactly, BACKLOG 70. Second run: 0 findings. No
+colour was changed: axe found no contrast failure on any screen. The probe test first failed (a lone
+10 px button has room around it, which WCAG 2.5.8 allows) and now plants two neighbours.
+
+For the kit's planning chat: see the chat report (one copyable block).
+
+## Night chain SC-N9 (2026-11-25)
+
+Finish SC-N8 and review it: two small fixes, a play-through, an independent security review, the
+pictures. Branch `kit/v0.17-adoption`, draft PR #5, version `1.1.0-rc.1`; nothing merged, nothing
+tagged. Not part of this chain: the GitHub settings (BACKLOG 59) and the real privacy contact text.
+
+### Final report
+
+**Done (2026-11-25):** pieces 1 to 4 on `kit/v0.17-adoption`, draft PR #5, not merged, not tagged.
+Piece 1: the opening showcase and its words are out of the production bundle (BACKLOG 67 closed, 9
+strings in `bundle:check`); the folded header's Menu no longer covers the brand at the largest text
+(CSS of the game; the new overlap assertion found 6 with the old rule, none now). Piece 2: a whole
+Quick Test show, the privacy round trip and a password reset played on the dev stack, all passed,
+the session's data deleted again. Piece 3: the sixth security pass, 5 findings, 4 fixed with tests,
+1 for the owner (BACKLOG 69). Piece 4: 168 pictures in `.local/screens/sc-n9/`, 0 findings.
+**Needs the owner's hand:** the GitHub settings (BACKLOG 59). **Needs the owner's word:** the
+real privacy contact text; BACKLOG 69; BACKLOG 64 (waits for the VPS). The raw `gh` output and the
+final head are in the chat report.
+
+### State
+
+| Done           | Running                      | Open    | Needs the owner's word / hand                           |
+| -------------- | ---------------------------- | ------- | ------------------------------------------------------- |
+| Pieces 1 and 2 | Piece 3: the security review | Piece 4 | GitHub settings (hand); the privacy contact text (word) |
+
+### Pieces
+
+| Piece | What                                                                                                                                                                                                                      | Commit        | CI run                                  |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------------- |
+| 1     | BACKLOG 67: `/dev/opening` behind the DEV flag, 9 strings in `bundle:check`; the folded header's brand keeps its words' width (`shell.css`), an overlap assertion in `e2e/headerSteps.spec.ts`                            | `31dbc3e`     | PR run green (required checks all pass) |
+| 2     | The play-through on the dev stack (a throwaway script, not kept): a Quick Test show, privacy end to end, a reset                                                                                                          | `3b11bfc`     | PR run green                            |
+| 3     | The sixth security pass (docs/security-pass.md): 5 findings, 4 fixed with tests (last-admin race, export caching, a crash between deletion's steps, NAT64/6to4/Teredo in the guarded fetch), 1 for the owner (BACKLOG 69) | `8740cc3`     | PR run green                            |
+| 4     | The pictures in `.local/screens/sc-n9/` (168 pictures, 0 findings; privacy, account, account with the delete form, the website header with three steps in `header-steps/`); the stray `https:` folder deleted from disk   | (this commit) | (next entry)                            |
+
+### Choices made without the owner
+
+- **Piece 2, what was played and found (all passed, nothing needed a fix).** Quick Test with seed
+  `sc-n1-01` (12 cases, 3 winners), Begin, three openings (the blank, prize 2, prize 3, each Open,
+  Owner, Back to stage), "End show" with its question ("1 prize is still hidden"), the ceremony,
+  the result page: "verified", and its commitment equal to the stage's. Privacy: a local account
+  registered through Mailpit (the link ends `/confirm#token=...`, no query; the address is clean
+  once the token is spent), claimed case 3 in a show, downloaded its data (269 bytes: profile
+  `{name, email, role, rank}` and the one match; no hash, secret, recovery code, session or token),
+  deleted itself on `/account` with the password: the show shows "deleted player c5bfbf" for
+  case 3, the commitment is unchanged and the result page still verifies, neither the result page
+  nor the chronicle holds the name, the old password no longer signs in (401). A dump of the whole
+  database holds nothing of the deleted accounts (name, e-mail) from the final run. A second
+  account did the password reset (link `/reset#token=...`), signed in with the new password, and was
+  deleted too. No console error in the run. Not checkable the way the task words it: "My matches"
+  of a deleted account (nobody can sign in as it any more) and "deleted player" in the chronicle
+  (it lists the winners of ended shows; the deleted player's case was not a winner).
+- **Cleanup.** Two runs failed on locators of the throwaway script before the third passed; all
+  three left traces, listed first and deleted by explicit show ids and by the accounts created after
+  23:57 (8 accounts, 5 shows with 119 events, 3 sessions) and 7 Mailpit mails by id; the counts are
+  back to the baseline (4 accounts, 71 events, 2 sessions, 1 credential, 0 pending, 0 mails).
+- **Piece 1, the overlap.** The kit lets the folded header's brand shrink to nothing
+  (`flex: 1 1 0; min-width: 0`), so at the largest text its name ran under the Menu button. The game's
+  CSS now gives the brand `flex: 1 1 auto; min-width: min-content`, and the Menu and the toggle go to
+  a row of their own when there is no room. The new assertion (the brand's text boxes against the
+  header's buttons) found 6 overlaps with the old rule (all at 200 %) and none with the new one.
+  Nothing is asked of the kit's chat.
+
+## Night chain SC-N8 (2026-11-24)
+
+The owner's decisions of 2026-11-24 for BACKLOG 58–66 (D59–D64): the GitHub settings, the phone bar
+and the largest text, privacy, the four kit parts, the production bundle and the mail links. Branch
+`kit/v0.17-adoption`, draft PR #5, version `1.1.0-rc.1`; nothing merged, nothing tagged.
+
+### Final report
+
+**Done (2026-11-25):** pieces 1 to 5b on `kit/v0.17-adoption`, draft PR #5, version `1.1.0-rc.1`,
+nothing merged, nothing tagged. Code head `34de4cd` (this report's commit follows it). Health of the
+dev server on this branch: `{"ok":true,"mode":"local","version":"1.1.0-rc.1","db":"ok"}`, client 200
+(migration 0004 applied).
+
+Raw `gh pr checks 5` (the last row, `docs pending 6s`, is a stale roll-up entry: that job's run is
+`completed success`, see the run list):
+
+```
+CodeQL pass / analyze pass / deploy pass / docs pass / e2e pass / security pass x2 / verify pass x2
+docs pending (stale, run 45511413660 is completed success) / deploy pass / e2e pass
+```
+
+Raw `gh run list --branch kit/v0.17-adoption --limit 10` (newest first): 45511425913 CodeQL success,
+45511426705 CI success (PR, head), 45511413660 CI success (push, head), 45508491954 CI success,
+45508491959 CodeQL success, 45508479589 CI success, 45507612630 CodeQL success, **45507612540 CI
+failure** (piece 5, journey 4: the e2e stand-in's crash, fixed in `cbd9804`), 45507603521 CI success,
+45506313824 CodeQL success. The two earlier reds of this chain (piece 3's installer `write_state`,
+piece 5's stand-in) were each fixed at their cause before the next piece.
+
+**Needs the owner's hand:** the GitHub settings (RELEASING.md has the read-back and the six commands;
+every write was refused in this session). **Needs the owner's word:** the real privacy contact text
+(`SC_PRIVACY_CONTACT`) and a legal look at the privacy page before real players; BACKLOG 67 (the
+opening showcase page still ships in the production bundle); BACKLOG 64 (waits for the VPS).
+**Noticed, left:** the Menu button over the brand at 360 px / 200 % font (piece 5b); the task text
+broke off in piece 5, so no later piece was built.
+
+Lines before to after, per piece, in `git diff --numstat 173131d HEAD`: 96 files, +2727 -374. Biggest
+new: `AccountPage.tsx` 182, `accountDataRoutes.ts` 127, `PrivacyPage.tsx` 96, `erasure.ts` 67,
+`seasonSource.ts` 63, `guardedFetch.ts` 75, `headerSteps.spec.ts` 113; changed: `App.tsx` 160 to
+about 200, `Admin.tsx` 165 to 178, `SetupForm.tsx` 190 to 163, `screens.css` 308 to 291, `shell.css`
++23. Removed: the `docked` helper and `data-docked`, `Session.signIn`, the seed and button from
+`SetupForm`. Moved to the kit: the back link, the season feed reader, `afterFonts`, `withoutChat`, the
+header's step badges. Reused: `RateLimiter`, `useAction`, `TextField`, `DevBoundary`, the kit's
+`seasonFeedReader`, `AppHeader`.
+
+### State
+
+| Done                                                                                                                                                                                             | Running | Open   | Needs the owner's hand / word                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | ------ | ---------------------------------------------------------------- |
+| Piece 1: the settings read back and the commands written down; piece 2: the phone bar and the largest text; pieces 3 to 5: privacy, the four kit parts, the production bundle and the mail links | (none)  | (none) | The GitHub settings (below); the task text breaks off in piece 5 |
+
+### Pieces
+
+| Piece | What                                                                                                                                                                                                  | Commit               | CI run                                                                                     |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------ |
+| 1     | GitHub settings: read back, the target and the commands in RELEASING.md; D59–D64                                                                                                                      | `fa74f60`            | 45493564174, 45493572118 green                                                             |
+| 2     | The phone bar and the largest text (D60): the screens run asserts it; CSS in `moments.css`, `shell.css`, `screens.css`, `stage.css`, `stageParts.css`, `artifact.css`; `e2e/measure.ts`               | `173131d`            | 45498058970, 45498069518 green                                                             |
+| 3     | Privacy (D61): `/account` (download, delete), `/privacy`, the erasure (`auth/erasure.ts`, `domain/redact.ts`, `ShowService.forget`), `SC_PRIVACY_CONTACT`, 14 days of logs in the installer           | `b226479`, `855a394` | 45504335501 (red: the installer's `write_state`), 45504821858 green                        |
+| 4     | The four kit parts (D62): `back` in `FocusBar`, `seasonSource.ts` + `guardedFetch.ts`, `afterFonts` on the stage and the board, `DockedScreen` `withoutChat`                                          | `60990cf`            | 45506301454, 45506313843 green                                                             |
+| 5     | The production bundle and the mail links (D63): the dev form, "Dev sign-in" menu, Quick Test and "Fill with bots" behind the build-time flag; `pnpm bundle:check`; tokens after `#`                   | `283b298`, `cbd9804` | 45507603521 push green, 45507612540 PR e2e red (stub), then 45508479589, 45508491954 green |
+| 5b    | Kit v0.19.0 and the header's step badges (D65): the pin, `Account.steps` / `Me.steps` (migration 0004), `account.steps` in `ShellBar`, the chip wrapped in the folded menu, `e2e/headerSteps.spec.ts` | `34de4cd`            | 45511413660 push, 45511426705 PR, both green                                               |
+
+### Choices made without the owner
+
+- **Piece 5b, kit v0.19.0.** Pinned at the tag (object `2ab45ba`, commit `19f0208`, lockfile checked);
+  `pnpm kit:check` says current. The 0.18.0 migration names nothing for this game; the 0.19.0 one is
+  the header's `account.steps`. The member's steps travel as the kit's `identityFrom` returns them:
+  stored in a new `steps` column (migration 0004, default `[]`), sent as `Me.steps` (absent for a
+  standalone account), passed to the chip unchanged; no badge type, no filtering of the game's own.
+  The wire schema in `@sc/contracts` mirrors the kit's `Step` shape (it must validate on the wire);
+  `badges` (icons only) stay for the boards.
+- **Piece 5b, what the run found.** The first run of `e2e/headerSteps.spec.ts` (a member with a
+  32-character name and three steps; 3 phone sizes, both themes, normal and 200 % font) found the
+  chip past the window's edge in the folded Menu in all 24 combinations (the kit keeps the chip on
+  one line, `nowrap`). A first version of the check let this pass (a clipped image is still
+  "visible"): it now asserts every step's box and the chip's lie inside the window. **The game's own
+  CSS fixed it** (`shell.css`: inside the folded menu the chip wraps, the steps drop to a second
+  line), so **nothing is asked of the kit's planning chat**. Also found: the kit's `identityFrom`
+  makes the game's name of a website name, 24 characters at most with the spaces as underscores, so
+  a 32-character website name shows as 24 (the run asserts that); and the stand-in website's step
+  icon was one transparent pixel, so the pictures showed blanks: it is now a visible 24 px WebP.
+- **Noticed in the header's pictures, left alone:** at 360 px and the 200 % font the brand
+  "Seasonal Cases" wraps to two lines and the Menu button sits over its first line (already so in
+  the earlier header; the screens run asserts no overlap). The pictures are in
+  `.local/screens/header-steps/`.
+- **Piece 5's PR run had one red e2e (journey 4), and it was not the game.** The trace shows the
+  page's own module requests failing at the moment the stand-in website logged `Unhandled 'error'
+event ... write EPIPE`: the stand-in (`e2e/websiteStub.ts`) pipes the socket upgrade between the
+  browser and the game with no `error` listener, so a socket reset at the end of journey 3 threw
+  and took the whole stand-in down; journey 4 then waited 90 s for a page that never loaded. The
+  same commit's push run passed (the race is timing). Fixed at its cause (both ends close on an
+  error), not re-run. It has been there since SC-N2.
+- **Piece 5, the proof.** The client was built for production and every built file searched for
+  `dev/sign-in`, `dev/quick-test`, `Dev sign-in`, `Development sign-in`, `Sign in as organiser`,
+  `Quick Test` and `Fill with bots`: the earlier build held six of them, this one none. The search is
+  now `pnpm bundle:check` (a CI step, with a test that it finds a planted string). Left in the bundle,
+  named: the opening showcase page `/dev/opening` (BACKLOG 67, outside the three tools of D63) and
+  the property name `onDevSignIn` (an identifier, no tool).
+- **Piece 5, what changed for development.** The Quick Test's button now sits in its own row under
+  the seed field (it was beside "Create show") and no longer runs on Enter in the form; both were
+  needed to take its words out of the form that production uses. The journeys use the button.
+- **Piece 3's first push was red** (the `deploy` job): `SC_PRIVACY_CONTACT`, empty by default, became
+  the last answer in the installer's list, and `write_state`'s `[[ -n ... ]] && quoted` ended the loop
+  with status 1, which under `pipefail` stopped the install. Fixed with an `if` (`855a394`); the
+  installer harness runs only in CI, so it was found there.
+- **Piece 4, the season.** The kit's reader reads https only and takes the game's own guarded
+  fetch, so the game has one (`guardedFetch.ts`: only the website's origin, every resolved address
+  public, no redirect). A website origin that is not https (development) keeps the date's
+  season. New shows take the feed's season while its last answer is fresh (the kit's default
+  limit); shows already created keep the season they were made in. The address is checked before
+  the request, not in it (a name that changes in between is not caught): the origin is the
+  operator's own setting, never a visitor's.
+- **Piece 4, `withoutChat`.** Every route now sits in `DockedScreen` (`withoutChat` with no chat),
+  so a standalone install's pages scroll inside the kit's main area and follow the phone's
+  keyboard, as in website mode. The `docked` helper and the `data-docked` attribute are gone.
+- **Piece 3, how deletion works.** The account row stays as a tombstone (id, "deleted player"
+  plus six characters of the id, role player, rank 0, no badges, deleted); everything that could
+  sign the person in again goes first (sign-in data, e-mail, two-factor secret and recovery codes,
+  sessions with their sockets, a registration waiting for its mail), then what only shows the name.
+  The event log is rewritten too (`redactPlayer` in the domain, `redact` on the event store, the
+  PostgreSQL one in a transaction), so no name stays in the database; the shows are folded again
+  and announced. The sealed distribution and the commitment are not touched (a test verifies the
+  commitment after the rewrite). Standalone deletion and the website feed's deletion are one
+  routine. **The feed already signals `deleted`**, so no request to the website's planning chat is
+  needed. The last admin cannot delete the account (409, with the sentence what to do first).
+- **Piece 3, the logs.** 14 days is a journal namespace of the game's own (`LogNamespace=` with
+  `journald@seasonal-cases.conf`), so the host's other logs keep their retention. Development is
+  unchanged. Checked by the installer test, not on a real host (there is none yet).
+- **Piece 3, the contact** is `SC_PRIVACY_CONTACT` (up to 200 characters), asked by the installer
+  as an optional answer; empty shows "the operator of this site". **Needs the owner's word:** the
+  real contact text, and a lawyer's look at the privacy page before the first real players.
+- **The task text breaks off in piece 5** ("Prove it: build for production and search the built
+  files for their identifying strings; the check"). Piece 5 is built as far as it reads: 61 with
+  the proof, and 62 (the tokens after `#`) from the opening summary. No piece after it is in the
+  text, so none is built; the final play-through and pictures of SC-N7 are not repeated.
+- **Piece 2, how it was found and fixed:** the screens run now fails on its own findings
+  (`e2e/measure.ts`, with the elements that reach past the window's edge named). Four runs: 36
+  findings (all at the 200 % font) → 14 (the bar and the names fixed) → 4 (the forms) → 0. The
+  fixes: the fact in the kit's bar wraps and shrinks first (props cannot do that, the game's CSS
+  can: `flex-shrink` and `min-width: min-content` on the kit's `.sk-bar-fact` in the phone
+  breakpoint), a narrower gutter on 400 px phones (the organiser with the dock's chat has six
+  buttons and the row fills to the pixel), owner names and artifact names wrap, fields and labels
+  may shrink. The dock's case (six buttons) is not in the screens run, which has no chat; a probe
+  on the dev stack measured it: 44 px at 390 and at 360 px. **Nothing was needed from the kit.**
+  The probes wrote to the dev database again and were deleted again, by explicit criteria after
+  listing (15 accounts, 7 shows, 5 pending registrations, 5 mails).
+- **Piece 1 could not be applied.** Every write call to the repository's settings (`gh api -X
+PATCH`, `PUT`, `POST`) was refused by this session's permission layer, though the task asks for
+  them. The task says a setting the API refuses is left and listed, so: nothing was changed; the
+  state before is read back in RELEASING.md, with the target and the six commands. **Needs the
+  owner's hand:** run those commands (or click Settings, General; Branches; Rules; Code security;
+  Actions, General), and read the table back.
+
+## Night chain SC-N7 (2026-11-24)
+
+The owner's decision of 2026-11-24 (D56): Cases takes the whole kit now, before the VPS: kit
+v0.17.0, the kit's `AppHeader` in place of the game's own header, the whole game checked against
+the kit's handbook. Branch `kit/v0.17-adoption` from master `073f9ad` (v1.0.0), draft PR, version
+`1.1.0-rc.1`; nothing merged, nothing tagged.
+
+### Final report
+
+All four pieces are done and pushed on `kit/v0.17-adoption`; the draft PR is #5; nothing is
+merged and nothing is tagged. Version `1.1.0-rc.1`. The raw `gh pr checks` and `gh run list`
+output is in the chat report of the chain.
+
+**Done:**
+
+1. **Kit v0.17.0 and the migrations of 0.12.0–0.17.0** (D56, D57): the 49 tokens are `--sk-…`;
+   "Applaud" is the kit's press button and the Chat button the kit's hook (through a bridge, since
+   the bar sits above the dock); the kit's `FailureBrake` under sign-in's three keys; the
+   stand-ins and `packages/ui/src/pending/` are gone; BACKLOG 41, 43 and 49 closed.
+2. **The kit's `AppHeader`** (D58) with its folded Menu in place of the wrapping one, the dev
+   tools in a development build only.
+3. **The game against the kit's handbook:** the replacements that keep the look, and the rest as
+   an open list (BACKLOG 58–65).
+4. **The checks, the play-through and the pictures:** `verify`, `security`, `docs` and `e2e` green
+   on the draft PR after one fix (below); a whole show played on the dev stack; 132 pictures.
+
+**A correction of my own:** "3 prizes left" on the phone was never cut (BACKLOG 57), and the
+merge of the release left a stray `|||||||` block in HANDOVER and DECISIONS on master (removed
+here).
+
+**Running for the owner:** the dev server (127.0.0.1:3970) and client (http://localhost:5470, the
+phone http://192.168.0.66:5470) on this branch, PostgreSQL and Mailpit; Quick Test seed
+`sc-n1-01`.
+
+**Look at first:** the header (the Menu on a phone), the game bar's Applaud and Chat buttons, the
+two rows of the phone bar with the chat button (BACKLOG 65), and `.local/screens/sc-n7/` with the
+`-font200` pictures (BACKLOG 66).
+
+### State
+
+| Done       | Running | Open   | Needs the owner's word                                                                                                                                                                                                             |
+| ---------- | ------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pieces 1–4 | (none)  | (none) | BACKLOG 58–66: privacy, the GitHub settings, kit parts with a visible change, dev tools in the bundle, link tokens, coverage, before production, the phone bar, the phone at its largest text; the header's missing website badges |
+
+### Pieces
+
+| Piece | What                                                                                                                                  | Commit                            | CI run                                                                                |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------- |
+| 1     | Kit v0.17.0 (D56): tokens `--sk-…`, `presses`, `useOpenDockChat`, the kit's `FailureBrake` (D57), `pending/` gone, version 1.1.0-rc.1 | `dfdfbc1`                         | (below)                                                                               |
+| 2     | The kit's `AppHeader` (D56, D58): `ShellBar.tsx`, `DevTools.tsx`, header.css, the Menu fold; journeys on the kit's test ids           | `d3b2b33`                         | 45476362886 push, 45476378028 pull request: `e2e` red, the same cause (below)         |
+| 3     | The game against the kit's handbook: the replacements that keep the look, the list (BACKLOG 58–65)                                    | `9c4770e`                         | 45477786449 push, 45477801145 pull request: `e2e` red (below)                         |
+| 4     | The e2e fix (`DevBoundary`, the Vite cache and `optimizeDeps`); the play-through; the pictures; the final report                      | `01a9c28` and the commit after it | 45480501571 push, 45480514499 pull request: `verify`, `security`, `docs`, `e2e` green |
+
+### Choices made without the owner
+
+- **The chat button's hand-over goes through a bridge.** `useOpenDockChat()` works only inside
+  `DockedScreen`'s children; Cases' game bar is a sibling above the dock. Moving the bar into the
+  dock's scrolling area would change the stage's height (the stage fills that area), and this
+  piece keeps today's behaviour. So `shell/DockChatBridge.tsx` renders nothing inside the dock and
+  hands the kit's function to the bar through a ref. Left for the kit's planning chat: a bar
+  outside the dock cannot use the hook without such a bridge.
+- **"Applaud" moved from the bar's lead to the kit's `presses`,** which the kit places after the
+  toggles and before the panel buttons. Its function is unchanged; its place in the bar is the
+  kit's.
+- **A mistake of the release step, found and fixed in this piece:** merging `docs/working-cheaply`
+  into the release branch left git's three-way marker line `|||||||` and the old base text in
+  `docs/HANDOVER.md` and `docs/DECISIONS.md` on master (v1.0.0). My check looked for the other
+  markers, and Prettier had indented this one. Both stray blocks are removed here; master carries
+  them until this branch is merged.
+- **The header's pieces:** the pages, the chip "name (role)" (a player's rank in it), "Sign out",
+  "Sign in" for a guest (to the start page, where the sign-in and the registration forms are;
+  no "Register" link, since it is the same page), the Quick Test link (to the admin area, where
+  the Quick Test button is) and the "Dev sign-in" menu with an organiser, an admin and three
+  players of ranks 0, 2 and 5, both only in a development build. No `foldBelow`: the kit's
+  measured fold decides. The start page's own dev sign-in form stays.
+- **Dropped from the header, for the owner's word:** the player's website step badges next to
+  the name (`AppHeader`'s chip has no slot for them). Nothing in the game depends on them: the
+  board, the lower third and the players panel show the badges; journey 4 now checks the icon's
+  source on the board.
+- **`useShellHeight` and `--shell-height` stay:** the stage, the board and the bar's panel read
+  it. The hook measures the kit's `.sk-header` inside a box-less wrapper.
+- **Links without a reload:** the kit renders plain anchors, so one delegated click handler moves
+  between the game's own pages with `navigate` (the website login hop and modified clicks are
+  left to the browser).
+- **"3 prizes left" was never cut** (measured at 390 × 844 and 360 × 780): on a phone it is the
+  kit's read-out (a 1 × 1 px visually hidden box), which my cut counter took for a cut, and I
+  repeated it in the SC-N6 and SC-R1 reports. What is real: at 360 px "24 cases left" is cut,
+  and where the dock's chat button joins (the dev stack, and website mode) the bar holds six
+  buttons and a fact, wraps to two rows (92 px) at 390 and 360 px, and so the owner's phone
+  shows two rows. Cases can fix it without the kit (a smaller gutter, a shorter fact, one button
+  less in the bar); each changes what the owner sees, so none is built: for the owner's word.
+- **Piece 3, the audit.** The handbook's rules read against Cases; replaced, same look and
+  behaviour: the season colours (`rgb(249 168 37 / 45%)` and two more) as the kit's tokens through
+  `color-mix`; an opened case's hidden artifact name as `sk-visually-hidden` (a `nameHidden` prop
+  on `ArtifactEmblem`); the stage's night, dusk and spotlight, the gem's gloss and shade and the
+  case's lining as named arena tokens in their own files. Not replaced, because each would change
+  what the owner sees or settings only he holds: BACKLOG 58–65 (privacy, GitHub settings, the
+  back link in the game bar, the season feed, `afterFonts`, `withoutChat`, dev tools in the
+  bundle, link tokens, coverage, before production, the phone bar).
+- **Files from Mini Games** (`.gitleaksignore`, `Dockerfile`, `ops/`): the handbook names them as
+  where a game that lacks them finds the later pins, not as a rule for every game, so none is
+  added. Cases has the template's own files (workflows, lefthook, Renovate, ESLint, Prettier,
+  tsconfigs, LICENSE with `AGPL-3.0-or-later` in every `package.json`, CONTRIBUTING, SECURITY).
+- **No privacy document written:** the handbook asks for one with "how long" and "deleted when"
+  for each item, and Cases has no deletion at all; writing those lines would invent a rule.
+- **The GitHub settings were only read** (GET), not changed.
+- **A production build was made once** (a few seconds) to run the kit's own bundle check; the
+  kit's three dev markers are absent and so are the new header's dev parts.
+- **`e2e` went red on piece 2's commit (5 of 6 journeys in Chromium)** and stayed red on piece 3's
+  (I read CI only after piece 3, so the first red was read on `9c4770e`; piece 1 was green), and
+  the cause was mine: the new header loads the kit's `DevSignIn` lazily in a development build, the e2e client
+  is Vite's dev server on a cold cache (two of them start at once, on one dependency cache), and
+  the trace shows Vite discovering the module late, building a second optimisation with its own
+  copy of React; the kit's hook threw ("Invalid hook call") and, with no error boundary, the page
+  unmounted. Journey 4 (website mode, where the menu is not rendered) passed. My warm local cache
+  hid it, and a cold start with a shared cache did not reproduce it here. Fixed three ways: the
+  quick tools sit in an error boundary (`DevBoundary`), `optimizeDeps.include` names the kit's
+  dev module, and each mode's dev server has its own cache folder. The next run is the check.
+- **The play-through** (a script of assertions, `.local/tools/playthrough.ts`, not a picture
+  review): Quick Test seed `sc-n1-01`, Begin, three openings (the main prize and two cases without
+  a prize: Open, Owner, Back to stage), "End show" early with its question naming two hidden
+  prizes, the ceremony, the result page with the commitment verified, a local account registered
+  through Mailpit's confirmation link and signed in. It found nothing in the game. Two things of
+  mine: my bar probe had left two live Quick Test shows in the dev database (with them live the
+  stage prefers them to a show that has ended), and the first run of the script had a locator
+  that the dock's chat made ambiguous. Both fixed; **everything this session made on the dev
+  stack was deleted again** (ten accounts, five shows' events, two mails), each by an explicit id
+  or time window, after listing it; the older shows and accounts are as they were.
+- **The pictures** (`.local/screens/sc-n7/`, not opened): four sizes in both themes, the phone
+  sizes again at a 200 % root font. The measurements: none at the four normal sizes; at 200 %
+  the sideways overflow and the cut labels of BACKLOG 66.
+- **The eviction test** of sign-in's brake now covers the kit's rule (a full map refuses a new key
+  and keeps every held count): D57.
+
 ## Night chain SC-N6 (2026-11-23)
 
 The owner's decisions of 2026-11-23 (D46–D49): D42–D45 confirmed, kit v0.11.1, sign-in's brake
@@ -736,7 +1362,7 @@ was a flaky installer check, fixed at its cause in piece 7.
   a graceful stop.
 - **3** the member summary for the website's profile.
 - **4** the installer, `sudo ./deploy/install.sh`, both modes, `--update`, `--check`, an answers
-  file; nginx and Caddy route files checked before a reload ([INSTALL.md](INSTALL.md)).
+  file; nginx and Caddy route files checked before a reload ([INSTALL.md](operator-guide.md)).
 - **5** synthesised sound, off until a viewer turns it on.
 - **6** Firefox passes the journeys; WebKit's four failures (phone layout paths in the journeys, a
   `Secure` cookie on the plain-http stand-in) are BACKLOG 12, not fixed.

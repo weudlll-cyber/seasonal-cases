@@ -27,6 +27,9 @@ export interface CredentialStore {
   takeReset(tokenHash: string, now: number): Promise<string | undefined>;
   // Marks every unused reset of the account used: after a reset no older link works.
   endResets(accountId: string): Promise<void>;
+  // Removes the account's sign-in data and every reset token: the name, the e-mail and the
+  // password hash (a player deleting their account, DECISIONS D61).
+  removeAccount(accountId: string): Promise<void>;
 }
 
 export const emailKey = (email: string): string => email.trim().toLowerCase();
@@ -71,6 +74,11 @@ export function memoryCredentials(): CredentialStore {
     },
     endResets: (accountId) => {
       for (const reset of resets.values()) if (reset.accountId === accountId) reset.used = true;
+      return Promise.resolve();
+    },
+    removeAccount: (accountId) => {
+      all.delete(accountId);
+      for (const [hash, reset] of resets) if (reset.accountId === accountId) resets.delete(hash);
       return Promise.resolve();
     },
   };

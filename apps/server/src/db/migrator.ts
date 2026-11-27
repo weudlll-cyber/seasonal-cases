@@ -2,11 +2,13 @@
  * @file   apps/server/src/db/migrator.ts
  * @brief  The SQL migration runner: the files of ./migrations in order, each once.
  *
- * Responsibility: create the schema and its `schema_migrations` table, apply every pending
- *                 migration in one transaction each, record its name and sha256, and refuse a
- *                 migration whose file changed after it was applied (a published migration is
- *                 immutable). After seasonal-mini-games apps/server/src/db/migrator.ts, per
- *                 schema instead of a fixed one.
+ * Responsibility: create the schema and its `schema_migrations` table where they are missing,
+ *                 apply every pending migration in one transaction each, record its name and
+ *                 sha256, and refuse a migration whose file changed after it was applied (a
+ *                 published migration is immutable). A database that is current gets no schema
+ *                 statement at all, so a server connected as the app role, which may only read
+ *                 and write rows, starts on it (./roles.ts). After seasonal-mini-games
+ *                 apps/server/src/db/migrator.ts, per schema instead of a fixed one.
  * Depends on:     node:crypto, node:fs, node:path, node:url, ./pool.js
  */
 import { createHash } from 'node:crypto';
@@ -34,8 +36,19 @@ function migrationFiles(): MigrationFile[] {
     });
 }
 
-/** Applies what is pending in `schema`; answers the names applied now. */
-export async function migrate(pool: DbPool, schema: string): Promise<string[]> {
+/** The recorded checksums by migration, or null while the schema has no record yet. */
+async function record(pool: DbPool, schema: string): Promise<Map<string, string> | null> {
+  const found = await pool.query<{ name: string | null }>('SELECT to_regclass($1)::text AS name', [
+    `${schema}.schema_migrations`,
+  ]);
+  if ((found.rows[0]?.name ?? null) === null) return null;
+  const rows = await pool.query<{ id: string; checksum: string }>(
+    'SELECT id, checksum FROM schema_migrations',
+  );
+  return new Map(rows.rows.map((r) => [r.id, r.checksum]));
+}
+
+async function createRecord(pool: DbPool, schema: string): Promise<void> {
   // The schema name is checked by createPool's rule before any pool exists for it.
   await pool.query(`CREATE SCHEMA IF NOT EXISTS ${schema}`);
   await pool.query(`CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -43,13 +56,15 @@ export async function migrate(pool: DbPool, schema: string): Promise<string[]> {
     checksum text NOT NULL,
     applied_at timestamptz NOT NULL DEFAULT now()
   )`);
-  const applied = new Map(
-    (
-      await pool.query<{ id: string; checksum: string }>(
-        'SELECT id, checksum FROM schema_migrations',
-      )
-    ).rows.map((r) => [r.id, r.checksum]),
-  );
+}
+
+/** Applies what is pending in `schema`; answers the names applied now. */
+export async function migrate(pool: DbPool, schema: string): Promise<string[]> {
+  let applied = await record(pool, schema);
+  if (applied === null) {
+    await createRecord(pool, schema);
+    applied = new Map();
+  }
   const done: string[] = [];
   for (const file of migrationFiles()) {
     const recorded = applied.get(file.id);

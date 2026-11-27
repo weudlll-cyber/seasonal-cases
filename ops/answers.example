@@ -1,0 +1,34 @@
+# @file   ops/answers.example
+# @brief  The installer's answers for an unattended run: `sudo ./ops/install.sh --answers FILE
+#         --yes` (docs/operator-guide.md). One KEY=value per line; secrets are not answers, the
+#         installer makes them.
+
+# local (own domain, own accounts) or website (under the website, /games/cases/)
+SC_INSTALL_MODE=local
+# The loopback port the game is published on, for the server's proxy.
+SC_PORT=3970
+SC_REPO=https://github.com/weudlll-cyber/seasonal-cases.git
+SC_REF=master
+
+# Local mode
+SC_PUBLIC_ORIGIN=https://cases.example.org
+# The proxy's addresses as the game sees them (default: the gateway of its network).
+# SC_TRUSTED_PROXIES=172.30.251.1
+# SC_EDGE_SUBNET=172.30.251.0/24
+# SC_SMTP_HOST=127.0.0.1
+# SC_SMTP_PORT=25
+# SC_MAIL_FROM=Seasonal Cases <cases@example.org>
+
+# The operator's contact address (the privacy page names it) is not an answer: pass --email once;
+# it is kept in /etc/seasonal/operator.env.
+
+# The encrypted nightly backup: your age public key (age-keygen on your own computer, then
+# age-keygen -y key.txt). Without it no backup is set up.
+# SC_BACKUP_AGE_RECIPIENT=age1...
+
+# Website mode
+# SC_WEBSITE_ORIGIN=https://example.org
+# SC_PROXY=nginx
+# SC_ROUTES_DIR=/etc/seasonal/routes
+# SC_SITE_PORT_FILE=/etc/seasonal/site-local-port
+# SC_WEBSITE_NETWORK=seasonal-site_default

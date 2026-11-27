@@ -8,7 +8,7 @@
  *                 watches one show over socket.io and keeps the last public, organiser and
  *                 personal view it received, and its applause count; `direct` sends a direction
  *                 message (or an applause) and resolves with its ack. The client only renders what it receives (CONCEPT §8).
- * Depends on:     react, socket.io-client, @sc/contracts (types), ./api.js, ./base.js
+ * Depends on:     react, socket.io-client, @sc/contracts (types), ./base.js
  */
 import type {
   Ack,
@@ -23,8 +23,7 @@ import type {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, type Socket } from 'socket.io-client';
 
-import { getJson } from './api.js';
-import { apiPath, SOCKET_PATH } from './base.js';
+import { api, SOCKET_PATH } from './base.js';
 
 const POLL_MS = 3000;
 
@@ -47,7 +46,7 @@ export function useCurrentShow(onStage: boolean): CurrentShow {
   const [id, setId] = useState<string | null | undefined>(undefined);
   const held = useRef<string | null>(null);
   const refresh = useCallback(async () => {
-    const answer = await getJson<{ show: PublicShowView | null }>(apiPath('/shows/current'));
+    const answer = await api<{ show: PublicShowView | null }>('/shows/current');
     const show = answer.show;
     if (show?.state === 'live') held.current = show.id;
     setId(held.current ?? show?.id ?? null);

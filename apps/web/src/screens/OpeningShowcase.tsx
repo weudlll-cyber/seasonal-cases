@@ -11,8 +11,11 @@
  *                 and the opened case as the stage's half circle shows them. Outside development
  *                 the page says it is not there; the server answers its path with 404 too
  *                 (apps/server/src/web.ts).
- * Depends on:     react, @sc/contracts (types), ../stage/*
+ *                 Loaded on demand by ../App.tsx in a development build only, with its own
+ *                 stylesheet, so a production bundle has none of it (D63).
+ * Depends on:     react, @sc/contracts (types), ../stage/*, ./showcase.css
  */
+import './showcase.css';
 import type { Artifact, Season } from '@sc/contracts';
 import { useState } from 'react';
 
@@ -44,7 +47,7 @@ function Controls({ factor, season, onPlay, onFactor, onSeason }: ControlsProps)
     <div className="showcase-controls">
       <button
         type="button"
-        className="button button-solid"
+        className="sk-btn sk-btn--primary"
         title="Play the opening again from the closed case"
         onClick={() => {
           onPlay();
@@ -55,6 +58,7 @@ function Controls({ factor, season, onPlay, onFactor, onSeason }: ControlsProps)
       <label>
         Speed{' '}
         <select
+          className="sk-select"
           value={factor}
           onChange={(event) => {
             onFactor(Number(event.target.value));
@@ -70,6 +74,7 @@ function Controls({ factor, season, onPlay, onFactor, onSeason }: ControlsProps)
       <label>
         Season{' '}
         <select
+          className="sk-select"
           value={season}
           onChange={(event) => {
             onSeason(event.target.value as Season);
@@ -139,6 +144,6 @@ function Showcase() {
 
 /** The showcase in development; anywhere else the page is not there. */
 export function OpeningShowcase({ dev }: { dev: boolean }) {
-  if (!dev) return <p className="page">This page does not exist.</p>;
+  if (!dev) return <main className="page">This page does not exist.</main>;
   return <Showcase />;
 }

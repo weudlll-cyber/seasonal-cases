@@ -6,7 +6,7 @@
  *                 case's artifact only once that case is open, and never the assignment or the
  *                 secret before the show has ended (CONCEPT §8). The organiser view adds the
  *                 direction and the organisers to hand over to, never the contents
- *                 (CONCEPT §3.3). Names and badges come from the `people` lookup where it knows
+ *                 (CONCEPT §3.3). Names and steps come from the `people` lookup where it knows
  *                 the player (the server's accounts: a renamed or deleted account shows its
  *                 current name), else from the name recorded with the claim.
  * Depends on:     @sc/contracts (types), ./model.js, ./registration.js, ./sealing.js, ./setup.js
@@ -24,6 +24,7 @@ import {
   type PublicShowView,
   type Rank,
   type ShowResult,
+  type Step,
 } from '@sc/contracts';
 
 import type { ShowModel } from './model.js';
@@ -44,18 +45,18 @@ function sealedArtifact(model: ShowModel, caseNumber: number): Artifact {
 const ownerOf = (model: ShowModel, caseNumber: number): Claim | null =>
   model.owners?.[caseNumber - 1] ?? null;
 
-/** A player as the screens name them: the current name and the website badges. */
+/** A player as the screens name them: the current name and the website steps. */
 export interface Person {
   readonly name: string;
-  readonly badges: readonly string[];
+  readonly steps: readonly Step[];
 }
 export type People = (playerId: string) => Person | undefined;
 const nobody: People = () => undefined;
 
 const nameOf = (people: People, claim: Claim | null): string | null =>
   claim === null ? null : (people(claim.player.id)?.name ?? claim.player.name);
-const badgesOf = (people: People, id: string | undefined): string[] =>
-  id === undefined ? [] : [...(people(id)?.badges ?? [])];
+const stepsOf = (people: People, id: string | undefined): Step[] =>
+  id === undefined ? [] : [...(people(id)?.steps ?? [])];
 
 function caseView(model: ShowModel, caseNumber: number, people: People): CaseView {
   const owner = ownerOf(model, caseNumber);
@@ -64,7 +65,7 @@ function caseView(model: ShowModel, caseNumber: number, people: People): CaseVie
     number: caseNumber,
     ownerId: owner?.player.id ?? null,
     ownerName: nameOf(people, owner),
-    ownerBadges: badgesOf(people, owner?.player.id),
+    ownerSteps: stepsOf(people, owner?.player.id),
     ownerRank: owner?.rank ?? null,
     opened,
     // The redaction: an unopened case's content never leaves the server.
@@ -120,12 +121,12 @@ export function showResult(model: ShowModel, people: People = nobody): ShowResul
   };
 }
 
-/** The conflict view with the current names and badges. */
+/** The conflict view with the current names and steps. */
 function namedBoard(model: ShowModel, people: People): BoardCase[] {
   const named = (c: Claimant): Claimant => ({
     ...c,
     name: people(c.playerId)?.name ?? c.name,
-    badges: badgesOf(people, c.playerId),
+    steps: stepsOf(people, c.playerId),
   });
   return board(model.claims, model.caseCount).map((b) => ({
     ...b,

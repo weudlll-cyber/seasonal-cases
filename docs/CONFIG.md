@@ -6,42 +6,43 @@ names every problem and the mode that needs the value. Settings of the show itse
 cases and prizes, artifact names, durations, confetti) are not here: an admin changes them in
 the admin area (`/admin`, Settings).
 
-"From" says who provides the value: **installer** (`deploy/install.sh` writes it into the
-service's environment file), **website** (the website's operator gives it), **dev** (set by
+"From" says who provides the value: **installer** (`ops/install.sh` writes it into
+`/etc/seasonal-cases/prod.env`, or the compose file sets it), **website** (the website's operator gives it), **dev** (set by
 `apps/server/dev.env` for `pnpm dev`), **you** (only when you want something else).
 
 ## Always
 
-| Variable        | Default                                | Required in | From      | What                                                                                                             |
-| --------------- | -------------------------------------- | ----------- | --------- | ---------------------------------------------------------------------------------------------------------------- |
-| `NODE_ENV`      | (unset)                                | —           | installer | `production` for a real server (`pnpm start` sets it when unset); `development` with `SC_DEV=1` for `pnpm dev`   |
-| `SC_MODE`       | `local`                                | —           | installer | `local` (own domain, own accounts) or `website` (embedded under `/games/cases/`)                                 |
-| `SC_PORT`       | `3970`                                 | —           | installer | the port on 127.0.0.1; a reverse proxy faces the internet                                                        |
-| `SC_HOST`       | `127.0.0.1`                            | —           | installer | the address it listens on; the Docker bridge (such as `172.17.0.1`) when the website's Caddy runs in a container |
-| `SC_LOG_LEVEL`  | `info` (production, dev), else `error` | —           | you       | `fatal`, `error`, `warn`, `info` or `debug`; one JSON line per event on stdout                                   |
-| `SC_CLIENT_DIR` | `apps/web/dist` in production          | —           | you       | the built client this process serves under the base path                                                         |
-| `SC_DATA_DIR`   | `.local/data`                          | —           | you       | the shows' event log without a database (development only)                                                       |
-| `SC_DEV`        | (unset)                                | —           | dev       | `1` with `NODE_ENV=development` turns the development sign-in and Quick Test on (local mode only)                |
+| Variable        | Default                                | Required in | From      | What                                                                                              |
+| --------------- | -------------------------------------- | ----------- | --------- | ------------------------------------------------------------------------------------------------- |
+| `NODE_ENV`      | (unset)                                | —           | installer | `production` on a server (compose sets it); `development` with `SC_DEV=1` for `pnpm dev`          |
+| `SC_MODE`       | `local`                                | —           | installer | `local` (own domain, own accounts) or `website` (embedded under `/games/cases/`)                  |
+| `SC_PORT`       | `3970`                                 | —           | installer | the port it listens on; in the container always 3970 (`SC_HOST_PORT` publishes it)                |
+| `SC_HOST`       | `127.0.0.1`                            | —           | installer | the address it listens on; in the container `0.0.0.0` (compose sets it)                           |
+| `SC_LOG_LEVEL`  | `info` (production, dev), else `error` | —           | you       | `fatal`, `error`, `warn`, `info` or `debug`; one JSON line per event on stdout                    |
+| `SC_CLIENT_DIR` | `apps/web/dist` in production          | —           | you       | the built client this process serves under the base path                                          |
+| `SC_DATA_DIR`   | `.local/data`                          | —           | you       | the shows' event log without a database (development only)                                        |
+| `SC_DEV`        | (unset)                                | —           | dev       | `1` with `NODE_ENV=development` turns the development sign-in and Quick Test on (local mode only) |
 
 ## Database and secrets
 
 | Variable           | Default                    | Required in                         | From      | What                                                                                                                                                                                                                                                                                                 |
 | ------------------ | -------------------------- | ----------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`     | (none: files and memory)   | production                          | installer | `postgres://user:password@host:port/database`                                                                                                                                                                                                                                                        |
+| `DATABASE_URL`     | (none: files and memory)   | production                          | installer | `postgres://user:password@host:port/database`; in the compose stack the app role's for the game and the owner role's for the migration                                                                                                                                                               |
 | `SC_DATA_KEY`      | —                          | production; any run with a database | installer | 64 hex digits (`openssl rand -hex 32`); encrypts sealed shows and TOTP secrets at rest                                                                                                                                                                                                               |
 | `SC_RECOVERY_KEY`  | a new random one per start | production; any run with a database | installer | 64 hex digits (`openssl rand -hex 32`), not one byte repeated; the HMAC key of the admins' recovery codes (kit v0.9.0, kit K20). Its own secret, never `SC_DATA_KEY`. Codes stored before it (plain SHA-256) keep working until used (kit K27). A changed key voids every code made with the old one |
 | `SC_COOKIE_SECRET` | a new random one per start | production                          | installer | at least 32 characters; signs the session cookie, so sessions survive a restart                                                                                                                                                                                                                      |
 
 ## Local mode
 
-| Variable             | Default                            | Required in                                         | From      | What                                                                                                             |
-| -------------------- | ---------------------------------- | --------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------- |
-| `SC_PUBLIC_ORIGIN`   | `http://localhost:5470`            | production; a server that mails outside development | installer | the address players open; reset and confirmation links point here; `https:` makes the cookie Secure              |
-| `SC_TRUSTED_PROXIES` | `127.0.0.1,::1`                    | —                                                   | installer | addresses or CIDRs whose `X-Forwarded-For` names the visitor (the reverse proxy); no keywords such as `loopback` |
-| `SC_SMTP_HOST`       | (none: no mail, no registration)   | —                                                   | installer | the SMTP relay for the registration's confirmation and the forgotten-password mail; without it both answer 503   |
-| `SC_SMTP_PORT`       | `25`                               | —                                                   | installer | its port                                                                                                         |
-| `SC_MAIL_FROM`       | `Seasonal Cases <cases@localhost>` | —                                                   | installer | the sender                                                                                                       |
-| `SC_CHAT_ORIGIN`     | (none)                             | —                                                   | dev       | the website's development server, whose chat is docked under the stage                                           |
+| Variable             | Default                             | Required in                                         | From      | What                                                                                                                                                                                                  |
+| -------------------- | ----------------------------------- | --------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SC_PUBLIC_ORIGIN`   | `http://localhost:5470`             | production; a server that mails outside development | installer | the address players open; reset and confirmation links point here; `https:` makes the cookie Secure                                                                                                   |
+| `SC_TRUSTED_PROXIES` | `127.0.0.1,::1`                     | —                                                   | installer | addresses or CIDRs whose `X-Forwarded-For` names the visitor (the reverse proxy); no keywords such as `loopback`                                                                                      |
+| `SC_SMTP_HOST`       | (none: no mail, no registration)    | —                                                   | installer | the SMTP relay for the registration's confirmation and the forgotten-password mail; without it both answer 503                                                                                        |
+| `SC_SMTP_PORT`       | `25`                                | —                                                   | installer | its port                                                                                                                                                                                              |
+| `SC_MAIL_FROM`       | `Seasonal Cases <cases@localhost>`  | —                                                   | installer | the sender                                                                                                                                                                                            |
+| `SC_CHAT_ORIGIN`     | (none)                              | —                                                   | dev       | the website's development server, whose chat is docked under the stage                                                                                                                                |
+| `SC_PRIVACY_CONTACT` | (none: "the operator of this site") | -                                                   | installer | who the privacy page names for questions about one's data (up to 200 characters), also in website mode; the installer writes the operator's address (`--email`, kept in `/etc/seasonal/operator.env`) |
 
 ## Website mode
 
@@ -52,6 +53,15 @@ service's environment file), **website** (the website's operator gives it), **de
 | `SC_PROXY_SECRET`         | —       | website mode    | installer | the secret the proxy adds as `X-Sc-Proxy-Secret` on the sign-in route only |
 | `SC_WEBSITE_LOCAL_ORIGIN` | (none)  | with the token  | website   | the website's local address for the account-changes feed                   |
 | `SC_GAMES_SYNC_TOKEN`     | (none)  | with the origin | website   | the games' sync token for that feed; both or neither                       |
+
+## Backups
+
+Not read by the game: the installer's answer `SC_BACKUP_AGE_RECIPIENT` (your age public key, or
+`--backup-recipient`; none: no backup) becomes `/etc/seasonal-cases/backup.conf` (root 0600), whose
+`SK_BACKUP_*` settings are the kit's (`docs/OPERATIONS.md` in the kit). What must travel with a backup is in a file of its own, `/etc/seasonal-cases/prod.keys` (root
+0600): `SC_DATA_KEY`, `SC_COOKIE_SECRET` and `SC_RECOVERY_KEY`; a restore puts it back and refuses
+differing keys unless forced. The database passwords and the website's secrets stay in `prod.env`
+and are the server's own. There are no upload folders.
 
 ## Account names
 
@@ -80,6 +90,28 @@ Fixed in the code, not settings. A refusal is 429 with one sentence.
 | Confirmations per address                     | 10 per 15 minutes                                       | `registerRoute.ts` |
 | Watches per socket                            | 10 in 10 s (D37)                                        | `realtime.ts`      |
 | Applause per account, or per address (guest)  | 5 a second (D44)                                        | `applause.ts`      |
+
+## The compose stack
+
+Read by `docker compose` (`ops/compose*.yml`), from the same file as the game's settings
+(`/etc/seasonal-cases/prod.env`, written by the installer; example `ops/cases.env.example`).
+
+| Variable               | Default           | Required in  | From      | What                                                                       |
+| ---------------------- | ----------------- | ------------ | --------- | -------------------------------------------------------------------------- |
+| `SC_IMAGE`             | —                 | the stack    | installer | the game's image, built on the server from the chosen ref                  |
+| `SC_ENV_FILE`          | —                 | the stack    | installer | the env file the game's container gets (this file)                         |
+| `SC_KEYS_FILE`         | -                 | the stack    | installer | the keys' file the game's container gets beside the settings               |
+| `SC_HOST_PORT`         | —                 | the stack    | installer | the loopback port the game is published on, for the server's proxy (3970)  |
+| `SC_EDGE_SUBNET`       | `172.30.251.0/24` | —            | installer | the game's network; in local mode its gateway is the trusted proxy address |
+| `SC_WEBSITE_NETWORK`   | —                 | website mode | installer | the website's Docker network the game joins                                |
+| `POSTGRES_PASSWORD`    | made once         | the stack    | installer | the database superuser's password; the game is not given it                |
+| `SC_DB_OWNER_PASSWORD` | made once         | the stack    | installer | the owner role's (`sc_owner`), which migrates; the game is not given it    |
+| `SC_DB_APP_PASSWORD`   | made once         | the stack    | installer | the app role's (`sc_app`), which the running game connects as              |
+
+Inside the container the game always listens on `0.0.0.0:3970` and reads the database at
+`postgres:5432` (the compose file sets `SC_HOST`, `SC_PORT`, `NODE_ENV` and `DATABASE_URL`). The database has two
+roles beside the superuser (DECISIONS D82): `sc_owner` migrates (the stack's one-shot service
+`migrate`), `sc_app` reads and writes rows.
 
 ## Tests only
 

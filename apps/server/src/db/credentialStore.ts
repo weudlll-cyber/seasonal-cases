@@ -72,5 +72,9 @@ export function pgCredentials(pool: DbPool): CredentialStore {
         [accountId],
       );
     },
+    async removeAccount(accountId) {
+      await pool.query('DELETE FROM password_resets WHERE account_id = $1', [accountId]);
+      await pool.query('DELETE FROM local_credentials WHERE account_id = $1', [accountId]);
+    },
   };
 }

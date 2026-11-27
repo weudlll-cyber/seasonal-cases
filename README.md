@@ -14,8 +14,9 @@ manually assigned ranks. In development the local mode also has a development si
 and rank, no password) for the Quick Test; it exists only with `NODE_ENV=development` and
 `SC_DEV=1` (`apps/server/dev.env`).
 
-**Status:** version 1.0.0 on master, tag `v1.0.0`: phases P0 to P3 built, P4 (installer,
-security reviews) built; the first show on a server is the next step
+**Status:** version 1.0.0 on master, tag `v1.0.0`; 1.1.0-rc.8 on the branch `kit/v0.17-adoption`
+(the whole kit, v0.40.0; Docker from 1.1.0-rc.3), not merged yet: phases P0 to P3 built, P4 (installer, security
+reviews) built; the first show on a server is the next step
 ([docs/CONCEPT.md](docs/CONCEPT.md) §12, [CHANGELOG.md](CHANGELOG.md),
 [docs/RELEASING.md](docs/RELEASING.md)).
 
@@ -38,40 +39,32 @@ on every interface, so a phone on the same network reaches it at `http://<PC's I
 | 3980 | the browser tests' own server                    |
 | 5480 | the browser tests' own client                    |
 | 3990 | the browser tests' server in website mode        |
-| 5485 | the browser tests' stand-in website              |
+| 5485 | the browser tests' client in website mode        |
 
 ## Install on a server
 
-On a Debian or Ubuntu server, from a clone of this repository:
+The game runs on a server in Docker only (the game and PostgreSQL, `ops/compose.yml`). On a Debian
+or Ubuntu server with Docker, from a clone of this repository:
 
 ```sh
-sudo ./deploy/install.sh            # asks once, remembers; --update --ref <tag> later
+sudo ./ops/install.sh               # asks once, remembers
+sudo scases update <tag>             # later: back up, switch; then: scases confirm or rollback
 ```
 
-Step by step, standalone or under the website: [docs/INSTALL.md](docs/INSTALL.md).
+Step by step, standalone or under the website, with backup, restore and uninstall:
+[docs/operator-guide.md](docs/operator-guide.md).
 
-## Run it in production by hand
-
-Node 22+, pnpm and PostgreSQL; the installer does all of this for you.
-
-```sh
-pnpm install --frozen-lockfile
-SC_MODE=local pnpm build    # or SC_MODE=website for /games/cases/
-pnpm start                  # one process: API, sockets, the built client, /api/health
-```
-
-`pnpm start` needs `DATABASE_URL`, `SC_DATA_KEY`, `SC_COOKIE_SECRET` and, in local mode,
-`SC_PUBLIC_ORIGIN`; every variable is in [docs/CONFIG.md](docs/CONFIG.md).
+Every setting is in [docs/CONFIG.md](docs/CONFIG.md).
 
 ## Accounts and admins (local mode)
 
-Players create their own accounts on the start page. Admins come from the command line, on the
-server's database (`DATABASE_URL` and `SC_DATA_KEY` in the shell; `pnpm dev:sc …` reads
-`apps/server/dev.env` for the development database):
+Players create their own accounts on the start page. Admins come from the command line: on a
+server `sudo scases admin …`, in development `pnpm dev:sc …` (it reads
+`apps/server/dev.env`):
 
 ```sh
-pnpm sc admin promote <name>     # the account becomes an admin; its sessions end
-pnpm sc admin reset-2fa <name>   # removes its second factor and recovery codes; sessions end
+pnpm dev:sc admin promote <name>     # the account becomes an admin; its sessions end
+pnpm dev:sc admin reset-2fa <name>   # removes its second factor and recovery codes; sessions end
 ```
 
 An admin sets up two-factor sign-in in the admin area before the accounts and settings open,
@@ -103,14 +96,37 @@ on the website, as an admin, open **Admin → Embedding** (`/admin/embedding`) a
 (its docs/EMBED.md, "Approving a site"). Without the website running, the docked frame stays
 empty.
 
+## The local website-mode preview
+
+The kit's stand-in website in front of the game in website mode, on this computer only: the back
+link, the header, the step badges and the shared call's slot (a placeholder; the real call is only
+on the website). The game runs on a database of its own, never the development one. Choose a secret
+of 32 letters or more and set it as `SC_PROXY_SECRET` in each shell below.
+
+```sh
+docker exec sc-dev-postgres-1 createdb -U sc sc_preview
+# server (apps/server): the development settings, then these over them
+SC_MODE=website SC_PORT=3991 SC_DEV=0 SC_CHAT_ORIGIN= \
+  SC_WEBSITE_ORIGIN=http://127.0.0.1:4400 SC_TRUSTED_PROXIES=127.0.0.1 \
+  DATABASE_URL=<the development address with /sc_preview at its end> pnpm dev
+# client (apps/web)
+SC_MODE=website SC_WEB_PORT=5486 SC_SERVER=http://127.0.0.1:3991 pnpm dev
+# the preview (the repository root); open the address it prints
+pnpm exec sk-preview --slug cases --app http://127.0.0.1:5486 \
+  --secret-header X-Sc-Proxy-Secret --secret-env SC_PROXY_SECRET --can-host
+```
+
+`--can-host` signs in a member who may run a show. Throw the database away afterwards:
+`docker exec sc-dev-postgres-1 dropdb -U sc sc_preview`.
+
 ## Docs
 
 - [docs/CONCEPT.md](docs/CONCEPT.md): what the show is and does (the source of truth).
 - [docs/DECISIONS.md](docs/DECISIONS.md): the decisions, as dated facts.
 - [docs/BACKLOG.md](docs/BACKLOG.md) and [docs/OPEN.md](docs/OPEN.md): what is open and closed.
 - [docs/HANDOVER.md](docs/HANDOVER.md): where things stand.
-- [docs/CONFIG.md](docs/CONFIG.md), [docs/INSTALL.md](docs/INSTALL.md) and
-  [docs/RELEASING.md](docs/RELEASING.md): settings, installing, releasing.
+- [docs/CONFIG.md](docs/CONFIG.md), [docs/operator-guide.md](docs/operator-guide.md) and
+  [docs/RELEASING.md](docs/RELEASING.md): settings, running a server, releasing.
 - [docs/security-pass.md](docs/security-pass.md): the independent security reviews.
 - [CONTRIBUTING.md](CONTRIBUTING.md) and [CLAUDE.md](CLAUDE.md): how work is done here.
 

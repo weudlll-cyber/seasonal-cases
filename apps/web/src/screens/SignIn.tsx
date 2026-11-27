@@ -4,11 +4,14 @@
  *
  * Responsibility: the prototype's only way in, so the owner can play as a player in one tab
  *                 and hold the direction in another. The server refuses it outside development.
- * Depends on:     react, @sc/contracts, ../lib/useAction.js, ./fields.js
+ *                 Loaded on demand by ./StartPage.tsx in a development build only (D63).
+ * Depends on:     react, @sc/contracts, ../lib/devSignIn.js (types), ../lib/useAction.js,
+ *                 ./fields.js
  */
-import { RANK_MAX, ROLES, type Rank, type Role, type SignInRequest } from '@sc/contracts';
+import { RANK_MAX, ROLES, type Rank, type Role } from '@sc/contracts';
 import { useState } from 'react';
 
+import type { DevSignInFn } from '../lib/devSignIn.js';
 import { useAction } from '../lib/useAction.js';
 import { ChoiceField, TextField } from './fields.js';
 
@@ -18,14 +21,14 @@ const RANK_CHOICES = Array.from({ length: RANK_MAX + 1 }, (_, r) => ({
   text: r === 0 ? '0 (unassigned)' : String(r),
 }));
 
-export function SignIn({ onSignIn }: { onSignIn: (request: SignInRequest) => Promise<void> }) {
+export function SignIn({ onSignIn }: { onSignIn: DevSignInFn }) {
   const [name, setName] = useState('');
   const [role, setRole] = useState<Role>('player');
   const [rank, setRank] = useState<Rank>(0);
   const action = useAction();
   return (
     <form
-      className="card sign-in"
+      className="sk-panel sign-in"
       aria-label="Development sign-in"
       onSubmit={(event) => {
         event.preventDefault();
@@ -55,7 +58,12 @@ export function SignIn({ onSignIn }: { onSignIn: (request: SignInRequest) => Pro
         choices={RANK_CHOICES}
         onChange={setRank}
       />
-      <button type="submit" className="button button-solid" disabled={action.busy} title="Sign in">
+      <button
+        type="submit"
+        className="sk-btn sk-btn--primary"
+        disabled={action.busy}
+        title="Sign in"
+      >
         Sign in
       </button>
       {action.error !== null && <p role="alert">{action.error}</p>}

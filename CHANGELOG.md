@@ -3,6 +3,196 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
+## 1.1.0-rc.8 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N16: kit v0.40.0 (DECISIONS D94). Nothing players
+see changes in the game itself.
+
+- **Website-mode preview:** the kit's `sk-preview` shows the game in website mode on this PC
+  (README).
+- **Tests:** the browser tests' servers have no database; the two-factor journey no longer fails
+  when a code's 30 seconds turn at the wrong moment.
+
+## 1.1.0-rc.7 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N15: kit v0.39.1 (DECISIONS D93).
+
+- **Accessibility:** every state of a page (signed out, loading, not found) stands in a landmark.
+- **Start page and "My matches":** the links to a result no longer lay over the line above them;
+  their rows are a little taller.
+- **Development and CI:** the database counts as ready only over TCP there too.
+
+## 1.1.0-rc.6 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N14: kit v0.38.0 (DECISIONS D89).
+
+- **Header (D90):** "Admin" shows for organisers and admins only.
+- **Shared call (D91):** in website mode the website's shared call appears beside the chat while
+  it is live, and the result offers "Back to the call".
+- **Large text (kit):** at 200 % the game bar grows and wraps instead of cutting its facts or
+  pushing buttons off the window; the start card scrolls; on a low phone the open chat takes its
+  own room. A website organiser's header stays one row at 1536 x 768.
+- **Server (kit):** `scases status` writes nothing; a restore that fails starts the game again; a
+  rollback renames files into place.
+- **Found by the checks and fixed:** a new database is no longer called ready while it is still
+  being set up; the sign-in's two links keep their touch areas apart on narrow phones.
+
+## 1.1.0-rc.5 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N13: kit v0.34.0 (DECISIONS D86).
+
+- **Sign-in:** wrong passwords sent at the same moment are held to the brake's limits; before, each
+  of them was checked.
+- **Controls (D87):** the kit's buttons, panels and fields: bolder, larger button text, a red
+  button for deleting the account, disabled controls look locked.
+- **Header (kit):** the account chip is filled, "Sign in" is the solid button when signed out, the
+  back link takes a lower row on a phone; badges give way before the header folds.
+- **Backup and restore (D88):** the keys are in a file of their own (`prod.keys`), travel in every
+  backup, are put back by `scases restore` and refused if they differ, unless forced.
+- **Result page:** on a PC it takes the full content width, so the cases stand in a grid beside
+  the winners instead of one long column.
+- **Found in the play-through and fixed:** the admin area's two checkbox rows are full touch
+  targets again; one owner is said "1 owner" on the start card, and the website's open sign-up
+  says "1 prize" for a show with one winner.
+
+## 1.1.0-rc.4 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N12: kit v0.32.0 with every part it offers the game
+(DECISIONS D79).
+
+- **Step badges (D80):** a website member's steps are drawn by the kit beside the name, after it,
+  on the board, the stage's cases and the lower third (before: the game's own icons, before the
+  name).
+- **Header (kit):** the account chip reads "Signed in as …" with its space on wide windows; a fold
+  no longer depends on how the page got there; the brand link is a 44 px target.
+- **Result page and other docked screens (kit):** their content can be scrolled by keyboard.
+- **Server (D81, D82):** the website's account feed is read with the kit's guarded fetch; over
+  https the pages ask the browser to upgrade http addresses; the running game connects to its
+  database with a role that can only read and write rows, and a separate service migrates before it
+  starts. An installed game is converted once by its update.
+- **Server operations (D83, D84):** the installer is `ops/install.sh`; the installed game has the
+  command `scases` (status, update, confirm, rollback, backup, restore, drill, logs, uninstall);
+  the operator's e-mail address is the privacy page's contact; a standalone server gets a firewall,
+  automatic security updates and fail2ban; the database container is hardened; one guide,
+  `docs/operator-guide.md`.
+- **Found in the play-through and fixed:** one prize is said "1 prize" (not "1 prizes"), and the
+  word "Unclaimed" stays whole under a small case on the stage.
+- **Found by the kit's checks and fixed (D85):** text links and link-like buttons standing alone are
+  44 px targets, their words where they were; the start card is no longer squeezed and cut on the
+  start page when a board or list follows it; the "you hold it" line on the registration board is a
+  darker green in the light theme.
+
+## 1.1.0-rc.3 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N11: Cases moves to Docker (DECISIONS D76, D77).
+
+- **A production image** (`Dockerfile`): the game, its production dependencies and the built client,
+  as a non-root user, healthy when `/readyz` answers.
+- **The compose stack** (`ops/compose.yml`): the game and PostgreSQL 17, the database not published,
+  the game on a loopback port; a website install joins the website's network; development is
+  unchanged.
+- **Docker is the only server path (D76, D78):** the installer installs and updates the compose
+  stack (it needs Docker and says how to get it), backs up before an update, reports health with
+  `--check`; the native path (a local PostgreSQL role, a systemd service, Node on the server) is
+  gone. The kit's backup runs against the database container; `admin.sh` runs inside the game's
+  container. The website's account feed now works behind its Caddy too.
+- **The image holds only what runs**, and CI builds it and scans it with Trivy (job `image`).
+
+## 1.1.0-rc.2 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N10: the whole move to kit v0.22.0 (DECISIONS D67 to
+D69), on top of 1.1.0-rc.1.
+
+- **Kit v0.22.0.** The game bar's panel buttons carry `aria-controls` (kit v0.20.0).
+- **The kit's server parts (D69, D70):** the CSRF check (`writeCheck`; a write that names no origin
+  is now refused too), the security headers (the kit's strict set: no referrer, scripts and styles
+  from the game only, framed only as the mode allows; helmet is gone), the session cookie
+  (`__Host-sc_session` at the root of its own host, `__Secure-sc_session` under the website's path;
+  a session of a build before this one signs in again), the season feed's guarded fetch, and
+  `/healthz` and `/readyz` in place of `/api/health` and `/api/ready` (the installer waits for
+  `/readyz`).
+- **The kit's header, game bar and start card (v0.22.0):** the game's four CSS patches are gone; a
+  fact in the game bar wraps instead of ending in "…" and the bar has the kit's own padding; the
+  start card has no countdown because no start time is passed.
+- **Account page:** "Download my data" is a button of the same shape and size as "Delete my
+  account".
+- **Fixed:** the header's Menu button no longer shows beside the links on a wide window, and signed-in
+  users no longer get the folded header at 1280 × 720 (the stylesheet order).
+- **Backups (D68):** with your age public key the installer sets up the kit's encrypted nightly
+  backup (database and the settings with every secret; no uploads exist), a timer at 03:30, and
+  `sudo ./deploy/backup.sh` to back up, restore and drill; pulling to your own computer and
+  restoring are in docs/INSTALL.md. Without a key the installer says there is no backup. Drilled on
+  the dev stack (docs/OPERATIONS-CASES.md).
+
+## 1.1.0-rc.1 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N7: the whole kit, v0.17.0, before the first server
+(DECISIONS D56).
+
+- **Kit v0.17.0** (from v0.11.1, the migrations of 0.12.0 to 0.17.0):
+  - the 49 shared custom properties are `--sk-…` (0.14.0);
+  - "Applaud" is the game bar's press button and the Chat button opens the dock's chat through the
+    kit's hook (0.13.0): `packages/ui/src/pending/` is gone;
+  - sign-in's failure counting is the kit's `FailureBrake` (0.15.0; D57);
+  - the open phone chat sheet is never taller than the space left above the bar (0.17.0).
+- **The kit's header (D58):** `AppHeader` in the kit's order, with "name (role)" in the chip and, in
+  development, "Quick Test" and "Dev sign-in"; on a narrow screen the pages and the account fold
+  into one "Menu" button in place of the wrapping menu.
+- **The phone bar and the largest text (D60):** on a phone the game bar's fact wraps instead of
+  ending in "…" and the buttons keep one row; no page scrolls sideways at a 200 % root font; an
+  owner's name, a lower third and an artifact's name wrap instead of being cut. The screens run
+  asserts it (overflow, ellipsis, the text floor, the bar's height) at four sizes in both themes.
+- **Privacy (D61):** a standalone player can download their data ("Download my data", a JSON
+  file without any secret) and delete their account (password, and a current code with a second
+  factor; the last admin is told to make another admin first). Every show, the chronicle, the
+  result pages and "My matches" then show "deleted player"; the sealed distribution and its
+  commitment do not change, and the stored event log holds no name any more. The website's feed
+  deletion runs the same erasure. A privacy page (`/privacy`, in the header and under the sign-in
+  and registration forms) says what is stored, why, for how long and whom to ask
+  (`SC_PRIVACY_CONTACT`). The installer keeps the game's server logs 14 days, in a journal
+  namespace of their own (`journalctl --namespace=seasonal-cases -u seasonal-cases`).
+- **The kit's four parts (D62):** the way back to Seasonal Entertainment stays in the game bar
+  during a live show (website mode); a new show in website mode takes the website's season (its
+  public season feed, read by the kit's `seasonFeedReader` through a guarded fetch: https only,
+  public addresses only, no redirect), and the date's season while the feed has not answered or
+  is stale; the stage and the registration board fit again once the show font has loaded;
+  without a chat the screens sit in the kit's `DockedScreen` `withoutChat`, so the page follows
+  the phone's keyboard.
+- **The production bundle (D63):** the start page's development form, the "Dev sign-in" menu, the
+  admin's Quick Test and "Fill with bots" are loaded under Vite's build-time DEV flag, not hidden
+  by a runtime check; `pnpm bundle:check` (also a CI step) builds the client and searches the built
+  files for seven development strings: none is found (the build before held all of them).
+- **Mail links (D63):** a password reset's and a registration's token travel after the link's `#`
+  (`/reset#token=`, `/confirm#token=`), which a browser never sends: not to the server, not in a log,
+  not in a referrer. The page takes the token off the address when it is spent.
+- **Kit v0.19.0 and the header's step badges (D65):** a website member's steps (at most three)
+  show beside the name in the header's chip, and in the folded Menu, drawn and checked by the kit's
+  `AppHeader` (`account.steps`); the game keeps them as the website gave them (a new `steps`
+  column, migration 0004) and passes them on unchanged. A standalone account shows none. The
+  screens run holds a 32-character name with three steps on three phone sizes in both themes at
+  the normal and the largest text.
+- **Smaller fixes (SC-N9):** the opening's showcase page is a development build's only (the
+  production bundle check searches for it too); at 360 px and the largest text the folded header's
+  Menu button no longer covers the brand's name (the header run asserts it).
+- **Security pass 6 (SC-N9):** two admins deleting together can no longer leave the game without an
+  admin; the downloaded file is not cached; a deletion interrupted by a crash is finished at the
+  next start; the season feed's guarded fetch also refuses NAT64, 6to4 and Teredo addresses.
+- **The accessibility check (SC-A1):** axe runs on every screen, light and dark, desktop and phone,
+  in the required e2e job. Fixed in the game: the case buttons' names contain their visible text, the
+  phone scoreboard can be scrolled from the keyboard, the stage is the page's `main` with a hidden
+  `h1`.
+- **The pictures:** `.local/screens/sc-n7/` has four sizes in both themes and the phone sizes again
+  with a 200 % root font; the 200 % ones show sideways overflow on four screens (BACKLOG 66).
+- **A dev tool can no longer take the game down:** the header's lazily loaded quick tools sit in an
+  error boundary, the kit's dev menu is named in the dev server's `optimizeDeps`, and each mode's
+  dev server has its own dependency cache (the first browser-test run in CI crashed the page: the
+  dev module had run on a second copy of React).
+- **The game against the kit's handbook:** no visible change: the season colours in the stage's
+  and the scoreboard's CSS are the kit's tokens, an opened case's artifact name is hidden with the
+  kit's `sk-visually-hidden`, and the stage's, the gem's and the case's own tones are named arena
+  tokens. What differs from the handbook and would change something is listed for the owner
+  (docs/BACKLOG.md 58–65).
+
 ## 1.0.0 (2026-11-23, tag `v1.0.0`)
 
 The first release: the release candidates below, merged into master with the owner's word

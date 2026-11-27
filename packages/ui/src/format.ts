@@ -2,8 +2,8 @@
  * @file   packages/ui/src/format.ts
  * @brief  Text formatting the screens share.
  *
- * Responsibility: one place for how a commitment is shortened and how a time is shown: each
- *                 viewer in their own time zone, one format everywhere (CONCEPT §7).
+ * Responsibility: one place for how a commitment is shortened and how a time is shown (each
+ *                 viewer in their own time zone, one format everywhere, CONCEPT §7).
  * Depends on:     nothing
  */
 

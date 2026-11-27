@@ -22,41 +22,29 @@ html[data-sk-focus] {
   }
 }
 
-/* The kit's bar has no inline padding of its own: it keeps the stage's gutter, 0.5rem on a
-   phone, as Mini Games' focus shell does (its round/focus.css). */
-.shell > .sk-game-bar {
-  padding-inline: var(--gutter);
-}
-
-@media (max-width: 640px) {
-  .shell > .sk-game-bar {
-    padding-inline: 0.5rem;
-  }
-}
-
 .focus-lead {
-  font-weight: var(--font-weight-heading);
+  font-weight: var(--sk-font-weight-heading);
 }
 
 .focus-panel {
   position: fixed;
   top: var(--shell-height);
-  right: var(--gutter);
+  right: var(--sk-gutter);
   z-index: 30;
   width: min(92vw, 26rem);
   max-height: calc(100dvh - var(--shell-height) - 16px);
   overflow: auto;
-  padding: var(--space-1);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-raised);
+  padding: var(--sk-space-1);
+  border: 1px solid var(--sk-color-border);
+  border-radius: var(--sk-radius);
+  background: var(--sk-color-surface);
+  box-shadow: var(--sk-shadow-raised);
 }
 
 .focus-players {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
-  gap: 4px var(--space-1);
+  gap: 4px var(--sk-space-1);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -72,12 +60,12 @@ html[data-sk-focus] {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   max-width: min(92%, 40rem);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-card);
-  background: var(--color-card);
-  box-shadow: var(--shadow-raised);
+  padding: var(--sk-space-2) var(--sk-space-3);
+  border-radius: var(--sk-radius-card);
+  background: var(--sk-color-card);
+  box-shadow: var(--sk-shadow-raised);
   text-align: center;
   translate: -50% 0;
 }
@@ -96,7 +84,7 @@ html[data-sk-focus] {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 4px var(--space-2);
+  gap: 4px var(--sk-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -109,7 +97,7 @@ html[data-sk-focus] {
 }
 
 .stage-screen[data-opening='true'] .case-token {
-  animation: sc-roll-in 600ms var(--ease-out) backwards;
+  animation: sc-roll-in 600ms var(--sk-ease-out) backwards;
   animation-delay: calc(var(--roll-index, 0) * 40ms);
 }
 
@@ -129,7 +117,7 @@ html[data-sk-focus] {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
 }
 
 .ceremony-shown {
@@ -137,7 +125,7 @@ html[data-sk-focus] {
   flex-wrap: wrap;
   justify-content: center;
   align-items: flex-end;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -148,10 +136,10 @@ html[data-sk-focus] {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
-  animation: sc-emerge 700ms var(--ease-out);
+  padding: var(--sk-space-1) var(--sk-space-2);
+  border-radius: var(--sk-radius-card);
+  background: var(--sk-color-surface);
+  animation: sc-emerge 700ms var(--sk-ease-out);
 }
 
 /* The current winner: its case opening, the artifact rising out of it (./CasePicture.tsx). */
@@ -171,7 +159,7 @@ html[data-sk-focus] {
 }
 
 .ceremony-slot {
-  font-weight: var(--font-weight-strong);
+  font-weight: var(--sk-font-weight-strong);
   font-size: max(var(--sk-floor-text), 15px);
 }
 
@@ -179,7 +167,7 @@ html[data-sk-focus] {
   margin: 0;
 }
 
-.ceremony-end .button {
+.ceremony-end .sk-btn {
   display: inline-flex;
   align-items: center;
   text-decoration: none;
@@ -227,10 +215,10 @@ html[data-sk-focus] {
 .focus-panel .direction-handover {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
 }
 
-.focus-panel .direction-bar .button {
+.focus-panel .direction-bar .sk-btn {
   width: 100%;
 }
 
@@ -242,9 +230,9 @@ html[data-sk-focus] {
     position: relative;
     left: auto;
     bottom: auto;
-    max-width: calc(100% - 2 * var(--space-1));
+    max-width: calc(100% - 2 * var(--sk-space-1));
     margin: 0 auto;
-    padding: var(--space-1) var(--space-2);
+    padding: var(--sk-space-1) var(--sk-space-2);
     translate: none;
   }
 
@@ -256,6 +244,6 @@ html[data-sk-focus] {
   .ceremony {
     position: relative;
     inset: auto;
-    padding: var(--space-1);
+    padding: var(--sk-space-1);
   }
 }

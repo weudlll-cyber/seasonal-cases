@@ -6,11 +6,12 @@
  *                 artifact, owner, case), the proof line "sealed at <time> · commitment <first 12
  *                 hex> · verified", the reveal of every case as its reveal part, and the full list
  *                 with the owners as `more`. The server checked the commitment; the client shows
- *                 its answer as it came.
- * Depends on:     react, @seasonal/kit/react, @sc/contracts, @sc/ui, ../lib/api.js,
- *                 ../lib/base.js, ../stage/ArtifactEmblem.js
+ *                 its answer as it came. While the website's shared call is live, the kit's
+ *                 "Back to the call" stands under the headline (D91).
+ * Depends on:     react, @seasonal/kit/react, @sc/contracts, @sc/ui,
+ *                 ../lib/base.js, ../lib/useAction.js, ../stage/ArtifactEmblem.js
  */
-import { ResultFrame } from '@seasonal/kit/react';
+import { BackToCall, ResultFrame } from '@seasonal/kit/react';
 import {
   ownerText,
   prizeName,
@@ -21,8 +22,8 @@ import {
 import { formatTime, shortCommitment } from '@sc/ui';
 import { useEffect, useState } from 'react';
 
-import { getJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { api } from '../lib/base.js';
+import { sentenceOf } from '../lib/useAction.js';
 import { ArtifactEmblem } from '../stage/ArtifactEmblem.js';
 
 function Placings({ result }: { result: ShowResult }) {
@@ -83,12 +84,13 @@ function AllCases({ result }: { result: ShowResult }) {
   );
 }
 
-export function ResultView({ result }: { result: ShowResult }) {
+export function ResultView({ result, call }: { result: ShowResult; call: number | null }) {
   return (
     <main className="page result-page" data-sk-game="cases">
       <ResultFrame
         game="mini-games"
         headline="The winners"
+        lines={<BackToCall callId={call} className="sk-btn result-call" />}
         proof={<Proof result={result} />}
         reveal={<Reveal result={result} />}
         placings={<Placings result={result} />}
@@ -99,18 +101,19 @@ export function ResultView({ result }: { result: ShowResult }) {
   );
 }
 
-export function Result({ showId }: { showId: string }) {
+export function Result({ showId, call }: { showId: string; call: number | null }) {
   const [show, setShow] = useState<PublicShowView | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    getJson<PublicShowView>(apiPath(`/shows/${showId}`))
+    api<PublicShowView>(`/shows/${showId}`)
       .then(setShow)
       .catch((e: unknown) => {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(sentenceOf(e));
       });
   }, [showId]);
-  if (error !== null) return <p className="page card">{error}</p>;
-  if (show === null) return <p className="page">Loading…</p>;
-  if (show.result === null) return <p className="page card">This show has not ended yet.</p>;
-  return <ResultView result={show.result} />;
+  if (error !== null) return <main className="page sk-panel">{error}</main>;
+  if (show === null) return <main className="page">Loading…</main>;
+  if (show.result === null)
+    return <main className="page sk-panel">This show has not ended yet.</main>;
+  return <ResultView result={show.result} call={call} />;
 }

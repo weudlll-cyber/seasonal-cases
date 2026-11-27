@@ -9,25 +9,43 @@
  *                 registration is open, owned after); the registration board below it while
  *                 registration is open, the owners after the close; a way to the stage once the
  *                 show is sealed, to the result once it has ended. A player's pick goes to the
- *                 server's claim. The card's "Opens in N s" stays hidden: shows have no start
- *                 time yet (`.start-page` in ./screens.css). Everything shown comes from the feed.
- * Depends on:     @seasonal/kit/react, @sc/contracts (types), ../account/AccountEntry.js, ../lib/*,
+ *                 server's claim. The card has no countdown: shows have no start time yet, so no
+ *                 `opensIn` is passed (kit v0.22.0). Everything shown comes from the feed.
+ * Depends on:     @seasonal/kit/react, @sc/contracts, ../account/AccountEntry.js, ../lib/*,
  *                 ../board/*, ./BrandLogo.js, ./Lobby.js, ./SignIn.js
  */
 import { StartCard } from '@seasonal/kit/react';
-import type { Me, PublicShowView, SignInRequest } from '@sc/contracts';
+import { counted, type Me, type PublicShowView } from '@sc/contracts';
+import { lazy, Suspense } from 'react';
 
 import { AccountEntry } from '../account/AccountEntry.js';
 import { RegistrationBoard } from '../board/RegistrationBoard.js';
-import { postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import type { DevSignInFn } from '../lib/devSignIn.js';
+import { post } from '../lib/base.js';
 import type { ShowFeed } from '../lib/feed.js';
 import type { ServerMode } from '../lib/mode.js';
 import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
 import { BrandLogo } from './BrandLogo.js';
 import { Lobby } from './Lobby.js';
-import { SignIn } from './SignIn.js';
+import { DevBoundary } from '../shell/DevBoundary.js';
+
+// The development form loads on demand, in a development build only: a production build replaces
+// import.meta.env.DEV with false, so neither the form nor its text is in the bundle (D63).
+const DevForm = import.meta.env.DEV
+  ? lazy(() => import('./SignIn.js').then((m) => ({ default: m.SignIn })))
+  : null;
+
+function DevSignInForm({ onSignIn }: { onSignIn: DevSignInFn }) {
+  if (DevForm === null) return null;
+  return (
+    <DevBoundary>
+      <Suspense fallback={null}>
+        <DevForm onSignIn={onSignIn} />
+      </Suspense>
+    </DevBoundary>
+  );
+}
 
 const STATE_TEXT = {
   setup: 'Being prepared',
@@ -42,7 +60,8 @@ export interface StartPageProps {
   readonly mode: ServerMode;
   readonly feed: ShowFeed;
   readonly showId: string | null | undefined;
-  readonly onSignIn: (request: SignInRequest) => Promise<void>;
+  // The development sign-in: absent in a production build (../lib/devSignIn.ts).
+  readonly onSignIn?: DevSignInFn | undefined;
   readonly onEnter: (me: Me) => void;
 }
 
@@ -57,7 +76,7 @@ export function takenText(show: PublicShowView): string {
   if (show.board !== null) {
     return `${String(show.board.filter((c) => c.holder !== null).length)} picked`;
   }
-  return `${String(show.cases.filter((c) => c.ownerName !== null).length)} owners`;
+  return counted(show.cases.filter((c) => c.ownerName !== null).length, 'owner');
 }
 
 function ShowCard({ show }: { show: PublicShowView }) {
@@ -71,16 +90,19 @@ function ShowCard({ show }: { show: PublicShowView }) {
       badge={<span className="start-badge">{stateText(show)}</span>}
       special={
         <p className="start-links">
-          {onStage && <Link to="/show">Go to the stage</Link>}
-          {show.state === 'ended' && <Link to={`/results/${show.id}`}>See the result</Link>}
+          {onStage && (
+            <Link to="/show" className="tap">
+              Go to the stage
+            </Link>
+          )}
+          {show.state === 'ended' && (
+            <Link to={`/results/${show.id}`} className="tap">
+              See the result
+            </Link>
+          )}
         </p>
       }
-      facts={[
-        `${String(show.caseCount)} cases`,
-        `${String(show.winnerCount)} prizes`,
-        takenText(show),
-      ]}
-      opensIn={0}
+      facts={[counted(show.caseCount, 'case'), counted(show.winnerCount, 'prize'), takenText(show)]}
       signature={`${show.id}:${show.state}`}
     />
   );
@@ -94,7 +116,7 @@ function useClaim(me: Me | null, show: PublicShowView | null) {
     claimable === null
       ? undefined
       : (caseNumber: number) => {
-          action.run(() => postJson(apiPath(`/shows/${claimable}/claim`), { caseNumber }));
+          action.run(() => post(`/shows/${claimable}/claim`, { caseNumber }));
         };
   return { onClaim, error: action.error };
 }
@@ -112,8 +134,8 @@ export function StartPage({ me, mode, feed, showId, onSignIn, onEnter }: StartPa
       {/* Website mode signs in through the website (the header's link); local mode has its own
           accounts, and the development sign-in too in development (DECISIONS D24). */}
       {localGuest && <AccountEntry onEnter={onEnter} />}
-      {localGuest && mode.dev && <SignIn onSignIn={onSignIn} />}
-      {showId === null && <p className="card">There is no show yet.</p>}
+      {localGuest && mode.dev && onSignIn !== undefined && <DevSignInForm onSignIn={onSignIn} />}
+      {showId === null && <p className="sk-panel">There is no show yet.</p>}
       {show !== null && (
         <>
           <ShowCard show={show} />

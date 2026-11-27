@@ -15,6 +15,13 @@
 | 1.10 | 2026-11-23 | Night chain SC-N6, from the owner's decisions of 2026-11-23: the case and its opening (§7); registration through the mail's link decided (§10). |
 | 1.11 | 2026-11-23 | Task SC-P7, from the owner's decisions of 2026-11-23: the artifact rises straight up from the case's centre (§7); release candidate 1.0.0-rc.4 (§12). |
 | 1.12 | 2026-11-23 | Task SC-R1: version 1.0.0, merged into master and tagged `v1.0.0` (§12). |
+| 1.13 | 2026-11-24 | Night chain SC-N7, from the owner's decision of 2026-11-24: the whole kit, v0.17.0, before the VPS (§11); the kit's app header with its folded Menu in place of the wrapping one (§7); release candidate 1.1.0-rc.1 (§12). |
+| 1.14 | 2026-11-24 | Night chain SC-N8, from the owner's decisions of 2026-11-24: privacy (§10): accounts stay until deleted, deletion and export, the privacy page, 14 days of server logs. |
+| 1.15 | 2026-11-24 | Night chain SC-N8, from the owner's decisions of 2026-11-24: the current season of a new show (§6) and the way back in focus mode (§7, §10): the kit parts of D62. |
+| 1.16 | 2026-11-24 | Night chain SC-N8, kit v0.19.0 (D65): the website member's step badges are drawn by the kit's header beside the name (§4, §10). |
+| 1.17 | 2026-11-25 | Night chain SC-N11, from the owner's decision of 2026-11-25: on a server the game runs in Docker only (§10, §11). |
+| 1.18 | 2026-11-26 | Night chain SC-N12, from the owner's decision of 2026-11-25/26: the installed game has the kit's admin command for update, rollback and uninstall (§10). |
+| 1.19 | 2026-11-27 | Night chain SC-N14, from the owner's decisions of 2026-11-26 and 2026-11-27: "Admin" in the header for organisers and admins only (§7); the one shared call in website mode, shown only while it is live (§7, §10). |
 
 This document is the single valid concept. Every revision replaces it whole and adds a row above.
 Decisions in it are facts with a date; proposals are marked as proposals until the owner confirms them.
@@ -163,6 +170,8 @@ adopted as the proposal below). Before the show, the table says which artifact m
 | 7… | Relic #n | the current season |
 | no prize | Fallen Leaf | muted, the current season |
 
+The current season of a new show is the date's (meteorological, by the UTC month); in website mode it is the website's season (its public season feed, read server to server), and the date's while the feed has not answered or is stale (decided 2026-11-24, D62).
+
 Artifact names and their order are settings, not code (§9). The halving is the ecosystem's high
 point, so the main prize is the Halving Stone.
 
@@ -176,8 +185,13 @@ Target: a TV-studio feel with small means — SVG, icons, gradients, glow, CSS a
   current or next show on the kit's start card (state, cases, prizes; "Opens in N s" once shows
   have a start time), its registration board below while registration is open, and the sign-in
   where it belongs.
-- **Header on a phone** (decided 2026-11-22): the menu's links wrap to a row of their own;
-  nothing scrolls sideways and nothing is hidden.
+- **Header** (decided 2026-11-24): the kit's app header in the kit's order: in website mode the
+  way back to Seasonal Entertainment, the brand, the pages (Start, Stage, Chronicle, "My matches"
+  once signed in, "Admin" for organisers and admins only (decided 2026-11-26), Privacy), the
+  account chip "name (role)" with "Sign out" (a guest: "Sign in"), and
+  the theme toggle at the far right; in development also "Quick Test" and "Dev sign-in". When the
+  items do not fit one row, as on a phone, the pages and the account fold into one "Menu" button
+  (this replaces the wrapping menu of 2026-11-22).
 - **Focus mode:** during a live show the kit's game bar replaces the app header: "Seasonal
   Cases", the cases left and the prizes left, full screen where offered, and panels for the
   players (the owners), the chat (website mode) and, for the direction holder on a phone, the
@@ -219,7 +233,9 @@ Target: a TV-studio feel with small means — SVG, icons, gradients, glow, CSS a
   stage, result) scale down evenly where there is no room, never up; **floor 14 px** text (decided
   2026-11-21); below the floor a named scroll area takes the rest. Normal pages (lobby, chronicle,
   admin) scroll. On the PC the chat dock sits at the bottom in the kit's sizes; on a phone the
-  kit's chat bar. The call slot is reserved in the kit's sizes and hidden while no call is linked.
+  kit's chat bar. In website mode the call slot, in the kit's sizes, holds the website's one shared
+  call and shows only while it is live (decided 2026-11-27); a result then offers "Back to the
+  call". Standalone frames no call.
 - **Check sizes** (CC, light and dark): PC 1280×720, 1366×768, 1536×768, 1440×900, 1900×860,
   1920×1080; phone 375×667, 360×780, 390×844, 430×932.
 - **Tooltips** on every input and icon button.
@@ -256,23 +272,36 @@ Both are required (ecosystem principle, confirmed for this game 2026-11-21).
 
 - **Embedded** under `https://stentertainment.net/games/cases/`: sign-in only through the website
   (GAME-INTEGRATION §2–§4, AUTH.md), rights per game, website admins are game admins, guests watch,
-  the website's chat embedded (room `cases`), the call slot reserved, the "← Seasonal Entertainment"
+  the website's chat embedded (room `cases`), the shared call's slot (§7), the "← Seasonal Entertainment"
   link top left, deleted accounts shown as "deleted player" plus short id.
 - **Standalone:** own accounts (register, made only once the mail's confirmation link is used,
   decided 2026-11-23; sign in; forgotten password by e-mail), 2FA for admins,
   roles player / organiser / admin, super admin by server command, manual ranks (§4), no website
   link, no chat and no call.
-- **Installer:** one call on a VPS for both modes, asking what it needs; general instructions.
+- **Installer:** one call on a VPS for both modes, asking what it needs; general instructions. It
+  installs and checks the Docker stack (§11); the installed game's command updates it (backing up
+  first), rolls an update back and uninstalls it.
+- **Privacy** (decided 2026-11-24, DECISIONS D61): a standalone account stays until its player
+  deletes it ("Delete my account" in the account area: the password, and a current code with a
+  second factor; the last admin is told to make another admin first). Deletion removes the name,
+  e-mail, password hash, second factor, recovery codes, sessions and waiting mails; every show,
+  chronicle entry, result page and "My matches" row then shows "deleted player", and the sealed
+  distribution and its commitment are unchanged. "Download my data" gives the profile, rank, role
+  and the shows joined with their case and result as JSON, with no secret. In website mode the
+  account belongs to the website, which deletes and exports it; the feed's deletion runs the same
+  erasure here. A privacy page (English, in the header and under the sign-in and registration
+  forms) says what is stored, why, for how long, how to delete and export, and whom to ask
+  (`SC_PRIVACY_CONTACT`). Server logs are kept 14 days; the installer sets it.
 
 **What exists (night chain SC-N2):** website mode under `/games/cases/` with the website's
 sign-in route and its login hop, accounts keyed by (website origin, website user id), a website
 admin as game admin, a host of this game as organiser, everyone else as player, guests who watch
 and cannot register, the account-changes feed (a lock or a rights change ends the game sessions; a
 deletion shows "deleted player" plus the short id), 7-day game sessions, the website's chat
-docked under every screen (room `cases`), the call slot reserved and hidden, and the
+docked under every screen (room `cases`), the call slot hidden while no shared call is live, and the
 "← Seasonal Entertainment" link. The rank in website mode is the number of the member's valid
 Discord steps, at most 5, and the steps' icons are the badges beside the name (§4, decided
-2026-11-22). The role formerly called "moderator" is the **organiser**: they create shows, hold
+2026-11-22), in the header's account chip too, as the kit's header draws them (at most three, decided 2026-11-24). The role formerly called "moderator" is the **organiser**: they create shows, hold
 the direction and hand it to any signed-in organiser or admin.
 
 The **development sign-in** (name, role and rank, no password) stays in local mode with
@@ -286,7 +315,7 @@ server, React 19 + Vite on the client, Vitest, Playwright (Chromium at merge, Fi
 ESLint, Prettier, lefthook. Layers as in Mini Games: `domain` (no I/O, no clock, no randomness except
 injected ports) ← `application` ← `apps/server`; the client renders, the server decides.
 
-- **Kit:** `@seasonal/kit` pinned to the newest tag at bootstrap (v0.4.1 on 2026-11-21): tokens,
+- **Kit:** `@seasonal/kit` pinned to one tag (v0.4.1 at bootstrap on 2026-11-21, v0.22.0 since 2026-11-25): tokens,
   fonts, motion, theme, fit floors, `DockedScreen`, `ChatDock`, `BackLink`, `ThemeToggle`, website
   sign-in helpers, chat embed, call slot. A game switches kit version only on the owner's word.
   Nothing the kit has is rebuilt in the game.
@@ -297,6 +326,9 @@ injected ports) ← `application` ← `apps/server`; the client renders, the ser
   `.local/` folder — enough for seeds, the commitment and the result screen. **Full build:**
   PostgreSQL as in Mini Games.
 - **Realtime:** event-driven over socket.io; no fixed tick.
+- **Operations** (decided 2026-11-25, DECISIONS D76): on a server Docker is the only path, as in
+  the other games: the game's image and PostgreSQL 17 as one compose stack, an encrypted nightly
+  backup, logs kept 14 days. Development runs on the machine itself.
 - **Security from day one:** CodeQL, osv-scanner, gitleaks (CI and pre-commit), Renovate grouped
   without auto-merge, read-only workflow permissions, actions pinned to full SHAs, exact versions,
   lockfile committed, master protected (PR with green required checks, no force-push, no deletion).

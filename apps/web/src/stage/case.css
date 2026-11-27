@@ -21,11 +21,16 @@
   /* The front comes towards the viewer under the tilt and reaches below the scene's box. */
   --below: calc(var(--cw) * 0.09);
   --tilt: -14deg;
-  --tint: var(--season-tint, var(--color-autumn));
-  --cp-body: color-mix(in srgb, var(--color-surface) 88%, var(--tint));
-  --cp-edge: color-mix(in srgb, var(--color-text) 35%, var(--color-surface));
-  --cp-metal: color-mix(in srgb, var(--color-text) 55%, var(--color-surface));
-  --cp-lining: color-mix(in srgb, var(--tint) 20%, #15110d);
+  --tint: var(--season-tint, var(--sk-color-autumn));
+  --cp-body: color-mix(in srgb, var(--sk-color-surface) 88%, var(--tint));
+  --cp-edge: color-mix(in srgb, var(--sk-color-text) 35%, var(--sk-color-surface));
+  --cp-metal: color-mix(in srgb, var(--sk-color-text) 55%, var(--sk-color-surface));
+  /* The art's own tones, named once (arena tokens, not the kit's): the dark of the lining, the
+     light of the name over it, and black for shades. */
+  --cp-dark: #15110d;
+  --cp-light: #fff8ee;
+  --cp-black: #000;
+  --cp-lining: color-mix(in srgb, var(--tint) 20%, var(--cp-dark));
   position: relative;
   display: block;
   flex: none;
@@ -139,8 +144,8 @@
 
 /* Over the dark lining in both themes: the risen artifact's name in light letters. */
 .is-risen .cp-content .artifact-name {
-  color: #fff8ee;
-  text-shadow: 0 1px 4px rgb(0 0 0 / 70%);
+  color: var(--cp-light);
+  text-shadow: 0 1px 4px color-mix(in srgb, var(--cp-black) 70%, transparent);
 }
 
 /* The front: the panel with its trim, the number, the latches. */
@@ -179,7 +184,7 @@
 .cp-number {
   position: relative;
   margin-top: calc(var(--ct) * 0.8);
-  color: var(--color-text);
+  color: var(--sk-color-text);
   font-size: max(var(--sk-floor-display), calc(var(--cw) * 0.22));
   line-height: 1;
 }
@@ -192,7 +197,7 @@
   height: calc(var(--cw) * 0.12);
   border-radius: calc(var(--cw) * 0.015);
   background: var(--cp-metal);
-  box-shadow: inset 0 -2px 0 color-mix(in srgb, #000 25%, transparent);
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--cp-black) 25%, transparent);
   transform-origin: 50% 100%;
 }
 
@@ -233,8 +238,11 @@
 }
 
 .cp-lid-inner {
-  border: calc(var(--cw) * 0.02) solid color-mix(in srgb, var(--tint) 60%, #15110d);
-  background: linear-gradient(var(--cp-lining), color-mix(in srgb, var(--tint) 35%, #15110d));
+  border: calc(var(--cw) * 0.02) solid color-mix(in srgb, var(--tint) 60%, var(--cp-dark));
+  background: linear-gradient(
+    var(--cp-lining),
+    color-mix(in srgb, var(--tint) 35%, var(--cp-dark))
+  );
   transform: rotateX(180deg);
 }
 

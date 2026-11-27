@@ -1,12 +1,13 @@
 # @file   .github/workflows/browsers.yml
-# @brief  The Playwright suite in every browser and size on master, nightly and on demand.
+# @brief  The Playwright journeys in every browser and size, nightly on master and on demand.
 #
-# Responsibility: every push runs the browser tests in Chromium only (./ci.yml, job e2e, once
-#                 the suite exists); Chromium at phone size, Firefox and WebKit at desktop and
-#                 phone sizes run here (e2e/playwright.config.ts), on master, at 02:30 UTC every
-#                 night and when started by hand (CLAUDE.md "Tests and checks"). Until master
-#                 holds e2e/playwright.config.ts the job only says so. A failure is listed in
-#                 docs/BACKLOG.md under the Firefox/WebKit findings; nothing waits for this run.
+# Responsibility: the required CI job runs the browser tests in Chromium only (./ci.yml, job e2e);
+#                 Chromium at phone size, Firefox and WebKit at desktop and phone sizes run here
+#                 (e2e/playwright.config.ts): at 02:30 UTC every night on master, and when started
+#                 by hand on the branch chosen (CLAUDE.md "Tests and checks"). Journey 5 reads its
+#                 mails from Mailpit's API, so the same service as in ./ci.yml runs beside it. A
+#                 failure is listed in docs/BACKLOG.md under the Firefox/WebKit findings; nothing
+#                 waits for this run.
 #                 After seasonal-mini-games .github/workflows/browsers.yml, with its action SHAs.
 # Depends on:     .github/actions/setup, e2e/
 name: Browsers
@@ -26,20 +27,21 @@ concurrency:
 jobs:
   firefox-webkit:
     runs-on: ubuntu-latest
+    # The mails of journey 5, as in ./ci.yml and on the dev machine (ops/compose.dev.yml: SMTP
+    # 1170, API 8570). The same image, pinned by digest.
+    services:
+      mailpit:
+        image: axllent/mailpit:v1.34.0@sha256:23a2ef85bc50853ab3093645d1d64679afd8887e89da5e48a88940c172591a4e
+        ports:
+          - 1170:1025
+          - 8570:8025
     steps:
+      # The ref the run was started for: master by the schedule, the chosen branch by hand.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: master
-      - name: No browser suite on master yet
-        if: hashFiles('e2e/playwright.config.ts') == ''
-        run: echo "::notice::master has no e2e/playwright.config.ts yet; nothing to run."
-      - if: hashFiles('e2e/playwright.config.ts') != ''
-        uses: ./.github/actions/setup
+      - uses: ./.github/actions/setup
       - name: Playwright browsers (Chromium, Firefox, WebKit)
-        if: hashFiles('e2e/playwright.config.ts') != ''
         run: pnpm exec playwright install --with-deps chromium firefox webkit
       - name: Every browser and size
-        if: hashFiles('e2e/playwright.config.ts') != ''
         run: pnpm e2e --project=chromium-mobile --project=firefox --project=firefox-mobile --project=webkit --project=webkit-mobile
       # On a failure: the traces and page snapshots of the failed tests, for a week.
       - if: failure()

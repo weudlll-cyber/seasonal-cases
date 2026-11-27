@@ -3,10 +3,11 @@
  * @brief  The accounts and sessions in PostgreSQL, behind the ports of ../auth.
  *
  * Responsibility: `pgAccounts` and `pgSessions` fill the AccountStore and SessionStore ports with
- *                 the tables of migration 0001; a session row holds the token's sha256, never the
+ *                 the tables of migration 0001 (a website member's steps: 0004); a session row holds the token's sha256, never the
  *                 token. Rows map to the ports' shapes here and nowhere else.
- * Depends on:     ../auth/accounts.js (types), ../auth/sessions.js (types), ./pool.js
+ * Depends on:     @seasonal/kit/server (types), ../auth/accounts.js (types), ../auth/sessions.js (types), ./pool.js
  */
+import type { Step } from '@seasonal/kit/server';
 import type { Account, AccountKind, AccountRole, AccountStore } from '../auth/accounts.js';
 import type { SessionStore } from '../auth/sessions.js';
 import type { DbPool } from './pool.js';
@@ -17,14 +18,14 @@ interface AccountRow {
   name: string;
   role: AccountRole;
   rank: number;
-  badges: string[];
+  steps: Step[];
   website_origin: string | null;
   website_user_id: string | null;
   deleted: boolean;
 }
 
 const ACCOUNT_COLUMNS =
-  'id, kind, name, role, rank, badges, website_origin, website_user_id, deleted';
+  'id, kind, name, role, rank, steps, website_origin, website_user_id, deleted';
 
 const accountOf = (row: AccountRow): Account => ({
   id: row.id,
@@ -32,7 +33,7 @@ const accountOf = (row: AccountRow): Account => ({
   name: row.name,
   role: row.role,
   rank: row.rank,
-  badges: row.badges,
+  steps: row.steps,
   websiteOrigin: row.website_origin,
   websiteUserId: row.website_user_id,
   deleted: row.deleted,
@@ -54,7 +55,7 @@ export function pgAccounts(pool: DbPool): AccountStore {
     async save(a) {
       await pool.query(
         `INSERT INTO accounts (${ACCOUNT_COLUMNS}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-         ON CONFLICT (id) DO UPDATE SET kind = $2, name = $3, role = $4, rank = $5, badges = $6,
+         ON CONFLICT (id) DO UPDATE SET kind = $2, name = $3, role = $4, rank = $5, steps = $6,
            website_origin = $7, website_user_id = $8, deleted = $9`,
         [
           a.id,
@@ -62,7 +63,7 @@ export function pgAccounts(pool: DbPool): AccountStore {
           a.name,
           a.role,
           a.rank,
-          JSON.stringify(a.badges),
+          JSON.stringify(a.steps),
           a.websiteOrigin,
           a.websiteUserId,
           a.deleted,

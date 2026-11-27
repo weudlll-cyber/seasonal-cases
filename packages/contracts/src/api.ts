@@ -7,7 +7,7 @@
  */
 import { z } from 'zod';
 
-import { BadgeSchema, RankSchema, RoleSchema, ShowStateSchema } from './show.js';
+import { RankSchema, RoleSchema, ShowStateSchema, StepSchema } from './show.js';
 
 export const NAME_MAX = 32;
 export const LABEL_MAX = 60;
@@ -25,7 +25,8 @@ export const MeSchema = z.object({
   name: z.string(),
   role: RoleSchema,
   rank: RankSchema,
-  badges: z.array(BadgeSchema),
+  // A website member's steps for the header's chip; absent for a standalone account (D65).
+  steps: z.array(StepSchema).optional(),
 });
 export type Me = z.infer<typeof MeSchema>;
 
@@ -57,5 +58,5 @@ export const ClaimRequestSchema = z.object({ caseNumber: z.number().int().min(1)
 export type ClaimRequest = z.infer<typeof ClaimRequestSchema>;
 
 // Every refusal answers with one sentence the client can show.
-export const ApiErrorSchema = z.object({ error: z.string() });
-export type ApiError = z.infer<typeof ApiErrorSchema>;
+export const ApiRefusalSchema = z.object({ error: z.string() });
+export type ApiRefusal = z.infer<typeof ApiRefusalSchema>;

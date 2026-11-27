@@ -4,16 +4,15 @@
  *         chronicle.
  *
  * Responsibility: normal pages that scroll (CONCEPT §7). The start page holds the logo, the
- *                 kit's start card (`@seasonal/kit/frames.css`) and the board; the card's
- *                 "Opens in N s" is hidden while shows have no start time. Colours only from the
- *                 kit's tokens.
+ *                 kit's start card (`@seasonal/kit/frames.css`) and the board. Colours only from
+ *                 the kit's tokens.
  * Depends on:     @seasonal/kit/tokens.css, @seasonal/kit/frames.css, ../shell/shell.css
  */
 
 .start-brand {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
 }
 
 .start-brand h1 {
@@ -23,6 +22,12 @@
 .start-logo {
   width: 64px;
   height: auto;
+}
+
+/* The card keeps its content's height: the page scrolls (CONCEPT §7), so a long board or lobby
+   below it never squeezes the card until it cuts its own icon and facts. */
+.start-page > .sk-start-card {
+  flex-shrink: 0;
 }
 
 .start-page .sk-start-icon img {
@@ -37,23 +42,26 @@
   display: none;
 }
 
-/* No show has a start time yet, so the card's countdown would always say 0. */
-.start-page .sk-start-count {
-  display: none;
-}
-
 .start-badge {
   padding: 2px 12px;
-  border-radius: var(--radius-pill);
-  background: var(--color-solid);
-  color: var(--color-on-solid);
+  border-radius: var(--sk-radius-pill);
+  background: var(--sk-color-solid);
+  color: var(--sk-color-on-solid);
   font-size: max(var(--sk-floor-text), 14px);
 }
 
 .start-links {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
   margin: 0;
+}
+
+/* The links on the start card and in the show lists take their 44 px targets' room: reaching past
+   their words (../shell/shell.css `.tap`), a target lay over the heading or the line above. */
+.start-links .tap,
+.lobby-list .tap,
+.match-list .tap {
+  margin-block: 0;
 }
 
 .sign-in,
@@ -61,7 +69,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
 }
 
 .sign-in h2 {
@@ -79,28 +87,28 @@
 .admin-labels {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   margin: 0;
-  padding: var(--space-1);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  padding: var(--sk-space-1);
+  border: 1px solid var(--sk-color-border);
+  border-radius: var(--sk-radius);
 }
 
 .admin-buttons {
   display: flex;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
 }
 
 .admin-error {
   margin: 0;
-  color: var(--color-danger);
-  font-weight: var(--font-weight-strong);
+  color: var(--sk-color-danger);
+  font-weight: var(--sk-font-weight-strong);
 }
 
 .admin-shows {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -113,7 +121,7 @@
 }
 
 .admin-show-id {
-  font-weight: var(--font-weight-strong);
+  font-weight: var(--sk-font-weight-strong);
 }
 
 .admin-steps {
@@ -141,11 +149,12 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
 }
 
 .account-entry label {
-  flex: 1 1 14rem;
+  /* 14rem at most, and never wider than the form: a phone at its largest text is 360 px or less. */
+  flex: 1 1 min(14rem, 100%);
 }
 
 .account-entry [role='status'],
@@ -154,30 +163,13 @@
   margin: 0;
 }
 
-.account-switch {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin: 0;
-}
-
-.link-button {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--color-accent);
-  font: inherit;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 /* The lobby, "My matches" and the admin's accounts: one line per entry, wrapping on a phone. */
 .lobby-list,
 .match-list,
 .admin-accounts {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -189,9 +181,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1) var(--space-2);
-  padding-bottom: var(--space-1);
-  border-bottom: 1px solid var(--color-border);
+  gap: var(--sk-space-1) var(--sk-space-2);
+  padding-bottom: var(--sk-space-1);
+  border-bottom: 1px solid var(--sk-color-border);
 }
 
 /* Two-factor setup (../account/TwoFactorSetup.tsx): the key and the codes in a fixed font. */
@@ -199,7 +191,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
 }
 
 .two-factor form p {
@@ -217,7 +209,7 @@
 .recovery-codes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   padding: 0;
   list-style: none;
 }
@@ -226,7 +218,7 @@
 .chronicle {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
 }
 
 .chronicle-entry h2 {
@@ -236,7 +228,7 @@
 .chronicle-winners {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   padding: 0;
   list-style: none;
 }
@@ -245,12 +237,12 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1) var(--space-2);
+  gap: var(--sk-space-1) var(--sk-space-2);
 }
 
 .chronicle-proof {
   margin: 0;
-  color: var(--color-text-muted);
+  color: var(--sk-color-text-muted);
 }
 
 /* The settings (./SettingsAdmin.tsx): each value with its description and warning under it, at
@@ -258,7 +250,7 @@
 .settings-admin {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--sk-space-2);
 }
 
 .setting {
@@ -269,17 +261,29 @@
 
 .setting small {
   font-size: max(var(--sk-floor-text), 14px);
-  color: var(--color-text-muted);
+  color: var(--sk-color-text-muted);
 }
 
 .setting .setting-warning {
-  color: var(--color-danger);
+  color: var(--sk-color-danger);
+}
+
+.setting,
+.setting-artifact {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .setting-artifact {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
+}
+
+/* The name and the season share a row where there is room and take a row each where not, at the
+   largest text size too (D60). */
+.setting-artifact label {
+  flex: 1 1 10rem;
 }
 
 .setting label {
@@ -291,5 +295,7 @@
 label.setting-check {
   flex-direction: row;
   align-items: center;
-  gap: var(--space-1);
+  /* The label is the checkbox's target. */
+  min-height: var(--sk-hit-target);
+  gap: var(--sk-space-1);
 }

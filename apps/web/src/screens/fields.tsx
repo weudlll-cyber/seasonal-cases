@@ -36,6 +36,7 @@ export function TextField({
     <label>
       {label}
       <input
+        className="sk-input"
         type={type}
         autoComplete={autoComplete}
         value={value}
@@ -63,6 +64,7 @@ export function NumberField({
     <label>
       {label}
       <input
+        className="sk-input"
         type="number"
         min={min}
         max={max}
@@ -87,6 +89,7 @@ export function ChoiceField<T extends string | number>({
     <label>
       {label}
       <select
+        className="sk-select"
         value={value}
         title={tip}
         onChange={(e) => {

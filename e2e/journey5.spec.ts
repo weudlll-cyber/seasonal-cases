@@ -11,6 +11,8 @@
  */
 import { expect, test, type APIRequestContext } from '@playwright/test';
 
+import { openMenu } from './helpers.js';
+
 const MAILPIT = 'http://127.0.0.1:8570/api/v1';
 
 interface Summary {
@@ -62,7 +64,7 @@ test('journey 5: register, forget the password, reset it by mail, sign in again'
   await register.getByRole('button', { name: 'Create account' }).click();
   // The same answer for every e-mail, nobody signed in (D36); no account before the link (D42).
   await expect(register.getByRole('status')).toContainText('A mail to this address');
-  await expect(page.locator('.shell-me')).toHaveCount(0);
+  await expect(page.getByTestId('signed-in-as')).toHaveCount(0);
   await page
     .getByRole('region', { name: 'Create an account' })
     .getByRole('button', { name: 'Sign in' })
@@ -74,7 +76,7 @@ test('journey 5: register, forget the password, reset it by mail, sign in again'
   await expect(early.getByRole('alert')).toHaveText('Wrong name, e-mail or password.');
 
   const ready = await mailTo(request, email, 'Confirm your Seasonal Cases account');
-  const confirmLink = /http\S+\/confirm\?token=[\w-]+/.exec(ready.text)?.[0] ?? '';
+  const confirmLink = /http\S+\/confirm#token=[\w-]+/.exec(ready.text)?.[0] ?? '';
   expect(confirmLink).not.toBe('');
   await page.goto(confirmLink);
   await page
@@ -87,7 +89,8 @@ test('journey 5: register, forget the password, reset it by mail, sign in again'
   await first.getByLabel('Name or e-mail').fill(name);
   await first.getByLabel('Password').fill('the first long password');
   await first.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.locator('.shell-me')).toContainText(name);
+  await expect(page.getByTestId('signed-in-as')).toContainText(name);
+  await openMenu(page);
   await page.getByRole('button', { name: 'Sign out' }).click();
 
   await page
@@ -100,7 +103,7 @@ test('journey 5: register, forget the password, reset it by mail, sign in again'
   await expect(forgot.getByRole('status')).toContainText('a link is on its way');
 
   const mail = await mailTo(request, email, 'Your Seasonal Cases password');
-  const link = /http\S+\/reset\?token=[\w-]+/.exec(mail.text)?.[0] ?? '';
+  const link = /http\S+\/reset#token=[\w-]+/.exec(mail.text)?.[0] ?? '';
   expect(link).not.toBe('');
   await page.goto(link);
   const reset = page.getByRole('form', { name: 'Choose a new password' });
@@ -116,8 +119,9 @@ test('journey 5: register, forget the password, reset it by mail, sign in again'
   await expect(signIn.getByRole('alert')).toHaveText('Wrong name, e-mail or password.');
   await signIn.getByLabel('Password').fill('the second long password');
   await signIn.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.locator('.shell-me')).toContainText(name);
+  await expect(page.getByTestId('signed-in-as')).toContainText(name);
 
+  await openMenu(page);
   await page.getByRole('link', { name: 'My matches' }).click();
   await expect(page.getByRole('region', { name: 'My matches' })).toContainText(
     'You have not picked a case yet.',

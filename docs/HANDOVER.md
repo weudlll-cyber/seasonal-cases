@@ -6,11 +6,39 @@ The state of Seasonal Cases for a new planning chat. Updated at the end of every
 
 A moderated community live show for the Seasonal Entertainment community: players claim numbered
 cases, the server seals an artifact into each case with a public commitment, and a moderator opens
-the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 governs it; the decisions are in
+the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest version) governs it; the decisions are in
 [DECISIONS.md](DECISIONS.md).
 
 ## Where things stand
 
+- **Now (2026-11-27, night chain SC-N16):** `1.1.0-rc.8` on `kit/v0.17-adoption` (draft PR #5),
+  not merged, not tagged: the owner looks at it first. The kit is at v0.40.0 (D94) with its
+  rules about where a check may look and write; the development database was emptied (D95).
+  What to open, normal and website mode, is in
+  [NIGHT-2026-11-27-kit-0.40.md](NIGHT-2026-11-27-kit-0.40.md).
+- **Night chain SC-N15 (2026-11-27):** `1.1.0-rc.7`, kit v0.39.1 (D93)
+  ([NIGHT-2026-11-27-kit-0.39.md](NIGHT-2026-11-27-kit-0.39.md)).
+- **Night chain SC-N14 (2026-11-27):** `1.1.0-rc.6`, kit v0.38.0 (D89): "Admin" in
+  the header for organisers and admins only (D90), the shared call in website mode (D91), the
+  way to the server behind Bingo Royale (D92)
+  ([NIGHT-2026-11-27-kit-0.38.md](NIGHT-2026-11-27-kit-0.38.md)).
+- **Night chain SC-N13 (2026-11-26):** `1.1.0-rc.5`, kit v0.34.0 (D86–D88): the
+  sign-in brake holds guesses sent at once, the kit's buttons, panels, fields and header looks,
+  the keys in `prod.keys` which a backup carries
+  ([NIGHT-2026-11-26-kit-0.34.md](NIGHT-2026-11-26-kit-0.34.md)).
+- **Night chain SC-N12 (2026-11-26):** `1.1.0-rc.4`, kit v0.32.0 with every part it
+  offers the game, the load check apart (D79–D85): step badges and API client; guarded feed
+  fetch, https headers and two database roles; `ops/install.sh` and the installed command
+  `scases` (the kit's admin command), operator address, host baseline, container hardening, one
+  [operator guide](operator-guide.md); the kit's guards, sweep and website stand-in. Rehearsed on
+  the owner's PC with a copy of the development data; the list for a real server is in
+  [NIGHT-2026-11-26-kit-0.32.md](NIGHT-2026-11-26-kit-0.32.md).
+- **Night chain SC-N11 (2026-11-25):** on a server Cases runs in Docker only (D76–D78),
+  `1.1.0-rc.3`.
+- **Night chain SC-N10 (2026-11-25):** `1.1.0-rc.2` on `kit/v0.17-adoption` (draft PR #5),
+  kit v0.22.0 with its backup and server parts; not merged: the owner looks at it first. Open: the
+  kit's finding BACKLOG 70. Needs the owner's hand: the age key on the VPS, the GitHub settings
+  (59). Word: the privacy contact text.
 - **Phase:** version 1.0.0 on `master`, tag `v1.0.0` (task SC-R1, 2026-11-23): P0 to P3
   built, P4 (installer, security reviews) built; the first show on a server is next. The work
   branch `proto/cases-v1` is merged and deleted; the chains below ran on it.
@@ -68,7 +96,7 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   Piece 2: `pnpm build` and `pnpm start` (one process, the built client, health and ready,
   JSON logs, graceful stop), every variable in [CONFIG.md](CONFIG.md).
   Piece 3: the member summary for the website's profile (`/api/website/member-summary`).
-  Piece 4: the installer, `sudo ./deploy/install.sh` ([INSTALL.md](INSTALL.md)), both modes,
+  Piece 4: the installer, `sudo ./deploy/install.sh` ([INSTALL.md](operator-guide.md)), both modes,
   `--update` and `--check`, tested by `deploy/test/installer.test.sh` and shellcheck in CI.
   Piece 5: sound, synthesised (Web Audio), off until a viewer turns it on in the game bar.
   Piece 6: Firefox passes the journeys; WebKit's findings are in BACKLOG 12 (not fixed: budget
@@ -117,22 +145,43 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   (`auth/failureBrake.ts`); a visually hidden polite live region says the opened artifact at the
   Open step; the inner row at 1280 × 720 stays as it is. Version `1.0.0-rc.4`.
 
+- **Night chain SC-N7 (done, 2026-11-24):** branch `kit/v0.17-adoption`, draft PR, version
+  `1.1.0-rc.1`, nothing merged or tagged. Piece 1 done: kit v0.17.0 with the migrations of
+  0.12.0–0.17.0 (D56, D57), no stand-in left in `packages/ui`. Piece 2 done: the kit's
+  `AppHeader` with its folded Menu (D58). Piece 3 done: the game read against the handbook,
+  the replacements that keep the look (season colours as the kit's tokens, `sk-visually-hidden`,
+  arena tones as own tokens) and the rest listed (BACKLOG 58–65). Piece 4 done: the draft PR's
+  four required checks green, a whole show played, the pictures in `.local/screens/sc-n7/`.
+  Night chain SC-N8 (running): the phone bar and the largest text are fixed and asserted in the
+  screens run (D60, BACKLOG 65, 66 closed). Privacy is built (D61, BACKLOG 58 closed): `/account`
+  (download and delete), `/privacy`, the erasure (tombstone, event log redacted, shows folded
+  again), `SC_PRIVACY_CONTACT`, 14 days of logs from the installer. The four kit parts are built (D62, BACKLOG 60 closed): the back link in focus mode,
+  the website's season feed, `afterFonts`, `withoutChat`. The production bundle holds no development tool and the mail
+  tokens travel after `#` (D63, BACKLOG 61, 62 closed; `pnpm bundle:check`). The accessibility check (axe, D66, BACKLOG 71) runs in the e2e job;
+  one finding of the kit's `DockedScreen` waits for the kit (BACKLOG 70). State per piece in
+  [NIGHT-RUN.md](NIGHT-RUN.md).
+
 - **Task SC-R1 (2026-11-23):** the brake per account and address (D55: 20 failures brake one
   account at one address, 100 the account everywhere, 20 an address); version `1.0.0`; master's
   "Working cheaply" (D54) brought in; `proto/cases-v1` merged into master and tagged `v1.0.0`
   ([TAGS.md](TAGS.md)); the branches deleted.
 
-- **Kit:** `kit: pinned v0.11.1, newest v0.11.1, current` (`pnpm kit:check`, 2026-11-23, SC-N6
-  piece 1). v0.11.1 widens the kit's peer ranges and changes its own Renovate rules; nothing in
-  Cases changed with it. The pin moves only on the owner's word.
-- **Morning sheet of the chain:** [NIGHT-RUN.md](NIGHT-RUN.md). It has the final report, the
-  play-through steps, every choice made without the owner, and the pictures seen and left.
-  ||||||| 2bf720c
-- **Phase:** P0 bootstrap done on `master` (night chain SC-N1, piece 1); P1 prototype in progress
-  on `proto/cases-v1`.
-- **Repository:** `weudlll-cyber/seasonal-cases` (public). Standards, skeleton, CI (verify,
-  security, docs; CodeQL; nightly browsers), kit `v0.5.0` pinned (DECISIONS D15).
-- **Morning sheet of the running chain:** [NIGHT-RUN.md](NIGHT-RUN.md).
+- **The kit's server parts (D69, D70):** CSRF check, security headers, session cookie, guarded
+  fetch and the health routes `/healthz`, `/readyz` are the kit's.
+- **Backups (D68, BACKLOG 72):** the kit's, set up by the installer with the owner's age public key
+  ([operator-guide.md](operator-guide.md), section 5, with the drills). **Needs the owner's
+  hand on the VPS:** make the key on the own computer, give the installer the public key, pull the
+  first backup and drill it.
+- **Kit:** `kit: pinned v0.40.0, newest v0.40.0, current` (`pnpm kit:check`,
+  2026-11-27, end of night chain SC-N16; master pins v0.11.1 until the merge). The pin moves only
+  on the owner's word.
+- **Morning sheets:** the newest chain's is
+  [NIGHT-2026-11-27-kit-0.40.md](NIGHT-2026-11-27-kit-0.40.md), the ones before it
+  [NIGHT-2026-11-27-kit-0.39.md](NIGHT-2026-11-27-kit-0.39.md),
+  [NIGHT-2026-11-27-kit-0.38.md](NIGHT-2026-11-27-kit-0.38.md),
+  [NIGHT-2026-11-26-kit-0.34.md](NIGHT-2026-11-26-kit-0.34.md) and
+  [NIGHT-2026-11-26-kit-0.32.md](NIGHT-2026-11-26-kit-0.32.md); earlier chains are in
+  [NIGHT-RUN.md](NIGHT-RUN.md).
 
 ## What runs
 
@@ -140,11 +189,16 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) v1.6 govern
   `pnpm test:coverage`. `pnpm kit:check` alone prints the pinned kit tag against the newest; CI's
   `verify` job writes it to the job summary and warns when behind, never failing (D41); Renovate
   has a rule for the kit's tags once the app is enabled.
+- On a server: the compose stack (`ops/compose.yml`: the game, its one-shot migration and
+  PostgreSQL), installed and checked by `ops/install.sh`; the installed command `scases`
+  updates, rolls back, backs up, restores and uninstalls. CI job `deploy` tests both, job
+  `image` the image.
 - `pnpm dev`: server 127.0.0.1:3970, client 0.0.0.0:5470 (http://localhost:5470; the phone at
-  http://192.168.0.66:5470 on the home Wi-Fi). Left running hidden for the owner at the end of
-  SC-R1 (1.0.0, on master), on PostgreSQL; the development database holds three accounts the chains did not make
-  ("Plan-Claude", "Walter", "walter"), left as they are; the play-through steps are in
-  [NIGHT-RUN.md](NIGHT-RUN.md) "Final report" (Quick Test seed `sc-n1-01`).
+  http://192.168.0.66:5470 on the home Wi-Fi), on PostgreSQL. No test, sweep or measurement
+  writes its database (K125); it was emptied on 2026-11-27 (D95) and then given one ended show.
+  Quick Test seed `sc-n1-01`. What is left running after the newest chain is in its sheet.
+- The local website-mode preview (`sk-preview`, README) runs the game in website mode on a
+  database of its own.
 - The development services: `docker compose --env-file ops/compose.dev.env -f
 ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   http://localhost:8570); they restart by themselves. `pnpm dev:reset-db` empties the database.
@@ -152,16 +206,16 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   their events on start. Without `DATABASE_URL` the server uses `.local/data/*.jsonl` and memory.
 - `pnpm e2e --project=chromium`: the journeys on their own stack (3980/5480; 3990/5485 for
   website mode), without a database.
-- `pnpm e2e --project=screens`: ten screens and the phone's direction panel at 1536 × 768,
-  1280 × 720 and 390 × 844, light and dark, into `.local/screens/proto-v5/` (with the
-  registration's pending page).
+- `pnpm e2e --project=screens`: every screen at CONCEPT §7's sizes in both themes into
+  `.local/screens/sc-n16/`, and each walked by the kit's `sweep` (about half an hour); the
+  website-mode header's run beside it.
 - `pnpm e2e --project=<p>` for `chromium-mobile`, `firefox`, `firefox-mobile`, `webkit` and
   `webkit-mobile`: the journeys in every browser and size (nightly on master); all 36 passed on
   2026-11-23, one project per run.
 - The store tests need PostgreSQL: the development database, or `SC_TEST_DATABASE_URL` (CI).
 - Journey 5 needs Mailpit (the development services above; a service in CI).
 - `pnpm dev:sc admin promote <name>` makes a standalone account an admin on the dev database
-  (`pnpm sc …` on a real server, with `DATABASE_URL` and `SC_DATA_KEY` in its shell); that admin
+  (`sudo scases admin …` on a server); that admin
   sets up two-factor sign-in in the admin area before the accounts and settings open.
 - Journey 6 signs in as its browser project's seeded admin (`e2e/rootAdmin.ts`), so it runs
   once per project and e2e server start.
@@ -176,9 +230,8 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
 
 ## Needs the owner's word
 
-- The merge of `proto/cases-v1` and the tag `v1.0.0` ([RELEASING.md](RELEASING.md)).
-- The second security review's remaining question: the feed behind the site's Caddy (BACKLOG
-  35). Decided 2026-11-22 and built: the limits, no bots in real shows, the asked trusted range
+- The merge of `kit/v0.17-adoption` (PR #5) and its tag ([RELEASING.md](RELEASING.md)).
+- Decided 2026-11-22 and built: the limits, no bots in real shows, the asked trusted range
   (D34, D37), the ceremony and the motion as built (D30, D32), the website-mode rank (D31).
 
 - Whether the show is fun (the P1 gate), after playing it.
@@ -211,17 +264,16 @@ ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   - The lock-out question of D51 is closed by D55: 20 failures brake an account at one address
     only; 100 brake it everywhere; an address is braked from 20 across all accounts.
 
-- **Where this repository departs from the kit's HANDBOOK (v0.11.0)**, read once on
-  2026-11-23; nothing changed for them:
-  - the header is the game's own `ShellBar`, not the kit's `AppHeader` (and no `DevSignIn`):
-    the kit's header folds into a Menu, this one wraps on a phone (D29);
+- **Where this repository departs from the kit's HANDBOOK (v0.17.0)**, read against the game on
+  2026-11-24 (night chain SC-N7, piece 3; the open items are BACKLOG 59 and 64):
   - coverage thresholds are the domain's 90 % lines / 85 % branches and the application's
     80 / 75 (CLAUDE.md "game logic 85 % branches"), not 95 % of lines, branches and functions
-    everywhere;
-  - the season of a show comes from its date (UTC month, `packages/application/src/season.ts`),
-    not from the website's season feed (`seasonFeedReader`);
-  - the morning sheet is one file, `docs/NIGHT-RUN.md`, with a section per chain, not
-    `docs/NIGHT-<date>.md`;
+    everywhere (decided 2026-11-24, D64: no coverage target, tests where they guard something
+    real; BACKLOG 63, closed);
+  - the repository's GitHub settings differ from the handbook's list (59);
+  - the steps "before production" are not all done (64); `.gitleaksignore` is not added;
+  - the earlier chains' morning sheets are one file, `docs/NIGHT-RUN.md` (since SC-N12 a file
+    per chain);
   - some browser tests wait on the clock (`waitForTimeout` in journey 1 for the case's
     travel), where the handbook passes time in;
   - the handbook asks that each rule's test be run once without the change; the chains did

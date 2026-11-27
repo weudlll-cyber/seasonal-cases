@@ -9,7 +9,7 @@
  *                 dock's height free (DECISIONS D7); the cases sit in a named scroll area.
  * Depends on:     react, @seasonal/kit/react, @sc/contracts (types), @sc/ui, ./ArtifactTable.js
  */
-import { useDockReserve, useFitScale } from '@seasonal/kit/react';
+import { StepBadges, useDockReserve, useFitScale } from '@seasonal/kit/react';
 import {
   ownerText,
   type BoardCase,
@@ -20,7 +20,6 @@ import {
 import { formatTime } from '@sc/ui';
 import type { CSSProperties } from 'react';
 
-import { Badges } from '../stage/Badges.js';
 import { ArtifactTable } from './ArtifactTable.js';
 
 const HINTS: Record<Standing, string> = {
@@ -60,8 +59,9 @@ function Claimants({ entry, closed }: { entry: BoardCase; closed: boolean }) {
   return (
     <>
       <span className="board-holder" title={`Picked ${formatTime(entry.holder.at)}`}>
-        <Badges badges={entry.holder.badges} />
-        {entry.holder.name} <span className="board-rank">rank {entry.holder.rank}</span>
+        {entry.holder.name}
+        <StepBadges steps={entry.holder.steps} />{' '}
+        <span className="board-rank">rank {entry.holder.rank}</span>
       </span>
       {entry.others.length > 0 && (
         <span className="board-others">
@@ -125,7 +125,7 @@ function owners(show: PublicShowView): BoardCase[] {
         : {
             playerId: c.ownerId,
             name: c.ownerName,
-            badges: c.ownerBadges,
+            steps: c.ownerSteps,
             rank: c.ownerRank ?? 0,
             at: show.createdAt,
           },
@@ -135,7 +135,9 @@ function owners(show: PublicShowView): BoardCase[] {
 
 export function RegistrationBoard({ show, personal, onClaim, error }: BoardProps) {
   const reserve = useDockReserve();
-  const fitRef = useFitScale<HTMLElement>('cases', `${show.id}:${String(show.caseCount)}`, true);
+  const fitRef = useFitScale<HTMLElement>('cases', `${show.id}:${String(show.caseCount)}`, true, {
+    afterFonts: true,
+  });
   const standings = new Map(personal?.standings.map((s) => [s.number, s.standing]) ?? []);
   const entries = show.board ?? owners(show);
   const style = { '--dock-reserve': `${String(reserve)}px` } as CSSProperties;

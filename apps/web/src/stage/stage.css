@@ -15,27 +15,32 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--sk-space-1);
   height: calc(100dvh - var(--shell-height) - var(--dock-reserve, 0px));
-  padding: var(--space-1) var(--gutter);
+  padding: var(--sk-space-1) var(--sk-gutter);
   overflow: hidden;
 }
 
 /* The show's season tints the studio's floor glow (SC-N2 piece 8); autumn without a season. */
 .stage-screen {
-  --season-tint: var(--color-autumn);
+  --season-tint: var(--sk-color-autumn);
+  /* The studio's own tones (arena tokens, the kit has none): night over the stage, a warm dusk
+     that multiplies on cream, and the spotlight's cream. */
+  --stage-night: rgb(5 8 30);
+  --stage-dusk: rgb(92 58 24);
+  --stage-spot: rgb(255 248 220);
 }
 
 .stage-screen[data-season='winter'] {
-  --season-tint: var(--color-winter);
+  --season-tint: var(--sk-color-winter);
 }
 
 .stage-screen[data-season='spring'] {
-  --season-tint: var(--color-spring);
+  --season-tint: var(--sk-color-spring);
 }
 
 .stage-screen[data-season='summer'] {
-  --season-tint: var(--color-summer);
+  --season-tint: var(--sk-color-summer);
 }
 
 /* The studio: a card over the page's season glows, never flat black or white (CONCEPT §7). */
@@ -43,16 +48,25 @@
   position: relative;
   flex: 1;
   min-height: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
+  border: 1px solid var(--sk-color-border);
+  border-radius: var(--sk-radius-card);
   background:
     radial-gradient(
       ellipse at 50% 105%,
       color-mix(in srgb, var(--season-tint) 30%, transparent),
       transparent 55%
     ),
-    radial-gradient(ellipse at 10% 0%, rgb(4 170 247 / 16%), transparent 45%),
-    radial-gradient(ellipse at 90% 0%, rgb(224 110 34 / 14%), transparent 45%), var(--color-card);
+    radial-gradient(
+      ellipse at 10% 0%,
+      color-mix(in srgb, var(--sk-color-winter) 16%, transparent),
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse at 90% 0%,
+      color-mix(in srgb, var(--sk-color-summer) 14%, transparent),
+      transparent 45%
+    ),
+    var(--sk-color-card);
   overflow: hidden;
 }
 
@@ -62,18 +76,18 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: rgb(5 8 30 / 0%);
+  background: transparent;
   pointer-events: none;
-  transition: background var(--duration-slow) var(--ease-out);
+  transition: background var(--sk-duration-slow) var(--sk-ease-out);
 }
 
 .stage-screen[data-dimmed='true'] .stage::after {
-  background: rgb(5 8 30 / 38%);
+  background: color-mix(in srgb, var(--stage-night) 38%, transparent);
 }
 
 /* On cream a dark overlay only greys; a warm multiply darkens it like a studio (piece 8). */
 :root:not([data-theme='dark']) .stage-screen[data-dimmed='true'] .stage::after {
-  background: rgb(92 58 24 / 42%);
+  background: color-mix(in srgb, var(--stage-dusk) 42%, transparent);
   mix-blend-mode: multiply;
 }
 
@@ -85,22 +99,25 @@
   position: absolute;
   inset: 0 20%;
   z-index: 2;
-  background: linear-gradient(rgb(255 248 220 / 42%), rgb(255 248 220 / 4%) 85%);
+  background: linear-gradient(
+    color-mix(in srgb, var(--stage-spot) 42%, transparent),
+    color-mix(in srgb, var(--stage-spot) 4%, transparent) 85%
+  );
   clip-path: polygon(44% 0, 56% 0, 86% 100%, 14% 100%);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   will-change: opacity;
   transition:
-    opacity var(--duration-slow) var(--ease-out),
-    visibility 0s linear var(--duration-slow);
+    opacity var(--sk-duration-slow) var(--sk-ease-out),
+    visibility 0s linear var(--sk-duration-slow);
 }
 
 .stage-screen[data-dimmed='true'] .spotlight {
   opacity: 1;
   visibility: visible;
   transition:
-    opacity var(--duration-slow) var(--ease-out),
+    opacity var(--sk-duration-slow) var(--sk-ease-out),
     visibility 0s;
 }
 
@@ -122,7 +139,7 @@
 
 /* One case on the half circle; --x, --y from src/stage/arc.ts, --token from the count. */
 .case-token {
-  --glow: var(--color-winter);
+  --glow: var(--sk-color-winter);
   position: absolute;
   left: var(--x);
   top: var(--y);
@@ -130,18 +147,18 @@
   width: max(62px, calc(var(--fit, 1) * var(--token, 80px)));
   translate: -50% -50%;
   transition:
-    opacity var(--duration-base) var(--ease-out),
-    filter var(--duration-base) var(--ease-out);
+    opacity var(--sk-duration-base) var(--sk-ease-out),
+    filter var(--sk-duration-base) var(--sk-ease-out);
 }
 
 .case-token:nth-child(4n + 2) {
-  --glow: var(--color-spring);
+  --glow: var(--sk-color-spring);
 }
 .case-token:nth-child(4n + 3) {
-  --glow: var(--color-summer);
+  --glow: var(--sk-color-summer);
 }
 .case-token:nth-child(4n + 4) {
-  --glow: var(--color-autumn);
+  --glow: var(--sk-color-autumn);
 }
 
 .case-body {
@@ -153,9 +170,9 @@
   min-height: var(--sk-floor-target);
   padding: 2px 4px;
   border: 0;
-  border-radius: var(--radius);
+  border-radius: var(--sk-radius);
   background: none;
-  color: var(--color-text);
+  color: var(--sk-color-text);
   font: inherit;
 }
 
@@ -165,16 +182,21 @@ button.case-body {
 
 button.case-body:hover,
 button.case-body:focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 3px solid var(--sk-color-accent);
   outline-offset: 2px;
 }
 
 .case-owner {
-  max-width: 100%;
-  overflow: hidden;
+  /* Wider than a small case where that is needed, so "Unclaimed" stays whole at the 14 px floor
+     (88 px, as the phone's columns). */
+  width: max-content;
+  max-width: max(100%, 5.5rem);
   font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* A long owner's name wraps to a second line; it is never cut with an ellipsis (D60). */
+  overflow-wrap: anywhere;
+  text-align: center;
+  /* Three step icons stay inside the narrowest case. */
+  --sk-step-icon: 1rem;
 }
 
 /* The case's picture (./case.css) fills the token; its glow is the token's season colour. The
@@ -195,17 +217,6 @@ button.case-body:focus-visible {
 /* An opened case: the lid stands open, the artifact's gem sits inside. */
 .case-token .cp-content .artifact {
   font-size: max(var(--sk-floor-text), calc(var(--fit, 1) * 15px));
-}
-
-/* An opened case shows its artifact's gem; the name is the gem's tooltip and stays readable to
-   screen readers, so the small case never overflows. */
-.case-token .artifact-name {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 }
 
 /* The rest dims while a case is at the front. The case at the front (or on its way back) is

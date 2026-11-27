@@ -1,0 +1,128 @@
+# @file   ops/compose.yml
+# @brief  The production stack on one server: the game and PostgreSQL 17 (DECISIONS D76; after
+#         seasonal-mini-games ops/compose.yml).
+#
+# Responsibility: the game's image (built on the server from a git ref, ops/install.sh) runs as
+#                 uid 10001 on a read-only root filesystem with /tmp in memory and no capability,
+#                 published on 127.0.0.1 only (SC_HOST_PORT), for the server's own proxy; it keeps
+#                 nothing on disk. PostgreSQL sits on an internal network without a published port,
+#                 its data in the named volume `pgdata`. The game's network has a fixed subnet
+#                 (SC_EDGE_SUBNET), so the address the published port's connections come from is
+#                 known and can be trusted to name the visitor. Both restart unless stopped and
+#                 both say whether they are healthy (the game through the image's check of
+#                 /readyz). Before the game, `migrate` runs once from the same image as the
+#                 database's owner role and grants the app role the game connects as (kit K90,
+#                 DECISIONS D82); the roles and their passwords are set up by the installer, and
+#                 the game's container is given neither the owner's nor the superuser's password.
+#                 Website installs add ops/compose.website.yml; the installer adds
+#                 ops/compose.journal.yml, which keeps the logs 14 days. CPU and memory are capped.
+#                 Development uses ops/compose.dev.yml, never this file.
+# Depends on:     /etc/seasonal-cases/prod.env and prod.keys (written by ops/install.sh;
+#                 ops/cases.env.example)
+#
+# Run:  sudo scases start (installed); by hand: docker compose -p seasonal-cases
+#       --env-file <settings> -f ops/compose.yml up -d
+
+services:
+  app:
+    image: ${SC_IMAGE:?set SC_IMAGE in the env file}
+    env_file:
+      - ${SC_ENV_FILE:?set SC_ENV_FILE in the env file}
+      - ${SC_KEYS_FILE:?set SC_KEYS_FILE in the env file}
+    environment:
+      NODE_ENV: production
+      SC_HOST: 0.0.0.0
+      SC_PORT: '3970'
+      DATABASE_URL: postgres://sc_app:${SC_DB_APP_PASSWORD:?set SC_DB_APP_PASSWORD in the env file}@postgres:5432/seasonal_cases
+      # The env file holds these for compose; the game has no use for them.
+      POSTGRES_PASSWORD: ''
+      SC_DB_OWNER_PASSWORD: ''
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ports:
+      - '127.0.0.1:${SC_HOST_PORT:?set SC_HOST_PORT in the env file}:3970'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - data
+      - edge
+    cpus: 1
+    mem_limit: 768m
+    restart: unless-stopped
+
+  migrate:
+    image: ${SC_IMAGE:?set SC_IMAGE in the env file}
+    command: ['node', '--import=tsx', 'src/tools/migrate.ts']
+    environment:
+      DATABASE_URL: postgres://sc_owner:${SC_DB_OWNER_PASSWORD:?set SC_DB_OWNER_PASSWORD in the env file}@postgres:5432/seasonal_cases
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    # The image's health check asks the game's port, which nothing here listens on.
+    healthcheck:
+      disable: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - data
+    cpus: 1
+    mem_limit: 512m
+    restart: 'no'
+
+  postgres:
+    image: postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    # The hardening of the kit's OPERATIONS.md: the four capabilities are what the image needs to
+    # start (apps/server/src/compose.test.ts holds the file to it).
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+    environment:
+      POSTGRES_USER: seasonal_cases
+      POSTGRES_DB: seasonal_cases
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the env file}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # Over TCP: while a new database is set up, a temporary server answers on the socket alone
+      # and shuts down again, so a socket check calls it ready too early.
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U seasonal_cases -d seasonal_cases']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - data
+    cpus: 1
+    mem_limit: 1g
+    restart: unless-stopped
+
+networks:
+  data:
+    internal: true
+  edge:
+    ipam:
+      config:
+        - subnet: ${SC_EDGE_SUBNET:-172.30.251.0/24}
+
+volumes:
+  pgdata:

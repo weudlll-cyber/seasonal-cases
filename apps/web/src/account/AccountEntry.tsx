@@ -8,8 +8,9 @@
  *                 with the rules shown before sending, answered alike for every e-mail and
  *                 signing nobody in: a mail says the rest (D36); the forgotten password always
  *                 answers the same sentence.
+ *                 A Privacy link sits under every form (D61).
  *                 The server checks everything again and answers each refusal in one sentence.
- * Depends on:     react, @sc/contracts, ../lib/api.js, ../lib/base.js, ../lib/useAction.js,
+ * Depends on:     react, @sc/contracts, ../lib/base.js, ../lib/router.js, ../lib/useAction.js,
  *                 ../screens/fields.js
  */
 import {
@@ -24,10 +25,11 @@ import {
 } from '@sc/contracts';
 import { useState } from 'react';
 
-import { postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { post } from '../lib/base.js';
+import { Link } from '../lib/router.js';
 import { useAction } from '../lib/useAction.js';
 import { TextField } from '../screens/fields.js';
+import './account.css';
 
 type Form = 'sign-in' | 'register' | 'forgot';
 
@@ -38,6 +40,15 @@ const TITLES: Record<Form, string> = {
 };
 
 const PASSWORD_TIP = 'At least 12 characters; a long sentence is easy to remember';
+
+/** A form's one button: the kit's solid pill, off while its call runs. */
+function Submit({ busy, tip, label }: { busy: boolean; tip: string; label: string }) {
+  return (
+    <button type="submit" className="sk-btn sk-btn--primary" disabled={busy} title={tip}>
+      {label}
+    </button>
+  );
+}
 
 function SignInForm({ onEnter }: { onEnter: (me: Me) => void }) {
   const [login, setLogin] = useState('');
@@ -56,7 +67,7 @@ function SignInForm({ onEnter }: { onEnter: (me: Me) => void }) {
       onSubmit={(event) => {
         event.preventDefault();
         action.run(async () => {
-          const answer = await postJson<Me | TwoFactorNeeded>(apiPath('/auth/sign-in'), body);
+          const answer = await post<Me | TwoFactorNeeded>('/auth/sign-in', body);
           if ('twoFactor' in answer) setCode('');
           else onEnter(answer);
         });
@@ -92,9 +103,7 @@ function SignInForm({ onEnter }: { onEnter: (me: Me) => void }) {
           onChange={setCode}
         />
       )}
-      <button type="submit" className="button button-solid" disabled={action.busy} title="Sign in">
-        Sign in
-      </button>
+      <Submit busy={action.busy} tip="Sign in" label="Sign in" />
       {action.error !== null && <p role="alert">{action.error}</p>}
     </form>
   );
@@ -114,7 +123,7 @@ function RegisterForm() {
       onSubmit={(event) => {
         event.preventDefault();
         action.run(async () => {
-          await postJson(apiPath('/auth/register'), body);
+          await post('/auth/register', body);
           setSent(true);
         });
       }}
@@ -148,14 +157,11 @@ function RegisterForm() {
         value={password}
         onChange={setPassword}
       />
-      <button
-        type="submit"
-        className="button button-solid"
-        disabled={action.busy}
-        title="Create the account; a mail tells you how to go on"
-      >
-        Create account
-      </button>
+      <Submit
+        busy={action.busy}
+        tip="Create the account; a mail tells you how to go on"
+        label="Create account"
+      />
       {sent && <RegisterSent />}
       {action.error !== null && <p role="alert">{action.error}</p>}
     </form>
@@ -183,7 +189,7 @@ function ForgotForm() {
       onSubmit={(event) => {
         event.preventDefault();
         action.run(async () => {
-          await postJson(apiPath('/auth/forgot'), body);
+          await post('/auth/forgot', body);
           setSent(true);
         });
       }}
@@ -198,14 +204,7 @@ function ForgotForm() {
         value={email}
         onChange={setEmail}
       />
-      <button
-        type="submit"
-        className="button button-solid"
-        disabled={action.busy}
-        title="Send a link to choose a new password"
-      >
-        Send the link
-      </button>
+      <Submit busy={action.busy} tip="Send a link to choose a new password" label="Send the link" />
       {sent && (
         <p role="status">
           If an account has this e-mail, a link is on its way. It works once, for one hour.
@@ -220,7 +219,7 @@ export function AccountEntry({ onEnter }: { onEnter: (me: Me) => void }) {
   const [form, setForm] = useState<Form>('sign-in');
   const others = (Object.keys(TITLES) as Form[]).filter((f) => f !== form);
   return (
-    <section className="card sign-in account-entry" aria-label={TITLES[form]}>
+    <section className="sk-panel sign-in account-entry" aria-label={TITLES[form]}>
       <h2>{TITLES[form]}</h2>
       {form === 'sign-in' && <SignInForm onEnter={onEnter} />}
       {form === 'register' && <RegisterForm />}
@@ -239,6 +238,11 @@ export function AccountEntry({ onEnter }: { onEnter: (me: Me) => void }) {
             {TITLES[f]}
           </button>
         ))}
+      </p>
+      <p className="account-switch">
+        <Link to="/privacy" className="tap">
+          Privacy
+        </Link>
       </p>
     </section>
   );

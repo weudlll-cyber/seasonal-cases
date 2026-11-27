@@ -86,8 +86,59 @@ The owner is addressed in German by the planning chat, never by files in this re
 - Only run checks that can answer something about the change: docs-only changes get the format
   check only; an identical tree is not measured again; no soak or hours-long comparison runs.
 - Browser tests: Chromium at merge and on master; Firefox and WebKit nightly.
-- Before the owner tests: play the show through yourself (start, every step, end; light and dark;
-  PC and phone sizes from `docs/CONCEPT.md` §7), look at every picture, fix known defects first.
+- Before the owner tests: play the show through yourself, on a server of its own (start, every
+  step, end; light and dark; PC and phone sizes from `docs/CONCEPT.md` §7), look at every picture,
+  fix known defects first.
+  In a big move the sweep is that look for what it covers ("How we check", 3).
+
+## How we check
+
+The working rule of the kit HANDBOOK "How we check" (K82, K110). "Done" for a piece means built,
+pushed and quick-checked.
+
+A small task: before each push, the fast tests of the changed files
+(`pnpm exec vitest run <files> --reporter=dot`) and, when the change touches what a browser spec
+checks, that one spec in one browser. The full checks run on GitHub through the draft PR; look at
+CI once at the end and before every merge, not between pieces.
+
+A big move (a kit adoption, a migration, many known changes):
+
+1. Build all changes first; between them only the typecheck, the lint of the touched files and the
+   unit tests of the touched package. Then one round of the real checks, each once: the browser
+   specs that cover the changes, the sweep, a rehearsal where ops changed, the draft PR's CI. A
+   fault is fixed and only what the fix can have changed is checked again.
+2. The sweep runs once, at the end. What it finds is fixed together and only that is checked
+   again (a colour: the contrast of the screens concerned; a shared part's size or spacing: the
+   screens that show it; anything else: the one screen). No further full run.
+3. No walks or measurements between the pieces; a walk of its own only for what the sweep cannot
+   check, named with its reason.
+4. The report says how many full runs there were and why. An exemption names its reason: a kit
+   part (`file:line` in the kit) or an owner decision (its number). Anything else is fixed.
+5. Line counts come once, at the hand-over, for the whole branch against `master`.
+6. One written report (the night sheet). The final message gives only the pushed commits, the CI
+   result, the open questions with a proposal, new kit findings and the report's path.
+7. A rehearsal covers only what the change can have altered: first list what changed in those
+   paths (the CHANGELOG and the diff, `file:line`), then rehearse those.
+
+The sweep: a server's request limit is met with the screen's `setup` (a fresh sign-in), never by
+loosening the limit; an owner decision on a least number of visible items is declared in the
+screen's `floors`.
+
+## Where a check may look and write
+
+The four rules of the kit HANDBOOK of that name (K125):
+
+- A change that matters only on a server (a database health check over TCP, say) is made with the
+  way to the server and rehearsed there with a fresh install, not as a change of its own before
+  it. Until then it is a row in `docs/BACKLOG.md` part one.
+- Browser tests, sweeps and measurements never write the owner's development database: they use
+  their own database or schema, created fresh and thrown away. Here the browser tests' servers set
+  `DATABASE_URL` empty and keep everything in memory and `.local/e2e/`; the store tests work in a
+  schema of their own and drop it; a walk or a measurement of its own starts its own server.
+- Browser journeys use fixed seeds and handle every outcome chance can give. A test that fails on
+  a lucky outcome is a test defect, not a flaky run to repeat.
+- A website-mode part is looked at in the local preview before a merge (README "The local
+  website-mode preview"); the real shared call only on the website.
 
 ## Working cheaply
 
@@ -106,6 +157,7 @@ on an unchanged tree, and flaky tests: "Tests and checks" above.
 
 ## Before reporting
 
-Run `pnpm verify` (once code exists). Report: lines before/after per touched file, what was
+Run `pnpm verify` (once code exists). Report (a big move: "How we check", 4 to 6): lines
+before/after per touched file, what was
 removed, what was extracted, what was reused, what was noticed but left alone, test results, and for
 visible changes what the owner should look at, with the Quick Test seed.

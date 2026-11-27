@@ -34,6 +34,8 @@ export interface PendingStore {
   take(tokenHash: string, now: number): Promise<Pending | undefined>;
   // Removes every registration expired by `now`.
   purge(now: number): Promise<void>;
+  // Removes the registration waiting for this e-mail, whatever its age (D61).
+  dropEmail(email: string): Promise<void>;
 }
 
 /** Everything in memory, for tests and for a run without a database. */
@@ -54,6 +56,10 @@ export function memoryPending(): PendingStore {
     },
     purge: (now) => {
       for (const [email, p] of all) if (p.expiresAt <= now) all.delete(email);
+      return Promise.resolve();
+    },
+    dropEmail: (email) => {
+      all.delete(email);
       return Promise.resolve();
     },
   };

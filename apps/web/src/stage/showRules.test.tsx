@@ -30,7 +30,7 @@ function unclaimed(show: PublicShowView, also: readonly number[] = []): PublicSh
     ...show,
     cases: show.cases.map((c) =>
       none.has(c.number)
-        ? { ...c, ownerId: null, ownerName: null, ownerBadges: [], ownerRank: null }
+        ? { ...c, ownerId: null, ownerName: null, ownerSteps: [], ownerRank: null }
         : c,
     ),
   };

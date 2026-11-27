@@ -11,8 +11,7 @@
 import type { RecoveryCodes, TwoFactorSetup as Setup } from '@sc/contracts';
 import { useState } from 'react';
 
-import { postJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { post } from '../lib/base.js';
 import { useAction } from '../lib/useAction.js';
 import { TextField } from '../screens/fields.js';
 
@@ -25,7 +24,7 @@ export function RecoveryCodeList({
   onDone: () => void;
 }) {
   return (
-    <section className="card two-factor" aria-label="Recovery codes">
+    <section className="sk-panel two-factor" aria-label="Recovery codes">
       <h2>Your recovery codes</h2>
       <p>
         Keep these ten codes somewhere safe, away from your phone. Each one signs you in once
@@ -38,7 +37,7 @@ export function RecoveryCodeList({
           </li>
         ))}
       </ul>
-      <button type="button" className="button button-solid" title="Continue" onClick={onDone}>
+      <button type="button" className="sk-btn sk-btn--primary" title="Continue" onClick={onDone}>
         I have saved them
       </button>
     </section>
@@ -61,7 +60,7 @@ function ConfirmForm({ setup, busy, run, onCodes }: ConfirmProps) {
       onSubmit={(event) => {
         event.preventDefault();
         run(async () => {
-          const answer = await postJson<RecoveryCodes>(apiPath('/me/2fa/confirm'), { code });
+          const answer = await post<RecoveryCodes>('/me/2fa/confirm', { code });
           onCodes(answer.recoveryCodes);
         });
       }}
@@ -82,7 +81,7 @@ function ConfirmForm({ setup, busy, run, onCodes }: ConfirmProps) {
         value={code}
         onChange={setCode}
       />
-      <button type="submit" className="button button-solid" disabled={busy} title="Turn it on">
+      <button type="submit" className="sk-btn sk-btn--primary" disabled={busy} title="Turn it on">
         Confirm
       </button>
     </form>
@@ -95,18 +94,18 @@ export function TwoFactorSetup({ onEnabled }: { onEnabled: () => void }) {
   const action = useAction();
   if (codes !== null) return <RecoveryCodeList codes={codes} onDone={onEnabled} />;
   return (
-    <section className="card two-factor" aria-label="Two-factor sign-in">
+    <section className="sk-panel two-factor" aria-label="Two-factor sign-in">
       <h2>Two-factor sign-in</h2>
       <p>An admin signs in with a password and a code from an authenticator app.</p>
       {setup === null ? (
         <button
           type="button"
-          className="button button-solid"
+          className="sk-btn sk-btn--primary"
           disabled={action.busy}
           title="Draw a new secret for your authenticator app"
           onClick={() => {
             action.run(async () => {
-              setSetup(await postJson<Setup>(apiPath('/me/2fa/setup')));
+              setSetup(await post<Setup>('/me/2fa/setup'));
             });
           }}
         >

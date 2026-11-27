@@ -56,7 +56,7 @@ describe('@seasonal/kit (pinned tag)', () => {
   });
 
   it('ships the CSS entries the client imports', () => {
-    expect(tokensCss).toContain('--color-spring');
+    expect(tokensCss).toContain('--sk-color-spring');
     expect(fontsCss).toContain('Luxora Grotesk');
     expect(motionCss).toContain('prefers-reduced-motion');
     expect(fitCss).toContain('--sk-floor-text');

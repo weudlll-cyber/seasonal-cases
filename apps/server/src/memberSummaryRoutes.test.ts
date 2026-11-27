@@ -31,7 +31,7 @@ const ANA: Account = {
   name: 'Ana',
   role: 'player',
   rank: 3,
-  badges: [],
+  steps: [],
   websiteOrigin: 'https://site.example',
   websiteUserId: '7',
   deleted: false,

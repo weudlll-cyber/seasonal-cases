@@ -16,6 +16,6 @@
 }
 
 .show-font {
-  font-family: 'Fredoka', var(--font-family);
+  font-family: 'Fredoka', var(--sk-font-family);
   font-weight: 600;
 }

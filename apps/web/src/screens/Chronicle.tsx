@@ -12,14 +12,16 @@ import { prizeName, winnerText, type ChronicleEntry } from '@sc/contracts';
 import { formatTime, shortCommitment } from '@sc/ui';
 import { useEffect, useState } from 'react';
 
-import { getJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { api } from '../lib/base.js';
 import { Link } from '../lib/router.js';
 import { ArtifactEmblem } from '../stage/ArtifactEmblem.js';
 
 function Entry({ entry }: { entry: ChronicleEntry }) {
   return (
-    <article className="card chronicle-entry" aria-label={`Show of ${formatTime(entry.endedAt)}`}>
+    <article
+      className="sk-panel chronicle-entry"
+      aria-label={`Show of ${formatTime(entry.endedAt)}`}
+    >
       <h2>{formatTime(entry.endedAt)}</h2>
       <ol className="chronicle-winners">
         {entry.winners.map((w) => (
@@ -34,7 +36,9 @@ function Entry({ entry }: { entry: ChronicleEntry }) {
       <p className="chronicle-proof">
         {entry.caseCount} cases · commitment {shortCommitment(entry.commitment)} ·{' '}
         {entry.verified ? 'verified' : 'NOT verified'} ·{' '}
-        <Link to={`/results/${entry.id}`}>Full result</Link>
+        <Link to={`/results/${entry.id}`} className="tap">
+          Full result
+        </Link>
       </p>
     </article>
   );
@@ -43,7 +47,7 @@ function Entry({ entry }: { entry: ChronicleEntry }) {
 export function Chronicle() {
   const [entries, setEntries] = useState<ChronicleEntry[] | null>(null);
   useEffect(() => {
-    getJson<ChronicleEntry[]>(apiPath('/chronicle'))
+    api<ChronicleEntry[]>('/chronicle')
       .then(setEntries)
       .catch(() => {
         setEntries([]);
@@ -52,7 +56,7 @@ export function Chronicle() {
   return (
     <main className="page chronicle">
       <h1>Chronicle</h1>
-      {entries?.length === 0 && <p className="card">No show has ended yet.</p>}
+      {entries?.length === 0 && <p className="sk-panel">No show has ended yet.</p>}
       {(entries ?? []).map((e) => (
         <Entry key={e.id} entry={e} />
       ))}

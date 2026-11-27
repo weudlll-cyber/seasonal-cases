@@ -189,11 +189,227 @@ the owner confirmed them on 2026-11-23 (D46).
   stays at 20 failures per 15 minutes. A success counts nothing and resets nothing. The cap of 20
   sign-ins a minute per address stays. This replaces the per-account 20 of D51.
 - **Release 1.0.0.** The merge of `proto/cases-v1` into master and the tag `v1.0.0` are approved.
-  ||||||| 2bf720c
-  lines on start. PostgreSQL comes with the full build (CONCEPT §11).
+
+## 2026-11-24, night chain SC-N7: the owner's decision D56 and what follows from it
+
+- **D56 — The whole kit before the VPS.** Cases takes the whole kit now, before the first
+  server: `@seasonal/kit` is pinned to v0.17.0; the kit's `AppHeader` replaces the game's own
+  header; the whole game is checked against the kit's `docs/HANDBOOK.md`.
+- **D57 — Sign-in's brake counts with the kit's `FailureBrake`.** With a full map (100 000 keys,
+  every one active in the window) the kit refuses a new key and keeps every held key's count; the
+  game's own class, which the kit's grew out of, evicted the oldest key. D55's keys and limits are
+  unchanged. A flood of fresh addresses can therefore shut out new addresses until the window
+  passes, as the kit documents; the test that covered eviction covers the kit's rule now.
+- **D58 — The kit's header and its Menu.** The game's header is the kit's `AppHeader`, in the
+  kit's order: the way back to Seasonal Entertainment (website mode), the brand, the pages, the
+  account chip with its buttons, the theme toggle at the far right; in development only the
+  "Quick Test" link and the "Dev sign-in" menu. On a narrow screen the kit folds the pages and the
+  account into one "Menu" button; this replaces D29's wrapping menu. The chip reads "name (role)"
+  and the website step badges are no longer shown in the header (they stay on the board, the
+  lower third and the players panel). `--shell-height` stays: the stage, the board and the bar's
+  panel subtract the header's measured height.
+
+## 2026-11-24, night chain SC-N8: the owner's decisions D59–D64
+
+- **D59 — The GitHub settings are the kit's.** The repository is set like the kit's: merge commits
+  only, the branch deleted after a merge, conversations resolved on master (its required checks,
+  strict and admins stay), no wiki and no Projects, a ruleset that makes `v*` tags immutable,
+  vulnerability alerts and automated security fixes on, actions required to be pinned to SHAs
+  (docs/RELEASING.md, "Repository settings").
+- **D60 — The phone bar and the largest text.** At 390 × 844 and 360 × 780, at the normal root font
+  and at 200 %, no page scrolls sideways, no text in the game bar, the ceremony or an owner's name
+  is cut, and the game bar is one row at the normal font; the 14 px text floor holds.
+- **D61 — Privacy.** Accounts stay until the player deletes them. On deletion the account and its
+  personal data (name, e-mail, password hash, two-factor secrets, recovery codes, sessions,
+  pending mails) are removed, and every show, chronicle entry, result page and "My matches" row it
+  appears in shows "deleted player"; the show's sealed distribution and commitment stay intact.
+  Server logs are kept 14 days. In standalone mode a player deletes their account (password, and a
+  current code with two-factor sign-in; the last super-admin cannot) and downloads their data as
+  JSON. In website mode the accounts belong to the website, which deletes and exports them. A
+  privacy page says what is stored, why, how long, how to delete and export, and whom to contact.
+- **D62 — The four kit parts.** The game bar's back link to Seasonal Entertainment in website mode
+  (also in focus mode), the website's season feed for the season colours, `afterFonts` on the
+  stage's fit, and `withoutChat` where the game runs without a chat, each with the kit's defaults.
+- **D63 — The production bundle and the mail links.** The start page's dev form, the "Dev sign-in"
+  menu and the admin's Quick Test are not in the production build (a build-time flag, not a runtime
+  check). A password reset's and a registration's token travel after the link's `#`, not in its
+  query.
+- **D64 — Tests and the steps before production.** Tests exist where they guard something real,
+  with no coverage target; the thresholds are not a goal. The steps before production wait for the
+  VPS.
+
+## 2026-11-24, night chain SC-N8, kit v0.19.0: D65
+
+- **D65 — The header's step badges are the kit's.** The kit is pinned at v0.19.0 (tag object
+  2ab45ba, commit 19f0208; kit K56). A website member's steps go to the kit's `AppHeader` as
+  `account.steps`, exactly as the kit's `identityFrom` returns them (`ladder`, `name`, `icon`), and
+  the kit draws, limits and checks them (at most three, only the website's own icon files). The
+  game has no badge type, no stand-in and no filtering of its own for the header; a standalone
+  account passes none. The boards, the lower third and the players panel keep their own icons
+  (`badges`). The kit's 0.18.0 migration names no change for this game.
+
+## 2026-11-25, task SC-A1: D66
+
+- **D66 — The accessibility check is part of the required e2e job.** axe with the WCAG 2.0 to 2.2
+  A and AA rules (`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`, `target-size` on) runs on
+  every screen in light and dark at 1536 × 768 and 390 × 844, in Chromium. A finding of impact serious
+  or critical fails the job. A finding in a part of the kit is not fixed here: exactly that rule on
+  exactly that selector is excluded in the spec, with its BACKLOG row, and goes to the kit's
+  planning chat. A real screen-reader run is not part of it.
+
+## 2026-11-25, night chain SC-N10: the owner's decisions D67-D69
+
+- **D67 — The kit's newest version on this branch.** Cases takes `@seasonal/kit` v0.22.0 (tag
+  `v0.22.0`, commit `2e8ed41`) in one task, with every line of the kit's `docs/ADOPTION.md` for
+  Cases since v0.15.0. Version `1.1.0-rc.2`.
+- **D68 — Backups come from the kit, first, before production.** Cases uses the kit's
+  `ops/backup.sh` and its pull scripts.
+- **D69 — The CSRF guard is the kit's.** `writeCheck` replaces Cases' own guard.
+
+- **D70 — The health routes are the kit's, the old ones removed** (night chain SC-N10, from D69's
+  adoption). `/healthz` (liveness: status and version) and `/readyz` (readiness, 60 a minute per
+  address) under the base path replace `/api/health` and `/api/ready`. No alias is kept: nothing
+  outside this repository is documented to call the old paths (searched here and in the website's
+  docs and server).
+
+## 2026-11-25, night chain SC-N10: what stays Cases' own beside kit v0.22.0
+
+- **D71 — The account feed reads with plain `fetch`.** It asks the website's own local address
+  (`SC_WEBSITE_LOCAL_ORIGIN`, plain http on the same host, set by the operator), not an outside one;
+  the kit's `guardedFetch` is made to refuse exactly such addresses unless `allowLocal`. It stays;
+  a later step may pass `allowLocal` and `allowedHosts` to get the kit's time and size limits.
+- **D72 — The address limits, the account and session stores, the sign-in's brake keys (D55), the
+  built client's serving, the log and the mailer stay the game's.** The kit offers the limiter, the
+  brake, the session-end signal, the cookie and the headers they stand on (all used); it offers no
+  store, no client serving, no mailer.
+- **D73 — Two pieces of CSS still name kit classes, as the game's layout, not as patches:** the
+  shell gives the docked screen the height left under the header (`.shell > .sk-docked`,
+  `.sk-docked-main`), and the start card's icon slot sizes the game's own logo. The page takes the
+  visible height as the kit's docs ask of the game.
+- **D74 — The result page's words, the date format and the commitment's short form stay the
+  game's** (`screens/Result.tsx` inside the kit's `ResultFrame`, `packages/ui/src/format.ts`); the kit
+  has no date or commitment format.
 
 ## 2026-11-25, task SC-CI1: D75
 
 - **D75 — One CI run per change.** The CI workflow runs on a push to `master` and on a pull
   request against `master` only, so a push to a branch with an open pull request starts one run,
   not two identical ones. A branch is checked by its pull request.
+
+## 2026-11-25, night chain SC-N11: the owner's decision D76 and what follows from it
+
+- **D76 — Docker is Cases' only production path.** Cases moves to Docker before production, as the
+  other games; the native install (a PostgreSQL role, a systemd service, Node on the host) is removed,
+  so there is one way to run it on a server. Version `1.1.0-rc.3`.
+- **D77 — The image.** One image per mode (`SC_MODE` as a build argument): the client's base path
+  (`/` or `/games/cases/`) is built into it. The server runs its TypeScript with tsx, as
+  `pnpm start` does (no server bundle, unlike Mini Games), and serves the built client itself
+  (`web.ts`), unchanged. It runs as uid 10001, keeps nothing on disk, and its health check asks
+  `/readyz`.
+- **D78 — The installer and the backup on Docker.** `deploy/install.sh` installs and updates the
+  compose stack (both modes): it checks Docker and says how to install it, builds the image on the
+  server, writes the env file, starts the stack, waits for `/readyz`, writes the website route file
+  as before; `--update` backs up first; `--check` reports the stack's health. The kit's backup runs
+  against the database container with its systemd units as the kit prints them: this supersedes the
+  two rewrites of the units made for the native install (night chain SC-N10, under D68). The logs go
+  through Docker's syslog driver into the game's 14-day journal namespace (D61). Website mode joins
+  the website's network; the game reads the account feed at `http://site:3800` in both modes.
+
+## 2026-11-26, night chain SC-N12: the owner's decision D79 and what follows from it
+
+- **D79 — Every kit part is adopted.** Every part the kit's `docs/ADOPTION.md` marks "Only on the
+  owner's word" for Seasonal Cases, from "Since v0.22.0" to "Since v0.32.0", is adopted: one
+  solution for every game, no lasting game-side exception. The one exception in time is the load
+  check, which comes before Cases' production. The kit is pinned at v0.32.0 (commit `0016e86`);
+  version `1.1.0-rc.4`.
+- **D80 — The client's shared parts.** The step badges are the kit's `StepBadges`, after a name, on
+  the board, the stage's cases and the lower third; the views send a member's whole steps
+  (`ladder`, `name`, `icon`), and an account keeps nothing but them (migration 0005 drops the
+  separate icon list). This ends the last sentence of D65 but one: the boards no longer keep icons
+  of their own. The client's server calls are the kit's `createApiClient`; the sentence of a refusal
+  is read from `ApiError.body.error`.
+- **D81 — The server's shared parts.** The account feed is read with the kit's `guardedFetch`, the
+  configured local origin of the website (`SC_WEBSITE_LOCAL_ORIGIN`) its only local one, with the
+  kit's time and size limits and no redirect: D71 no longer holds, its reason (the guarded fetch
+  refused exactly such an address) is gone since kit v0.27.0. The security headers say
+  `secure` wherever the game is served over https, by the same rule as the session cookie.
+- **D82 — Two database roles (kit K90).** An installed database has `sc_owner`, which migrates, and
+  `sc_app`, which the running game connects as and which only reads and writes rows (the migration
+  record: reads only). The stack's one-shot service `migrate` runs before the game; the installer
+  sets the roles up with the kit's `db-roles`, on an existing database once as its conversion (an
+  update backs up first), and after every restore. Development keeps its one user.
+- **D83 — The server's operations are the kit's.** The installer is `ops/install.sh` (K86). The
+  kit's whole `ops/` folder comes out of the game's image to `/opt/seasonal-cases/kit`; the
+  installed game's command `scases` is the kit's admin command (status, update, confirm, rollback,
+  backup, restore, logs, uninstall; backups kept unless `--purge-backups`) with the game's `start`
+  and `admin` verbs: an update is `scases update <ref>`, so the installer's `--update` is gone
+  (D78), as are `deploy/admin.sh` and `deploy/backup.sh`. One environment, `prod`
+  (`/etc/seasonal-cases/prod.env`; the backup's settings in `backup.conf`). The route file is the
+  kit's `sk_route_install` with the game's secret header; it refuses `<base>/metrics` and no longer
+  the profile card's path at the proxy, which the server refuses to every proxied request itself,
+  and it no longer carries the trusted range as a comment (D37's remembered range stays). The
+  operator's address (`sk_operator_email`) is what the privacy page names; the installer's
+  `SC_PRIVACY_CONTACT` answer is gone. Standalone installs get the kit's host baseline. The
+  database service carries the kit's container hardening, held by a test.
+- **D84 — One operator guide.** `docs/operator-guide.md` holds what `docs/INSTALL.md` and
+  `docs/OPERATIONS-CASES.md` held, in the kit's section order (K86).
+- **D85 — The test parts are the kit's.** The client's static guards are the kit's
+  (`findFixedColours`, `findSmallText`, `findLowContrast`; `apps/web/src/guards.test.ts`); the
+  screens run walks every screen with the kit's `sweep` (seven sizes, 100 % and 200 %, both
+  themes, its probe and axe) and keeps beside it only the game's own checks (text floor, the risen
+  artifact's centre, the phone bar in one row); the website-mode browser tests run behind the kit's
+  `startWebsiteStandIn`, whose app is the game's Vite client. The game's own stand-in website is
+  removed; the accessibility check excludes nothing any more (BACKLOG 70, closed).
+
+## 2026-11-26, night chain SC-N13: the owner's decisions of 2026-11-26 and what follows
+
+- **D86 — Kit v0.34.0, one look for every game.** The kit is pinned at v0.34.0 (commit `7c1e97f`),
+  version `1.1.0-rc.5`. The kit's base components and its three header looks (the filled account
+  chip, the compact back link with a 44 px tap area, the solid "Sign in" when signed out) are the
+  one look of every game; known defects are fixed before the owner looks. Sign-in's brake holds
+  a place for each try before the password is checked (the kit's `reserve`), so guesses sent at
+  the same moment are held to D55's limits.
+- **D87 — The controls are the kit's.** Buttons, panels and fields are the kit's `components.css`
+  (`sk-btn` with `--primary` and `--danger`, `sk-panel`, `sk-input`, `sk-select`); the game's
+  `.button`, `.card` and bare field rules are gone, and neither the header nor the game bar gets a
+  button class from the game, so the header's three looks (K96) and the bar are the kit's alone.
+  The end-of-show button keeps the game's highlight. The dense result frame is not used: measured,
+  the result's first part fits from 1280 x 720 up.
+- **D88 — The keys have a file of their own, and a restore puts them back.** The data, cookie and
+  recovery keys are in `/etc/seasonal-cases/prod.keys`, the one secret file a backup carries; the
+  admin command names the folder (`SK_ADMIN_SECRETS_DIR`), so a restore puts the keys back and
+  refuses differing ones, before anything is replaced, unless forced. The settings file travels no
+  longer (D78, D83): it holds settings an update changes, which would make every older backup look
+  different, and the database's passwords, which are the server's own. On a new server the guide
+  installs, then restores with `--force-env`.
+
+## 2026-11-27, night chain SC-N14: the move to kit v0.38.0
+
+- **D89 — Kit v0.38.0.** The kit is pinned at v0.38.0 (commit `a21ffe4`), version `1.1.0-rc.6`.
+  Its fixes replace the game's allowances (BACKLOG 77, 78); the rule for checks is the kit's
+  "How we check", in CLAUDE.md.
+- **D90 — "Admin" only for those who may use it (owner, 2026-11-26).** The header shows the
+  "Admin" link to organisers and admins only, not to players or signed-out visitors; the admin
+  pages and the server refuse others as before.
+- **D91 — The shared call shows only while live (owner, 2026-11-27).** In website mode the
+  docked screen's call slot holds the website's one shared call (the kit's `onSharedCall`),
+  hidden until a call is live; a result then offers "Back to the call". Standalone frames
+  nothing.
+- **D92 — The way to production waits (owner, 2026-11-27).** Bingo Royale goes to production
+  first. The kit's production parts of v0.35.0 (the privacy data list, the scan call, the
+  release workflow with `sk_image_verify`, `SK_ROUTE_TRUSTED`, the full browser suite nightly
+  only) wait for Cases' own way to the server.
+
+## 2026-11-27, night chain SC-N15: the move to kit v0.39.1
+
+- **D93 — Kit v0.39.1.** The kit is pinned at v0.39.1 (commit `29c0f01`), version
+  `1.1.0-rc.7`. Every state of a page stands in a `main` or another landmark, and every wait
+  for a database asks over TCP (the kit's OPERATIONS.md "Waiting for the database").
+
+## 2026-11-27, night chain SC-N16: the owner's decision and the move to kit v0.40.0
+
+- **D94 — Kit v0.40.0.** The kit is pinned at v0.40.0 (commit `23f10b9`), version
+  `1.1.0-rc.8`, with its four rules about where a check may look and write (K125) in CLAUDE.md.
+- **D95 — No development data has to be kept (owner, 2026-11-27).** Nothing in the development
+  database has to be kept. Where tests, sweeps or measurements move to a database of their own,
+  the development database may be emptied completely.

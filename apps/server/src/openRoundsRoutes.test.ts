@@ -68,9 +68,9 @@ describe('the open rounds', () => {
       method: 'GET',
       url: '/games/cases/api/public/open-rounds',
     });
-    expect(answer.json<OpenRoundsPage>().rounds[0]?.joinUrl).toBe(
-      'https://site.example/games/cases/',
-    );
+    const round = answer.json<OpenRoundsPage>().rounds[0];
+    expect(round?.joinUrl).toBe('https://site.example/games/cases/');
+    expect(round?.title).toBe('Seasonal Cases: 4 cases, 1 prize');
   });
 
   it('leave out a round the website would refuse: a join address that is not https', async () => {

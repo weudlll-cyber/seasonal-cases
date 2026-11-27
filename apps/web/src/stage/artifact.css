@@ -10,7 +10,10 @@
  */
 
 .artifact {
-  --season: var(--color-border-strong);
+  --season: var(--sk-color-border-strong);
+  /* The gem's own tones (arena tokens, the kit has none): its gloss and its shade. */
+  --gem-gloss: color-mix(in srgb, #fff 85%, transparent);
+  --gem-shade: #000;
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
@@ -19,19 +22,19 @@
 }
 
 .season-winter {
-  --season: var(--color-winter);
+  --season: var(--sk-color-winter);
 }
 .season-spring {
-  --season: var(--color-spring);
+  --season: var(--sk-color-spring);
 }
 .season-summer {
-  --season: var(--color-summer);
+  --season: var(--sk-color-summer);
 }
 .season-autumn {
-  --season: var(--color-autumn);
+  --season: var(--sk-color-autumn);
 }
 .season-all {
-  --season: var(--color-autumn);
+  --season: var(--sk-color-autumn);
 }
 
 .artifact-gem {
@@ -41,9 +44,9 @@
   border-radius: 50%;
   background: radial-gradient(
     circle at 35% 30%,
-    rgb(255 255 255 / 85%) 0 12%,
+    var(--gem-gloss) 0 12%,
     var(--season) 48%,
-    color-mix(in srgb, var(--season) 55%, #000) 100%
+    color-mix(in srgb, var(--season) 55%, var(--gem-shade)) 100%
   );
   box-shadow: 0 0 0.6em color-mix(in srgb, var(--season) 70%, transparent);
 }
@@ -51,13 +54,13 @@
 /* The main prize: the four seasons. */
 .season-all .artifact-gem {
   background:
-    radial-gradient(circle at 35% 30%, rgb(255 255 255 / 85%) 0 12%, transparent 30%),
+    radial-gradient(circle at 35% 30%, var(--gem-gloss) 0 12%, transparent 30%),
     conic-gradient(
-      var(--color-winter),
-      var(--color-spring),
-      var(--color-summer),
-      var(--color-autumn),
-      var(--color-winter)
+      var(--sk-color-winter),
+      var(--sk-color-spring),
+      var(--sk-color-summer),
+      var(--sk-color-autumn),
+      var(--sk-color-winter)
     );
 }
 
@@ -91,9 +94,8 @@
 
 .artifact-name {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* A long name wraps; it is never cut with an ellipsis (D60). */
+  overflow-wrap: anywhere;
 }
 
 .artifact-large {

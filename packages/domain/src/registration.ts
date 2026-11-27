@@ -46,7 +46,7 @@ export function claimsOn(claims: readonly Claim[], caseNumber: number): Claim[] 
 const claimant = (c: Claim): Claimant => ({
   playerId: c.player.id,
   name: c.player.name,
-  badges: [],
+  steps: [],
   rank: c.rank,
   at: c.at,
 });

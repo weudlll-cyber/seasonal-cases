@@ -1,12 +1,15 @@
 /**
  * @file   apps/server/src/auth/failureBrake.test.ts
- * @brief  Tests the failure brake (D51): it looks without counting, counts failures only, lets a
- *         key go as its oldest failure leaves the window, and holds a bounded number of keys;
- *         and sign-in's three keys over it (D55).
+ * @brief  Tests the kit's failure brake as sign-in uses it (D51): it looks without counting,
+ *         counts failures only, lets a key go as its oldest failure leaves the window, and with a
+ *         full map refuses a new key and keeps every held count (the kit's rule since v0.15.0;
+ *         this repository's own class evicted the oldest key); and sign-in's three keys over it
+ *         (D55).
  */
+import { FailureBrake } from '@seasonal/kit/server';
 import { describe, expect, it } from 'vitest';
 
-import { FailureBrake, SIGN_IN_BRAKE, SignInBrake } from './failureBrake.js';
+import { SIGN_IN_BRAKE, SignInBrake } from './failureBrake.js';
 
 const WINDOW = 15 * 60_000;
 
@@ -50,16 +53,32 @@ describe('the failure brake', () => {
     expect(brake.braked('a')).toBe(true);
   });
 
-  it('forgets keys without failures in the window, and holds at most maxKeys', () => {
-    const { brake, advance } = clocked(3, 2);
+  it('forgets a key without failures in the window', () => {
+    const { brake, advance } = clocked();
     brake.failed('a');
+    expect(brake.size).toBe(1);
     advance(WINDOW);
     expect(brake.braked('a')).toBe(false);
     expect(brake.size).toBe(0);
+  });
+
+  it('refuses a new key while the map is full of active keys, and keeps every held count', () => {
+    const { brake, advance } = clocked(3, 2);
     brake.failed('b');
     brake.failed('c');
+    // Full: d is not held and never replaces b or c (this repository's old class evicted b).
     brake.failed('d');
     expect(brake.size).toBe(2);
+    expect(brake.braked('d')).toBe(true);
+    brake.failed('b');
+    brake.failed('b');
+    expect(brake.braked('b')).toBe(true);
+    expect(brake.braked('c')).toBe(false);
+    // Once the held keys are idle for a window, room is made and d is taken in.
+    advance(WINDOW);
+    expect(brake.braked('d')).toBe(false);
+    brake.failed('d');
+    expect(brake.size).toBe(1);
   });
 });
 
@@ -70,13 +89,20 @@ describe('sign-in’s brake (D55)', () => {
 
   it('brakes the pair at 20, the account everywhere at 100, the address at 20', () => {
     const brake = new SignInBrake(() => 0);
-    for (let i = 0; i < 20; i += 1) brake.failed('x', 'a');
-    expect(brake.accountBraked('x', 'a')).toBe(true);
-    expect(brake.accountBraked('x', 'b')).toBe(false);
+    const wrong = (account: string, address: string) => brake.reserve(account, address)?.failed();
+    // Whether a try may start, without keeping its places.
+    const free = (account: string, address: string): boolean => {
+      const attempt = brake.reserve(account, address);
+      attempt?.passed();
+      return attempt !== null;
+    };
+    for (let i = 0; i < 20; i += 1) wrong('x', 'a');
+    expect(free('x', 'a')).toBe(false);
+    expect(free('x', 'b')).toBe(true);
     expect(brake.addressBraked('a')).toBe(true);
     expect(brake.addressBraked('b')).toBe(false);
-    for (let i = 0; i < 80; i += 1) brake.failed('x', `c${String(i % 10)}`);
-    expect(brake.accountBraked('x', 'b')).toBe(true);
-    expect(brake.accountBraked('y', 'b')).toBe(false);
+    for (let i = 0; i < 80; i += 1) wrong('x', `c${String(i % 10)}`);
+    expect(free('x', 'b')).toBe(false);
+    expect(free('y', 'b')).toBe(true);
   });
 });

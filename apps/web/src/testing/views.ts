@@ -32,9 +32,9 @@ export const LEAF: Artifact = {
   prizeSlot: null,
 };
 
-export const MIA: Me = { id: 'mod-1', name: 'Mia', role: 'organiser', rank: 0, badges: [] };
-export const NOAH: Me = { id: 'mod-2', name: 'Noah', role: 'organiser', rank: 0, badges: [] };
-export const ANA: Me = { id: 'ana', name: 'Ana', role: 'player', rank: 3, badges: [] };
+export const MIA: Me = { id: 'mod-1', name: 'Mia', role: 'organiser', rank: 0 };
+export const NOAH: Me = { id: 'mod-2', name: 'Noah', role: 'organiser', rank: 0 };
+export const ANA: Me = { id: 'ana', name: 'Ana', role: 'player', rank: 3 };
 
 function cases(count: number, opened: Record<number, Artifact>): CaseView[] {
   return Array.from({ length: count }, (_, i) => {
@@ -43,7 +43,7 @@ function cases(count: number, opened: Record<number, Artifact>): CaseView[] {
       number: i + 1,
       ownerId: `p${String(i + 1)}`,
       ownerName: i + 1 === 7 ? 'Ana' : `bot-${String(i + 1)}`,
-      ownerBadges: [],
+      ownerSteps: [],
       ownerRank: i + 1 === 7 ? 3 : 1,
       opened: artifact !== null,
       artifact,
@@ -110,13 +110,13 @@ export function registrationView(): PublicShowView {
       number: c.number,
       holder:
         c.number === 7
-          ? { playerId: 'bo', name: 'Bo', badges: [], rank: 4, at: '2026-11-21T20:00:05.000Z' }
+          ? { playerId: 'bo', name: 'Bo', steps: [], rank: 4, at: '2026-11-21T20:00:05.000Z' }
           : c.number === 8
-            ? { playerId: 'cy', name: 'Cy', badges: [], rank: 2, at: '2026-11-21T20:00:06.000Z' }
+            ? { playerId: 'cy', name: 'Cy', steps: [], rank: 2, at: '2026-11-21T20:00:06.000Z' }
             : null,
       others:
         c.number === 7
-          ? [{ playerId: 'ana', name: 'Ana', badges: [], rank: 3, at: '2026-11-21T20:00:09.000Z' }]
+          ? [{ playerId: 'ana', name: 'Ana', steps: [], rank: 3, at: '2026-11-21T20:00:09.000Z' }]
           : [],
     })),
   };

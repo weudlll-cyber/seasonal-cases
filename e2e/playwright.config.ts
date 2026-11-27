@@ -4,7 +4,8 @@
  *
  * Responsibility: start the tests' own server (127.0.0.1:3980, data under .local/e2e, cleaned at
  *                 start) and client (5480), and for journey 4 the game in website mode (3990)
- *                 behind the stand-in website (5485, ./websiteStub.ts); run the journeys one after
+ *                 with its client (5485), in front of which the test starts the kit's stand-in
+ *                 website (./standIn.ts); run the journeys one after
  *                 the other (they share the start page's "current show") in Chromium (`chromium`,
  *                 CI and merge), and at desktop and phone sizes in all three browsers
  *                 (`chromium-mobile`, `firefox`, `firefox-mobile`, `webkit`, `webkit-mobile`,
@@ -12,7 +13,7 @@
  *                 `screens` takes the pictures of CONCEPT §7's check sizes into
  *                 .local/screens/proto-v5/ and the opening's frames into
  *                 .local/screens/opening-frames/, and runs only when named.
- * Depends on:     @playwright/test, ./server.ts, ./websiteServer.ts, ./websiteStub.ts, apps/web
+ * Depends on:     @playwright/test, ./server.ts, ./websiteServer.ts, apps/web
  */
 import { defineConfig, devices } from '@playwright/test';
 
@@ -32,7 +33,7 @@ export default defineConfig({
     {
       command: 'node --import=tsx e2e/server.ts',
       cwd: '..',
-      url: 'http://127.0.0.1:3980/api/health',
+      url: 'http://127.0.0.1:3980/healthz',
       reuseExistingServer: false,
       timeout: 60_000,
     },
@@ -47,15 +48,15 @@ export default defineConfig({
     {
       command: 'node --import=tsx e2e/websiteServer.ts',
       cwd: '..',
-      url: 'http://127.0.0.1:3990/games/cases/api/health',
+      url: 'http://127.0.0.1:3990/games/cases/healthz',
       reuseExistingServer: false,
       timeout: 60_000,
     },
     {
-      command: 'node --import=tsx e2e/websiteStub.ts',
+      command: 'pnpm --filter @sc/web dev',
       cwd: '..',
-      url: 'http://127.0.0.1:5485/games',
-      env: { SC_MODE: 'website' },
+      url: 'http://127.0.0.1:5485/games/cases/',
+      env: { SC_MODE: 'website', SC_WEB_PORT: '5485', SC_SERVER: 'http://127.0.0.1:3990' },
       reuseExistingServer: false,
       timeout: 120_000,
     },
@@ -63,7 +64,8 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      testMatch: /journey.*\.spec\.ts/,
+      // The accessibility check (axe) runs here only: it is the required job's.
+      testMatch: /(journey.*|access)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1366, height: 768 } },
     },
     {
@@ -99,7 +101,7 @@ export default defineConfig({
     },
     {
       name: 'screens',
-      testMatch: /(screens|openingFrames)\.spec\.ts/,
+      testMatch: /(screens|openingFrames|headerSteps)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
   ],

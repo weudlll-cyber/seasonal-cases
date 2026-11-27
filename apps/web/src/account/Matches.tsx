@@ -11,8 +11,7 @@ import type { Match, Me } from '@sc/contracts';
 import { formatTime } from '@sc/ui';
 import { useEffect, useState } from 'react';
 
-import { getJson } from '../lib/api.js';
-import { apiPath } from '../lib/base.js';
+import { api } from '../lib/base.js';
 import { Link } from '../lib/router.js';
 
 function prizeText(match: Match): string {
@@ -24,16 +23,16 @@ export function Matches({ me }: { me: Me | null }) {
   const [matches, setMatches] = useState<Match[] | null>(null);
   useEffect(() => {
     if (me === null) return;
-    getJson<Match[]>(apiPath('/me/matches'))
+    api<Match[]>('/me/matches')
       .then(setMatches)
       .catch(() => {
         setMatches([]);
       });
   }, [me]);
-  if (me === null) return <p className="page card">Sign in to see your matches.</p>;
+  if (me === null) return <main className="page sk-panel">Sign in to see your matches.</main>;
   return (
     <main className="page">
-      <section className="card" aria-label="My matches">
+      <section className="sk-panel" aria-label="My matches">
         <h1>My matches</h1>
         {matches?.length === 0 && <p>You have not picked a case yet.</p>}
         <ul className="match-list">
@@ -42,7 +41,11 @@ export function Matches({ me }: { me: Me | null }) {
               <span>{formatTime(m.createdAt)}</span>
               <span>Case {m.caseNumber}</span>
               <span>{prizeText(m)}</span>
-              {m.state === 'ended' && <Link to={`/results/${m.showId}`}>Result</Link>}
+              {m.state === 'ended' && (
+                <Link to={`/results/${m.showId}`} className="tap">
+                  Result
+                </Link>
+              )}
             </li>
           ))}
         </ul>

@@ -13,5 +13,5 @@ export {
   type ShowSetup,
 } from './shows.js';
 export type { Clock, EventStore, IdSource, RandomSource } from './ports.js';
-export { jsonlStore, memoryStore } from './eventLog.js';
+export { jsonlStore, memoryStore, redactLogs } from './eventLog.js';
 export { seasonOf } from './season.js';

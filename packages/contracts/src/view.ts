@@ -12,20 +12,14 @@ import { z } from 'zod';
 
 import { ArtifactSchema, PrizeSlotSchema } from './artifact.js';
 import { PresentationSchema } from './settings.js';
-import {
-  BadgeSchema,
-  RankSchema,
-  RevealStepSchema,
-  SeasonSchema,
-  ShowStateSchema,
-} from './show.js';
+import { RankSchema, RevealStepSchema, SeasonSchema, ShowStateSchema, StepSchema } from './show.js';
 
 export const CaseViewSchema = z.object({
   number: z.number().int().min(1),
   ownerId: z.string().nullable(),
   ownerName: z.string().nullable(),
-  // The owner's website step icons (website mode); empty otherwise.
-  ownerBadges: z.array(BadgeSchema),
+  // The owner's website steps (website mode); empty otherwise.
+  ownerSteps: z.array(StepSchema),
   ownerRank: RankSchema.nullable(),
   // From the "Open" step on the content is public and stays public (CONCEPT §3.4).
   opened: z.boolean(),
@@ -36,7 +30,7 @@ export type CaseView = z.infer<typeof CaseViewSchema>;
 export const ClaimantSchema = z.object({
   playerId: z.string(),
   name: z.string(),
-  badges: z.array(BadgeSchema),
+  steps: z.array(StepSchema),
   rank: RankSchema,
   // ISO time of the claim; with equal rank the earlier claim holds (CONCEPT §3.2).
   at: z.string(),

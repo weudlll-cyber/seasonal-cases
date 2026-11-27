@@ -4,10 +4,11 @@
  *         front with the lower third, the ceremony after the end, and the direction bar for the
  *         direction holder only (CONCEPT §3.4, §7).
  *
- * Responsibility: render the show's view; the stage is the same for everyone, and only the
+ * Responsibility: a `main` with a hidden heading (axe: one landmark, one h1); render the show's view; the stage is the same for everyone, and only the
  *                 direction holder gets the bar, "Begin" and clickable cases (once begun). The
  *                 screen scales down evenly where there is no room (the kit's `useFitScale`, the
- *                 cases' floors of `data-sk-game="cases"`) and keeps the dock's height free
+ *                 cases' floors of `data-sk-game="cases"`, fitted again once the show font has
+ *                 loaded: `afterFonts`) and keeps the dock's height free
  *                 (DECISIONS D7); the cases sit in a named scroll area that takes what does not
  *                 fit. On a phone the bar lives in the game bar's direction panel (`barInline`).
  *                 The applause count shows once someone claps, and the confetti grows with it.
@@ -128,12 +129,19 @@ function stageStyle(motion: ReturnType<typeof motionOf>, reserve: number): CSSPr
   return { ...motionVars(motion), '--dock-reserve': `${String(reserve)}px` } as CSSProperties;
 }
 
+/** The stage's evenly scaled fit; again once the show font has loaded (it changes the widths). */
+function useStageFit(caseCount: number, step: string) {
+  return useFitScale<HTMLElement>('cases', `${String(caseCount)}:${step}`, true, {
+    afterFonts: true,
+  });
+}
+
 export function Stage(props: StageProps) {
   const { show, organiser, me, direct, barInline = true, applause = null } = props;
   const reserve = useDockReserve();
   const cheer = useApplauseStep(applause);
   const { selected, step, begun } = show.live;
-  const fitRef = useFitScale<HTMLElement>('cases', `${String(show.caseCount)}:${step}`, true);
+  const fitRef = useStageFit(show.caseCount, step);
   // The bar exists only while the show is live: after the end only "See the result" stays.
   const holder = holderView(show, organiser, me);
   const spots = arcSpots(show.caseCount);
@@ -144,7 +152,7 @@ export function Stage(props: StageProps) {
   const arenaStyle = { '--token': `${String(tokenSize(show.caseCount))}px` } as CSSProperties;
   const opening = show.state === 'live' && !begun;
   return (
-    <section
+    <main
       className="stage-screen"
       data-sk-game="cases"
       data-step={step}
@@ -155,6 +163,7 @@ export function Stage(props: StageProps) {
       style={style}
       aria-label="Stage"
     >
+      <h1 className="sk-visually-hidden">Seasonal Cases: the stage</h1>
       <Scoreboard show={show} />
       <StateNote show={show} />
       <ApplauseCount applause={applause} />
@@ -184,6 +193,6 @@ export function Stage(props: StageProps) {
       {holder !== null && me !== null && begun && barInline && (
         <DirectionBar view={holder} me={me} direct={direct} />
       )}
-    </section>
+    </main>
   );
 }

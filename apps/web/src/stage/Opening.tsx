@@ -10,7 +10,7 @@
  *                 selected: the server refuses it, and the stage offers no click.
  * Depends on:     @sc/contracts, ../lib/useAction.js, ./ArtifactEmblem.js
  */
-import { prizeTitle, type Ack, type PublicShowView } from '@sc/contracts';
+import { counted, prizeTitle, type Ack, type PublicShowView } from '@sc/contracts';
 
 import { useAction } from '../lib/useAction.js';
 import { ArtifactEmblem } from './ArtifactEmblem.js';
@@ -27,7 +27,7 @@ export function Opening({ show, onBegin }: OpeningProps) {
     <section className="opening" aria-label="Opening">
       <h2 className="opening-title show-font">Seasonal Cases</h2>
       <p className="opening-facts">
-        {show.caseCount} cases · {show.winnerCount} prizes
+        {counted(show.caseCount, 'case')} · {counted(show.winnerCount, 'prize')}
       </p>
       <ul className="opening-table">
         {show.artifactTable.map((a) => {
@@ -43,7 +43,7 @@ export function Opening({ show, onBegin }: OpeningProps) {
       {onBegin !== undefined && (
         <button
           type="button"
-          className="button button-solid opening-begin"
+          className="sk-btn sk-btn--primary opening-begin"
           title="End the opening: from now on you can click a case"
           disabled={action.busy}
           onClick={() => {

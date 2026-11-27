@@ -115,7 +115,7 @@ describe('the forgotten password', () => {
     await expect.poll(() => box.sent.length).toBe(1);
     const mail = box.sent[0];
     expect(mail?.to).toBe('ada@example.org');
-    const token = /token=([\w-]+)/.exec(mail?.text ?? '')?.[1] ?? '';
+    const token = /#token=([\w-]+)/.exec(mail?.text ?? '')?.[1] ?? '';
     const next = 'another long secret';
     expect((await post(harness, '/api/auth/reset', { token, password: next })).statusCode).toBe(
       200,
@@ -175,6 +175,7 @@ describe('the admin area', () => {
       ...ada.me,
       role: 'player' as const,
       id: 'site-1',
+      steps: [],
       kind: 'website' as const,
       websiteOrigin: 'o',
       websiteUserId: '1',

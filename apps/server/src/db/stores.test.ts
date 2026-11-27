@@ -2,7 +2,8 @@
  * @file   apps/server/src/db/stores.test.ts
  * @brief  Tests the PostgreSQL stores against a real database: migrations, accounts, sessions,
  *         the feed cursor, the pending registrations, and the event log with its secrets
- *         encrypted at rest.
+ *         encrypted at rest; and what deleting an account removes (D61): the sign-in data, the
+ *         waiting registration, and the name in the event rows.
  *
  * Every test file works in a schema of its own (./testing.ts) and drops it at the end. The
  * database is SC_TEST_DATABASE_URL (CI's service container) or the development database.
@@ -42,11 +43,11 @@ afterAll(async () => {
   await dropSchema(schema);
 });
 
-function service(database: Database): ShowService {
+function service(database: Database, prefix = 'show'): ShowService {
   let n = 0;
   return createShowService({
     clock: { now: () => '2026-11-21T20:00:00.000Z' },
-    ids: { showId: () => `show-${String((n += 1))}` },
+    ids: { showId: () => `${prefix}-${String((n += 1))}` },
     random: { secure: () => seededRandom('secure'), seeded: seededRandom },
     store: database.stores.events,
   });
@@ -58,7 +59,13 @@ const ANA: Account = {
   name: 'Ana',
   role: 'organiser',
   rank: 3,
-  badges: ['/media/step-icons/0123456789abcdef0123456789abcdef.webp'],
+  steps: [
+    {
+      ladder: 'holder',
+      name: 'Golden',
+      icon: '/media/step-icons/0123456789abcdef0123456789abcdef.webp',
+    },
+  ],
   websiteOrigin: 'https://site.example',
   websiteUserId: '7',
   deleted: false,
@@ -250,5 +257,78 @@ describe('the two-factor store', () => {
     expect(await twoFactor.replaceRecovery('acc-t', [Buffer.alloc(32, 5)])).toBe(false);
     expect(await twoFactor.get('acc-t')).toBeUndefined();
     expect(await twoFactor.useRecovery('acc-t', [Buffer.alloc(32, 2)])).toBe(false);
+  });
+});
+
+describe('what deleting an account removes (D61)', () => {
+  it('takes the name out of the event rows, the sealed box and the commitment untouched', async () => {
+    const shows = service(db, 'erase');
+    const made = shows.quickTest(
+      { cases: 4, winners: 1, labels: [], seed: 'erase' },
+      { id: 'acc-erase', name: 'Erin Example' },
+    );
+    if (!made.ok) throw new Error(made.error);
+    await db.stores.events.flush();
+    const rows = async () =>
+      JSON.stringify(
+        (await db.pool.query('SELECT event FROM show_events WHERE show_id = $1', [made.model.id]))
+          .rows,
+      );
+    expect(await rows()).toContain('Erin Example');
+    expect(shows.forget('acc-erase', 'deleted player acc-er')).toBe(1);
+    await db.stores.events.flush();
+    expect(await rows()).not.toContain('Erin Example');
+    expect(await rows()).toContain('deleted player acc-er');
+    // Restart: the rebuilt show has the placeholder and the same commitment.
+    await db.close();
+    db = await reopen();
+    const events = db.stores.events.loadAll().get(made.model.id) ?? [];
+    const sealed = events.find((e) => e.type === 'sealed');
+    expect(sealed).toMatchObject({ commitment: made.model.sealing?.commitment });
+    if (sealed?.type !== 'sealed') throw new Error('no sealed event');
+    expect(verify(sealed.assignment, sealed.secret, sealed.commitment)).toBe(true);
+    expect(JSON.stringify(events)).not.toContain('Erin Example');
+  });
+
+  it('removes the sign-in data with its reset links, and the registration waiting for the e-mail', async () => {
+    const { accounts, credentials, pending } = db.stores;
+    await accounts.save({
+      ...ANA,
+      id: 'acc-gone',
+      kind: 'local',
+      websiteOrigin: null,
+      websiteUserId: null,
+    });
+    await credentials.create({
+      accountId: 'acc-gone',
+      nameKey: 'gone',
+      email: 'gone@example.org',
+      passwordHash: 'hash',
+    });
+    await credentials.addReset('reset-gone', 'acc-gone', Date.now() + 60_000);
+    const now = Date.now();
+    await pending.put({
+      tokenHash: 'p-gone',
+      email: 'gone@example.org',
+      name: 'Gone',
+      passwordHash: 'h',
+      expiresAt: now + 60_000,
+      mailedAt: now,
+    });
+    await credentials.removeAccount('acc-gone');
+    await pending.dropEmail('gone@example.org');
+    expect(await credentials.byAccount('acc-gone')).toBeUndefined();
+    expect(await credentials.byEmail('gone@example.org')).toBeUndefined();
+    expect(await credentials.takeReset('reset-gone', now)).toBeUndefined();
+    expect(await pending.byEmail('gone@example.org', now)).toBeUndefined();
+    // The name and the e-mail can be used again.
+    expect(
+      await credentials.create({
+        accountId: 'acc-gone',
+        nameKey: 'gone',
+        email: 'gone@example.org',
+        passwordHash: 'hash',
+      }),
+    ).toBe(true);
   });
 });
