@@ -1,6 +1,6 @@
 {
   "name": "@sc/web",
-  "version": "1.1.0-rc.6",
+  "version": "1.1.0-rc.7",
   "private": true,
   "license": "AGPL-3.0-or-later",
   "type": "module",
@@ -12,7 +12,7 @@
   "dependencies": {
     "@sc/contracts": "workspace:*",
     "@sc/ui": "workspace:*",
-    "@seasonal/kit": "github:weudlll-cyber/seasonal-kit#v0.38.0",
+    "@seasonal/kit": "github:weudlll-cyber/seasonal-kit#v0.39.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "socket.io-client": "4.8.4"
