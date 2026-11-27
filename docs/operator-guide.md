@@ -225,7 +225,7 @@ encrypted file into `/var/backups/seasonal-cases/prod` (`cases-prod-<UTC time>.t
 The 14 newest files are kept, and of older ones the newest of each of 8 weeks. Settings:
 `/etc/seasonal-cases/backup.conf` (root only). A failed backup shows in `sudo scases status` and in
 `sudo journalctl -u cases-backup@prod`. The script is the kit's `ops/backup.sh`
-([its docs/OPERATIONS.md](https://github.com/weudlll-cyber/seasonal-kit/blob/v0.39.1/docs/OPERATIONS.md)),
+([its docs/OPERATIONS.md](https://github.com/weudlll-cyber/seasonal-kit/blob/v0.40.0/docs/OPERATIONS.md)),
 copied out of the game's image to `/opt/seasonal-cases/kit`.
 
 **Back up now** (and see the next scheduled run):
