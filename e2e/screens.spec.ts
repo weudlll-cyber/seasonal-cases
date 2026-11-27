@@ -2,7 +2,7 @@
  * @file   e2e/screens.spec.ts
  * @brief  The pictures for the owner and the planning chat, and every screen's sweep: ten and
  *         more screens at 1536 × 768, 1280 × 720, 390 × 844, 375 × 667 and 360 × 780, light and
- *         dark, into .local/screens/sc-n14/ (never into git).
+ *         dark, into .local/screens/sc-n15/ (never into git).
  *
  * Responsibility: delete the topic's previous pictures, then shoot the sign-in (the start page
  *                 for a guest), the registration's pending page (its mail is deleted from
@@ -38,7 +38,7 @@ import {
 } from './helpers.js';
 import { ownFindings } from './measure.js';
 
-const DIR = fileURLToPath(new URL('../.local/screens/sc-n14/', import.meta.url));
+const DIR = fileURLToPath(new URL('../.local/screens/sc-n15/', import.meta.url));
 // The sizes of CONCEPT §7: two PCs and two phones, the smaller one the tightest for labels.
 const SIZES = [
   [1536, 768],

@@ -12,7 +12,7 @@
  *                 the folded menu, each named by its step. If the kit's chip cannot hold this and
  *                 neither props nor the game's CSS can fix it, this run fails and the finding goes
  *                 to the kit's planning chat; nothing is changed in the kit. Pictures go to
- *                 .local/screens/sc-n14/header-steps/ (never into git). Runs only as the project
+ *                 .local/screens/sc-n15/header-steps/ (never into git). Runs only as the project
  *                 `screens`.
  * Depends on:     @playwright/test, node:fs, ./helpers.ts, ./measure.ts, ./standIn.ts, ./stubShared.ts
  */
@@ -26,7 +26,7 @@ import { measure } from './measure.js';
 import { gameAt, startSite } from './standIn.js';
 import { LONG_NAME } from './stubShared.js';
 
-const DIR = fileURLToPath(new URL('../.local/screens/sc-n14/header-steps/', import.meta.url));
+const DIR = fileURLToPath(new URL('../.local/screens/sc-n15/header-steps/', import.meta.url));
 const SIZES = [
   [390, 844],
   [375, 667],
