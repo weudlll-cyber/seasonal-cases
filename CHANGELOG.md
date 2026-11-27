@@ -3,6 +3,15 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
+## 1.1.0-rc.7 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N15: kit v0.39.1 (DECISIONS D93).
+
+- **Accessibility:** every state of a page (signed out, loading, not found) stands in a landmark.
+- **Start page and "My matches":** the links to a result no longer lay over the line above them;
+  their rows are a little taller.
+- **Development and CI:** the database counts as ready only over TCP there too.
+
 ## 1.1.0-rc.6 (not tagged; the tag follows the merge with the owner's word)
 
 Branch `kit/v0.17-adoption`, night chain SC-N14: kit v0.38.0 (DECISIONS D89).

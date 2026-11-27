@@ -11,11 +11,13 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
 
 ## Where things stand
 
-- **Now (2026-11-27, night chain SC-N14):** `1.1.0-rc.6` on `kit/v0.17-adoption` (draft PR #5),
-  not merged, not tagged: the owner looks at it first. The kit is at v0.38.0 (D89): "Admin" in
+- **Now (2026-11-27, night chain SC-N15):** `1.1.0-rc.7` on `kit/v0.17-adoption` (draft PR #5),
+  not merged, not tagged: the owner looks at it first. The kit is at v0.39.1 (D93). What to open
+  is in [NIGHT-2026-11-27-kit-0.39.md](NIGHT-2026-11-27-kit-0.39.md).
+- **Night chain SC-N14 (2026-11-27):** `1.1.0-rc.6`, kit v0.38.0 (D89): "Admin" in
   the header for organisers and admins only (D90), the shared call in website mode (D91), the
-  way to the server behind Bingo Royale (D92). What to open is in
-  [NIGHT-2026-11-27-kit-0.38.md](NIGHT-2026-11-27-kit-0.38.md).
+  way to the server behind Bingo Royale (D92)
+  ([NIGHT-2026-11-27-kit-0.38.md](NIGHT-2026-11-27-kit-0.38.md)).
 - **Night chain SC-N13 (2026-11-26):** `1.1.0-rc.5`, kit v0.34.0 (D86–D88): the
   sign-in brake holds guesses sent at once, the kit's buttons, panels, fields and header looks,
   the keys in `prod.keys` which a backup carries
@@ -166,11 +168,12 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
   ([operator-guide.md](operator-guide.md), section 5, with the drills). **Needs the owner's
   hand on the VPS:** make the key on the own computer, give the installer the public key, pull the
   first backup and drill it.
-- **Kit:** `kit: pinned v0.38.0, newest v0.38.0, current` (`pnpm kit:check`,
-  2026-11-27, end of night chain SC-N14; master pins v0.11.1 until the merge). The pin moves only
+- **Kit:** `kit: pinned v0.39.1, newest v0.39.1, current` (`pnpm kit:check`,
+  2026-11-27, end of night chain SC-N15; master pins v0.11.1 until the merge). The pin moves only
   on the owner's word.
 - **Morning sheets:** the newest chain's is
-  [NIGHT-2026-11-27-kit-0.38.md](NIGHT-2026-11-27-kit-0.38.md), the ones before it
+  [NIGHT-2026-11-27-kit-0.39.md](NIGHT-2026-11-27-kit-0.39.md), the ones before it
+  [NIGHT-2026-11-27-kit-0.38.md](NIGHT-2026-11-27-kit-0.38.md),
   [NIGHT-2026-11-26-kit-0.34.md](NIGHT-2026-11-26-kit-0.34.md) and
   [NIGHT-2026-11-26-kit-0.32.md](NIGHT-2026-11-26-kit-0.32.md); earlier chains are in
   [NIGHT-RUN.md](NIGHT-RUN.md).
