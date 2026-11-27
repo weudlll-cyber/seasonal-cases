@@ -3,6 +3,16 @@
 What changed, by release. The commits behind each line are on the branch named; the night chains'
 reports are in [docs/NIGHT-RUN.md](docs/NIGHT-RUN.md).
 
+## 1.1.0-rc.8 (not tagged; the tag follows the merge with the owner's word)
+
+Branch `kit/v0.17-adoption`, night chain SC-N16: kit v0.40.0 (DECISIONS D94). Nothing players
+see changes in the game itself.
+
+- **Website-mode preview:** the kit's `sk-preview` shows the game in website mode on this PC
+  (README).
+- **Tests:** the browser tests' servers have no database; the two-factor journey no longer fails
+  when a code's 30 seconds turn at the wrong moment.
+
 ## 1.1.0-rc.7 (not tagged; the tag follows the merge with the owner's word)
 
 Branch `kit/v0.17-adoption`, night chain SC-N15: kit v0.39.1 (DECISIONS D93).

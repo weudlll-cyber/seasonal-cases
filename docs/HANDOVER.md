@@ -11,9 +11,13 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
 
 ## Where things stand
 
-- **Now (2026-11-27, night chain SC-N15):** `1.1.0-rc.7` on `kit/v0.17-adoption` (draft PR #5),
-  not merged, not tagged: the owner looks at it first. The kit is at v0.39.1 (D93). What to open
-  is in [NIGHT-2026-11-27-kit-0.39.md](NIGHT-2026-11-27-kit-0.39.md).
+- **Now (2026-11-27, night chain SC-N16):** `1.1.0-rc.8` on `kit/v0.17-adoption` (draft PR #5),
+  not merged, not tagged: the owner looks at it first. The kit is at v0.40.0 (D94) with its
+  rules about where a check may look and write; the development database was emptied (D95).
+  What to open, normal and website mode, is in
+  [NIGHT-2026-11-27-kit-0.40.md](NIGHT-2026-11-27-kit-0.40.md).
+- **Night chain SC-N15 (2026-11-27):** `1.1.0-rc.7`, kit v0.39.1 (D93)
+  ([NIGHT-2026-11-27-kit-0.39.md](NIGHT-2026-11-27-kit-0.39.md)).
 - **Night chain SC-N14 (2026-11-27):** `1.1.0-rc.6`, kit v0.38.0 (D89): "Admin" in
   the header for organisers and admins only (D90), the shared call in website mode (D91), the
   way to the server behind Bingo Royale (D92)
@@ -168,11 +172,12 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
   ([operator-guide.md](operator-guide.md), section 5, with the drills). **Needs the owner's
   hand on the VPS:** make the key on the own computer, give the installer the public key, pull the
   first backup and drill it.
-- **Kit:** `kit: pinned v0.39.1, newest v0.39.1, current` (`pnpm kit:check`,
-  2026-11-27, end of night chain SC-N15; master pins v0.11.1 until the merge). The pin moves only
+- **Kit:** `kit: pinned v0.40.0, newest v0.40.0, current` (`pnpm kit:check`,
+  2026-11-27, end of night chain SC-N16; master pins v0.11.1 until the merge). The pin moves only
   on the owner's word.
 - **Morning sheets:** the newest chain's is
-  [NIGHT-2026-11-27-kit-0.39.md](NIGHT-2026-11-27-kit-0.39.md), the ones before it
+  [NIGHT-2026-11-27-kit-0.40.md](NIGHT-2026-11-27-kit-0.40.md), the ones before it
+  [NIGHT-2026-11-27-kit-0.39.md](NIGHT-2026-11-27-kit-0.39.md),
   [NIGHT-2026-11-27-kit-0.38.md](NIGHT-2026-11-27-kit-0.38.md),
   [NIGHT-2026-11-26-kit-0.34.md](NIGHT-2026-11-26-kit-0.34.md) and
   [NIGHT-2026-11-26-kit-0.32.md](NIGHT-2026-11-26-kit-0.32.md); earlier chains are in
@@ -189,9 +194,11 @@ the cases: a click, then three steps (D19). [CONCEPT.md](CONCEPT.md) (its newest
   updates, rolls back, backs up, restores and uninstalls. CI job `deploy` tests both, job
   `image` the image.
 - `pnpm dev`: server 127.0.0.1:3970, client 0.0.0.0:5470 (http://localhost:5470; the phone at
-  http://192.168.0.66:5470 on the home Wi-Fi), on PostgreSQL; the development database holds
-  accounts the chains did not make, left as they are. Quick Test seed `sc-n1-01`. What is left
-  running after the newest chain is in its sheet.
+  http://192.168.0.66:5470 on the home Wi-Fi), on PostgreSQL. No test, sweep or measurement
+  writes its database (K125); it was emptied on 2026-11-27 (D95) and then given one ended show.
+  Quick Test seed `sc-n1-01`. What is left running after the newest chain is in its sheet.
+- The local website-mode preview (`sk-preview`, README) runs the game in website mode on a
+  database of its own.
 - The development services: `docker compose --env-file ops/compose.dev.env -f
 ops/compose.dev.yml up -d` (PostgreSQL 127.0.0.1:5570, Mailpit SMTP 1170, web
   http://localhost:8570); they restart by themselves. `pnpm dev:reset-db` empties the database.
